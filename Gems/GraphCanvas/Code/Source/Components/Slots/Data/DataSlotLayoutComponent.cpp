@@ -761,6 +761,7 @@ namespace GraphCanvas
 
             auto slotId = m_owner.GetEntityId();
             NodePropertyDisplay* nodePropertyDisplay = nullptr;
+            
             GraphModelRequestBus::EventResult(nodePropertyDisplay, sceneId, &GraphModelRequests::CreateDataSlotPropertyDisplay, typeId, nodeId, slotId);
 
             if (nodePropertyDisplay)
