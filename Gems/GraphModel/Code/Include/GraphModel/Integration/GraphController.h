@@ -203,7 +203,12 @@ namespace GraphModelIntegration
         void RemoveWrapperDropTarget(const GraphCanvas::NodeId& wrapperNode) override;
 
         ////////////////////////////////////////////////////////////////////////////////////
+
+    protected:
+        ////////////////////////////////////////////////////////////////////////////////////
         // GraphCanvas::GraphModelRequestBus, node properties
+        //
+        // Protected so subclasses can override and call base implementations.
 
         //! Creates a GraphCanvas::NodePropertyDisplay and a data interface for editing input values
         GraphCanvas::NodePropertyDisplay* CreateDataSlotPropertyDisplay(
@@ -213,10 +218,6 @@ namespace GraphModelIntegration
 
         //! Common implementation for CreateDataSlotPropertyDisplay and CreatePropertySlotPropertyDisplay
         GraphCanvas::NodePropertyDisplay* CreateSlotPropertyDisplay(GraphModel::SlotPtr inputSlot) const;
-
-        ////////////////////////////////////////////////////////////////////////////////////
-
-    protected:
         //! This class maps the association between our data model's GraphElements and Graph Camvas's UI elements
         class GraphElementMap
         {
