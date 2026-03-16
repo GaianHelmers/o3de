@@ -882,6 +882,11 @@ namespace GraphCanvas
         return m_constructPresetDefaults.FindPresetBucket(constructType);
     }
 
+    bool AssetEditorMainWindow::AllowDataReferenceSlots() const
+    {
+        return m_config ? m_config->m_allowDataReferenceSlots : false;
+    }
+
     void AssetEditorMainWindow::OnActiveGraphChanged(const GraphId& graphId)
     {
         m_activeGraphId = graphId;

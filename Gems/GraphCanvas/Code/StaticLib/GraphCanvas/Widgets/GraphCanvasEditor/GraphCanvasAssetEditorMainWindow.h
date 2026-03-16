@@ -70,6 +70,10 @@ namespace GraphCanvas
         /// Node Palette specific config parameters
         NodePaletteConfig m_nodePaletteConfig;
 
+        /// When true, data slots show "Convert to Reference" in their context menu,
+        /// enabling variable-reference binding on input slots.
+        bool m_allowDataReferenceSlots = false;
+
         /// Override this method so that a Node Palette dock panel and embedded node palettes in
         /// certain context menus can be populated on behalf of the client
         virtual GraphCanvasTreeItem* CreateNodePaletteRoot() = 0;
@@ -171,6 +175,7 @@ namespace GraphCanvas
         // AssetEditorSettingsRequestBus::Handler overrides
         EditorConstructPresets* GetConstructPresets() const override;
         const ConstructTypePresetBucket* GetConstructTypePresetBucket(ConstructType constructType) const override;
+        bool AllowDataReferenceSlots() const override;
         ////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////
