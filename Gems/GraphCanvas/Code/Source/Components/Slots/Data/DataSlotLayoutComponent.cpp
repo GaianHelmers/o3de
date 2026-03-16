@@ -761,7 +761,17 @@ namespace GraphCanvas
 
             auto slotId = m_owner.GetEntityId();
             NodePropertyDisplay* nodePropertyDisplay = nullptr;
-            GraphModelRequestBus::EventResult(nodePropertyDisplay, sceneId, &GraphModelRequests::CreateDataSlotPropertyDisplay, typeId, nodeId, slotId);
+
+            if (isReference)
+            {
+                // Reference slots show a variable-selection ComboBox
+                GraphModelRequestBus::EventResult(nodePropertyDisplay, sceneId, &GraphModelRequests::CreateDataSlotVariablePropertyDisplay, typeId, nodeId, slotId);
+            }
+            else
+            {
+                // Value slots show the standard inline property editor
+                GraphModelRequestBus::EventResult(nodePropertyDisplay, sceneId, &GraphModelRequests::CreateDataSlotPropertyDisplay, typeId, nodeId, slotId);
+            }
 
             if (nodePropertyDisplay)
             {
