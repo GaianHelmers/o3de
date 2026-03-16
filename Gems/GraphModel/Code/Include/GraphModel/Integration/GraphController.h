@@ -34,7 +34,7 @@ namespace GraphModelIntegration
 
     //! This is the main class for binding the node graph data to the UI provided by Graph Canvas
     class GraphController
-        : private GraphCanvas::GraphModelRequestBus::Handler
+        : protected GraphCanvas::GraphModelRequestBus::Handler
         , private GraphCanvas::SceneNotificationBus::Handler
         , public GraphCanvas::EntitySaveDataRequestBus::Router
         , public GraphControllerRequestBus::Handler
@@ -216,7 +216,7 @@ namespace GraphModelIntegration
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        
+    protected:
         //! This class maps the association between our data model's GraphElements and Graph Camvas's UI elements
         class GraphElementMap
         {
