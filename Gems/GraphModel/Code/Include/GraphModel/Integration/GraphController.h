@@ -190,14 +190,6 @@ namespace GraphModelIntegration
 
         void ResetSlotToDefaultValue(const GraphCanvas::Endpoint& endpoint) override;
 
-        /// Extendable slot handlers
-        void RemoveSlot(const GraphCanvas::Endpoint& endpoint) override;
-        bool IsSlotRemovable(const GraphCanvas::Endpoint& endpoint) const override;
-        GraphCanvas::SlotId RequestExtension(
-            const GraphCanvas::NodeId& nodeId,
-            const GraphCanvas::ExtenderId& extenderId,
-            GraphModelRequests::ExtensionRequestReason) override;
-
         bool ShouldWrapperAcceptDrop(const GraphCanvas::NodeId& wrapperNode, const QMimeData* mimeData) const override;
         void AddWrapperDropTarget(const GraphCanvas::NodeId& wrapperNode) override;
         void RemoveWrapperDropTarget(const GraphCanvas::NodeId& wrapperNode) override;
@@ -206,9 +198,17 @@ namespace GraphModelIntegration
 
     protected:
         ////////////////////////////////////////////////////////////////////////////////////
-        // GraphCanvas::GraphModelRequestBus, node properties
+        // GraphCanvas::GraphModelRequestBus, extendable slots & node properties
         //
         // Protected so subclasses can override and call base implementations.
+
+        /// Extendable slot handlers
+        void RemoveSlot(const GraphCanvas::Endpoint& endpoint) override;
+        bool IsSlotRemovable(const GraphCanvas::Endpoint& endpoint) const override;
+        GraphCanvas::SlotId RequestExtension(
+            const GraphCanvas::NodeId& nodeId,
+            const GraphCanvas::ExtenderId& extenderId,
+            GraphModelRequests::ExtensionRequestReason) override;
 
         //! Creates a GraphCanvas::NodePropertyDisplay and a data interface for editing input values
         GraphCanvas::NodePropertyDisplay* CreateDataSlotPropertyDisplay(
