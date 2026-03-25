@@ -93,6 +93,12 @@ namespace GraphCanvas
         virtual void HideUnusedSlots() = 0;
 
         virtual void SignalNodeAboutToBeDeleted() = 0;
+
+        //! Whether this node can be deleted by the user. Default true.
+        virtual bool IsDeletable() const { return true; }
+
+        //! Set whether this node can be deleted by the user.
+        virtual void SetDeletable(bool /*deletable*/) {}
     };
 
     using NodeRequestBus = AZ::EBus<NodeRequests>;

@@ -139,6 +139,9 @@ namespace GraphCanvas
         void HideUnusedSlots() override;
 
         void SignalNodeAboutToBeDeleted() override;
+
+        bool IsDeletable() const override { return m_isDeletable; }
+        void SetDeletable(bool deletable) override { m_isDeletable = deletable; }
         ////
 
         // ConnectionNotificationBus
@@ -175,5 +178,6 @@ namespace GraphCanvas
         AZStd::any m_userData;
 
         bool m_updateSlotState = false;
+        bool m_isDeletable = true;
     };
 }

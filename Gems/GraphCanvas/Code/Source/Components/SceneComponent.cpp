@@ -2903,6 +2903,14 @@ namespace GraphCanvas
 
         for (const auto& node : sceneMembers.m_nodes)
         {
+            // Skip nodes that are marked as non-deletable (entry points, permanent nodes, etc.)
+            bool deletable = true;
+            NodeRequestBus::EventResult(deletable, node, &NodeRequests::IsDeletable);
+            if (!deletable)
+            {
+                continue;
+            }
+
             NodeRequestBus::Event(node, &NodeRequests::SignalNodeAboutToBeDeleted);
 
             if (Remove(node))
