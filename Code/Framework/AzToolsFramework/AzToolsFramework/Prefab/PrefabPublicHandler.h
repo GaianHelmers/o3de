@@ -92,7 +92,8 @@ namespace AzToolsFramework
 
             InstanceOptionalReference GetOwnerInstanceByEntityId(AZ::EntityId entityId) const;
             void AddNewEntityToSortOrder(Instance& owningInstance, PrefabDom& domToAddEntityUnder,
-                const EntityAlias& parentEntityAlias, const EntityAlias& entityToAddAlias);
+                const EntityAlias& parentEntityAlias, const EntityAlias& entityToAddAlias,
+                const EntityAlias& insertAfterDuplicateAlias = EntityAlias());
 
             /**
              * Duplicate a list of entities owned by a common owning instance by directly

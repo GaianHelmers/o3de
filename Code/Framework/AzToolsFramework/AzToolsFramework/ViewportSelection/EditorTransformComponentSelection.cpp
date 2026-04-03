@@ -41,6 +41,7 @@
 #include <AzToolsFramework/Maths/TransformUtils.h>
 #include <AzToolsFramework/Prefab/PrefabFocusInterface.h>
 #include <AzToolsFramework/Prefab/PrefabFocusPublicInterface.h>
+#include <AzToolsFramework/Prefab/PrefabPublicInterface.h>
 #include <AzToolsFramework/ToolsComponents/EditorLockComponentBus.h>
 #include <AzToolsFramework/ToolsComponents/EditorVisibilityBus.h>
 #include <AzToolsFramework/ToolsComponents/TransformComponent.h>
@@ -157,6 +158,12 @@ namespace AzToolsFramework
     static const char* const SelectAllDesc = "Select all entities";
     static const char* const InvertSelectionTitle = "Invert Selection";
     static const char* const InvertSelectionDesc = "Invert the current entity selection";
+    static const char* const CopyTitle = "Copy";
+    static const char* const CopyDesc = "Copy selected entities to clipboard";
+    static const char* const PasteTitle = "Paste";
+    static const char* const PasteDesc = "Paste entities from clipboard";
+    static const char* const CutTitle = "Cut";
+    static const char* const CutDesc = "Cut selected entities to clipboard";
     static const char* const DuplicateTitle = "Duplicate";
     static const char* const DuplicateDesc = "Duplicate selected entities";
     static const char* const DeleteTitle = "Delete";
@@ -189,8 +196,19 @@ namespace AzToolsFramework
     static const char* const UnlockAllUndoRedoDesc = UnlockAllTitle;
     static const char* const SelectAllEntitiesUndoRedoDesc = SelectAllTitle;
     static const char* const InvertSelectionUndoRedoDesc = InvertSelectionTitle;
+    static const char* const CopyUndoRedoDesc = CopyTitle;
+    static const char* const PasteUndoRedoDesc = PasteTitle;
+    static const char* const CutUndoRedoDesc = CutTitle;
     static const char* const DuplicateUndoRedoDesc = DuplicateTitle;
     static const char* const DeleteUndoRedoDesc = DeleteTitle;
+
+    // =========================================================================
+    // Entity Clipboard
+    // Stores entity IDs for Copy/Cut operations. Paste uses DuplicateEntitiesInInstance
+    // to clone from the stored source entities, then optionally deletes originals for Cut.
+    // =========================================================================
+    static AzToolsFramework::EntityIdList s_entityClipboard;
+    static bool s_entityClipboardIsCut = false;
 
     static const char* const TransformModeClusterTranslateTooltip = "Switch to translate mode (1)";
     static const char* const TransformModeClusterRotateTooltip = "Switch to rotate mode (2)";
@@ -2283,6 +2301,216 @@ namespace AzToolsFramework
             return false;
         };
 
+        // =====================================================================
+        // Copy / Cut / Paste Entity Actions
+        // =====================================================================
+
+        // Copy
+        {
+            const AZStd::string_view actionIdentifier = "o3de.action.edit.copy";
+            AzToolsFramework::ActionProperties actionProperties;
+            actionProperties.m_name = CopyTitle;
+            actionProperties.m_description = CopyDesc;
+            actionProperties.m_category = "Edit";
+
+            actionManager->RegisterAction(
+                EditorIdentifiers::MainWindowActionContextIdentifier,
+                actionIdentifier,
+                actionProperties,
+                []()
+                {
+                    AzToolsFramework::EntityIdList selectedEntities;
+                    AzToolsFramework::ToolsApplicationRequests::Bus::BroadcastResult(
+                        selectedEntities, &AzToolsFramework::ToolsApplicationRequests::Bus::Events::GetSelectedEntities);
+
+                    if (!selectedEntities.empty())
+                    {
+                        s_entityClipboard = selectedEntities;
+                        s_entityClipboardIsCut = false;
+                    }
+                }
+            );
+
+            actionManager->InstallEnabledStateCallback(
+                actionIdentifier,
+                []() -> bool
+                {
+                    AzToolsFramework::EntityIdList selectedEntities;
+                    AzToolsFramework::ToolsApplicationRequests::Bus::BroadcastResult(
+                        selectedEntities, &AzToolsFramework::ToolsApplicationRequests::Bus::Events::GetSelectedEntities);
+                    return selectedEntities.size() > 0;
+                }
+            );
+
+            actionManager->AddActionToUpdater(EditorIdentifiers::EntitySelectionChangedUpdaterIdentifier, actionIdentifier);
+            actionManager->AssignModeToAction(DefaultActionContextModeIdentifier, actionIdentifier);
+            hotkeyManager->SetActionHotKey(actionIdentifier, "Ctrl+C");
+        }
+
+        // Cut
+        {
+            const AZStd::string_view actionIdentifier = "o3de.action.edit.cut";
+            AzToolsFramework::ActionProperties actionProperties;
+            actionProperties.m_name = CutTitle;
+            actionProperties.m_description = CutDesc;
+            actionProperties.m_category = "Edit";
+
+            actionManager->RegisterAction(
+                EditorIdentifiers::MainWindowActionContextIdentifier,
+                actionIdentifier,
+                actionProperties,
+                []()
+                {
+                    auto readOnlyEntityPublicInterface = AZ::Interface<AzToolsFramework::ReadOnlyEntityPublicInterface>::Get();
+
+                    AzToolsFramework::EntityIdList selectedEntities;
+                    AzToolsFramework::ToolsApplicationRequests::Bus::BroadcastResult(
+                        selectedEntities, &AzToolsFramework::ToolsApplicationRequests::Bus::Events::GetSelectedEntities);
+
+                    if (selectedEntities.empty())
+                    {
+                        return;
+                    }
+
+                    // Don't allow cut if any selected entities are children of read-only entities
+                    if (readOnlyEntityPublicInterface)
+                    {
+                        for (const auto& entityId : selectedEntities)
+                        {
+                            AZ::EntityId parentEntityId;
+                            AZ::TransformBus::EventResult(parentEntityId, entityId, &AZ::TransformBus::Events::GetParentId);
+                            if (parentEntityId.IsValid() && readOnlyEntityPublicInterface->IsReadOnly(parentEntityId))
+                            {
+                                return;
+                            }
+                        }
+                    }
+
+                    s_entityClipboard = selectedEntities;
+                    s_entityClipboardIsCut = true;
+                }
+            );
+
+            actionManager->InstallEnabledStateCallback(
+                actionIdentifier,
+                []() -> bool
+                {
+                    auto readOnlyEntityPublicInterface = AZ::Interface<AzToolsFramework::ReadOnlyEntityPublicInterface>::Get();
+
+                    AzToolsFramework::EntityIdList selectedEntities;
+                    AzToolsFramework::ToolsApplicationRequests::Bus::BroadcastResult(
+                        selectedEntities, &AzToolsFramework::ToolsApplicationRequests::Bus::Events::GetSelectedEntities);
+
+                    if (selectedEntities.empty())
+                    {
+                        return false;
+                    }
+
+                    if (readOnlyEntityPublicInterface)
+                    {
+                        for (const auto& entityId : selectedEntities)
+                        {
+                            AZ::EntityId parentEntityId;
+                            AZ::TransformBus::EventResult(parentEntityId, entityId, &AZ::TransformBus::Events::GetParentId);
+                            if (parentEntityId.IsValid() && readOnlyEntityPublicInterface->IsReadOnly(parentEntityId))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            );
+
+            actionManager->AddActionToUpdater(EditorIdentifiers::EntitySelectionChangedUpdaterIdentifier, actionIdentifier);
+            actionManager->AssignModeToAction(DefaultActionContextModeIdentifier, actionIdentifier);
+            hotkeyManager->SetActionHotKey(actionIdentifier, "Ctrl+X");
+        }
+
+        // Paste
+        {
+            const AZStd::string_view actionIdentifier = "o3de.action.edit.paste";
+            AzToolsFramework::ActionProperties actionProperties;
+            actionProperties.m_name = PasteTitle;
+            actionProperties.m_description = PasteDesc;
+            actionProperties.m_category = "Edit";
+
+            actionManager->RegisterAction(
+                EditorIdentifiers::MainWindowActionContextIdentifier,
+                actionIdentifier,
+                actionProperties,
+                []()
+                {
+                    if (s_entityClipboard.empty())
+                    {
+                        return;
+                    }
+
+                    // Validate that clipboard entities still exist
+                    AzToolsFramework::EntityIdList validClipboardEntities;
+                    for (const auto& entityId : s_entityClipboard)
+                    {
+                        AZ::Entity* entity = nullptr;
+                        AZ::ComponentApplicationBus::BroadcastResult(entity, &AZ::ComponentApplicationRequests::FindEntity, entityId);
+                        if (entity)
+                        {
+                            validClipboardEntities.push_back(entityId);
+                        }
+                    }
+
+                    if (validClipboardEntities.empty())
+                    {
+                        s_entityClipboard.clear();
+                        return;
+                    }
+
+                    AZ_PROFILE_FUNCTION(AzToolsFramework);
+
+                    ScopedUndoBatch undoBatch(PasteUndoRedoDesc);
+
+                    // Select the source entities so CloneSelection can duplicate them
+                    AzToolsFramework::ToolsApplicationRequests::Bus::Broadcast(
+                        &AzToolsFramework::ToolsApplicationRequests::SetSelectedEntities, validClipboardEntities);
+
+                    bool handled = false;
+                    EditorRequestBus::Broadcast(&EditorRequests::CloneSelection, handled);
+
+                    // If this was a cut operation, delete the original entities after cloning
+                    if (s_entityClipboardIsCut)
+                    {
+                        // The originals are in validClipboardEntities; the clones are now selected
+                        AzToolsFramework::EntityIdList clonedEntities;
+                        AzToolsFramework::ToolsApplicationRequests::Bus::BroadcastResult(
+                            clonedEntities, &AzToolsFramework::ToolsApplicationRequests::Bus::Events::GetSelectedEntities);
+
+                        ToolsApplicationRequestBus::Broadcast(
+                            &ToolsApplicationRequests::DeleteEntitiesAndAllDescendants, validClipboardEntities);
+
+                        // Re-select the cloned entities
+                        AzToolsFramework::ToolsApplicationRequests::Bus::Broadcast(
+                            &AzToolsFramework::ToolsApplicationRequests::SetSelectedEntities, clonedEntities);
+
+                        // Clear the clipboard after a cut-paste (one-shot operation)
+                        s_entityClipboard.clear();
+                        s_entityClipboardIsCut = false;
+                    }
+                }
+            );
+
+            actionManager->InstallEnabledStateCallback(
+                actionIdentifier,
+                []() -> bool
+                {
+                    return !s_entityClipboard.empty();
+                }
+            );
+
+            actionManager->AddActionToUpdater(EditorIdentifiers::EntitySelectionChangedUpdaterIdentifier, actionIdentifier);
+            actionManager->AssignModeToAction(DefaultActionContextModeIdentifier, actionIdentifier);
+            hotkeyManager->SetActionHotKey(actionIdentifier, "Ctrl+V");
+        }
+
         // Duplicate
         {
             const AZStd::string_view actionIdentifier = "o3de.action.edit.duplicate";
@@ -3203,6 +3431,9 @@ namespace AzToolsFramework
     void EditorTransformComponentSelection::OnMenuBindingHook()
     {
         // Edit Menu
+        m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EditMenuIdentifier, "o3de.action.edit.copy", 250);
+        m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EditMenuIdentifier, "o3de.action.edit.cut", 260);
+        m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EditMenuIdentifier, "o3de.action.edit.paste", 270);
         m_menuManagerInterface->AddSeparatorToMenu(EditorIdentifiers::EditMenuIdentifier, 300);
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EditMenuIdentifier, "o3de.action.edit.duplicate", 400);
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EditMenuIdentifier, "o3de.action.edit.delete", 500);
@@ -3226,6 +3457,9 @@ namespace AzToolsFramework
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EditModifyModesMenuIdentifier, "o3de.action.edit.transform.scale", 300);
 
         // Entity Outliner Context Menu
+        m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EntityOutlinerContextMenuIdentifier, "o3de.action.edit.copy", 39100);
+        m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EntityOutlinerContextMenuIdentifier, "o3de.action.edit.cut", 39200);
+        m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EntityOutlinerContextMenuIdentifier, "o3de.action.edit.paste", 39300);
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EntityOutlinerContextMenuIdentifier, "o3de.action.edit.duplicate", 40100);
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EntityOutlinerContextMenuIdentifier, "o3de.action.edit.delete", 40200);
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EntityOutlinerContextMenuIdentifier, "o3de.action.edit.togglePivot", 60200);
@@ -3233,6 +3467,9 @@ namespace AzToolsFramework
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::EntityOutlinerContextMenuIdentifier, "o3de.action.entitySorting.moveDown", 70300);
 
         // Viewport Context Menu
+        m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::ViewportContextMenuIdentifier, "o3de.action.edit.copy", 39100);
+        m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::ViewportContextMenuIdentifier, "o3de.action.edit.cut", 39200);
+        m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::ViewportContextMenuIdentifier, "o3de.action.edit.paste", 39300);
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::ViewportContextMenuIdentifier, "o3de.action.edit.duplicate", 40100);
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::ViewportContextMenuIdentifier, "o3de.action.edit.delete", 40200);
         m_menuManagerInterface->AddActionToMenu(EditorIdentifiers::ViewportContextMenuIdentifier, "o3de.action.edit.togglePivot", 60200);

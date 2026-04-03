@@ -1299,6 +1299,33 @@ namespace AzToolsFramework
                     return AZ::Failure(retrieveEntitiesAndInstancesOutcome.TakeError());
                 }
 
+                // Sort entities by their position in their parent's sort order so that
+                // duplicates are created in the same relative order as the originals
+                AZStd::sort(entities.begin(), entities.end(),
+                    [](const AZ::Entity* a, const AZ::Entity* b)
+                    {
+                        AZ::EntityId parentA;
+                        EditorEntityInfoRequestBus::EventResult(
+                            parentA, a->GetId(), &EditorEntityInfoRequests::GetParent);
+                        AZ::EntityId parentB;
+                        EditorEntityInfoRequestBus::EventResult(
+                            parentB, b->GetId(), &EditorEntityInfoRequests::GetParent);
+
+                        // Group by parent first, then sort by index within the same parent
+                        if (parentA != parentB)
+                        {
+                            return parentA < parentB;
+                        }
+
+                        AZ::u64 indexA = AZStd::numeric_limits<AZ::u64>::max();
+                        EditorEntitySortRequestBus::EventResult(
+                            indexA, parentA, &EditorEntitySortRequests::GetChildEntityIndex, a->GetId());
+                        AZ::u64 indexB = AZStd::numeric_limits<AZ::u64>::max();
+                        EditorEntitySortRequestBus::EventResult(
+                            indexB, parentB, &EditorEntitySortRequests::GetChildEntityIndex, b->GetId());
+                        return indexA < indexB;
+                    });
+
                 // Take a snapshot of the instance DOM before we manipulate it
                 PrefabDom instanceDomBefore;
                 m_instanceToTemplateInterface->GenerateInstanceDomBySerializing(instanceDomBefore, commonOwningInstance->get());
@@ -2119,7 +2146,8 @@ namespace AzToolsFramework
             Instance& owningInstance,
             PrefabDom& domToAddEntityUnder,
             const EntityAlias& parentEntityAlias,
-            const EntityAlias& entityToAddAlias)
+            const EntityAlias& entityToAddAlias,
+            const EntityAlias& insertAfterDuplicateAlias)
         {
                         // Find the parent entity to get its sort order component
             auto findParentEntity = [&]() -> rapidjson::Value*
@@ -2154,21 +2182,10 @@ namespace AzToolsFramework
                 return;
             }
 
-            // Get the list of selected entities, we'll insert our duplicated entities after the last selected
-            // sibling in their parent's list, e.g. for:
-            // - Entity1
-            // - Entity2 (selected)
-            // - Entity3
-            // - Entity4 (selected)
-            // - Entity5
-            // Our duplicate selection command would create duplicate Entity2 and Entity4 and insert them after Entity4:
-            // - Entity1
-            // - Entity2
-            // - Entity3
-            // - Entity4
-            // - Entity2 (new, selected after duplicate)
-            // - Entity4 (new, selected after duplicate)
-            // - Entity5
+            // Insert our duplicated entity into the parent's sort order.
+            // When a previous duplicate alias is provided, insert after that duplicate to preserve
+            // the original selection order (e.g. select 1,3,5 → duplicates appear as 1copy,3copy,5copy).
+            // Otherwise, insert after the last selected entity in the sort order.
             AzToolsFramework::EntityIdList selectedEntities;
             AzToolsFramework::ToolsApplicationRequestBus::BroadcastResult(
                 selectedEntities, &AzToolsFramework::ToolsApplicationRequests::GetSelectedEntities);
@@ -2206,7 +2223,8 @@ namespace AzToolsFramework
                     continue;
                 }
 
-                // Scan for the last selected entity in the list (if any) to determine where to add our entries
+                // Scan for the insertion point: either after the previously inserted duplicate
+                // (to chain duplicates in order), or after the last selected entity
                 rapidjson::Value newOrder(rapidjson::kArrayType);
                 auto insertValuesAfter = orderMembersIter->value.End();
                 for (auto orderMemberIter = orderMembersIter->value.Begin(); orderMemberIter != orderMembersIter->value.End();
@@ -2217,6 +2235,15 @@ namespace AzToolsFramework
                         continue;
                     }
                     const char* value = orderMemberIter->GetString();
+
+                    // If we have a previously inserted duplicate, insert after it to preserve order
+                    if (!insertAfterDuplicateAlias.empty() && insertAfterDuplicateAlias == value)
+                    {
+                        insertValuesAfter = orderMemberIter;
+                        break;
+                    }
+
+                    // Otherwise fall back to inserting after the last selected entity
                     for (AZ::EntityId selectedEntity : selectedEntities)
                     {
                         auto alias = owningInstance.GetEntityAlias(selectedEntity);
@@ -2262,7 +2289,9 @@ namespace AzToolsFramework
                 return;
             }
 
-            AZStd::unordered_map<EntityAlias, QString> aliasToEntityDomMap;
+            // Use a vector to preserve the insertion order (matching the input entity order)
+            // so that duplicates appear in the same relative order as the originals
+            AZStd::vector<AZStd::pair<EntityAlias, QString>> aliasToEntityDomList;
 
             for (AZ::Entity* entity : entities)
             {
@@ -2288,7 +2317,7 @@ namespace AzToolsFramework
                 // so that we can fixup entity alias references before adding it
                 // to the Entities member of our instance DOM
                 QString entityDomString(buffer.GetString());
-                aliasToEntityDomMap.emplace(newEntityAlias, entityDomString);
+                aliasToEntityDomList.emplace_back(newEntityAlias, entityDomString);
             }
 
             auto entitiesIter = domToAddDuplicatedEntitiesUnder.FindMember(PrefabDomUtils::EntitiesName);
@@ -2298,7 +2327,9 @@ namespace AzToolsFramework
             // through them and replace any previous EntityAlias references with the new ones.
             // These are more than just parent entity references for nested entities, this will
             // also cover any EntityId references that were made in the components between them.
-            for (auto [newEntityAlias, newEntityDomString] : aliasToEntityDomMap)
+            // Track the last inserted alias per parent so duplicates chain in order
+            AZStd::unordered_map<EntityAlias, EntityAlias> lastInsertedPerParent;
+            for (auto& [newEntityAlias, newEntityDomString] : aliasToEntityDomList)
             {
                 // Replace all of the old alias references with the new ones
                 for (auto [oldAlias, newAlias] : oldAliasToNewAliasMap)
@@ -2371,21 +2402,29 @@ namespace AzToolsFramework
                     }
                 }
 
-                // Insert our entity into its parent's sort order
+                // Insert our entity into its parent's sort order, chaining after the previous duplicate
                 if (!parentEntityAlias.empty())
                 {
-                    AddNewEntityToSortOrder(commonOwningInstance, domToAddDuplicatedEntitiesUnder, parentEntityAlias, newEntityAlias);
-                                    }
+                    EntityAlias previousDuplicate;
+                    auto lastInsertedIt = lastInsertedPerParent.find(parentEntityAlias);
+                    if (lastInsertedIt != lastInsertedPerParent.end())
+                    {
+                        previousDuplicate = lastInsertedIt->second;
+                    }
+                    AddNewEntityToSortOrder(
+                        commonOwningInstance, domToAddDuplicatedEntitiesUnder,
+                        parentEntityAlias, newEntityAlias, previousDuplicate);
+                    lastInsertedPerParent[parentEntityAlias] = newEntityAlias;
+                }
 
                 // Add the new Entity DOM to the Entities member of the instance
                 rapidjson::Value aliasName(newEntityAlias.c_str(), static_cast<rapidjson::SizeType>(newEntityAlias.length()), domToAddDuplicatedEntitiesUnder.GetAllocator());
                 entitiesIter->value.AddMember(AZStd::move(aliasName), entityDomAfter, domToAddDuplicatedEntitiesUnder.GetAllocator());
             }
 
-            for (auto aliasMapIter : oldAliasToNewAliasMap)
+            // Build duplicated entity IDs in the same order they were processed (matching original order)
+            for (const auto& [newEntityAlias, entityDomString] : aliasToEntityDomList)
             {
-                EntityAlias newEntityAlias = aliasMapIter.second;
-
                 AliasPath absoluteEntityPath = commonOwningInstance.GetAbsoluteInstanceAliasPath();
                 absoluteEntityPath.Append(newEntityAlias);
 
