@@ -221,6 +221,8 @@ namespace GraphCanvas
         Styling::StyleHelper m_style;
         QPen m_pen;
 
+        QPolygonF m_arrowHead; // Arrowhead polygon for Perimeter connections
+
         AZStd::chrono::milliseconds m_lastUpdate;
         double m_offset;
 

@@ -887,6 +887,11 @@ namespace GraphCanvas
         return m_config ? m_config->m_allowDataReferenceSlots : false;
     }
 
+    Styling::ConnectionCurveType AssetEditorMainWindow::GetConnectionCurveType() const
+    {
+        return m_config ? m_config->m_connectionCurveType : Styling::ConnectionCurveType::Straight;
+    }
+
     void AssetEditorMainWindow::OnActiveGraphChanged(const GraphId& graphId)
     {
         m_activeGraphId = graphId;

@@ -415,6 +415,88 @@ namespace GraphCanvas
                 path.cubicTo({ offsetEnd.x(), heightOffset }, offsetEnd, end);
             }
         }
+        //////////////////////////////////////////////////////////////////////////
+        // Perimeter — straight arrow between nearest edges of source/target nodes
+        //////////////////////////////////////////////////////////////////////////
+        else if (m_curveType == Styling::ConnectionCurveType::Perimeter)
+        {
+            m_arrowHead.clear();
+
+            // Get source and target node entity IDs (already computed above for loopback check)
+            AZ::EntityId sourceNode;
+            SlotRequestBus::EventResult(sourceNode, sourceId, &SlotRequestBus::Events::GetNode);
+            AZ::EntityId targetNode;
+            SlotRequestBus::EventResult(targetNode, targetId, &SlotRequestBus::Events::GetNode);
+
+            // Get scene bounding rects for both nodes
+            QRectF sourceRect;
+            QRectF targetRect;
+
+            QGraphicsItem* sourceVisual = nullptr;
+            SceneMemberUIRequestBus::EventResult(sourceVisual, sourceNode, &SceneMemberUIRequests::GetRootGraphicsItem);
+            if (sourceVisual)
+            {
+                sourceRect = sourceVisual->sceneBoundingRect();
+            }
+
+            QGraphicsItem* targetVisual = nullptr;
+            SceneMemberUIRequestBus::EventResult(targetVisual, targetNode, &SceneMemberUIRequests::GetRootGraphicsItem);
+            if (targetVisual)
+            {
+                targetRect = targetVisual->sceneBoundingRect();
+            }
+
+            // Compute center points of each node
+            QPointF sourceCenter = sourceRect.center();
+            QPointF targetCenter = targetRect.center();
+
+            // Direction from source center to target center
+            QPointF direction = targetCenter - sourceCenter;
+            qreal dirLen = qSqrt(direction.x() * direction.x() + direction.y() * direction.y());
+
+            if (dirLen > 0.001 && !sourceRect.isNull() && !targetRect.isNull())
+            {
+                // --- Ray-rect intersection: find where the line exits the source rect ---
+                qreal halfW = sourceRect.width() * 0.5;
+                qreal halfH = sourceRect.height() * 0.5;
+                qreal tx = (qFabs(direction.x()) > 0.0001) ? halfW / qFabs(direction.x()) : 1e9;
+                qreal ty = (qFabs(direction.y()) > 0.0001) ? halfH / qFabs(direction.y()) : 1e9;
+                qreal tSource = qMin(tx, ty);
+                QPointF perimeterStart = sourceCenter + direction * tSource;
+
+                // --- Ray-rect intersection: find where the line enters the target rect ---
+                // Direction is reversed (target center toward source center)
+                QPointF revDir = sourceCenter - targetCenter;
+                halfW = targetRect.width() * 0.5;
+                halfH = targetRect.height() * 0.5;
+                tx = (qFabs(revDir.x()) > 0.0001) ? halfW / qFabs(revDir.x()) : 1e9;
+                ty = (qFabs(revDir.y()) > 0.0001) ? halfH / qFabs(revDir.y()) : 1e9;
+                qreal tTarget = qMin(tx, ty);
+                QPointF perimeterEnd = targetCenter + revDir * tTarget;
+
+                // --- Arrowhead geometry ---
+                constexpr qreal arrowSize = 10.0;
+                QPointF unitDir = direction / dirLen;
+                // Pull the line end back by the arrow length so the arrow tip sits at the perimeter
+                QPointF lineEnd = perimeterEnd - unitDir * arrowSize;
+
+                // Perpendicular vector for arrowhead wings
+                QPointF perp(-unitDir.y(), unitDir.x());
+                m_arrowHead.clear();
+                m_arrowHead << perimeterEnd
+                            << (lineEnd + perp * arrowSize * 0.5)
+                            << (lineEnd - perp * arrowSize * 0.5);
+
+                // Build the path: straight line from source perimeter to arrow base
+                path = QPainterPath(perimeterStart);
+                path.lineTo(lineEnd);
+            }
+            else
+            {
+                // Degenerate case: nodes overlap or zero direction — just draw slot-to-slot
+                path.lineTo(end);
+            }
+        }
         else
         {
             float connectionJut = m_style.GetAttribute(Styling::Attribute::ConnectionJut, 0.0f);
@@ -680,6 +762,16 @@ namespace GraphCanvas
         else
         {
             QGraphicsPathItem::paint(painter, option, widget);
+        }
+
+        // Draw arrowhead for Perimeter connections
+        if (m_curveType == Styling::ConnectionCurveType::Perimeter && m_arrowHead.size() == 3)
+        {
+            painter->save();
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(m_pen.color());
+            painter->drawPolygon(m_arrowHead);
+            painter->restore();
         }
     }
 

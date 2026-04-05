@@ -74,6 +74,9 @@ namespace GraphCanvas
         /// enabling variable-reference binding on input slots.
         bool m_allowDataReferenceSlots = false;
 
+        /// Connection curve type for this editor (default: Straight).
+        Styling::ConnectionCurveType m_connectionCurveType = Styling::ConnectionCurveType::Straight;
+
         /// Override this method so that a Node Palette dock panel and embedded node palettes in
         /// certain context menus can be populated on behalf of the client
         virtual GraphCanvasTreeItem* CreateNodePaletteRoot() = 0;
@@ -89,17 +92,17 @@ namespace GraphCanvas
         Q_OBJECT // AUTOMOC
     public:
         AZ_CLASS_ALLOCATOR(AssetEditorMainWindow, AZ::SystemAllocator);
-        
+
         explicit AssetEditorMainWindow(AssetEditorWindowConfig* config, QWidget* parent = nullptr);
         virtual ~AssetEditorMainWindow();
-        
+
         void SetupUI();
-        void SetDropAreaText(AZStd::string_view text);        
+        void SetDropAreaText(AZStd::string_view text);
 
         const EditorId& GetEditorId() const;
 
         GraphCanvas::GraphId GetActiveGraphCanvasGraphId() const;
-        
+
     protected:
         void closeEvent(QCloseEvent* event) override;
 
@@ -176,6 +179,7 @@ namespace GraphCanvas
         EditorConstructPresets* GetConstructPresets() const override;
         const ConstructTypePresetBucket* GetConstructTypePresetBucket(ConstructType constructType) const override;
         bool AllowDataReferenceSlots() const override;
+        Styling::ConnectionCurveType GetConnectionCurveType() const override;
         ////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////
@@ -193,7 +197,7 @@ namespace GraphCanvas
 
         NodePaletteDockWidget* m_nodePalette = nullptr;
         BookmarkDockWidget* m_bookmarkDockWidget = nullptr;
-        
+
         SceneContextMenu* m_sceneContextMenu = nullptr;
         EditorContextMenu* m_createNodeProposalContextMenu = nullptr;
 
@@ -204,7 +208,7 @@ namespace GraphCanvas
         QAction* m_deleteSelectedAction = nullptr;
 
         EditorConstructPresets m_constructPresetDefaults;
-        
+
     private:
         void SetDefaultLayout();
 

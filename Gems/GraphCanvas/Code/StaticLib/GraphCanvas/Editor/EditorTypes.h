@@ -39,7 +39,8 @@ namespace GraphCanvas
         enum class ConnectionCurveType : AZ::u32
         {
             Straight,
-            Curved
+            Curved,
+            Perimeter   // Node-perimeter-to-perimeter: straight arrow between nearest edges of source/target nodes
         };
     }
 
