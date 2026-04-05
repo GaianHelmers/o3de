@@ -16,7 +16,9 @@
 
 #include <Components/Connections/ConnectionVisualComponent.h>
 
+#include <GraphCanvas/Components/Connections/ConnectionBus.h>
 #include <GraphCanvas/Components/GeometryBus.h>
+#include <GraphCanvas/Components/Nodes/NodeBus.h>
 #include <GraphCanvas/Components/Slots/SlotBus.h>
 #include <GraphCanvas/Components/VisualBus.h>
 #include <GraphCanvas/Editor/GraphCanvasProfiler.h>
@@ -474,14 +476,105 @@ namespace GraphCanvas
                 qreal tTarget = qMin(tx, ty);
                 QPointF perimeterEnd = targetCenter + revDir * tTarget;
 
+                // --- Bidirectional offset: separate overlapping connections between same node pair ---
+                constexpr qreal offsetSpacing = 12.0;
+                QPointF unitDir = direction / dirLen;
+                QPointF perp(-unitDir.y(), unitDir.x());
+
+                // Canonical node pair key (order-independent) for grouping sibling connections
+                AZ::EntityId nodeA = (sourceNode < targetNode) ? sourceNode : targetNode;
+                AZ::EntityId nodeB = (sourceNode < targetNode) ? targetNode : sourceNode;
+
+                // Count all connections between this same pair of nodes (either direction)
+                int siblingCount = 0;
+                int myIndex = 0;
+                AZ::EntityId myConnectionId = GetConnectionEntityId();
+
+                // Query all slots on the source node
+                AZStd::vector<AZ::EntityId> sourceSlots;
+                NodeRequestBus::EventResult(sourceSlots, sourceNode, &NodeRequestBus::Events::GetSlotIds);
+
+                AZStd::vector<AZ::EntityId> allSiblingConnections;
+                for (const auto& slotEntityId : sourceSlots)
+                {
+                    AZStd::vector<AZ::EntityId> slotConnections;
+                    SlotRequestBus::EventResult(slotConnections, slotEntityId, &SlotRequestBus::Events::GetConnections);
+                    for (const auto& connId : slotConnections)
+                    {
+                        AZ::EntityId connSource;
+                        AZ::EntityId connTarget;
+                        ConnectionRequestBus::EventResult(connSource, connId, &ConnectionRequests::GetSourceNodeId);
+                        ConnectionRequestBus::EventResult(connTarget, connId, &ConnectionRequests::GetTargetNodeId);
+
+                        // Check if this connection is between the same node pair
+                        AZ::EntityId cA = (connSource < connTarget) ? connSource : connTarget;
+                        AZ::EntityId cB = (connSource < connTarget) ? connTarget : connSource;
+                        if (cA == nodeA && cB == nodeB)
+                        {
+                            allSiblingConnections.push_back(connId);
+                        }
+                    }
+                }
+
+                // Also query target node's slots (catches reverse-direction connections)
+                AZStd::vector<AZ::EntityId> targetSlots;
+                NodeRequestBus::EventResult(targetSlots, targetNode, &NodeRequestBus::Events::GetSlotIds);
+                for (const auto& slotEntityId : targetSlots)
+                {
+                    AZStd::vector<AZ::EntityId> slotConnections;
+                    SlotRequestBus::EventResult(slotConnections, slotEntityId, &SlotRequestBus::Events::GetConnections);
+                    for (const auto& connId : slotConnections)
+                    {
+                        AZ::EntityId connSource;
+                        AZ::EntityId connTarget;
+                        ConnectionRequestBus::EventResult(connSource, connId, &ConnectionRequests::GetSourceNodeId);
+                        ConnectionRequestBus::EventResult(connTarget, connId, &ConnectionRequests::GetTargetNodeId);
+
+                        AZ::EntityId cA = (connSource < connTarget) ? connSource : connTarget;
+                        AZ::EntityId cB = (connSource < connTarget) ? connTarget : connSource;
+                        if (cA == nodeA && cB == nodeB)
+                        {
+                            // Avoid duplicates (connections already found via source node)
+                            bool alreadyFound = false;
+                            for (const auto& existing : allSiblingConnections)
+                            {
+                                if (existing == connId)
+                                {
+                                    alreadyFound = true;
+                                    break;
+                                }
+                            }
+                            if (!alreadyFound)
+                            {
+                                allSiblingConnections.push_back(connId);
+                            }
+                        }
+                    }
+                }
+
+                siblingCount = static_cast<int>(allSiblingConnections.size());
+                for (int i = 0; i < siblingCount; ++i)
+                {
+                    if (allSiblingConnections[i] == myConnectionId)
+                    {
+                        myIndex = i;
+                        break;
+                    }
+                }
+
+                // Apply perpendicular offset if there are multiple connections
+                if (siblingCount > 1)
+                {
+                    qreal offset = (myIndex - (siblingCount - 1) * 0.5) * offsetSpacing;
+                    perimeterStart += perp * offset;
+                    perimeterEnd += perp * offset;
+                }
+
                 // --- Arrowhead geometry ---
                 constexpr qreal arrowSize = 10.0;
-                QPointF unitDir = direction / dirLen;
                 // Pull the line end back by the arrow length so the arrow tip sits at the perimeter
                 QPointF lineEnd = perimeterEnd - unitDir * arrowSize;
 
-                // Perpendicular vector for arrowhead wings
-                QPointF perp(-unitDir.y(), unitDir.x());
                 m_arrowHead.clear();
                 m_arrowHead << perimeterEnd
                             << (lineEnd + perp * arrowSize * 0.5)
@@ -769,7 +862,7 @@ namespace GraphCanvas
         {
             painter->save();
             painter->setPen(Qt::NoPen);
-            painter->setBrush(m_pen.color());
+            painter->setBrush(pen().color());
             painter->drawPolygon(m_arrowHead);
             painter->restore();
         }
