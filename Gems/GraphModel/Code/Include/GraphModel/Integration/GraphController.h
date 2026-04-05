@@ -134,8 +134,6 @@ namespace GraphModelIntegration
         //! Create a new GraphModel::Connection using the given source and target slots. This will also remove any existing connections on the target slot.
         GraphModel::ConnectionPtr CreateConnection(GraphModel::SlotPtr sourceSlot, GraphModel::SlotPtr targetSlot);
 
-<<<<<<< Updated upstream
-=======
         void WrapNodeUi(GraphModel::NodePtr wrapperNode, GraphModel::NodePtr node, AZ::u32 layoutOrder = GraphModel::DefaultWrappedNodeLayoutOrder);
         void WrapNodeInternal(GraphModel::NodePtr wrapperNode, GraphModel::NodePtr node, AZ::u32 layoutOrder = GraphModel::DefaultWrappedNodeLayoutOrder);
 
@@ -143,7 +141,6 @@ namespace GraphModelIntegration
         //! Creates the GraphCanvas slot UI representing a given Slot.
         //! Override in subclasses to create custom slot entities for specialized slot types.
         virtual AZ::Entity* CreateSlotUi(GraphModel::SlotPtr slot, AZ::EntityId nodeUiId);
->>>>>>> Stashed changes
         //! Check if creating a connection between the specified target and source node would
         //! cause a connection loopback.
         bool CheckForLoopback(GraphModel::NodePtr sourceNode, GraphModel::NodePtr targetNode) const;
