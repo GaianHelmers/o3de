@@ -3053,6 +3053,16 @@ namespace GraphCanvas
                     {
                         result.emplace_back(Endpoint(nodeId, slotId));
                     }
+                    else
+                    {
+                        // Body-snap: slot participates in snap when cursor is anywhere over the node body
+                        bool snapToBody = false;
+                        SlotRequestBus::EventResult(snapToBody, slotId, &SlotRequests::GetSnapToNodeBody);
+                        if (snapToBody)
+                        {
+                            result.emplace_back(Endpoint(nodeId, slotId));
+                        }
+                    }
                 }
             }
         }

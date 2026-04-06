@@ -135,6 +135,9 @@ namespace GraphCanvas
         int GetLayoutPriority() const override;
         void SetLayoutPriority(int priority) override;
 
+        void SetSnapToNodeBody(bool enable) override;
+        bool GetSnapToNodeBody() const override;
+
         void Show() { m_visible = true; }
         void Hide() { m_visible = false; }
         ////
@@ -177,5 +180,6 @@ namespace GraphCanvas
         AZStd::any m_userData;
 
         bool m_visible;
+        bool m_snapToNodeBody = false;
     };
 }

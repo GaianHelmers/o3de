@@ -488,9 +488,19 @@ namespace GraphCanvas
         if (m_layoutPriority != layoutPriority)
         {
             m_layoutPriority = layoutPriority;
-            
+
             SlotUINotificationBus::Event(GetEntityId(), &SlotUINotifications::OnSlotLayoutPriorityChanged, layoutPriority);
         }
+    }
+
+    void SlotComponent::SetSnapToNodeBody(bool enable)
+    {
+        m_snapToNodeBody = enable;
+    }
+
+    bool SlotComponent::GetSnapToNodeBody() const
+    {
+        return m_snapToNodeBody;
     }
 
     void SlotComponent::PopulateSlotConfiguration(SlotConfiguration& slotConfiguration) const

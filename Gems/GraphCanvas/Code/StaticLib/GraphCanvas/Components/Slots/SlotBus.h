@@ -316,6 +316,11 @@ namespace GraphCanvas
         }
 
         virtual void SetLayoutPriority(int layoutPriority) = 0;
+
+        //! When true, the slot participates in snap detection whenever the cursor
+        //! is anywhere over the parent node body, not just near the pin.
+        virtual void SetSnapToNodeBody([[maybe_unused]] bool enable) {}
+        virtual bool GetSnapToNodeBody() const { return false; }
     };
 
     using SlotRequestBus = AZ::EBus<SlotRequests>;
