@@ -1238,14 +1238,26 @@ namespace GraphModelIntegration
 
     bool GraphController::CheckForLoopback(GraphModel::NodePtr sourceNode, GraphModel::NodePtr targetNode) const
     {
-        // TODO: In the future, we could add support here for the client to choose if
-        // loopbacks should be supported or not.
+        // Crawl upstream from sourceNode through input connections.
+        // If we reach targetNode, there's a loop.
+        // Uses a visited set to prevent infinite recursion in cyclic graphs.
+        AZStd::unordered_set<GraphModel::Node*> visited;
+        return CheckForLoopbackInternal(sourceNode, targetNode, visited);
+    }
 
-        // If at any point the target and source nodes are the same,
-        // then we've detected a connection loop
+    bool GraphController::CheckForLoopbackInternal(
+        GraphModel::NodePtr sourceNode,
+        GraphModel::NodePtr targetNode,
+        AZStd::unordered_set<GraphModel::Node*>& visited) const
+    {
         if (targetNode == sourceNode)
         {
             return true;
+        }
+
+        if (!visited.insert(sourceNode.get()).second)
+        {
+            return false; // Already visited — cycle detected without matching target
         }
 
         for (auto slotIt : sourceNode->GetSlots())
@@ -1261,7 +1273,7 @@ namespace GraphModelIntegration
             // Check for loopback on any of the connected input slots
             for (GraphModel::ConnectionPtr connection : slot->GetConnections())
             {
-                if (CheckForLoopback(connection->GetSourceNode(), targetNode))
+                if (CheckForLoopbackInternal(connection->GetSourceNode(), targetNode, visited))
                 {
                     return true;
                 }

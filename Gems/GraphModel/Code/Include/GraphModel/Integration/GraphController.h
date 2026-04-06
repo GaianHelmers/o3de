@@ -10,6 +10,7 @@
 
 // AZ
 #include <AzCore/std/containers/unordered_map.h>
+#include <AzCore/std/containers/unordered_set.h>
 
 // Qt
 #include <QPixmap>
@@ -106,6 +107,12 @@ namespace GraphModelIntegration
         ////////////////////////////////////////////////////////////////////////////////////
 
     private:
+        //! Recursive helper for CheckForLoopback with cycle detection via visited set.
+        bool CheckForLoopbackInternal(
+            GraphModel::NodePtr sourceNode,
+            GraphModel::NodePtr targetNode,
+            AZStd::unordered_set<GraphModel::Node*>& visited) const;
+
         //! Helper method for retrieving the UI layout for a given node
         QGraphicsLinearLayout* GetLayoutFromNode(GraphModel::NodePtr node);
 
@@ -142,7 +149,7 @@ namespace GraphModelIntegration
         //! Override in subclasses to create custom slot entities for specialized slot types.
         virtual AZ::Entity* CreateSlotUi(GraphModel::SlotPtr slot, AZ::EntityId nodeUiId);
         //! Check if creating a connection between the specified target and source node would
-        //! cause a connection loopback.
+        //! cause a connection loopback. Uses a visited set to handle cyclic graphs safely.
         bool CheckForLoopback(GraphModel::NodePtr sourceNode, GraphModel::NodePtr targetNode) const;
 
         ////////////////////////////////////////////////////////////////////////////////////
