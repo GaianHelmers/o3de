@@ -1285,12 +1285,6 @@ namespace GraphModelIntegration
 
     bool GraphController::IsValidConnection(const GraphCanvas::Endpoint& sourcePoint, const GraphCanvas::Endpoint& targetPoint) const
     {
-        // Skip validation during CreateFullGraphUi — connections already exist in the model
-        if (m_isCreatingConnectionUi)
-        {
-            return true;
-        }
-
         if (!sourcePoint.IsValid() || !targetPoint.IsValid())
         {
             return false;
@@ -1327,6 +1321,13 @@ namespace GraphModelIntegration
         {
             // The source slot data type must be supported by the target slot
             dataTypesMatch = targetSlot->IsSupportedDataType(sourceSlotDataType);
+        }
+
+        // During load (CreateFullGraphUi), skip loopback check — connections already
+        // exist in the model and may be legitimately cyclic (state machines).
+        if (m_isCreatingConnectionUi)
+        {
+            return dataTypesMatch;
         }
 
         return dataTypesMatch && !CheckForLoopback(sourceSlot->GetParentNode(), targetSlot->GetParentNode());
