@@ -452,141 +452,188 @@ namespace GraphCanvas
             QPointF sourceCenter = sourceRect.center();
             QPointF targetCenter = targetRect.center();
 
-            // Direction from source center to target center
-            QPointF direction = targetCenter - sourceCenter;
-            qreal dirLen = qSqrt(direction.x() * direction.x() + direction.y() * direction.y());
+            // ---------------------------------------------------------------
+            // Drag-in-progress: one endpoint has no node (mouse cursor)
+            // Draw from the valid node's perimeter to the cursor with arrow
+            // ---------------------------------------------------------------
+            bool isDragging = (sourceRect.isNull() != targetRect.isNull());
 
-            if (dirLen > 0.001 && !sourceRect.isNull() && !targetRect.isNull())
+            if (isDragging)
             {
-                // --- Ray-rect intersection: find where the line exits the source rect ---
-                qreal halfW = sourceRect.width() * 0.5;
-                qreal halfH = sourceRect.height() * 0.5;
-                qreal tx = (qFabs(direction.x()) > 0.0001) ? halfW / qFabs(direction.x()) : 1e9;
-                qreal ty = (qFabs(direction.y()) > 0.0001) ? halfH / qFabs(direction.y()) : 1e9;
-                qreal tSource = qMin(tx, ty);
-                QPointF perimeterStart = sourceCenter + direction * tSource;
+                constexpr qreal arrowSize = 10.0;
 
-                // --- Ray-rect intersection: find where the line enters the target rect ---
-                // Direction is reversed (target center toward source center)
-                QPointF revDir = sourceCenter - targetCenter;
-                halfW = targetRect.width() * 0.5;
-                halfH = targetRect.height() * 0.5;
-                tx = (qFabs(revDir.x()) > 0.0001) ? halfW / qFabs(revDir.x()) : 1e9;
-                ty = (qFabs(revDir.y()) > 0.0001) ? halfH / qFabs(revDir.y()) : 1e9;
-                qreal tTarget = qMin(tx, ty);
-                QPointF perimeterEnd = targetCenter + revDir * tTarget;
+                // Determine which side is the node and which is the cursor
+                QRectF nodeRect = sourceRect.isNull() ? targetRect : sourceRect;
+                QPointF nodeCenter = nodeRect.center();
+                QPointF cursorPos = sourceRect.isNull() ? start : end;
 
-                // --- Bidirectional offset: separate overlapping connections between same node pair ---
-                constexpr qreal offsetSpacing = 12.0;
-                QPointF unitDir = direction / dirLen;
-                QPointF perp(-unitDir.y(), unitDir.x());
+                QPointF direction = cursorPos - nodeCenter;
+                qreal dirLen2 = qSqrt(direction.x() * direction.x() + direction.y() * direction.y());
 
-                // Canonical node pair key (order-independent) for grouping sibling connections
-                AZ::EntityId nodeA = (sourceNode < targetNode) ? sourceNode : targetNode;
-                AZ::EntityId nodeB = (sourceNode < targetNode) ? targetNode : sourceNode;
-
-                // Count all connections between this same pair of nodes (either direction)
-                int siblingCount = 0;
-                int myIndex = 0;
-                AZ::EntityId myConnectionId = GetConnectionEntityId();
-
-                // Query all slots on the source node
-                AZStd::vector<AZ::EntityId> sourceSlots;
-                NodeRequestBus::EventResult(sourceSlots, sourceNode, &NodeRequestBus::Events::GetSlotIds);
-
-                AZStd::vector<AZ::EntityId> allSiblingConnections;
-                for (const auto& slotEntityId : sourceSlots)
+                if (dirLen2 > 0.001)
                 {
-                    AZStd::vector<AZ::EntityId> slotConnections;
-                    SlotRequestBus::EventResult(slotConnections, slotEntityId, &SlotRequestBus::Events::GetConnections);
-                    for (const auto& connId : slotConnections)
-                    {
-                        AZ::EntityId connSource;
-                        AZ::EntityId connTarget;
-                        ConnectionRequestBus::EventResult(connSource, connId, &ConnectionRequests::GetSourceNodeId);
-                        ConnectionRequestBus::EventResult(connTarget, connId, &ConnectionRequests::GetTargetNodeId);
+                    // Ray-rect intersection: find where line exits the node rect
+                    qreal halfW = nodeRect.width() * 0.5;
+                    qreal halfH = nodeRect.height() * 0.5;
+                    qreal tx = (qFabs(direction.x()) > 0.0001) ? halfW / qFabs(direction.x()) : 1e9;
+                    qreal ty = (qFabs(direction.y()) > 0.0001) ? halfH / qFabs(direction.y()) : 1e9;
+                    qreal t = qMin(tx, ty);
+                    QPointF perimeterPoint = nodeCenter + direction * t;
 
-                        // Check if this connection is between the same node pair
-                        AZ::EntityId cA = (connSource < connTarget) ? connSource : connTarget;
-                        AZ::EntityId cB = (connSource < connTarget) ? connTarget : connSource;
-                        if (cA == nodeA && cB == nodeB)
-                        {
-                            allSiblingConnections.push_back(connId);
-                        }
-                    }
+                    QPointF unitDir = direction / dirLen2;
+                    QPointF perp(-unitDir.y(), unitDir.x());
+
+                    // Arrow at the cursor end
+                    QPointF lineEnd = cursorPos - unitDir * arrowSize;
+
+                    m_arrowHead.clear();
+                    m_arrowHead << cursorPos
+                                << (lineEnd + perp * arrowSize * 0.5)
+                                << (lineEnd - perp * arrowSize * 0.5);
+
+                    path = QPainterPath(perimeterPoint);
+                    path.lineTo(lineEnd);
                 }
-
-                // Also query target node's slots (catches reverse-direction connections)
-                AZStd::vector<AZ::EntityId> targetSlots;
-                NodeRequestBus::EventResult(targetSlots, targetNode, &NodeRequestBus::Events::GetSlotIds);
-                for (const auto& slotEntityId : targetSlots)
+                else
                 {
-                    AZStd::vector<AZ::EntityId> slotConnections;
-                    SlotRequestBus::EventResult(slotConnections, slotEntityId, &SlotRequestBus::Events::GetConnections);
-                    for (const auto& connId : slotConnections)
-                    {
-                        AZ::EntityId connSource;
-                        AZ::EntityId connTarget;
-                        ConnectionRequestBus::EventResult(connSource, connId, &ConnectionRequests::GetSourceNodeId);
-                        ConnectionRequestBus::EventResult(connTarget, connId, &ConnectionRequests::GetTargetNodeId);
+                    path.lineTo(end);
+                }
+            }
+            // ---------------------------------------------------------------
+            // Both nodes present: full perimeter-to-perimeter with offset
+            // ---------------------------------------------------------------
+            else if (!sourceRect.isNull() && !targetRect.isNull())
+            {
+                QPointF direction = targetCenter - sourceCenter;
+                qreal dirLen2 = qSqrt(direction.x() * direction.x() + direction.y() * direction.y());
 
-                        AZ::EntityId cA = (connSource < connTarget) ? connSource : connTarget;
-                        AZ::EntityId cB = (connSource < connTarget) ? connTarget : connSource;
-                        if (cA == nodeA && cB == nodeB)
+                if (dirLen2 > 0.001)
+                {
+                    // --- Ray-rect intersection: find where the line exits the source rect ---
+                    qreal halfW = sourceRect.width() * 0.5;
+                    qreal halfH = sourceRect.height() * 0.5;
+                    qreal tx = (qFabs(direction.x()) > 0.0001) ? halfW / qFabs(direction.x()) : 1e9;
+                    qreal ty = (qFabs(direction.y()) > 0.0001) ? halfH / qFabs(direction.y()) : 1e9;
+                    qreal tSource = qMin(tx, ty);
+                    QPointF perimeterStart = sourceCenter + direction * tSource;
+
+                    // --- Ray-rect intersection: find where the line enters the target rect ---
+                    QPointF revDir = sourceCenter - targetCenter;
+                    halfW = targetRect.width() * 0.5;
+                    halfH = targetRect.height() * 0.5;
+                    tx = (qFabs(revDir.x()) > 0.0001) ? halfW / qFabs(revDir.x()) : 1e9;
+                    ty = (qFabs(revDir.y()) > 0.0001) ? halfH / qFabs(revDir.y()) : 1e9;
+                    qreal tTarget = qMin(tx, ty);
+                    QPointF perimeterEnd = targetCenter + revDir * tTarget;
+
+                    // --- Bidirectional offset: separate overlapping connections between same node pair ---
+                    constexpr qreal offsetSpacing = 12.0;
+                    QPointF unitDir = direction / dirLen2;
+                    QPointF perp(-unitDir.y(), unitDir.x());
+
+                    // Canonical node pair key (order-independent) for grouping sibling connections
+                    AZ::EntityId nodeA = (sourceNode < targetNode) ? sourceNode : targetNode;
+                    AZ::EntityId nodeB = (sourceNode < targetNode) ? targetNode : sourceNode;
+
+                    int siblingCount = 0;
+                    int myIndex = 0;
+                    AZ::EntityId myConnectionId = GetConnectionEntityId();
+
+                    AZStd::vector<AZ::EntityId> sourceSlots;
+                    NodeRequestBus::EventResult(sourceSlots, sourceNode, &NodeRequestBus::Events::GetSlotIds);
+
+                    AZStd::vector<AZ::EntityId> allSiblingConnections;
+                    for (const auto& slotEntityId : sourceSlots)
+                    {
+                        AZStd::vector<AZ::EntityId> slotConnections;
+                        SlotRequestBus::EventResult(slotConnections, slotEntityId, &SlotRequestBus::Events::GetConnections);
+                        for (const auto& connId : slotConnections)
                         {
-                            // Avoid duplicates (connections already found via source node)
-                            bool alreadyFound = false;
-                            for (const auto& existing : allSiblingConnections)
-                            {
-                                if (existing == connId)
-                                {
-                                    alreadyFound = true;
-                                    break;
-                                }
-                            }
-                            if (!alreadyFound)
+                            AZ::EntityId connSource;
+                            AZ::EntityId connTarget;
+                            ConnectionRequestBus::EventResult(connSource, connId, &ConnectionRequests::GetSourceNodeId);
+                            ConnectionRequestBus::EventResult(connTarget, connId, &ConnectionRequests::GetTargetNodeId);
+
+                            AZ::EntityId cA = (connSource < connTarget) ? connSource : connTarget;
+                            AZ::EntityId cB = (connSource < connTarget) ? connTarget : connSource;
+                            if (cA == nodeA && cB == nodeB)
                             {
                                 allSiblingConnections.push_back(connId);
                             }
                         }
                     }
-                }
 
-                siblingCount = static_cast<int>(allSiblingConnections.size());
-                for (int i = 0; i < siblingCount; ++i)
-                {
-                    if (allSiblingConnections[i] == myConnectionId)
+                    AZStd::vector<AZ::EntityId> targetSlots;
+                    NodeRequestBus::EventResult(targetSlots, targetNode, &NodeRequestBus::Events::GetSlotIds);
+                    for (const auto& slotEntityId : targetSlots)
                     {
-                        myIndex = i;
-                        break;
+                        AZStd::vector<AZ::EntityId> slotConnections;
+                        SlotRequestBus::EventResult(slotConnections, slotEntityId, &SlotRequestBus::Events::GetConnections);
+                        for (const auto& connId : slotConnections)
+                        {
+                            AZ::EntityId connSource;
+                            AZ::EntityId connTarget;
+                            ConnectionRequestBus::EventResult(connSource, connId, &ConnectionRequests::GetSourceNodeId);
+                            ConnectionRequestBus::EventResult(connTarget, connId, &ConnectionRequests::GetTargetNodeId);
+
+                            AZ::EntityId cA = (connSource < connTarget) ? connSource : connTarget;
+                            AZ::EntityId cB = (connSource < connTarget) ? connTarget : connSource;
+                            if (cA == nodeA && cB == nodeB)
+                            {
+                                bool alreadyFound = false;
+                                for (const auto& existing : allSiblingConnections)
+                                {
+                                    if (existing == connId)
+                                    {
+                                        alreadyFound = true;
+                                        break;
+                                    }
+                                }
+                                if (!alreadyFound)
+                                {
+                                    allSiblingConnections.push_back(connId);
+                                }
+                            }
+                        }
                     }
-                }
 
-                // Apply perpendicular offset if there are multiple connections
-                if (siblingCount > 1)
+                    siblingCount = static_cast<int>(allSiblingConnections.size());
+                    for (int i = 0; i < siblingCount; ++i)
+                    {
+                        if (allSiblingConnections[i] == myConnectionId)
+                        {
+                            myIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (siblingCount > 1)
+                    {
+                        qreal offset = (myIndex - (siblingCount - 1) * 0.5) * offsetSpacing;
+                        perimeterStart += perp * offset;
+                        perimeterEnd += perp * offset;
+                    }
+
+                    // --- Arrowhead geometry ---
+                    constexpr qreal arrowSize = 10.0;
+                    QPointF lineEnd = perimeterEnd - unitDir * arrowSize;
+
+                    m_arrowHead.clear();
+                    m_arrowHead << perimeterEnd
+                                << (lineEnd + perp * arrowSize * 0.5)
+                                << (lineEnd - perp * arrowSize * 0.5);
+
+                    path = QPainterPath(perimeterStart);
+                    path.lineTo(lineEnd);
+                }
+                else
                 {
-                    qreal offset = (myIndex - (siblingCount - 1) * 0.5) * offsetSpacing;
-                    perimeterStart += perp * offset;
-                    perimeterEnd += perp * offset;
+                    path.lineTo(end);
                 }
-
-                // --- Arrowhead geometry ---
-                constexpr qreal arrowSize = 10.0;
-                // Pull the line end back by the arrow length so the arrow tip sits at the perimeter
-                QPointF lineEnd = perimeterEnd - unitDir * arrowSize;
-
-                m_arrowHead.clear();
-                m_arrowHead << perimeterEnd
-                            << (lineEnd + perp * arrowSize * 0.5)
-                            << (lineEnd - perp * arrowSize * 0.5);
-
-                // Build the path: straight line from source perimeter to arrow base
-                path = QPainterPath(perimeterStart);
-                path.lineTo(lineEnd);
             }
             else
             {
-                // Degenerate case: nodes overlap or zero direction — just draw slot-to-slot
+                // Degenerate case: both rects null — just draw slot-to-slot
                 path.lineTo(end);
             }
         }
