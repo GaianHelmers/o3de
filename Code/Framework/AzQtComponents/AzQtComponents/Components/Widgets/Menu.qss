@@ -9,14 +9,14 @@
 
 QMenu
 {
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
 }
 
 QMenu::item
 {
-    color: #FFFFFF;
-    font-size: 12px;
-    font-family: "Open Sans";
+    color: $PrimaryTextColor;
+    font-size: $FontSize;
+    font-family: "$FontFamily";
 
     /* default height is 18px */
     /* target height is 24px */
@@ -31,7 +31,7 @@ QMenu::item
 QMenu::item:selected,
 QMenu::item .WidgetAction:hover
 {
-    background-color: #444444;
+    background-color: $MenuItemSelectedBackgroundColor;
 }
 
 QMenu::icon,
@@ -63,13 +63,13 @@ QMenu::indicator:checked
 
 QMenu::item:disabled
 {
-    color: #555555;
+    color: $MenuItemDisabledColor;
 }
 
 QMenu::separator
 {
     height: 0px;
-    border-bottom: 1px solid #454545;
+    border-bottom: 1px solid $MenuSeparatorColor;
     margin-top: 2px;
     margin-bottom: 3px;
 }

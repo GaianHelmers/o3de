@@ -15,7 +15,7 @@ AzQtComponents--ColorPicker
 
 AzQtComponents--ColorPicker *
 {
-    font-size: 12px;
+    font-size: $FontSize;
 }
 
 /* Only apply this to direct children QToolButton so it doesn't affect
@@ -60,7 +60,7 @@ AzQtComponents--PaletteCardBase AzQtComponents--CardHeader #Title
 
 AzQtComponents--PaletteCard[modified="true"] AzQtComponents--CardHeader #Title
 {
-    color: #ffa500;
+    color: $ColorPickerModifiedTitleColor;
 }
 
 AzQtComponents--ColorPicker QSpinBox:hover,
@@ -82,11 +82,11 @@ AzQtComponents--ColorPicker QDoubleSpinBox::up-button
 
 AzQtComponents--ColorPicker .HorizontalSeparator
 {
-    border-top: 1px solid #393a3c;
-    border-bottom: 1px solid #393a3c;
+    border-top: 1px solid $ColorPickerSeparatorBorderColor;
+    border-bottom: 1px solid $ColorPickerSeparatorBorderColor;
     border-left: none;
     border-right: none;
-    background: #222222;
+    background: $MenuBackgroundColor;
 }
 
 AzQtComponents--ColorPicker .HorizontalSeparatorContainer
@@ -105,14 +105,14 @@ AzQtComponents--Swatch,
 AzQtComponents--ColorPicker #addColorButton
 {
     /* Note: Swatches will ignore any 'background*' property set here */
-    border: 1px solid #333333;
+    border: 1px solid $ColorPickerSwatchBorderColor;
     border-radius: 2px;
 }
 
 AzQtComponents--Swatch:selected
 {
     /* Note: Swatches will ignore any 'background*' property set here */
-    border: 2px solid #C8ABFF;
+    border: 2px solid $ColorPickerSwatchSelectedBorderColor;
 }
 
 AzQtComponents--GradientSlider.HorizontalSlider

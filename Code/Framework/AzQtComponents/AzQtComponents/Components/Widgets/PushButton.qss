@@ -29,20 +29,20 @@
 
 QPushButton
 {
-    color: #ffffff;
-    font-family: "Open Sans";
-    font-size: 12px;
+    color: $PrimaryTextColor;
+    font-family: "$FontFamily";
+    font-size: $FontSize;
 }
 
 QPushButton:hover,
 QPushButton:pressed
 {
-    color: #FFFFFF;
+    color: $PrimaryTextColor;
 }
 
 QPushButton:disabled
 {
-    color: #999999;
+    color: $DisabledTextColor;
 }
 
 QPushButton:flat
@@ -56,14 +56,14 @@ QPushButton:default,
 QToolButton::menu-indicator,
 QToolButton.SmallIcon::menu-indicator
 {
-    color: #FFFFFF;
+    color: $PrimaryTextColor;
 }
 
 QPushButton.Primary:disabled,
 QPushButton:default:disabled,
 QToolButton.SmallIcon:disabled::menu-indicator
 {
-    color: #BBBBBB;
+    color: $PushButtonPrimaryDisabledColor;
 }
 
 QPushButton.SmallIcon

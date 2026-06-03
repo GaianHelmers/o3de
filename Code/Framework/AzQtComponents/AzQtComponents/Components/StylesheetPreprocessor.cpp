@@ -5,17 +5,14 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
-#include <AzCore/Debug/Trace.h>
-#include <AzQtComponents/Components/StylesheetPreprocessor.h>
-#include <QObject>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QRegularExpression>
 
-namespace
-{
-    const char* cStylesheetVariablesKey = "StylesheetVariables";
-}
+#include <AzQtComponents/Components/StylesheetPreprocessor.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+
+#include <AzCore/Debug/Trace.h>
+#include <AzCore/Interface/Interface.h>
+
+#include <QObject>
 
 namespace AzQtComponents
 {
@@ -28,29 +25,15 @@ namespace AzQtComponents
     {
     }
 
-    void StylesheetPreprocessor::ClearVariables()
+    void StylesheetPreprocessor::Initialize()
     {
-        m_namedVariables.clear();
-        m_cachedColors.clear();
+        m_styleManagerInterface = AZ::Interface<StyleManagerInterface>::Get();
+        AZ_Assert(m_styleManagerInterface, "StylesheetPreprocessor: StyleManagerInterface was not registered before Initialize().");
     }
 
-    void StylesheetPreprocessor::ReadVariables(const QString& jsonString)
+    void StylesheetPreprocessor::ClearColorCache()
     {
-        QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8());
-        QJsonObject rootObject = doc.object();
-
-        //load in the stylesheet variables
-        if (rootObject.contains(cStylesheetVariablesKey))
-        {
-            QJsonObject variablesObject = rootObject.value(cStylesheetVariablesKey).toObject();
-            for (const QString& key : variablesObject.keys())
-            {
-                m_namedVariables[key] = variablesObject[key].toString();
-
-                // clear any cached colors of the same key, so that they get recached on next fetch
-                m_cachedColors.remove(key);
-            }
-        }
+        m_cachedColors.clear();
     }
 
     QString StylesheetPreprocessor::ProcessStyleSheet(const QString& stylesheetData)
@@ -64,6 +47,14 @@ namespace AzQtComponents
         QString out;
         QString varName;
 
+        auto appendVariableValue = [this, &out](const QString& name)
+        {
+            if (m_styleManagerInterface && !name.isEmpty())
+            {
+                out.append(m_styleManagerInterface->GetStylePropertyAsString(name.toUtf8().constData()));
+            }
+        };
+
         auto i = stylesheetData.cbegin();
         while (state != ParseState::Done && i != stylesheetData.end())
         {
@@ -72,7 +63,7 @@ namespace AzQtComponents
                 char c = i->toLatin1();
                 switch (c)
                 {
-                case '@':
+                case '$':
                     i++;
                     state = ParseState::Variable;
                     break;
@@ -80,23 +71,22 @@ namespace AzQtComponents
                     out.append(*i);
                     i++;
                 }
-                ;
             }
 
             while (state == ParseState::Variable && i != stylesheetData.end())
             {
                 char c = i->toLatin1();
 
-                //All characters valid in identifier
-                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+                // All characters valid in an identifier
+                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_'))
                 {
                     varName.append(*i);
                     i++;
                 }
                 else
                 {
-                    //We are finished with reading the current varName
-                    out.append(GetValueByName(varName));
+                    // We are finished reading the current variable name
+                    appendVariableValue(varName);
                     varName.clear();
                     out.append(*i);
                     i++;
@@ -106,20 +96,11 @@ namespace AzQtComponents
             }
         }
 
+        // A variable token that runs to the very end of the input has no trailing delimiter,
+        // so flush it here.
+        appendVariableValue(varName);
+
         return out;
-    }
-
-
-    QString StylesheetPreprocessor::GetValueByName(const QString& name)
-    {
-        if (m_namedVariables.contains(name))
-        {
-            return m_namedVariables.value(name);
-        }
-        else
-        {
-            return QString("");
-        }
     }
 
     const QColor& StylesheetPreprocessor::GetColorByName(const QString& name)
@@ -129,53 +110,13 @@ namespace AzQtComponents
             return m_cachedColors[name];
         }
 
-        if (m_namedVariables.contains(name))
+        QColor color;
+        if (m_styleManagerInterface)
         {
-            QColor color;
-            QString colorName(m_namedVariables.value(name));
-
-            [[maybe_unused]] bool colorSet = false;
-            if (QColor::isValidColorName(colorName))
-            {
-                color.fromString(colorName);
-                colorSet = true;
-            }
-            else if (colorName.startsWith("rgb"))
-            {
-                QRegularExpression expression("\\((.+)\\)");
-                QRegularExpressionMatch matches(expression.match(colorName));
-
-                if (matches.hasMatch())
-                {
-                    QStringList colorComponents = matches.captured(1).split(',', Qt::SkipEmptyParts);
-                    if (colorComponents.count() <= 4)
-                    {
-                        if (colorComponents.count() == 3)
-                        {
-                            colorComponents.push_back("255");
-                        }
-
-                        color.setRgb(
-                            colorComponents[0].trimmed().toInt(),
-                            colorComponents[1].trimmed().toInt(),
-                            colorComponents[2].trimmed().toInt(),
-                            colorComponents[3].trimmed().toInt()
-                        );
-
-                        colorSet = true;
-                    }
-                }
-            }
-
-            AZ_Assert(colorSet, "Invalid color format specified for %s", name.toUtf8().data());
-            m_cachedColors[name] = color;
-
-            return m_cachedColors[name];
+            color = m_styleManagerInterface->GetStylePropertyAsColor(name.toUtf8().constData());
         }
 
-        static QColor defaultColor;
-        return defaultColor;
+        m_cachedColors[name] = color;
+        return m_cachedColors[name];
     }
-
 } // namespace AzQtComponents
-

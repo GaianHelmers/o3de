@@ -53,7 +53,7 @@ function(GetAssimp)
     # The rest of these are all specific settings that come from Assimp's CMakeLists.txt files.
     set(ASSIMP_BUILD_ZLIB OFF)  # Don't rebuild ZLIB. O3DE's comes with its own ZLIB 3rdParty package.
     set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-    set(ASSIMP_BUILD_USD_IMPORTER ON)
+    set(ASSIMP_BUILD_USD_IMPORTER OFF)  # LOCAL: tinyusdz FetchContent build step fails on this toolchain; USD import disabled.
     set(ASSIMP_WARNINGS_AS_ERRORS OFF)  # Not sure why this doesn't work. Warnings are still treated as error; needed to add warning disabled commandline parameters to PAL_assimp_<compiler>.cmake
     set(ASSIMP_BUILD_TESTS OFF)
     set(ASSIMP_INSTALL OFF)  # Disable since we're using Assimp as a sub module

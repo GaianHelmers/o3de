@@ -9,12 +9,20 @@
 #pragma once
 
 #include <AzQtComponents/AzQtComponentsAPI.h>
+
 #include <QColor>
 #include <QHash>
 #include <QObject>
 
 namespace AzQtComponents
 {
+    class StyleManagerInterface;
+
+    //! Substitutes $Variable tokens in stylesheets with values pulled from the active theme.
+    //!
+    //! Theme values are sourced from the StyleManagerInterface (implemented by StyleManager),
+    //! cached once during Initialize(). The $ prefix is used (not @) because the stylesheet
+    //! cache's @import preprocessing consumes the @ character.
     class AZ_QT_COMPONENTS_API StylesheetPreprocessor
         : public QObject
     {
@@ -24,18 +32,23 @@ namespace AzQtComponents
         explicit StylesheetPreprocessor(QObject* pParent);
         ~StylesheetPreprocessor();
 
-        void ClearVariables();
-        void ReadVariables(const QString& variables);
+        //! Caches the registered StyleManagerInterface. Call after StyleManager has registered it.
+        void Initialize();
+
+        //! Replaces every $Variable token in the input with the matching theme property value.
         QString ProcessStyleSheet(const QString& stylesheetData);
 
+        //! Programmatic theme color access (cached). Resolves via StyleManagerInterface.
         const QColor& GetColorByName(const QString& name);
 
+        //! Drops the color cache so subsequent lookups reflect a newly loaded theme.
+        void ClearColorCache();
+
     private:
-        AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 4251: 'AzQtComponents::StylesheetPreprocessor::m_namedVariables': class 'QHash<QString,QString>' needs to have dll-interface to be used by clients of class 'AzQtComponents::StylesheetPreprocessor'
-        QHash<QString, QString> m_namedVariables;
+        StyleManagerInterface* m_styleManagerInterface = nullptr;
+
+        AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 4251: QHash<QString,QColor> needs dll-interface to be used by clients of this class
         QHash<QString, QColor> m_cachedColors;
         AZ_POP_DISABLE_WARNING
-
-        QString GetValueByName(const QString& name);
     };
-}
+} // namespace AzQtComponents

@@ -9,12 +9,12 @@
 
 QToolTip
 {
-    color: #ffffff;
-    background-color: black;
+    color: $PrimaryTextColor;
+    background-color: $ToolTipBackgroundColor;
     border: 1px transparent black;
     margin-left: 2px;
-    font-size: 12px;
+    font-size: $FontSize;
     margin-top: 4px;
     margin-bottom: 4px;
-    font-family: "Open Sans";
+    font-family: "$FontFamily";
 }

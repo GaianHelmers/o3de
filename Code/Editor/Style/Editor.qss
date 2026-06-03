@@ -13,31 +13,31 @@ ActionWidget #LinkButton
 
 AzAssetBrowserWindow #previewWidgetWrapper
 {
-    background-color: #323232;
+    background-color: $AssetBrowserPreviewBackgroundColor;
     border: 0 none;
 }
 
 AzAssetBrowserWindow #searchButtonContainer
 {
-    background-color: #141414;
+    background-color: $AssetBrowserSearchBarBackgroundColor;
     border: 0 none;
 }
 
 AzAssetBrowserWindow #m_separator
 {
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
 }
 
 /* Component Palette Widget */
 AzToolsFramework--ComponentPaletteWidget
 {
-    border: 1px solid #4E4E4E;
-    background-color: #383A3B;
+    border: 1px solid $ComponentPaletteWidgetBorderColor;
+    background-color: $ComponentPaletteWidgetBackgroundColor;
 }
 
 AzToolsFramework--ComponentPaletteWidget > QTreeView
 {
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
 }
 
 AzToolsFramework--PropertyRowWidget[canBeReordered="true"]  QLabel#Name
@@ -50,7 +50,7 @@ AzToolsFramework--PropertyRowWidget[IsOverridden=true] #Name QLabel,
 AzToolsFramework--ComponentEditorHeader #Title[IsOverridden="true"]
 {
     font-weight: bold;
-    color: #F5A623;
+    color: $OverrideHighlightColor;
 }
 
 /* Asset Editor */
@@ -63,7 +63,7 @@ Ui--AssetEditorHeader
 Ui--AssetEditorHeader *
 {
     height: 16px;
-    background-color: #272727;
+    background-color: $AssetEditorHeaderBackgroundColor;
 }
 
 Ui--AssetEditorHeader #Background
@@ -73,7 +73,7 @@ Ui--AssetEditorHeader #Background
     border: 1px solid transparent;
     border-bottom: none;
     background-image: none;
-    background-color: #272727;
+    background-color: $AssetEditorHeaderBackgroundColor;
 }
 
 Ui--AssetEditorHeader #Name
@@ -103,13 +103,13 @@ Ui--AssetEditorHeader #Location
 #AssetEditorWidgetPropertyEditor AzToolsFramework--PropertyRowWidget[getLevel="1"][hasChildRows="true"]
 , #AssetEditorWidgetPropertyEditor AzToolsFramework--DPERowWidget[getLevel="2"][hasChildRows="true"]
 {
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid $PropertySectionDividerColor;
 }
 
 /* Set the Script Canvas search highlight color */
 GraphCanvas--NodePaletteTreeView
 {
-    selection-background-color: rgba(255, 255, 255, 41);
+    selection-background-color: $SelectionHighlightColor;
 }
 
 AzQtComponents--TabWidget#ScriptCanvasTabs
@@ -127,24 +127,24 @@ AzToolsFramework--SlicePushWidget QTreeView QLabel
 
 AzToolsFramework--SlicePushWidget QWidget#WarningTopLine
 {
-    background-color: #F5A623
+    background-color: $OverrideHighlightColor
 }
 
 AzToolsFramework--SlicePushWidget QWidget#WarningBottomLine
 {
-    background-color: #646464
+    background-color: $SlicePushWarningBottomColor
 }
 
 AzToolsFramework--SlicePushWidget QTreeWidget#WarningTreeWidget::item:pressed
 , AzToolsFramework--SlicePushWidget QTreeWidget#WarningTreeWidget::item:selected
 {
-    background-color: #2D2D2D;
+    background-color: $SlicePushWarningTreeSelectedColor;
 }
 
 /* Toolbar borders (Editor UI Window) */
 EditorWindow QToolBar
 {
-    border-bottom: 2px solid #111111;
+    border-bottom: 2px solid $SeparatorColor;
 }
 
 DockWidgetTitleBar #DockWidgetContextMenu
@@ -160,7 +160,7 @@ DockWidgetTitleBar #DockWidgetContextMenu
 #EMFX_Menu
 {
     border-bottom-width: 2px;
-    border-bottom-color: #111111;
+    border-bottom-color: $SeparatorColor;
     border-bottom-style: solid;
 }
 
@@ -172,14 +172,14 @@ DockWidgetTitleBar #DockWidgetContextMenu
 
 PanelTitleBar
 {
-    border-top: 1px solid #111111;
+    border-top: 1px solid $SeparatorColor;
 }
 
 /* Asset Editor */
 
 #AssetEditorStatusBar
 {
-    border-top: 2px solid #111111;
+    border-top: 2px solid $SeparatorColor;
 }
 
 /* Console and Python Console */
@@ -193,9 +193,9 @@ ConsoleTextEdit:focus,
 {
     margin: 0;
     margin-top: 6px;
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
     border-radius: 0px;
     border-width: 0px;
-    border-color: #e9e9e9;
+    border-color: $InputBorderColor;
     border-style: solid;
 }

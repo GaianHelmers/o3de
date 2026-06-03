@@ -36,20 +36,20 @@ AzQtComponents--VectorElement QDoubleSpinBox:hover
 
 AzQtComponents--VectorElement[Coordinate="X"] QLabel
 {
-    background-color: #E25243;
+    background-color: $VectorInputXColor;
 }
 
 AzQtComponents--VectorElement[Coordinate="Y"] QLabel
 {
-    background-color: #58BC61;
+    background-color: $VectorInputYColor;
 }
 
 AzQtComponents--VectorElement[Coordinate="Z"] QLabel
 {
-    background-color: #4285F4;
+    background-color: $VectorInputZColor;
 }
 
 AzQtComponents--VectorElement[Coordinate="W"] QLabel
 {
-    background-color: #E57829;
+    background-color: $VectorInputWColor;
 }

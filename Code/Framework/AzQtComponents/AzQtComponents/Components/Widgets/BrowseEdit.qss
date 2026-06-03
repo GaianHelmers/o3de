@@ -38,13 +38,13 @@ AzQtComponents--BrowseEdit.ValidDropTarget QLineEdit:hover
 AzQtComponents--BrowseEdit.InvalidDropTarget QLineEdit,
 AzQtComponents--BrowseEdit QLineEdit:focus
 {
-    background-color: #FFFFFF;
-    border-color: #FFFFFF;
+    background-color: $InputFocusBackgroundColor;
+    border-color: $BrowseEditFocusBorderColor;
 }
 
 AzQtComponents--BrowseEdit QLineEdit:disabled
 {
-    border-color: #777777;
+    border-color: $BrowseEditDisabledBorderColor;
 }
 
 AzQtComponents--BrowseEdit #attached-button
@@ -60,7 +60,7 @@ AzQtComponents--BrowseEdit #attached-button
     qproperty-iconSize: 12px 12px;
 
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                      stop: 0 #666666, stop: 1 #555555);
+                                      stop: 0 $BrowseEditButtonGradientTop, stop: 1 $BrowseEditButtonGradientBottom);
 
     border-width: 0px;
     border-style: solid;
@@ -74,16 +74,16 @@ AzQtComponents--BrowseEdit #attached-button
 AzQtComponents--BrowseEdit #attached-button:hover
 {
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                      stop: 0 #777777, stop: 1 #666666);
+                                      stop: 0 $BrowseEditButtonHoverGradientTop, stop: 1 $BrowseEditButtonGradientTop);
 }
 
 AzQtComponents--BrowseEdit #attached-button:pressed
 {
-    background-color: #444444;
+    background-color: $BackgroundColor;
 }
 
 AzQtComponents--BrowseEdit #attached-button:disabled
 {
-    background-color: #666666;
-    border-left: 1px solid #555555;
+    background-color: $InputDisabledBackgroundColor;
+    border-left: 1px solid $BrowseEditButtonGradientBottom;
 }

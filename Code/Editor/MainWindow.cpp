@@ -87,6 +87,7 @@
 #include "ErrorReportDialog.h"
 
 #include "Dialogs/PythonScriptsDialog.h"
+#include "ThemeEditor/ThemeEditorWidget.h"
 
 #include "AzAssetBrowser/AzAssetBrowserWindow.h"
 #include "AssetEditor/AssetEditorWindow.h"
@@ -679,6 +680,7 @@ void MainWindow::RegisterStdViewClasses()
     CTrackViewDialog::RegisterViewClass();
     CErrorReportDialog::RegisterViewClass();
     CPythonScriptsDialog::RegisterViewClass();
+    ThemeEditorWidget::RegisterViewClass();
 
     AzToolsFramework::CScriptTermDialog::RegisterViewClass();
     CConsoleSCB::RegisterViewClass();

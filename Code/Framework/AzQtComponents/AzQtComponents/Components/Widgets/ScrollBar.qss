@@ -9,7 +9,7 @@
 
 QScrollBar
 {
-    border: 2px solid rgba(50, 50, 50, 70%);
+    border: 2px solid $ScrollBarBorderColor;
     background: none;
     margin: 0px;
 }
@@ -26,16 +26,16 @@ QScrollBar:horizontal
 
 QScrollBar::handle
 {
-    border: 0px solid #000000;
+    border: 0px solid $ScrollBarHandleBorderColor;
     border-radius: 2px;
-    background-color: rgba(255, 255, 255, 40%);
+    background-color: $ScrollBarHandleColor;
 }
 
 QAbstractScrollArea.DarkScrollBar QScrollBar::handle
 {
-    border: 0px solid #000000;
+    border: 0px solid $ScrollBarHandleBorderColor;
     border-radius: 2px;
-    background-color: rgba(136, 136, 136, 64%);
+    background-color: $ScrollBarDarkHandleColor;
 }
 
 QScrollBar::handle:vertical {
@@ -75,14 +75,14 @@ QAbstractScrollArea > .QWidget
 
 QScrollBar:hover
 {
-    border: 1px solid rgba(50, 50, 50, 70%);
+    border: 1px solid $ScrollBarBorderColor;
     background: none;
     margin: 0px;
 }
 
 QAbstractScrollArea.DarkScrollBar QScrollBar:hover
 {
-    border: 1px solid rgba(136, 136, 136, 64%);
+    border: 1px solid $ScrollBarDarkHandleColor;
     background: none;
     margin: 0px;
 }
@@ -90,17 +90,17 @@ QAbstractScrollArea.DarkScrollBar QScrollBar:hover
 QScrollBar::handle:hover
 {
     border-radius: 3px;
-    background-color: #999999;
+    background-color: $ScrollBarHandleHoverColor;
 }
 
 QAbstractScrollArea > .QWidget:hover,
 QAbstractScrollArea > .QWidget[ShowBackground=true]
 {
-    background-color: rgba(255, 255, 255, 12%);
+    background-color: $ScrollBarTrackHoverColor;
 }
 
 QAbstractScrollArea.DarkScrollBar > .QWidget:hover,
 QAbstractScrollArea.DarkScrollBar > .QWidget[ShowBackground=true]
 {
-    background-color: rgba(221, 221, 221, 80%);
+    background-color: $ScrollBarDarkTrackHoverColor;
 }

@@ -1,0 +1,18 @@
+{
+	"theme_id": "o3de_dark_blue",
+	"theme_name": "O3DE Dark (Blue Accent)",
+	"theme_description": "Mock dark theme previewing the Blue Jay direction: inherits O3DE_Original and swaps the amber accents for blue.",
+	"theme_base": "O3DE_Original",
+	"theme_properties":
+	{
+		"MenuItemSelectedColor": "#4285F4",
+		"ResourceGroupHighlightColor": "#4285F4",
+		"SeparatorHoveredColor": "#4285F4",
+		"MenuItemSelectedBackgroundColor": "#2A4D7A",
+		"ToolButtonPressedBorderColor": "#4285F4",
+		"ToolButtonHoverBorderColor": "#4285F4",
+		"ToolButtonPressedBackgroundColor": "rgba(66, 133, 244, 128)",
+		"ToolButtonHoverBackgroundColor": "rgba(66, 133, 244, 64)",
+		"ToolButtonCheckedBackgroundColor": "rgba(66, 133, 244, 32)"
+	}
+}

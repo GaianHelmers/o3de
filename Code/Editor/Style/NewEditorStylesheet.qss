@@ -3,32 +3,32 @@
 /* ============================================================= */
 *
 {
-	background-color: @WindowBackgroundColor;
-	color:  @TextColor;
+	background-color: $WindowBackgroundColor;
+	color:  $WindowTextColor;
 }
 
 QMainWindow, QDialog
 {
-	color: @TextColor;
-	background-color: @WindowBackgroundColor;
+	color: $WindowTextColor;
+	background-color: $WindowBackgroundColor;
 }
 
 QDockWidget
 {
-	color: @DockWidgetTextColor;
-	background-color: @WindowBackgroundColor;
+	color: $WindowTextColor;
+	background-color: $WindowBackgroundColor;
 }
 
 QDockWidget::title {
     text-align: left;
-    background: @DockWindowTitleBarColor;
+    background: $DockWindowTitleBarColor;
     padding-left: 5px;
 }
 
 QLabel
 {
-	color: @TextColor;
-	background-color: @WindowBackgroundColor;
+	color: $WindowTextColor;
+	background-color: $WindowBackgroundColor;
 }
 
 QToolBar > QLabel
@@ -38,20 +38,20 @@ QToolBar > QLabel
 
 QTextEdit
 {
-	color: @TextColor;
-	border: 1px solid @PanelBackgroundColor;
-	background: @PanelBackgroundColor;
+	color: $WindowTextColor;
+	border: 1px solid $PanelBackgroundColor;
+	background: $PanelBackgroundColor;
 }
 
 QGroupBox::title 
 {
-    color: @TextColor;
+    color: $WindowTextColor;
 	font-weight:bold;
 	font-size: 16pt;
 }
 
 QListView[class="SingleRequiredSelection"]::item:selected {
-    border: 1px solid rgba(255, 153, 0, 255);
+    border: 1px solid $SingleRequiredSelectionBorderColor;
 }
 
 QListView[class="SingleRequiredSelection"]::item {
@@ -60,50 +60,50 @@ QListView[class="SingleRequiredSelection"]::item {
 
 NetPromoterScoreDialog QDialog
 {
-	background: #333333;
+	background: $NetPromoterDialogBackgroundColor;
 }
 
 NetPromoterScoreDialog QPushButton[RatingButton="true"], QPushButton[class="RatingButtonLeave"]
 {
-	background-color: #f6f6f6;
-	color: black;
-	border-right: 1px solid black;
-	border-left: 1px #333333;	
-	border-top: 1px #333333;	
-	border-bottom: 1px #333333;		
+	background-color: $NetPromoterRatingButtonBackgroundColor;
+	color: $BlackTextColor;
+	border-right: 1px solid $BlackTextColor;
+	border-left: 1px $NetPromoterDialogBackgroundColor;
+	border-top: 1px $NetPromoterDialogBackgroundColor;
+	border-bottom: 1px $NetPromoterDialogBackgroundColor;
 }
 
 NetPromoterScoreDialog QPushButton[class="RatingButtonHover"]
 {
-	background-color: #FFC400;
-	color: black;
-	border-right: 1px solid black;
-	border-left: 1px #333333;	
-	border-top: 1px #333333;	
-	border-bottom: 1px #333333;	
+	background-color: $NetPromoterRatingButtonHoverColor;
+	color: $BlackTextColor;
+	border-right: 1px solid $BlackTextColor;
+	border-left: 1px $NetPromoterDialogBackgroundColor;
+	border-top: 1px $NetPromoterDialogBackgroundColor;
+	border-bottom: 1px $NetPromoterDialogBackgroundColor;
 }
 
 NetPromoterScoreDialog QPushButton[class="RatingButtonPress"]
 {
-	background-color: #FFA724;
-	color: black;
-	border-right: 1px solid black;
-	border-left: 1px #333333;	
-	border-top: 1px #333333;	
-	border-bottom: 1px #333333;	
+	background-color: $NetPromoterRatingButtonPressColor;
+	color: $BlackTextColor;
+	border-right: 1px solid $BlackTextColor;
+	border-left: 1px $NetPromoterDialogBackgroundColor;
+	border-top: 1px $NetPromoterDialogBackgroundColor;
+	border-bottom: 1px $NetPromoterDialogBackgroundColor;
 }
 
 NetPromoterScoreDialog QTextEdit, QTextEdit[class="CommentBoxBefore"]
 {
-	background: #BBBBBB;
-	color: black;
+	background: $NetPromoterCommentBoxBeforeColor;
+	color: $BlackTextColor;
 }
 
 
 NetPromoterScoreDialog QTextEdit[class="CommentBoxAfter"]
 {
-	background: white;
-	color: black;
+	background: $NetPromoterCommentBoxAfterColor;
+	color: $BlackTextColor;
 }
 
 NetPromoterScoreDialog QLabel[NPSLabel="true"]
@@ -127,21 +127,21 @@ QLabel[class="AssetImporterLabel"]
 {
 	font-family: "Open Sans";
 	font-size: 14px;
-	color: #EEEEEE;
+	color: $AssetImporterLabelColor;
 }
 
 QLabel[class="AssetImporterFilesMessage"]
 {
 	font-family: "Open Sans";
 	font: bold 14px;
-	color: #EEEEEE;
+	color: $AssetImporterLabelColor;
 }
 
 QWidget[class="AssetImporterDialog"] QPushButton[class="AssetImporterButton"]
 {
 	font-family: "Open Sans Semibold";
 	font-size: 14px;
-	color: #999999;
+	color: $DisabledTextColor;
 	text-shadow: 0 0.5px 1px;
 	width: 76px;
 	height: 28px;
@@ -158,7 +158,7 @@ QDialogButtonBox[class="AssetImporterDialog"] QPushButton[class="Primary"]
 	width: 96px;
 	height: 28px;
 	padding: 1px;
-	color: white;
+	color: $PrimaryTextColor;
 }
 
 QWidget[class="AssetImporterDialog"] QPushButton[class="Primary"]:disabled,
@@ -171,14 +171,14 @@ QDialogButtonBox[class="AssetImporterDialog"] QPushButton[class="Primary"]:disab
 	width: 96px;
 	height: 28px;
 	padding: 1px;
-	color: #999999;
+	color: $DisabledTextColor;
 }
 
 QWidget[class="AssetImporterDialog"] QPushButton[class="AssetImporterLargerButton"]
 {
 	font-family: "Open Sans Semibold";
 	font-size: 14px;
-	color: #999999;
+	color: $DisabledTextColor;
 	text-shadow: 0 0.5px 1px;
 	
 	width: 85px;
@@ -190,7 +190,7 @@ SelectFilesDialogPage QLabel[SelectFileMessage="true"]
 {
 	font-family: "Open Sans";
 	font-size: 14px;
-	color: #EEEEEE;
+	color: $AssetImporterLabelColor;
 	letter-spacing: 0.47px;
 }
 
@@ -198,25 +198,25 @@ SelectFilesDialogPage QLabel[DragAndDropMessage="true"]
 {
 	font-family: "Open Sans";
 	font-size: 14px;
-	color: #FFFFFF;
+	color: $PrimaryTextColor;
 	letter-spacing: 0.41px;
 }
 
 StatusBarItem
 {
-	background-color: @PanelBackgroundColor;
-	border: 1px solid @ScrollbarBackgroundColor;
+	background-color: $PanelBackgroundColor;
+	border: 1px solid $ScrollbarBackgroundColor;
 }
 
 StatusBarItem[clickable="true"]
 {
-	border: 1px solid @ScrollbarHandleBackgroundColor;
+	border: 1px solid $ScrollbarHandleBackgroundColor;
 }
 
 StatusBarItem[clickable="true"]:hover
 {
-	border: 1px solid @ToolButtonHoverBorderColor;
-	background-color: @ToolButtonHoverBackgroundColor
+	border: 1px solid $ToolButtonHoverBorderColor;
+	background-color: $ToolButtonHoverBackgroundColor
 }
 
 OutlinerTreeView::branch:has-children:closed
@@ -240,12 +240,12 @@ OutlinerTreeView
 /* Style for pulse highlight widgets (outliner highlight, etc) */
 OutlinerWidget QWidget[PulseHighlight="true"]
 {
-    background-color: @MenuItemSelectedColor;
+    background-color: $MenuItemSelectedColor;
 }
 
 OutlinerWidget QLineEdit
 {
-    background: #FFFFFFFF;
+    background: $OutlinerSearchBackgroundColor;
 }
 
 OutlinerWidget #m_display_options
@@ -264,7 +264,7 @@ AzToolsFramework--EntityIdQLineEdit
 /* Style for highlighting valid drag-drops (entity references, etc) */
 AzToolsFramework--PropertyEntityIdCtrl AzToolsFramework--EntityIdQLabel[DropHighlight="true"]
 {
-    background-color: @MenuItemSelectedColor;
+    background-color: $MenuItemSelectedColor;
 }
 
 /* Style for properties that fail validation */
@@ -282,7 +282,7 @@ AzToolsFramework--ReflectedPropertyEditor[ComponentBlock="true"]
     margin: 0px;
     padding: 0 0 0 5;
     border-radius: 0px;
-    background-color: @ComponentPanelFrameColor;
+    background-color: $ComponentPanelFrameColor;
 }
 
 /* Style for setting internal padding on PropertyRowWidget */
@@ -294,14 +294,14 @@ AzToolsFramework--PropertyRowWidget
 /* Style for visualizing property values overridden from their prefab values */
 AzToolsFramework--PropertyRowWidget QLabel#Name
 {
-    color: @TextColor;
+    color: $WindowTextColor;
     padding: 0 0 0 5;
 }
 
 /* Style for visualizing property values overridden from their prefab values */
 AzToolsFramework--PropertyRowWidget QWidget
 {
-    color: @MenuEnabledTextColor;
+    color: $PrimaryTextColor;
 }
 
 /* Style for visualizing property values overridden from their prefab values */
@@ -309,7 +309,7 @@ AzToolsFramework--PropertyRowWidget[IsOverridden="true"] AzQtComponents--Eliding
 {
     font-family: "Open Sans Extrabold";
     font-weight: bold;
-    color: @MenuItemSelectedColor;
+    color: $MenuItemSelectedColor;
 }
 
 /* Style for visualizing the root of components in the prop grid */
@@ -324,19 +324,19 @@ AzToolsFramework--ReflectedPropertyEditor QLabel#X
 {
     font-family: "Open Sans Extrabold";
     font-weight: bold;
-    color: rgb(184,51,51);
+    color: $VectorXAxisColor;
 }
 AzToolsFramework--ReflectedPropertyEditor QLabel#Y
 {
     font-family: "Open Sans Extrabold";
     font-weight: bold;
-    color: rgb(48,208,120);
+    color: $VectorYAxisColor;
 }
 AzToolsFramework--ReflectedPropertyEditor QLabel#Z
 {
     font-family: "Open Sans Extrabold";
     font-weight: bold;
-    color: rgb(66,133,244);
+    color: $VectorZAxisColor;
 }
 
 /* Style for EntityPropertyEditor */
@@ -357,12 +357,12 @@ AzToolsFramework--SlicePushWidget QLabel[Title="true"]
 
 AzToolsFramework--SlicePushWidget QWidget#WarningLine
 {
-    background-color:#F5A623
+    background-color:$SliceWarningColor
 }
 
 AzToolsFramework--NoChangesOverlay
 {
-    background-color: rgba(0,0,0,50);
+    background-color: $NoChangesOverlayColor;
 }
 
 AzToolsFramework--NoChangesOverlay QLabel
@@ -370,17 +370,17 @@ AzToolsFramework--NoChangesOverlay QLabel
     font-size: 14pt; 
     font-family: "Open Sans Extrabold";
     font-weight: bold; 
-    color: rgba(180,180,180,255);
+    color: $NoChangesOverlayTextColor;
 }
 
 AzToolsFramework--SlicePushWidget QRadioButton
 {
-    color: @MenuItemSelectedColor;
+    color: $MenuItemSelectedColor;
 }
 
 AzToolsFramework--ComponentPaletteWidget
 {
-    border: 1px solid @ScrollbarHandleBorderColor;
+    border: 1px solid $ScrollbarHandleBorderColor;
 }
 
 AzToolsFramework--ComponentPaletteWidget #SearchFrame
@@ -389,8 +389,8 @@ AzToolsFramework--ComponentPaletteWidget #SearchFrame
 
 AzToolsFramework--ComponentPaletteWidget #SearchText
 {
-    selection-background-color: rgb(233, 99, 0);
-    background: #6e7071;
+    selection-background-color: $SearchSelectionBackgroundColor;
+    background: $SearchInputBackgroundColor;
     image: url(:/PropertyEditor/Resources/search.png);
     background-repeat: no-repeat;
     background-position: left;
@@ -410,33 +410,33 @@ AzToolsFramework--ComponentPaletteWidget #SearchClearButton
 
 AzToolsFramework--ComponentPaletteWidget #Tree
 {
-    background-color: #222222;
-    color: white;
+    background-color: $MenuBackgroundColor;
+    color: $PrimaryTextColor;
     font-size: 12px;
     outline: none;
     padding: 5 0 8 8;
-    selection-color: #4285F4;
-    selection-background-color: #222222;
+    selection-color: $ComponentPaletteTreeSelectionColor;
+    selection-background-color: $MenuBackgroundColor;
 }
 
 AzToolsFramework--ComponentPaletteWidget #Tree::item::hover
 {
-	color: #4285F4;
+	color: $ComponentPaletteTreeSelectionColor;
 }
 
 AzToolsFramework--ComponentEditor
 {
     margin: 0px;
     padding: 0px;
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     border-radius: 2px;
 }
 
 AzToolsFramework--ComponentEditor #ComponentEditorNotification
 {
-    background-color: #1AFDC32D;
+    background-color: $ComponentEditorNotificationBackgroundColor;
     margin: 2px;
-    border: 1px solid #FDC32D;
+    border: 1px solid $ComponentEditorNotificationBorderColor;
     border-radius: 2px;
 }
 
@@ -472,7 +472,7 @@ AzToolsFramework--ComponentEditorHeader
     padding: 0px;
     border: none;
     border-radius: 2px;
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
 }
 
 AzToolsFramework--ComponentEditorHeader #Background
@@ -481,7 +481,7 @@ AzToolsFramework--ComponentEditorHeader #Background
     padding: 0px;
     border: none;
     border-radius: 2px;
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
     background-image: none;
 }
 
@@ -506,7 +506,7 @@ AzToolsFramework--ComponentEditorHeader #Title[IsOverridden="true"]
 {
     font-weight: bold;
     background-color: transparent;
-    color: @MenuItemSelectedColor;
+    color: $MenuItemSelectedColor;
 }
 
 AzToolsFramework--ComponentEditorHeader #Expander
@@ -572,7 +572,7 @@ AzToolsFramework--ComponentEditorHeader #Help
 
 QLabel #NumOverrides 
 {
-    color: @MenuItemSelectedColor;
+    color: $MenuItemSelectedColor;
     font-size:30px; 
 }
 
@@ -584,39 +584,39 @@ QWidget#SliceHierarchyMenuItem
 QWidget#SliceHierarchyMenuItem QLabel
 {
     background-color: transparent;
-    color: @MenuEnabledTextColor;
+    color: $PrimaryTextColor;
 }
 
 QWidget#SliceHierarchyMenuItem QLabel:disabled
 {
     background-color: transparent;
-    color: @MenuDisabledTextColor;
+    color: $MenuItemDisabledColor;
 }
 
 QWidget#SliceHierarchyMenuItem QLabel#NumOverrides
 {
     background-color: transparent;
-    color: @MenuItemSelectedColor;
+    color: $MenuItemSelectedColor;
 }
 
 QWidget#SliceHierarchyMenuItem QLabel#ContextLabelEnabled
 {
-    color: @MenuEnabledTextColor;
+    color: $PrimaryTextColor;
 }
 
 QWidget#SliceHierarchyMenuItem QMessageBox#ContextWarning QLabel
 {
-    color: @MenuEnabledTextColor;
+    color: $PrimaryTextColor;
 }
 
 QWidget#SliceHierarchyMenuItem QMessageBox#ContextWarning QLabel:hover
 {
-    color: @MenuEnabledTextColor;
+    color: $PrimaryTextColor;
 }
 
 QWidget#SliceHierarchyMenuItem QLabel:hover
 {
-    color: @LinkColor;
+    color: $LinkColor;
 }
 
 QWidget#LayerHierarchyMenuItem
@@ -627,23 +627,23 @@ QWidget#LayerHierarchyMenuItem
 QWidget#LayerHierarchyMenuItem QLabel
 {
     background-color: transparent;
-    color: @MenuEnabledTextColor;
+    color: $PrimaryTextColor;
 }
 
 QWidget#LayerHierarchyMenuItem QLabel:disabled
 {
     background-color: transparent;
-    color: @LayerMenuDisabled;
+    color: $LayerMenuDisabled;
 }
 
 QWidget#LayerHierarchyMenuItem:hover
 {
-    background-color: @LayerMenuSelected;
+    background-color: $LayerMenuSelected;
 }
 
 MessageDetailWidget
 {
-    border: 1px solid @MenuBorderColor;
+    border: 1px solid $MenuBorderColor;
 }
 
 PopupDialogWidget #MarginFrame
@@ -660,7 +660,7 @@ PopupDialogWidget #DialogButton
 QLabel[class='Error'] {color: @ResourceProgressError; }
 QLabel[class='Working'] {color: @ResourceProgressWorking; }
 
-QPushButton[class='Link'] { color: @LinkColor; }
+QPushButton[class='Link'] { color: $LinkColor; }
 
 #ResourceManagement QLabel
 {
@@ -690,7 +690,7 @@ QPushButton[class='Link'] { color: @LinkColor; }
 }
 
 #ResourceManagement #Message, #ResourceManagement *[class='Message'] {
-    color: @LabelTextColor;
+    color: $LabelTextColor;
     font-size: 12px;
     margin-top: 6;
 }
@@ -702,19 +702,19 @@ QPushButton[class='Link'] { color: @LinkColor; }
 }
 
 #ResourceManagement #Refreshing {
-    color: @TextWarningColor;
+    color: $TextWarningColor;
 }
 
 #ResourceManagement #LinkButton, #ResourceManagement *[class='Link'] {
     border: none;
-    color: @LinkColor;
+    color: $LinkColor;
     margin-top: 6px;
     font-family: "Open Sans Extrabold";
     font-weight: bold;
 }
 
 #ResourceManagement QHeaderView::section {
-    color: @LabelTextColor;
+    color: $LabelTextColor;
     font-family: "Open Sans Extrabold";
     font-weight: bold;
     border: none;
@@ -741,7 +741,7 @@ QPushButton[class='Link'] { color: @LinkColor; }
     padding: 12px;
     border-style: outset;
     border-width: 1px;
-    border-color: @PanelBackgroundColor;
+    border-color: $PanelBackgroundColor;
 }
 
 #ResourceManagement #TextContentEdit
@@ -753,7 +753,7 @@ QPushButton[class='Link'] { color: @LinkColor; }
     padding: 6px 12px 6px 12px;
     border-style: outset;
     border-width: 1px;
-    border-color: @PanelBackgroundColor;
+    border-color: $PanelBackgroundColor;
 }
 
 #ResourceManagement #TextContentFooter QLabel
@@ -761,7 +761,7 @@ QPushButton[class='Link'] { color: @LinkColor; }
     min-width: 48px;
     max-width: 48px;
     margin-right: 12px;
-    color: @LabelTextColor;
+    color: $LabelTextColor;
 }
 
 #ResourceManagement #TextContentFooter QPushButton
@@ -773,15 +773,15 @@ QPushButton[class='Link'] { color: @LinkColor; }
 
 #ResourceManagement #Action {
     padding: 12px;
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Action #ButtonBar {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Action #Heading {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Heading #RefreshButton {
@@ -790,15 +790,15 @@ QPushButton[class='Link'] { color: @LinkColor; }
 }
 
 #ResourceManagement #Action #Heading #Title {
-    border: 0px solid @DarkPanelBackgroundColor;
+    border: 0px solid $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Action #Heading #Message {
-    border: 0px solid @DarkPanelBackgroundColor;
+    border: 0px solid $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Action #LearnMore {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Action #LearnMore #Title {
@@ -808,64 +808,64 @@ QPushButton[class='Link'] { color: @LinkColor; }
 }
 
 #ResourceManagement #Action #LearnMore #LinkButton {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Action #Title, #ResourceManagement #Action #Message {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Top {
     padding: 12px; 
     border-style: outset;
     border-width: 1px;
-    border-color: @PanelBackgroundColor;
+    border-color: $PanelBackgroundColor;
 }
 
 #ResourceManagement #Bottom {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
     padding: 12px; 
 }
 
 #ResourceManagement #Bottom #Title {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
     font-size: 12px;
     font-family: "Open Sans Extrabold";
     font-weight: bold;
 }
 
 #ResourceManagement #Bottom #Message {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
     margin-bottom: 6px;
 }
 
 #ResourceManagement #Bottom #Table {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
     qproperty-alternatingRowColors: true;
 }
 
 #ResourceManagement #Bottom #Table QHeaderView {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Bottom #Table QHeaderView::section {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Bottom #Table::item {
-    background-color: @WindowBackgroundColor;
+    background-color: $WindowBackgroundColor;
 }
 
 #ResourceManagement #Bottom #Table::item:alternate {
-    background-color: @PanelBackgroundColor;
+    background-color: $PanelBackgroundColor;
 }
 
 #ResourceManagement #Bottom #Resources {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Bottom #Refreshing {
-    background-color: @DarkPanelBackgroundColor;
+    background-color: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Stack #Heading #Message
@@ -883,11 +883,11 @@ QPushButton[class='Link'] { color: @LinkColor; }
 }
 
 #ResourceManagement #StackEvents #TitleBar {	
-    color: @TextColor;
-	background-color: @WindowBackgroundColor;
+    color: $WindowTextColor;
+	background-color: $WindowBackgroundColor;
     border-style: outset;
     border-width: 1px;
-    border-color: @PanelBackgroundColor;
+    border-color: $PanelBackgroundColor;
 }
 
 #ResourceManagement #StackEvents #TitleBar * {
@@ -900,21 +900,21 @@ QPushButton[class='Link'] { color: @LinkColor; }
 } 
 
 #ResourceManagement #StackEvents #TitleBar #InProgress #Text {
-    color: @TextWarningColor;
+    color: $TextWarningColor;
 }
 
 #ResourceManagement #StackEvents #TitleBar #Succeeded {
-    color: @TextPositiveColor;
+    color: $TextPositiveColor;
 }
 
 #ResourceManagement #StackEvents #TitleBar #Failed {
-    color: @TextErrorColor;
+    color: $TextErrorColor;
 }
 
 #ResourceManagement #StackEvents #Content {	
     border-style: inset;
     border-width: 1px;
-    border-color: @PanelBackgroundColor;
+    border-color: $PanelBackgroundColor;
     padding: 12px;
 }
 
@@ -924,16 +924,16 @@ QPushButton[class='Link'] { color: @LinkColor; }
 }
 
 #ResourceManagement #StackEvents QTableView::item {
-    background-color: @PanelBackgroundColor;
+    background-color: $PanelBackgroundColor;
 }
 
 #ResourceManagement #StackEvents QTableView::item:focus {
-    selection-color: @MenuEnabledTextColor;
-    selection-background-color: @ToolButtonPressedBackgroundColor;
+    selection-color: $PrimaryTextColor;
+    selection-background-color: $ToolButtonPressedBackgroundColor;
 }
 
 #ResourceManagement #StackEvents QTableView::item:alternate {
-    background-color: @WindowBackgroundColor;
+    background-color: $WindowBackgroundColor;
 }
 
 #ResourceManagement #CreateDeployment #LearnMore
@@ -949,18 +949,18 @@ QPushButton[class='Link'] { color: @LinkColor; }
 
 #ResourceManagement #LoadingError, #ResourceManagement #LoadingError #Title, #ResourceManagement #LoadingError #Message, #ResourceManagement #LoadingError #ErrorText
 {
-    background: @DarkPanelBackgroundColor;
+    background: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #LoadingError #ErrorText
 {
     padding: 12px;
-    color: @TextErrorColor;
+    color: $TextErrorColor;
 }
 
 #ResourceManagement #Loading, #ResourceManagement #Loading #Title, #ResourceManagement #Loading #Message
 {
-    background: @DarkPanelBackgroundColor;
+    background: $DarkPanelBackgroundColor;
 }
 
 #ResourceManagement #Loading, #ResourceManagement #LoadingError
@@ -973,7 +973,7 @@ QPushButton[class='Link'] { color: @LinkColor; }
     padding: 6px;
     border-style: inset;
     border-width: 1px;
-    border-color: @PanelBackgroundColor;
+    border-color: $PanelBackgroundColor;
 }
 
 #ResourceManagement #MainToolbar QPushButton
@@ -990,7 +990,7 @@ QPushButton[class='Link'] { color: @LinkColor; }
 
 #ResourceManagement #ResourceImporter #RegionBox:disabled
 {
-    color: #555555;
+    color: $MenuItemDisabledColor;
 }
 
 #ResourceManagement #ResourceImporter #ListTable
@@ -1005,19 +1005,19 @@ QPushButton[class='Link'] { color: @LinkColor; }
     padding-right: 12px;
     padding-top: 3px;
     padding-bottom: 3px;
-    background-color: #333436;
+    background-color: $ResourceImporterListItemBackgroundColor;
 }
 
 #ResourceManagement #ResourceImporter #ListTable::item:alternate
 {
-    background-color: @PanelBackgroundColor;
+    background-color: $PanelBackgroundColor;
 }
 
 #ResourceManagement #ResourceImporter #SelectionTable
 {
     qproperty-showGrid: true;
     border: none;
-    gridline-color: @WindowBackgroundColor;
+    gridline-color: $WindowBackgroundColor;
 }
 
 #ResourceManagement #ResourceImporter #SelectionTable::item
@@ -1028,7 +1028,7 @@ QPushButton[class='Link'] { color: @LinkColor; }
 
 #ResourceManagement #ResourceImporter #LoadingLabel
 {
-    color : @TextWarningColor;
+    color : $TextWarningColor;
 }
 
 #ResourceManagement #MainToolbar #SaveButton
@@ -1081,15 +1081,15 @@ QPushButton[class='Link'] { color: @LinkColor; }
 }
 
 #ResourceManagement #UpdateStack #Table::item {
-    background-color: @PanelBackgroundColor;
+    background-color: $PanelBackgroundColor;
 }
 
 #ResourceManagement #UpdateStack #Table::item:alternate {
-    background-color: @WindowBackgroundColor;
+    background-color: $WindowBackgroundColor;
 }
 
 #ResourceManagement #UpdateStack #Status {
-    color: @TextWarningColor;
+    color: $TextWarningColor;
 }
 
 #ProfileSelector #DeleteProfile {
@@ -1099,18 +1099,18 @@ QPushButton[class='Link'] { color: @LinkColor; }
 }
 
 #ProfileSelector #EditSelectedProfile {
-    color: @LinkColor;
+    color: $LinkColor;
 }
 
 #LoginDialog
 {
-    background-color: #F8F8F8;
+    background-color: $LoginDialogBackgroundColor;
 }
 
 #LoginDialog Amazon--LoginWelcomeTitle
 {
-    color: #444444;
-    background-color: #F8F8F8;
+    color: $LoginDialogTextColor;
+    background-color: $LoginDialogBackgroundColor;
     font-size: 21px;
     qproperty-alignment: AlignCenter;
     font-family: "Open Sans Semibold";
@@ -1118,8 +1118,8 @@ QPushButton[class='Link'] { color: @LinkColor; }
 
 #LoginDialog Amazon--LoginWelcomeText
 {
-    color: #444444;
-    background-color: #F8F8F8;
+    color: $LoginDialogTextColor;
+    background-color: $LoginDialogBackgroundColor;
     font-size: 13px;
     qproperty-alignment: AlignLeft;
     font-family: "Open Sans";
@@ -1127,8 +1127,8 @@ QPushButton[class='Link'] { color: @LinkColor; }
 
 #LoginDialog Amazon--LoginFooterText
 {
-    color: #999999;
-    background-color: #F8F8F8;
+    color: $DisabledTextColor;
+    background-color: $LoginDialogBackgroundColor;
     font-size: 13px;
     qproperty-alignment: AlignCenter;
     font-family: "Open Sans";
@@ -1136,44 +1136,44 @@ QPushButton[class='Link'] { color: @LinkColor; }
 
 #LoginDialog Amazon--LoginWebViewFrame
 {
-    border: 2px solid #EEEEEE;
+    border: 2px solid $LoginDialogFrameBorderColor;
 }
 
 #LoginDialog Amazon--LoginWebView
 {
-    background-color: #F8F8F8;
+    background-color: $LoginDialogBackgroundColor;
 }
 
 QLineEdit[inputValid="false"]
 {
     font: bold;
     border-style: solid;
-    border: 2px solid @TextErrorColor;
+    border: 2px solid $TextErrorColor;
     background-image: url(:/Icons/Error.png);
     background-repeat: no-repeat;
     background-position: right;
     padding-right: 20px;
-    background-color: rgb(250, 163, 160);
+    background-color: $InputInvalidBackgroundColor;
 }
 
 QLineEdit[inputValid="false"]:focus
 {
-    background-color: rgb(253, 218, 217);
+    background-color: $InputInvalidFocusBackgroundColor;
 }
 
 QWidget#ViewportTitleDlgContainer, QWidget#ViewportTitleDlgContainer QWidget {
-    background-color: rgba(47, 46, 46, 217);
+    background-color: $ViewportTitleDlgBackgroundColor;
 }
 
 QLineEdit#filteredSearchWidget
 {
-    selection-background-color: rgb(233, 99, 0);
-    background: #6e7071;
+    selection-background-color: $SearchSelectionBackgroundColor;
+    background: $SearchInputBackgroundColor;
     background-image: url(:/stylesheet/img/search.png);
     background-repeat: no-repeat;
     background-position: left;
     padding: 2 2 2 24;
-    color: rgb(255, 255, 255);
+    color: $PrimaryTextColor;
 }
 
 QPushButton#m_display_options:menu-indicator
@@ -1229,14 +1229,14 @@ QToolButton#assetTypeSelector:focus
 ******************************************************************************/
 
 QWidget {
-    background-color: rgb(56, 58, 59);
+    background-color: $WidgetBackgroundColor;
     font-family: "Open Sans";
     font-weight: 400;
 }
 
 QMenuBar {
-    background-color: rgb(47, 46, 46);
-    color: rgb(204, 204, 204);
+    background-color: $MenuBarBackgroundColor;
+    color: $WindowTextColor;
     min-height: 24px;
     font-size: 13px;
 }
@@ -1248,15 +1248,15 @@ QMenuBar::item {
 }
 
 QMenuBar::item:selected {
-    color: rgb(66, 133, 244);
+    color: $MenuBarItemSelectedColor;
 }
 
 QMenuBar::item:pressed {
-    color: rgb(66, 133, 244);
+    color: $MenuBarItemSelectedColor;
 }
 
 QLabel, QGroupBox::title, QTabBar::tab, QDockWidget::title, QDockWidget {
-    color: rgb(204, 204, 204);
+    color: $WindowTextColor;
 }
 
 QPushButton::menu-indicator:enabled {
@@ -1282,39 +1282,39 @@ QPushButton[class="FixedMenu"]::menu-indicator:enabled, QPushButton[class="Fixed
 
 QPushButton {
     font-size: 14px;
-    color: #EEEEEE;
+    color: $AssetImporterLabelColor;
 }
 
 QPushButton:hover {
-    color: rgb(204, 204, 204);
+    color: $WindowTextColor;
 }
 
 QPushButton:pressed {
-    color: #cccccc;
+    color: $WindowTextColor;
 }
 
 QPushButton:disabled {
-    color: #999999;
+    color: $DisabledTextColor;
 }
 
 
 QPushButton[class="Primary"] {
-	color: white;
+	color: $PrimaryTextColor;
 }
 
 QPushButton[class="Primary"]:disabled {
-    color: #999999;
+    color: $DisabledTextColor;
 }
 
 QPushButton[class="tiny"] {
     font-size: 11px;
-    border: 1px solid rgb(40,41,42);
+    border: 1px solid $TinyButtonBorderColor;
     border-radius: 2px;
     padding: 0 2 0 2;
 }
 
 QPushButton[class="tiny"]:checked {
-    border: 1px solid rgb(243,129,29);
+    border: 1px solid $TinyButtonCheckedBorderColor;
     border-radius: 2px;
     padding: 0 2 0 2;
 }
@@ -1322,19 +1322,19 @@ QPushButton[class="tiny"]:checked {
 QRadioButton, QCheckBox {
     font-size: 12px;
     line-height: 18px;
-    color: rgb(204, 204, 204);
+    color: $WindowTextColor;
 }
 
 QRadioButton:hover {
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 QRadioButton:hover, QCheckBox:hover {
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 QRadioButton:disabled, QCheckBox:disabled {
-    color: @CheckBoxDisabledColor;
+    color: $CheckBoxDisabledColor;
 }
 
 
@@ -1360,7 +1360,7 @@ QRadioButton::indicator:disabled {
 QCheckBox::indicator:PartiallyChecked {
     width: 11px;
     height: 11px;
-	border: 1px solid white;
+	border: 1px solid $PrimaryTextColor;
 	border-radius: 2px;
 	image: url(:/stylesheet/img/combo-tristate.png);
 }
@@ -1368,7 +1368,7 @@ QCheckBox::indicator:PartiallyChecked {
 QCheckBox::indicator:Unchecked {
     width: 11px;
     height: 11px;
-    border: 1px solid white;
+    border: 1px solid $PrimaryTextColor;
     border-radius: 2px;
 	image: none;
 }
@@ -1382,23 +1382,23 @@ QCheckBox::indicator:Checked {
 QCheckBox::indicator:unchecked:disabled {
     width: 11px;
     height: 11px;
-    border: 1px solid rgb(126, 119, 116);
+    border: 1px solid $CheckBoxDisabledBorderColor;
     border-radius: 2px;
 }
 
 QTextEdit {
-    color: rgb(204, 204, 204);
+    color: $WindowTextColor;
     font-size: 12px;
     line-height: 20px;
 
-    background-color: rgb(34, 35, 38);
-    border: 1px solid rgb(34, 35, 38);
+    background-color: $TextEditDarkBackgroundColor;
+    border: 1px solid $TextEditDarkBackgroundColor;
 }
 
 
 QScrollBar {
-    background-color: #333333;
-    border: 1px solid rgb(34, 35, 38);
+    background-color: $GlobalScrollBarBackgroundColor;
+    border: 1px solid $TextEditDarkBackgroundColor;
 }
 
 QScrollBar:horizontal {
@@ -1412,8 +1412,8 @@ QScrollBar:vertical {
 }
 
 QScrollBar::handle {
-    background-color: #555555;
-    border: 0.5px solid rgb(51, 52, 56);
+    background-color: $MenuItemDisabledColor;
+    border: 0.5px solid $ScrollBarHandleBorderColor;
     border-radius: 2px;
 }
 
@@ -1434,13 +1434,13 @@ QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::su
 
 QProgressBar {
     height: 7px;
-    background: rgb(108, 111, 112);
+    background: $ProgressBarTrackColor;
     border-radius: 2px;
     color: transparent; /* no label */
 }
 
 QProgressBar::chunk {
-    background-color: rgb(17, 102, 187);
+    background-color: $ProgressBarFillColor;
     border-radius: 2px;
 }
 
@@ -1453,7 +1453,7 @@ QSlider:vertical {
 }
 
 QSlider::groove {
-    background: rgb(108, 111, 112);
+    background: $ProgressBarTrackColor;
     border-radius: 2px;
 }
 QSlider::groove:horizontal {
@@ -1469,27 +1469,27 @@ QSlider::groove:vertical {
 
 /* right side of the slider */
 QSlider::add-page:horizontal, QSlider::add-page:vertical {
-     background-color: rgb(108, 111, 112);
+     background-color: $ProgressBarTrackColor;
      border-radius: 2px;
 }
 
 /* left side of the slider */
 QSlider::sub-page:horizontal, QSlider::sub-page:vertical {
-    background-color: rgb(17, 102, 187);
+    background-color: $ProgressBarFillColor;
     border-radius: 2px;
 }
 
 QSlider::sub-page:horizontal:disabled, QSlider::sub-page:vertical:disabled {
-    background: rgb(108, 111, 112);
+    background: $ProgressBarTrackColor;
     border-radius: 2px;
 }
 
 QSlider::sub-page:horizontal[invertedAppearance=true], QSlider::sub-page:vertical[invertedAppearance=true] {
-     background: rgb(108, 111, 112);
+     background: $ProgressBarTrackColor;
      border-radius: 2px;
 }
 QSlider::add-page:horizontal[invertedAppearance=true], QSlider::add-page:vertical[invertedAppearance=true] {
-    background-color: rgb(17, 102, 187);
+    background-color: $ProgressBarFillColor;
     border-radius: 2px;
 }
 
@@ -1503,7 +1503,7 @@ QSlider::handle:disabled {
 }
 
 QMenu {
-    background-color: #333333;
+    background-color: $MenuBackgroundColor;
     margin: 3 5 5 5;
 }
 
@@ -1511,7 +1511,7 @@ QMenu {
  * without taking into account the action icon, so it
  * may result in text and icon overlapping. */
 QMenu::item {
-    color: white;
+    color: $PrimaryTextColor;
     font-size: 12px;
     padding-right: 25px;
     padding-top: 2px;
@@ -1519,11 +1519,11 @@ QMenu::item {
 }
 
 QMenu::item:selected {
-    color: #4285F4;
+    color: $GlobalMenuItemSelectedColor;
 }
 
 QMenu::item:disabled {
-    color: #555555;
+    color: $MenuItemDisabledColor;
 }
 
 QMenu::separator
@@ -1532,55 +1532,55 @@ QMenu::separator
     margin: 2px 6px 2px 6px;
     border-top-width: 1px;
     border-top-style: solid;
-    border-top-color: #303030;
+    border-top-color: $MenuSeparatorTopColor;
     border-bottom-width: 1px;
     border-bottom-style: solid;
-    border-bottom-color: #222222;
+    border-bottom-color: $MenuBackgroundColor;
 }
 
 QComboBox {
     height: 17px;
     border-radius: 1px;
-    color: white;
+    color: $PrimaryTextColor;
     padding: 1px 6px 1px;
 }
 
 QComboBox:enabled:!focus {
-    background-color: #555555;
+    background-color: $MenuItemDisabledColor;
 }
 
 QComboBox:enabled:!focus:on {
-    background-color: #555555;
-    border: 1px solid rgb(66, 133, 244);
+    background-color: $MenuItemDisabledColor;
+    border: 1px solid $GlobalMenuItemSelectedColor;
 }
 
 QComboBox:focus {
-    background-color: #555555;
-    border: 1px solid rgb(66, 133, 244);
+    background-color: $MenuItemDisabledColor;
+    border: 1px solid $GlobalMenuItemSelectedColor;
 }
 
 QComboBox QListView {
-    background-color: #222222;
-    color: white;
+    background-color: $MenuBackgroundColor;
+    color: $PrimaryTextColor;
     font-size: 12px;
     outline: none;
     padding: 5 0 8 8;
-    selection-color: #4285F4;
-    selection-background-color: #222222;
+    selection-color: $ComponentPaletteTreeSelectionColor;
+    selection-background-color: $MenuBackgroundColor;
 }
 
 QComboBox QListView::item {
     min-height: 17;
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 QComboBox QListView::item:selected {
-    background-color: #222222;
-    color: #4285F4;
+    background-color: $MenuBackgroundColor;
+    color: $ComponentPaletteTreeSelectionColor;
 }
 
 QComboBox QScrollBar {
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
     border: 0px;
 }
 
@@ -1616,8 +1616,8 @@ QComboBox::down-arrow:!editable:disabled {
 }
 
 QComboBox:disabled {
-    color: rgb(105, 105, 105);
-    background-color: rgb(78, 80, 81);
+    color: $ComboBoxDisabledTextColor;
+    background-color: $ComboBoxDisabledBackgroundColor;
 }
 
 QToolBar QComboBox {
@@ -1631,7 +1631,7 @@ QTabBar::close-button {
 }
 
 QTreeView::item:hover {
-    color: rgb(66, 133, 244);
+    color: $VectorZAxisColor;
 }
 
 /*****************************************************************************
@@ -1641,11 +1641,11 @@ QLineEdit {
     font-family: "Open Sans";
     font-size: 12px;
     font-weight: 400;
-    color: black;
+    color: $BlackTextColor;
 }
 
 QLineEdit:focus {
-    color: black;
+    color: $BlackTextColor;
 }
 
 VectorEdit QLineEdit {
@@ -1654,62 +1654,62 @@ VectorEdit QLineEdit {
     padding: 0px 3px;
     border-width: 1px;
     border-radius: 2px;
-    color: "black";
+    color: "$BlackTextColor";
 }
 
 VectorEdit QLineEdit:enabled:focus {
-    background-color: rgb(204, 204, 204);
+    background-color: $VectorEditFocusBackgroundColor;
 }
 
 VectorEdit QLineEdit:enabled {
-    background-color: rgb(110, 112, 113);
-    border: 1px solid rgb(66, 133, 244);
+    background-color: $VectorEditBackgroundColor;
+    border: 1px solid $VectorZAxisColor;
 }
 
 VectorEdit QLineEdit:disabled {
-    color: rgb(56, 58, 59);
-    background-color: rgb(78, 80, 81);
+    color: $WidgetBackgroundColor;
+    background-color: $ComboBoxDisabledBackgroundColor;
 }
 
 QAbstractSpinBox:disabled {
-    color: rgb(0, 0, 0);
-    background-color: rgb(90, 90, 90);
+    color: $BlackTextColor;
+    background-color: $SpinBoxDisabledBackgroundColor;
 }
 
 VectorEdit[flavor="1"] QLineEdit { /* Information */
-    border-color: rgb(239, 124, 24);
+    border-color: $VectorFlavorInformationColor;
 }
 
 VectorEdit[flavor="2"] QLineEdit { /* Question */
-    border-color: rgb(66, 133, 244);
+    border-color: $VectorZAxisColor;
 }
 
 VectorEdit[flavor="3"] QLineEdit { /* Invalid */
-    color: rgb(226, 82, 67);
-    border-color: rgb(226, 82, 67);
+    color: $VectorFlavorInvalidColor;
+    border-color: $VectorFlavorInvalidColor;
 }
 
 VectorEdit[flavor="4"] QLineEdit { /* Valid */
-    border-color: rgb(84, 190, 93);
+    border-color: $VectorFlavorValidColor;
 }
 
 QExpandingLineEdit {
-    background-color: rgb(255, 255, 255);
+    background-color: $PrimaryTextColor;
 }
 
 QAbstractItemView {
-    background-color: rgb(56, 58, 59);
-    alternate-background-color: rgb(66, 68, 69);
-    color: rgb(153, 153, 153);
+    background-color: $WidgetBackgroundColor;
+    alternate-background-color: $AbstractItemViewAlternateBackgroundColor;
+    color: $AbstractItemViewTextColor;
     border: none;
-    selection-color: rgb(255, 255, 255);
-    selection-background-color: rgba(255, 255, 255, 41);
+    selection-color: $PrimaryTextColor;
+    selection-background-color: $SelectionHighlightColor;
 }
 
 QAbstractItemView::indicator:unchecked {
     width: 10px;
     height: 10px;
-    border: 1px solid white;
+    border: 1px solid $PrimaryTextColor;
     border-radius: 2px;
 }
 
@@ -1720,18 +1720,18 @@ QAbstractItemView::indicator:checked {
 QAbstractItemView::indicator:disabled {
     width: 10px;
     height: 10px;
-    border: 1px solid rgb(126, 119, 116);
+    border: 1px solid $CheckBoxDisabledBorderColor;
     border-radius: 2px;
 }
 
 QHeaderView::section {
 	background-color: transparent;
-	color: rgb(204, 204, 204);
+	color: $WindowTextColor;
 	padding: 5px;
 }
 
 QHeaderView::section::horizontal {
-	border-right: 1px solid #999999;
+	border-right: 1px solid $DisabledTextColor;
 }
 
 QHeaderView::section::horizontal:last, QHeaderView::section:horizontal:only-one {
@@ -1759,7 +1759,7 @@ AzQtComponents--TitleBar * {
 }
 
 AzQtComponents--TitleBar[drawSimple="true"] {
-    background: rgb(221, 221, 221);
+    background: $TitleBarSimpleBackgroundColor;
     margin-bottom: 1px; /* Hardcoded in DockBar::drawSolidFrame */
     padding-bottom: -1px; /* Use negative padding to offset margin-bottom and keep things centered */
     padding-right: 1px; /* g_simpleBarButtonMarginsInPixels */
@@ -1784,7 +1784,7 @@ AzQtComponents--TitleBar AzQtComponents--ElidingLabel#title {
 }
 
 AzQtComponents--TitleBar[drawSimple="true"] AzQtComponents--ElidingLabel#title {
-    color: rgb(0, 0, 0);
+    color: $BlackTextColor;
 }
 
 AzQtComponents--DockBarButton {
@@ -1870,17 +1870,17 @@ AzQtComponents--ButtonDivider {
 }
 
 AzQtComponents--SearchLineEdit[HasExternalError="true"] {
-    color: rgb(224, 83, 72);
+    color: $SearchLineEditErrorColor;
 }
 
 AzQtComponents--SearchLineEdit[HasExternalError="false"] {
-    color: rgb(192, 192, 192);
+    color: $SearchLineEditNormalColor;
 }
 
 AzQtComponents--StyledDetailsTableView {
-    color: rgb(255, 255, 255);
-    selection-color: rgb(255, 255, 255);
-    selection-background-color: rgba(255, 255, 255, 41);
+    color: $PrimaryTextColor;
+    selection-color: $PrimaryTextColor;
+    selection-background-color: $SelectionHighlightColor;
 }
 
 AzQtComponents--StyledDetailsTableView QHeaderView::section {
@@ -1893,7 +1893,7 @@ AzQtComponents--StyledDetailsTableView::item {
 }
 
 QTableView {
-    gridline-color: rgb(56, 58, 59);
+    gridline-color: $WidgetBackgroundColor;
 }
 
 QToolBar::handle:horizontal {
@@ -1918,14 +1918,14 @@ QToolBar::separator:vertical {
 
 QToolButton {
     background: transparent;
-    color: rgb(204, 204, 204);
+    color: $WindowTextColor;
 }
 
 StyledSliderPrivate::groove:horizontal
 {
     margin-bottom: 5px;
     margin-top: 12px;
-    background: rgb(61,63,64);
+    background: $StyledSliderGrooveColor;
 }
 StyledSliderPrivate::groove:horizontal
 {
@@ -1959,7 +1959,7 @@ StyledSliderPrivate::add-page:horizontal
 }
 
 QDoubleSpinBox[class=SliderSpinBox] {
-    color: black;
+    color: $BlackTextColor;
 }
 
 AzQtComponents--ToolButtonWithWidget QToolButton {
@@ -1985,7 +1985,7 @@ AzQtComponents--ToolButtonComboBox QComboBox, QLineEdit[class="ToolButtonLineEdi
     height: 23px;
     border-width: 2px;
     border-radius: 0px;
-    color: rgb(204, 204, 204);
+    color: $WindowTextColor;
     font-size: 11px;
     padding: 0 0 0 0;
     margin-left: 0;
@@ -1994,7 +1994,7 @@ AzQtComponents--ToolButtonComboBox QComboBox, QLineEdit[class="ToolButtonLineEdi
 
 QLineEdit[class="ToolButtonLineEdit"]:focus {
     border-image: url(:/stylesheet/img/toolbar_combo_border_image_focus.png) 2 2 2 2;
-    color: black;
+    color: $BlackTextColor;
 }
 
 AzQtComponents--ToolButtonComboBox QComboBox:focus {
@@ -2020,7 +2020,7 @@ AzQtComponents--ToolButtonComboBox QComboBox::down-arrow:!focus:on {
 }
 
 QPushButton[class="ButtonStripeButtonFirst"] {
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     background-image: url(:/stylesheet/img/button_stripe_button_unchecked_bg.png);
     border-radius: 0px;
     border-top-left-radius: 2px;
@@ -2034,7 +2034,7 @@ QPushButton[class="ButtonStripeButtonFirst"] {
 }
 
 QPushButton[class="ButtonStripeButtonFirst"]:checked {
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     background-image: url(:/stylesheet/img/button_stripe_button_checked_bg.png);
     border-top-width: 1px;
     border-bottom-width: 1px;
@@ -2042,7 +2042,7 @@ QPushButton[class="ButtonStripeButtonFirst"]:checked {
     border-right-width: 1px;
     border-top-left-radius: 2px;
     border-bottom-left-radius: 2px;
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 QPushButton[class="ButtonStripeButtonFirst"]:pressed {
@@ -2053,11 +2053,11 @@ QPushButton[class="ButtonStripeButtonFirst"]:pressed {
     border-right-width: 1px;
     border-top-left-radius: 2px;
     border-bottom-left-radius: 2px;
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 QPushButton[class="ButtonStripeButtonCenter"] {
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     background-image: url(:/stylesheet/img/button_stripe_button_unchecked_bg.png);
     border-radius: 0px;
     border-top-width: 1px;
@@ -2069,28 +2069,28 @@ QPushButton[class="ButtonStripeButtonCenter"] {
 }
 
 QPushButton[class="ButtonStripeButtonCenter"]:checked {
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     background-image: url(:/stylesheet/img/button_stripe_button_checked_bg.png);
     border-top-width: 1px;
     border-bottom-width: 1px;
     border-left-width: 0px;
     border-right-width: 1px;
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 QPushButton[class="ButtonStripeButtonCenter"]:pressed {
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     background-image: url(:/stylesheet/img/button_stripe_button_checked_bg.png);
     border-top-width: 1px;
     border-bottom-width: 1px;
     border-left-width: 1px;
     border-right-width: 1px;
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 
 QPushButton[class="ButtonStripeButtonLast"] {
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     background-image: url(:/stylesheet/img/button_stripe_button_unchecked_bg.png);
     border-radius: 0px;
     border-top-right-radius: 2px;
@@ -2102,7 +2102,7 @@ QPushButton[class="ButtonStripeButtonLast"] {
 }
 
 QPushButton[class="ButtonStripeButtonLast"]:checked {
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     background-image: url(:/stylesheet/img/button_stripe_button_checked_bg.png);
     border-top-width: 1px;
     border-bottom-width: 1px;
@@ -2110,11 +2110,11 @@ QPushButton[class="ButtonStripeButtonLast"]:checked {
     border-right-width: 2px;
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 QPushButton[class="ButtonStripeButtonLast"]:pressed {
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     background-image: url(:/stylesheet/img/button_stripe_button_checked_bg.png);
     border-top-width: 1px;
     border-bottom-width: 1px;
@@ -2122,7 +2122,7 @@ QPushButton[class="ButtonStripeButtonLast"]:pressed {
     border-right-width: 2px;
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 QComboBox[class="condition"]
@@ -2131,7 +2131,7 @@ QComboBox[class="condition"]
     height: 21px;
     border-width: 2px;
     border-radius: 0px;
-    color: rgb(204, 204, 204);
+    color: $WindowTextColor;
     font-size: 12px;
     font-family: "Open Sans Extrabold";
     font-weight: bold;
@@ -2148,9 +2148,9 @@ QComboBox[class="condition"]:enabled:!focus:on {
 ConditionGroupWidget QLineEdit
 {
     height: 21;
-    border: 1px solid rgb(40, 41, 42);
+    border: 1px solid $TinyButtonBorderColor;
     border-radius: 2px;
-    background-color: rgb(110, 112, 113);
+    background-color: $VectorEditBackgroundColor;
     padding: 0 0 0 4;
 }
 
@@ -2161,7 +2161,7 @@ AzQtComponents--TagWidget
 
 QLabel[class="addDeployment"]
 {
-    color: rgb(62, 112, 200);
+    color: $AddDeploymentLinkColor;
     font-size: 13px;
     font-family: "Open Sans Extrabold";
     font-weight: bold;
@@ -2170,7 +2170,7 @@ QLabel[class="addDeployment"]
 
 QLabel[class="addDeployment"]:hover
 {
-    color: rgb(81, 124, 206);
+    color: $AddDeploymentLinkHoverColor;
     font-size: 13px;
     font-family: "Open Sans Extrabold";
     font-weight: bold;
@@ -2178,12 +2178,12 @@ QLabel[class="addDeployment"]:hover
 
 #m_clearFiltersButton
 {
-    color: @LinkColor;
+    color: $LinkColor;
 }
 
 #m_clearFiltersButton:hover
 {
-    color: rgb(145, 189, 255);
+    color: $LinkHoverColor;
 }
 
 QPushButton[class="rounded"] {
@@ -2249,7 +2249,7 @@ QPushButton[class="smallRounded"]:hover:!pressed {
 WelcomeScreenDialog QLabel
 {
     font-size: 12px;
-    color: #FFFFFF;
+    color: $PrimaryTextColor;
     line-height: 20px;
     font-family: "Open Sans";
     background-color: transparent;
@@ -2275,7 +2275,7 @@ WelcomeScreenDialog QLabel[fontStyle="sectionTitle"], QLabel#titleLabel[fontStyl
 
 WelcomeScreenDialog QLabel[class="link"]:hover
 {
-    color: #4990E2;
+    color: $WelcomeScreenLinkHoverColor;
 }
 
 WelcomeScreenDialog QPushButton
@@ -2286,7 +2286,7 @@ WelcomeScreenDialog QPushButton
 
 WelcomeScreenDialog QListView::item::hover
 {
-    color: #4990E2;
+    color: $WelcomeScreenLinkHoverColor;
 }
 
 WelcomeScreenDialog QFrame#viewContainer
@@ -2296,14 +2296,14 @@ WelcomeScreenDialog QFrame#viewContainer
 
 WelcomeScreenDialog QFrame#viewContainer[articleStyle="pinned"]
 {
-    background: rgba(180,139,255,5%);
-    border: 1px solid #B48BFF;
+    background: $WelcomeScreenPinnedArticleBackgroundColor;
+    border: 1px solid $WelcomeScreenPinnedArticleBorderColor;
     box-shadow: 0 0 4px 0 rgba(0,0,0,50%);
 }
 
 WelcomeScreenDialog QWidget#articleViewContainerRoot
 {
-    background: qlineargradient(x1:0 y1:0, x2:0 y2:0.3, stop:0 rgba(100,65,164,50%), stop:1 rgba(0,0,0,100%));
+    background: $WelcomeScreenArticleRootGradient;
 }
 
 WelcomeScreenDialog QScrollArea#previewArea
@@ -2324,13 +2324,13 @@ WelcomeScreenDialog QFrame#imageFrame
 AzQtComponents--FilteredSearchWidget QLineEdit#textSearch
 {
     qproperty-frame: false;
-    selection-background-color: rgb(233, 99, 0);
-    background: #6e7071;
+    selection-background-color: $SearchSelectionBackgroundColor;
+    background: $SearchInputBackgroundColor;
     background-image: url(:/stylesheet/img/search.svg);
     background-repeat: no-repeat;
     background-position: left;
     padding: 2 2 2 24;
-    color: rgb(255, 255, 255);
+    color: $PrimaryTextColor;
 }
 
 AzQtComponents--FilteredSearchWidget #filteredParent
@@ -2357,25 +2357,25 @@ AzQtComponents--FilteredSearchWidget QToolButton#assetTypeSelector::menu-indicat
 
 AzQtComponents--FilteredSearchWidget QLabel#label
 {
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 AzQtComponents--FilteredSearchWidget AzQtComponents--ExtendedLabel#clearLabel
 {
-    color: rgb(66, 133, 234);
+    color: $FilterClearLabelColor;
 }
 
 AzQtComponents--FilteredSearchWidget AzQtComponents--ExtendedLabel#clearLabel:hover
 {
-    color: rgb(145, 189, 255);
+    color: $LinkHoverColor;
 }
 
 AzQtComponents--FilterCriteriaButton
 {
     padding: 0px;
     border-radius: 2px;
-    border: 1px solid #808080;
-    background-color: #2E2E2E;
+    border: 1px solid $FilterCriteriaButtonBorderColor;
+    background-color: $FilterCriteriaButtonBackgroundColor;
 }
 
 AzQtComponents--FilterCriteriaButton QLabel,
@@ -2417,7 +2417,7 @@ AzQtComponents--BrowseEdit #attached-button
 /* Tooltip font styles */
 .QLabel[tooltipLabel="Title"]
 {
-  color: @CToolTipText;
+  color: $CToolTipText;
   font: "Open Sans";
   font-size: 12px;
   font-weight: 600; /*CSS semibold value*/
@@ -2426,7 +2426,7 @@ AzQtComponents--BrowseEdit #attached-button
 
 .QLabel[tooltipLabel="Shortcut"]
 {
-  color: @CToolTipText;
+  color: $CToolTipText;
   font: "Open Sans";
   font-size: 12px;
   font-style: italic;
@@ -2434,7 +2434,7 @@ AzQtComponents--BrowseEdit #attached-button
 }
 .QLabel[tooltipLabel="Content"]
 {
-  color: @CToolTipText;
+  color: $CToolTipText;
   font: "Open Sans";
   font-size: 11px;
   background: transparent;
@@ -2442,7 +2442,7 @@ AzQtComponents--BrowseEdit #attached-button
 
 QWidget[tooltip="Background"]
 {
-  background: @CToolTipBackground;
+  background: $CToolTipBackground;
   margin: 5px;
   padding: 10px;
 }
@@ -2455,12 +2455,12 @@ QWidget[tooltip="Background"]
 
 QWidget[tableRow="Odd"]
 {
-  background: @CTableRowOdd;
+  background: $CTableRowOdd;
 }
 
 QWidget[tableRow="Even"]
 {
-  background: @CTableRowEven;
+  background: $CTableRowEven;
 }
 
 /* ============================================================= */
@@ -2491,7 +2491,7 @@ OutlinerWidget QTreeView::branch:selected
 , OutlinerWidget QTreeView::branch:selected:active
 , OutlinerWidget QTreeView::item:selected:active
 {
-    background: rgba(255, 255, 255, 45);
+    background: $OutlinerSelectionBackgroundColor;
 }
 
 /* ============================================================= */
@@ -2523,7 +2523,7 @@ OutlinerCheckBox#VisibilityMixed::indicator:checked
 , OutlinerCheckBox#LockMixedHover::indicator:unchecked
 , OutlinerCheckBox#LockMixedHover::indicator:indeterminate
 {
-    border: 1px solid rgb(240, 195, 45);
+    border: 1px solid $OutlinerMixedStateIndicatorColor;
     border-radius: 3px;
 }
 
@@ -2621,7 +2621,7 @@ AzQtComponents--Card
 {
     margin: 0 0 10px 0;
     padding: 0px;
-    border: 1px solid rgb(33, 34, 35);
+    border: 1px solid $ComponentEditorBorderColor;
     border-radius: 2px;
 }
 
@@ -2632,10 +2632,10 @@ AzQtComponents--Card[hideFrame=true]
 
 AzQtComponents--CardNotification
 {
-    background-color: #1AFDC32D;
+    background-color: $ComponentEditorNotificationBackgroundColor;
     margin: 2px;
     padding: 5px;
-    border: 1px solid #FDC32D;
+    border: 1px solid $ComponentEditorNotificationBorderColor;
     border-radius: 2px;
 }
 
@@ -2678,7 +2678,7 @@ AzQtComponents--CardHeader #Background
 
 .primaryCardHeader
 {
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
 }
 
 .secondaryCardHeader
@@ -2783,7 +2783,7 @@ AzQtComponents--CardHeader #Help:hover
 
 .separator
 {
-    color: #999999;
+    color: $DisabledTextColor;
 }
 
 AzQtComponents--Card #SeparatorContainer
@@ -2797,7 +2797,7 @@ AzQtComponents--Card #SeparatorContainer
 
 AzQtComponents--Card[selected="true"]
 {
-    border-color: #E57829;
+    border-color: $CardSelectedBorderColor;
 }
 
 /** 
@@ -2806,19 +2806,19 @@ AzQtComponents--Card[selected="true"]
 
 AzToolsFramework--AssetBrowser--SearchWidget QLineEdit
 {
-    selection-background-color: rgb(233, 99, 0);
-    background: #6e7071;
+    selection-background-color: $SearchSelectionBackgroundColor;
+    background: $SearchInputBackgroundColor;
     background-image: url(:/AssetBrowser/Resources/search.png);
     background-repeat: no-repeat;
     background-position: left;
     padding: 2 2 2 24;
-    color: rgb(255, 255, 255);
+    color: $PrimaryTextColor;
 }
 
 AzToolsFramework--AssetBrowser--SearchWidget QPushButton#m_buttonClearFilter
 {
-    border: none; 
-    background: #6e7071;
+    border: none;
+    background: $SearchInputBackgroundColor;
 }
 
 
@@ -2826,7 +2826,7 @@ AzToolsFramework--AssetBrowser--AssetBrowserTreeView
 {
     font-family: "Amazon Ember";
     font-size: 12px;
-    color: #FFFFFF;
+    color: $PrimaryTextColor;
     show-decoration-selected:0;  /* this prevents the carets from being rendered with an extra square of highlight around them */
 }
 
@@ -2837,8 +2837,8 @@ AzToolsFramework--AssetBrowser--AssetBrowserTreeView::item
 
 AzToolsFramework--AssetBrowser--AssetBrowserTreeView:disabled
 {
-    color: #999999;
-    selection-color: #999999;
+    color: $DisabledTextColor;
+    selection-color: $DisabledTextColor;
 }
 
 AzToolsFramework--AssetBrowser--AssetBrowserTreeView::branch:has-children:!has-siblings:closed,
@@ -2855,8 +2855,8 @@ AzToolsFramework--AssetBrowser--AssetBrowserTreeView::branch:open:has-children:h
 
 AzQtComponents--SegmentBar QAbstractButton
 {
-    background-color: #333333;
-    border-color: #000000;
+    background-color: $GlobalScrollBarBackgroundColor;
+    border-color: $BlackTextColor;
     border-style: solid;
     border-width: 1px;
 
@@ -2895,28 +2895,28 @@ AzQtComponents--SegmentBar[orientation="2"] QAbstractButton.TabLast
 
 AzQtComponents--SegmentBar QAbstractButton:checked
 {
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
 }
 
 AzQtComponents--SegmentBar QAbstractButton:hover:!checked,
 AzQtComponents--SegmentBar QAbstractButton:pressed:!checked
 {
-    background-color: #444444;
+    background-color: $BackgroundColor;
 }
 
 AzToolsFramework--AssetCompleterListView
 {
-    color: #fff;
-    background: #000;
+    color: $PrimaryTextColor;
+    background: $BlackTextColor;
 }
 
 QLineEdit#m_entitySearchBox
 {
     border: none;
-    selection-background-color: rgb(233, 99, 0);
-    background: #6e7071;
+    selection-background-color: $SearchSelectionBackgroundColor;
+    background: $SearchInputBackgroundColor;
     background-repeat: no-repeat;
     background-position: left;
     padding: 2 2 2 24;
-    color: rgb(255, 255, 255);
+    color: $PrimaryTextColor;
 }

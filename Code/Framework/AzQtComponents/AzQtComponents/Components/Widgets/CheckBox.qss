@@ -10,14 +10,14 @@
 QCheckBox
 {
     background-color: transparent;
-    font-size: 12px;
+    font-size: $FontSize;
     line-height: 16px;
     outline: 0;
 }
 
 QCheckBox:disabled
 {
-    color: #999999;
+    color: $DisabledTextColor;
 }
 
 QAbstractItemView::indicator,

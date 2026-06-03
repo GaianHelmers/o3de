@@ -85,6 +85,7 @@ set(FILES
     Components/StyleHelpers.h
     Components/StyleManager.cpp
     Components/StyleManager.h
+    Components/StyleManagerInterface.h
     Components/StyleSheetCache.cpp
     Components/StyleSheetCache.h
     Components/StylesheetPreprocessor.cpp

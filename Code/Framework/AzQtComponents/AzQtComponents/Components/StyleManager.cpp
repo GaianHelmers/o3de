@@ -7,11 +7,15 @@
  */
 
 #include <AzCore/Debug/Trace.h>
+#include <AzCore/Interface/Interface.h>
 #include <AzCore/IO/Path/Path.h>
 #include <AzCore/Settings/SettingsRegistryMergeUtils.h>
 #include <AzQtComponents/Components/StyleManager.h>
 #include <QApplication>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QPalette>
+#include <QStringList>
 #include <QTextStream>
 AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 4251: 'QFileInfo::d_ptr': class 'QSharedDataPointer<QFileInfoPrivate>' needs to
                                                           // have dll-interface to be used by clients of class 'QFileInfo'
@@ -19,7 +23,9 @@ AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 4251: 'QFileInfo::d
 AZ_POP_DISABLE_WARNING
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include <QFontDatabase>
+#include <QVector>
 #include <QPointer>
 #include <QString>
 #include <QStyle>
@@ -39,6 +45,9 @@ namespace AzQtComponents
     constexpr QStringView g_styleSheetResourcePath{ u":AzQtComponents/Widgets" };
     constexpr QStringView g_globalStyleSheetName{ u"BaseStyleSheet.qss" };
     constexpr QStringView g_searchPathPrefix{ u"AzQtComponentWidgets" };
+    constexpr QStringView g_themePropertiesRelativePath{ u"Code/Framework/AzQtComponents/AzQtComponents/Themes" };
+    constexpr QStringView g_themeSearchPathPrefix{ u"THEMES" };
+    constexpr const char* g_themePropertiesKey = "theme_properties";
 
     StyleManager* StyleManager::s_instance = nullptr;
 
@@ -46,6 +55,156 @@ namespace AzQtComponents
     {
         return QStyleFactory::create("Fusion");
     }
+
+    // ============================================================================================
+    // StyleManagerInterface - active theme property access
+    // ============================================================================================
+
+    bool StyleManager::IsStylePropertyDefined(const char* propertyKey) const
+    {
+        return m_themeProperties.contains(QString::fromUtf8(propertyKey));
+    }
+
+    QString StyleManager::GetStylePropertyAsString(const char* propertyKey) const
+    {
+        return m_themeProperties.value(QString::fromUtf8(propertyKey));
+    }
+
+    int StyleManager::GetStylePropertyAsInteger(const char* propertyKey) const
+    {
+        return m_themeProperties.value(QString::fromUtf8(propertyKey)).toInt();
+    }
+
+    QColor StyleManager::GetStylePropertyAsColor(const char* propertyKey) const
+    {
+        const QString value = m_themeProperties.value(QString::fromUtf8(propertyKey));
+        if (value.isEmpty())
+        {
+            return QColor();
+        }
+
+        // The QColor string constructor handles #hex and named colors, but not rgb()/rgba()
+        // functional notation, so parse those components explicitly.
+        if (value.startsWith(QStringLiteral("rgb")))
+        {
+            const int open = value.indexOf(QLatin1Char('('));
+            const int close = value.indexOf(QLatin1Char(')'));
+            if (open >= 0 && close > open)
+            {
+                const QStringList parts = value.mid(open + 1, close - open - 1).split(QLatin1Char(','), Qt::SkipEmptyParts);
+                if (parts.size() == 3 || parts.size() == 4)
+                {
+                    const int r = parts[0].trimmed().toInt();
+                    const int g = parts[1].trimmed().toInt();
+                    const int b = parts[2].trimmed().toInt();
+                    const int a = (parts.size() == 4) ? parts[3].trimmed().toInt() : 255;
+                    return QColor(r, g, b, a);
+                }
+            }
+            return QColor();
+        }
+
+        return QColor(value);
+    }
+
+    bool StyleManager::setTheme(const QString& themeName)
+    {
+        if (!s_instance)
+        {
+            AZ_Warning("StyleManager", false, "StyleManager::setTheme called before instance was created");
+            return false;
+        }
+
+        if (themeName.isEmpty())
+        {
+            AZ_Warning("StyleManager", false, "StyleManager::setTheme called with an empty theme name");
+            return false;
+        }
+
+        const QString themePropertiesPath = QStringLiteral("%1:%2/themeProperties.json")
+            .arg(g_themeSearchPathPrefix.toString(), themeName);
+
+        if (!s_instance->LoadThemePropertiesFromFile(themePropertiesPath))
+        {
+            return false;
+        }
+
+        s_instance->m_currentThemeName = themeName;
+        s_instance->refresh();
+        return true;
+    }
+
+    QString StyleManager::currentThemeName()
+    {
+        return s_instance ? s_instance->m_currentThemeName : QString();
+    }
+
+    void StyleManager::setThemeProperty(const QString& name, const QString& value)
+    {
+        if (!s_instance)
+        {
+            return;
+        }
+        s_instance->m_themeProperties[name] = value;
+        if (s_instance->m_stylesheetPreprocessor)
+        {
+            s_instance->m_stylesheetPreprocessor->ClearColorCache();
+        }
+    }
+
+    void StyleManager::reapplyTheme()
+    {
+        if (s_instance)
+        {
+            s_instance->refresh();
+        }
+    }
+
+    QString StyleManager::themesRootPath()
+    {
+        return s_instance ? s_instance->m_themesRootPath : QString();
+    }
+
+    QVector<ThemeInfo> StyleManager::availableThemes()
+    {
+        QVector<ThemeInfo> themes;
+        if (!s_instance || s_instance->m_themesRootPath.isEmpty())
+        {
+            return themes;
+        }
+
+        const QDir themesDir(s_instance->m_themesRootPath);
+        const auto entries = themesDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+        for (const QFileInfo& entry : entries)
+        {
+            const QString themePropsPath = entry.absoluteFilePath() + QStringLiteral("/themeProperties.json");
+            if (!QFile::exists(themePropsPath))
+            {
+                continue;
+            }
+
+            ThemeInfo info;
+            info.folderName = entry.fileName();
+            info.displayName = info.folderName;
+
+            QFile file(themePropsPath);
+            if (file.open(QFile::ReadOnly))
+            {
+                const QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
+                const QString name = root.value(QStringLiteral("theme_name")).toString();
+                if (!name.isEmpty())
+                {
+                    info.displayName = name;
+                }
+            }
+            themes.append(info);
+        }
+        return themes;
+    }
+
+    // ============================================================================================
+    // Stylesheet management
+    // ============================================================================================
 
     void StyleManager::addSearchPaths(
         const QString& searchPrefix, const QString& pathOnDisk, const QString& qrcPrefix, const AZ::IO::PathView& engineRootPath)
@@ -88,7 +247,7 @@ namespace AzQtComponents
 
         connect(widget, &QObject::destroyed, s_instance, &StyleManager::stopTrackingWidget, Qt::UniqueConnection);
 
-        widget->setStyleSheet(styleSheet);
+        widget->setStyleSheet(s_instance->m_stylesheetPreprocessor->ProcessStyleSheet(styleSheet));
 
         return true;
     }
@@ -139,8 +298,15 @@ namespace AzQtComponents
 
     StyleManager::~StyleManager()
     {
+        // Only unregister if this instance actually registered (initialize() may never have run).
+        // Clear s_instance before deleting children so no child teardown observes a dying instance.
+        if (s_instance == this)
+        {
+            AZ::Interface<StyleManagerInterface>::Unregister(this);
+            s_instance = nullptr;
+        }
+
         delete m_stylesheetPreprocessor;
-        s_instance = nullptr;
 
         if (m_style)
         {
@@ -167,6 +333,17 @@ namespace AzQtComponents
         defaultFont.setPixelSize(12);
         QApplication::setFont(defaultFont);
 
+        // Register the theme property interface and prime the preprocessor + default theme before
+        // any stylesheet is applied, so $Variable substitution is active from the first apply.
+        // Guard against double-registration in case initialize() is ever reached twice.
+        if (AZ::Interface<StyleManagerInterface>::Get() == nullptr)
+        {
+            AZ::Interface<StyleManagerInterface>::Register(this);
+        }
+        m_stylesheetPreprocessor->Initialize();
+        LoadThemePropertiesFromFile(QStringLiteral("%1:O3DE_Original/themeProperties.json").arg(g_themeSearchPathPrefix.toString()));
+        m_currentThemeName = QStringLiteral("O3DE_Original");
+
         // The window decoration wrappers require the titlebar overdraw handler
         // so we can't initialize the custom window decoration monitor until the
         // titlebar overdraw handler has been initialized.
@@ -176,7 +353,7 @@ namespace AzQtComponents
         // Order matters, need to setStylesheet() first, then when we call setStyle()
         // QT 6.8.3 implementation will create a (private) QStyleSheetStyle with our stylesheet, and use our custom QStyle class below.
         const auto globalStyleSheet = m_stylesheetCache->loadStyleSheet(g_globalStyleSheetName.toString());
-        application->setStyleSheet(globalStyleSheet);
+        application->setStyleSheet(m_stylesheetPreprocessor->ProcessStyleSheet(globalStyleSheet));
 
         // Style is chained as: Style -> QStyleSheetStyle -> native, meaning any CSS limitation can be tackled in Style.cpp
         m_style = new Style(createBaseStyle());
@@ -252,20 +429,98 @@ namespace AzQtComponents
             QDir::addSearchPath("STYLESHEETIMAGES", appPath.filePath("Assets/Editor/Styles/StyleSheetImages"));
             QDir::addSearchPath("UI", appPath.filePath("Assets/Editor/UI"));
             QDir::addSearchPath("EDITOR", appPath.filePath("Assets/Editor"));
+
+            // theme properties (THEMES:O3DE_Original/themeProperties.json, etc.)
+            m_themesRootPath = appPath.absoluteFilePath(g_themePropertiesRelativePath.toString());
+            QDir::addSearchPath(g_themeSearchPathPrefix.toString(), m_themesRootPath);
         }
+    }
+
+    // ============================================================================================
+    // Theme property loading
+    // ============================================================================================
+
+    bool StyleManager::LoadThemeFileWithBase(const QString& filePath, int depth)
+    {
+        constexpr int maxThemeInheritanceDepth = 8;
+        if (depth > maxThemeInheritanceDepth)
+        {
+            AZ_Warning("StyleManager", false, "StyleManager theme inheritance too deep (possible cycle) at: %s", filePath.toUtf8().constData());
+            return false;
+        }
+
+        if (!QFile::exists(filePath))
+        {
+            AZ_Warning("StyleManager", false, "StyleManager could not load theme properties file: %s", filePath.toUtf8().constData());
+            return false;
+        }
+
+        QFile themeFile(filePath);
+        if (!themeFile.open(QFile::ReadOnly))
+        {
+            AZ_Warning("StyleManager", false, "StyleManager could not open theme properties file: %s", filePath.toUtf8().constData());
+            return false;
+        }
+
+        const QJsonDocument doc = QJsonDocument::fromJson(themeFile.readAll());
+        const QJsonObject rootObject = doc.object();
+
+        // Load the base theme first (if specified) so this theme's properties override the base's.
+        const QString themeBase = rootObject.value(QLatin1String("theme_base")).toString();
+        if (!themeBase.isEmpty())
+        {
+            const QString basePath = QStringLiteral("%1:%2/themeProperties.json").arg(g_themeSearchPathPrefix.toString(), themeBase);
+            LoadThemeFileWithBase(basePath, depth + 1);
+        }
+
+        // Overlay this theme's properties on top of the (already-loaded) base.
+        if (rootObject.contains(QLatin1String(g_themePropertiesKey)))
+        {
+            LoadThemePropertiesRecursively(QString(), rootObject.value(QLatin1String(g_themePropertiesKey)).toObject());
+        }
+        return true;
+    }
+
+    void StyleManager::LoadThemePropertiesRecursively(const QString& prefix, const QJsonObject& jsonObject)
+    {
+        // Nested keys are flattened by concatenation (Text.Color -> "TextColor"); an empty "" key
+        // contributes nothing to the name, so it denotes a group's default/base state.
+        for (const QString& key : jsonObject.keys())
+        {
+            const QJsonValue value = jsonObject.value(key);
+            if (value.isObject())
+            {
+                LoadThemePropertiesRecursively(prefix + key, value.toObject());
+            }
+            else
+            {
+                m_themeProperties[prefix + key] = value.toString();
+            }
+        }
+    }
+
+    bool StyleManager::LoadThemePropertiesFromFile(const QString& filePath)
+    {
+        // Start a fresh theme load: clear, then resolve the base->override inheritance chain.
+        m_themeProperties.clear();
+        if (m_stylesheetPreprocessor)
+        {
+            m_stylesheetPreprocessor->ClearColorCache();
+        }
+        return LoadThemeFileWithBase(filePath, 0);
     }
 
     void StyleManager::refresh()
     {
         const auto globalStyleSheet = m_stylesheetCache->loadStyleSheet(g_globalStyleSheetName.toString());
-        qApp->setStyleSheet(globalStyleSheet);
+        qApp->setStyleSheet(m_stylesheetPreprocessor->ProcessStyleSheet(globalStyleSheet));
 
         // Iterate widgets and update the stylesheet (the base style has already been set)
         auto i = m_widgetToStyleSheetMap.constBegin();
         while (i != m_widgetToStyleSheetMap.constEnd())
         {
             const auto styleSheet = m_stylesheetCache->loadStyleSheet(i.value());
-            i.key()->setStyleSheet(styleSheet);
+            i.key()->setStyleSheet(m_stylesheetPreprocessor->ProcessStyleSheet(styleSheet));
             ++i;
         }
 

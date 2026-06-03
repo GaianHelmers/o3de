@@ -8,12 +8,16 @@
 #pragma once
 
 #include <AzQtComponents/AzQtComponentsAPI.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
 
 #include <AzCore/IO/Path/Path_fwd.h>
 
 #include <QObject>
 #include <QColor>
 #include <QHash>
+#include <QJsonObject>
+#include <QString>
+#include <QVector>
 AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 4251: 'AzQtComponents::StyleManager::m_widgetToStyleSheetMap': class 'QHash<QWidget *,QString>' needs to have dll-interface to be used by clients of class 'AzQtComponents::StyleManager'
 #include <QPointer>
 AZ_POP_DISABLE_WARNING
@@ -24,6 +28,13 @@ class QWidget;
 
 namespace AzQtComponents
 {
+    //! One discoverable theme in the themes pool.
+    struct ThemeInfo
+    {
+        QString folderName;   //!< Theme id (the folder under Themes/); passed to setTheme().
+        QString displayName;  //!< The theme_name field from the JSON, or folderName if absent.
+    };
+
     class StyleSheetCache;
     class StylesheetPreprocessor;
     class AutoCustomWindowDecorations;
@@ -32,7 +43,7 @@ namespace AzQtComponents
      * Wrapper around classes dealing with Open 3D Engine style.
      *
      * New applications should work like this:
-     *   
+     *
      *   int main(int argv, char **argc)
      *   {
      *           QApplication app(argv, argc);
@@ -48,12 +59,38 @@ namespace AzQtComponents
      */
     class AZ_QT_COMPONENTS_API StyleManager
         : public QObject
+        , public StyleManagerInterface
     {
         Q_OBJECT
 
         static StyleManager* s_instance;
 
     public:
+        // StyleManagerInterface overrides
+        bool IsStylePropertyDefined(const char* propertyKey) const override;
+        QString GetStylePropertyAsString(const char* propertyKey) const override;
+        int GetStylePropertyAsInteger(const char* propertyKey) const override;
+        QColor GetStylePropertyAsColor(const char* propertyKey) const override;
+
+        //! Loads the named theme (a folder under Themes/ containing themeProperties.json) and refreshes the UI.
+        static bool setTheme(const QString& themeName);
+
+        //! Scans the themes pool on disk and returns each available theme ({ folderName, displayName }).
+        //! Lets new community themes appear simply by dropping a folder into the pool -- no code change.
+        static QVector<ThemeInfo> availableThemes();
+
+        //! Folder name of the currently loaded theme (empty before initialize()).
+        static QString currentThemeName();
+
+        //! Overrides a single theme property value in the live theme map (no refresh; call reapplyTheme()).
+        static void setThemeProperty(const QString& name, const QString& value);
+
+        //! Re-applies the current theme map to all stylesheets (the live preview path used by the editor).
+        static void reapplyTheme();
+
+        //! Absolute path of the themes pool directory (where "Save As" writes new theme folders).
+        static QString themesRootPath();
+
         static bool isInstanced() { return s_instance; }
 
         static void addSearchPaths(const QString& searchPrefix, const QString& pathOnDisk, const QString& qrcPrefix,
@@ -105,6 +142,11 @@ namespace AzQtComponents
         void initializeFonts();
         void initializeSearchPaths(QApplication* application, const AZ::IO::PathView& engineRootPath);
 
+        // Theme property loading. Parses a themeProperties.json into the flattened m_themeProperties map.
+        void LoadThemePropertiesRecursively(const QString& prefix, const QJsonObject& jsonObject);
+        bool LoadThemeFileWithBase(const QString& filePath, int depth);
+        bool LoadThemePropertiesFromFile(const QString& filePath);
+
         void resetWidgetSheets();
 
         StylesheetPreprocessor* m_stylesheetPreprocessor = nullptr;
@@ -116,9 +158,17 @@ namespace AzQtComponents
 
         // Track the style as a QPointer, as the QApplication will delete it if it still has a pointer to it
         QPointer<QStyle> m_style;
+
+        // Flattened theme property name -> value map, loaded from the active themeProperties.json
+        QHash<QString, QString> m_themeProperties;
+
+        // Absolute path to the themes pool directory (scanned by availableThemes()).
+        QString m_themesRootPath;
+
+        // Folder name of the currently loaded theme.
+        QString m_currentThemeName;
         AZ_POP_DISABLE_WARNING
 
         AutoCustomWindowDecorations* m_autoCustomWindowDecorations = nullptr;
     };
 } // namespace AzQtComponents
-

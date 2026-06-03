@@ -11,15 +11,15 @@ QWidget#EditorPreferencesDialog
 {
     margin: 0px;
     padding: -4px -5px -4px -5px;
-    background-color: #444444;
+    background-color: $BackgroundColor;
     border-color: transparent;
 }
 
 QWidget#EditorPreferencesDialog QTreeWidget#pageTree
 {
     font-size: 11px;
-    border: 1px solid #111111;
-    background-color: #333333;
+    border: 1px solid $SeparatorColor;
+    background-color: $PreferencesTreeBackgroundColor;
     margin: 0px;
 }
 
@@ -31,14 +31,14 @@ QWidget#EditorPreferencesDialog QTreeWidget#pageTree::item
 
 QWidget#EditorPreferencesDialog AzToolsFramework--ReflectedPropertyEditor#propertyEditor
 {
-    background-color: #222222;
-    border: 1px solid #111111;
+    background-color: $MenuBackgroundColor;
+    border: 1px solid $SeparatorColor;
     margin: 0px 2px 0px 5px
 }
 
 AzToolsFramework--PropertyRowWidget QLabel#Name
 {
-    color: #eeeeee;
+    color: $PreferencesPropertyLabelColor;
     padding: 0 0 0 5px;
 }
 
@@ -46,12 +46,12 @@ AzToolsFramework--PropertyRowWidget[HasParent="false"] QLabel#Name
 {
     font-weight: bold;
     padding: 0 0 0 5;
-    color: white;
+    color: $PrimaryTextColor;
 }
 
 #EditorPreferencesDialog AzToolsFramework--PropertyRowWidget[isTopLevel="true"][hasChildRows="true"]
 {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid $PropertySectionDividerColor;
     padding: 4px 0 6px;
     margin-bottom: 4px;
 }

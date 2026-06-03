@@ -15,8 +15,8 @@ QComboBox
     height: 16px;
     padding-left: 4px;
     margin: 1px;
-    font-size: 12px;
-    background-color: #CCCCCC;
+    font-size: $FontSize;
+    background-color: $InputBackgroundColor;
 }
 
 QComboBox:hover
@@ -25,7 +25,7 @@ QComboBox:hover
     border-width: 1px;
     border-style: solid;
     border-radius: 3px;
-    border-color: rgba(0, 0, 0, 50);
+    border-color: $ComboBoxHoverBorderColor;
 }
 
 QComboBox:focus,
@@ -36,9 +36,9 @@ QComboBox[HasPopupOpen=true][HasPopupOpen=true]
     border-width: 1px;
     border-style: solid;
     border-radius: 3px;
-    border-color: #94D2FF;
+    border-color: $FocusBorderColor;
 
-    background-color: #FFFFFF;
+    background-color: $InputFocusBackgroundColor;
 }
 
 QComboBox[HasError=true]
@@ -47,13 +47,13 @@ QComboBox[HasError=true]
     border-width: 2px;
     border-style: solid;
     border-radius: 4px;
-    border-color: #E25243;
+    border-color: $ErrorColor;
 }
 
 QComboBox:disabled
 {
-    background-color: #666666;
-    color: #999999;
+    background-color: $InputDisabledBackgroundColor;
+    color: $DisabledTextColor;
 }
 
 QComboBox::drop-down
@@ -78,7 +78,7 @@ QComboBox::down-arrow:disabled
 
 QComboBox QAbstractItemView
 {
-    background-color: #222222;
+    background-color: $MenuBackgroundColor;
     padding: 0px;
     outline: none; /* Disable focus rect */
     show-decoration-selected: 1;
@@ -86,7 +86,7 @@ QComboBox QAbstractItemView
 
 QComboBox QAbstractItemView::item
 {
-    color: #FFFFFF;
+    color: $PrimaryTextColor;
     padding-right: 24px;
     padding-left: 2px; /* There is already 22px from the check mark */
 
@@ -100,19 +100,19 @@ QComboBox QAbstractItemView::item
 */
 QComboBox QAbstractItemView::item:selected
 {
-    background-color: #444444;
-    color: #FFFFFF;
+    background-color: $MenuItemSelectedBackgroundColor;
+    color: $PrimaryTextColor;
 }
 
 QComboBox QAbstractItemView::item:disabled
 {
-    color: #555555;
+    color: $MenuItemDisabledColor;
 }
 
 QComboBox QAbstractItemView::separator
 {
     height: 1px;
-    background: #444444;
+    background: $ComboBoxSeparatorColor;
 }
 
 QComboBox QAbstractItemView::indicator

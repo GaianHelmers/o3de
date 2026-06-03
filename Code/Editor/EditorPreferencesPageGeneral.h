@@ -11,6 +11,8 @@
 #include <AzCore/RTTI/TypeInfoSimple.h>
 #include <AzCore/RTTI/RTTIMacros.h>
 #include <AzCore/Math/Vector3.h>
+#include <AzCore/std/string/string.h>
+#include <AzCore/std/containers/vector.h>
 #include <AzQtComponents/Components/Widgets/ToolBar.h>
 #include <AzToolsFramework/Editor/EditorSettingsAPIBus.h>
 #include <AzToolsFramework/Prefab/PrefabLoaderInterface.h>
@@ -50,6 +52,7 @@ private:
 
         bool m_previewPanel;
         bool m_enableSourceControl = false;
+        AZStd::string m_editorTheme;
         bool m_clearConsoleOnGameModeStart;
         AzToolsFramework::ConsoleColorTheme m_consoleBackgroundColorTheme;
         bool m_autoLoadLastLevel;
@@ -60,6 +63,8 @@ private:
         bool m_bShowNews;
         
         bool m_enableSceneInspector;
+
+        AZStd::vector<AZStd::string> GetThemeList() const;
     };
 
     struct LevelSaveSettings // do not change the name or the UUID of this struct for backward settings compat.

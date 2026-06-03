@@ -9,14 +9,14 @@
 
 QRadioButton
 {
-    font-size: 12px;
+    font-size: $FontSize;
     line-height: 18px;
     outline: 0;
 }
 
 QRadioButton:disabled
 {
-    color: #999999;
+    color: $DisabledTextColor;
 }
 
 QRadioButton::indicator:!focus

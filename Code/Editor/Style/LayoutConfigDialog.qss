@@ -5,5 +5,5 @@
 
 #CLayoutConfigDialog QListView::item:selected
 {
-    background: #94D2FF;
+    background: $FocusBorderColor;
 }

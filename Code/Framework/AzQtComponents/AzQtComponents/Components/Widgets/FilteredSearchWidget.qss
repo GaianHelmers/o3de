@@ -27,8 +27,8 @@ AzQtComponents--FilterCriteriaButton
 {
     padding: 0px;
     border-radius: 2px;
-    border: 1px solid #808080;
-    background-color: rgb(46, 46, 46);
+    border: 1px solid $FilterCriteriaButtonBorderColor;
+    background-color: $FilterCriteriaButtonBackgroundColor;
     /* 22 + 2 * 1 = 24 */
     min-height: 22px;
     max-height: 22px;
@@ -69,8 +69,8 @@ AzQtComponents--SelectionCountButton
 {
     padding: 0px;
     border-radius: 2px;
-    border: 1px solid #808080;
-    background-color: rgb(46, 46, 46);
+    border: 1px solid $FilterCriteriaButtonBorderColor;
+    background-color: $FilterCriteriaButtonBackgroundColor;
     /* 22 + 2 * 1 = 24 */
     min-height: 22px;
     max-height: 22px;
@@ -80,8 +80,8 @@ AzQtComponents--FilterTextButton
 {
     padding: 0px;
     border-radius: 2px;
-    border: 1px solid #808080;
-    background-color: rgb(46, 46, 46);
+    border: 1px solid $FilterCriteriaButtonBorderColor;
+    background-color: $FilterCriteriaButtonBackgroundColor;
     /* 22 + 2 * 1 = 24 */
     min-height: 22px;
     max-height: 22px;

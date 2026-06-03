@@ -381,6 +381,8 @@ set(FILES
     Dialogs/PythonScriptsDialog.cpp
     Dialogs/PythonScriptsDialog.h
     Dialogs/PythonScriptsDialog.ui
+    ThemeEditor/ThemeEditorWidget.cpp
+    ThemeEditor/ThemeEditorWidget.h
     Dialogs/Generic/UserOptions.cpp
     Dialogs/Generic/UserOptions.h
     EditorFileMonitor.cpp

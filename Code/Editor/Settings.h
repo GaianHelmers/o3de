@@ -24,6 +24,7 @@
 #include <AzCore/JSON/document.h>
 #include <AzCore/Console/IConsole.h>
 
+#include <AzCore/std/string/string.h>
 #include <AzQtComponents/Components/Widgets/ToolBar.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -181,6 +182,7 @@ struct SSelectObjectDialogSettings
 struct SGUI_Settings
 {
     int nToolbarIconSize;      // Override size of the toolbar icons
+    AZStd::string editorTheme;
 };
 
 //////////////////////////////////////////////////////////////////////////

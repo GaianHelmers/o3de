@@ -1,0 +1,29 @@
+{
+	"theme_id": "o3de_light",
+	"theme_name": "O3DE Light",
+	"theme_description": "Mock light theme demonstrating live theme switching. Inherits O3DE_Original and overrides the core surfaces to a light palette.",
+	"theme_base": "O3DE_Original",
+	"theme_properties":
+	{
+		"BackgroundColor": "#e8e8e8",
+		"WindowBackgroundColor": "#f0f0f0",
+		"PanelBackgroundColor": "#e0e0e0",
+		"DarkPanelBackgroundColor": "#d4d4d4",
+		"PrimaryTextColor": "#1e1e1e",
+		"WindowTextColor": "#2b2b2b",
+		"SecondaryTextColor": "#5a5a5a",
+		"DisabledTextColor": "#9a9a9a",
+		"SeparatorColor": "#c0c0c0",
+		"MenuBackgroundColor": "#f5f5f5",
+		"MenuItemSelectedBackgroundColor": "#cfe3ff",
+		"MenuItemDisabledColor": "#9a9a9a",
+		"MenuSeparatorColor": "#d0d0d0",
+		"InputBackgroundColor": "#ffffff",
+		"InputTextColor": "#1e1e1e",
+		"InputBorderColor": "#b0b0b0",
+		"InputDisabledBackgroundColor": "#d8d8d8",
+		"TextEditBackgroundColor": "#ffffff",
+		"TextEditTextColor": "#1e1e1e",
+		"ToolTipBackgroundColor": "#ffffe1"
+	}
+}
