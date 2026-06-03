@@ -98,7 +98,7 @@ QPlainText:hover,
 QPlainTextEdit:hover
 {
     margin: 1px;
-    border-width: 1px;
+    border-width: $BorderControl;
     border-style: solid;
     border-color: $TextEditHoverBorderColor;
 }
@@ -108,7 +108,7 @@ QPlainText:focus,
 QPlainTextEdit:focus
 {
     margin: 1px;
-    border-width: 1px;
+    border-width: $BorderControl;
     border-color: $FocusBorderColor;
     background-color: $TextEditBackgroundColor;
 }

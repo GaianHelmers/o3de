@@ -374,6 +374,8 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
 QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildStructureCardDefs(const QHash<QString, QString>& flat)
 {
     QStringList roundness;
+    QStringList border;
+    QStringList spacing;
     QStringList sizing;
     for (auto it = flat.constBegin(); it != flat.constEnd(); ++it)
     {
@@ -385,31 +387,43 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildStructureCardDefs(cons
         {
             roundness.append(it.key());
         }
+        else if (it.key().startsWith(QLatin1String("Border")))
+        {
+            border.append(it.key());
+        }
+        else if (it.key().startsWith(QLatin1String("Spacing")))
+        {
+            spacing.append(it.key());
+        }
         else
         {
-            sizing.append(it.key());
+            sizing.append(it.key());   // Size*, FontSize, ...
         }
     }
     roundness.sort(Qt::CaseInsensitive);
+    border.sort(Qt::CaseInsensitive);
+    spacing.sort(Qt::CaseInsensitive);
     sizing.sort(Qt::CaseInsensitive);
 
     QList<CardDef> result;
-    if (!roundness.isEmpty())
+
+    auto appendCard = [&result](const char* title, const QStringList& tokens, bool expanded)
     {
-        CardDef card;
-        card.m_title         = "Roundness";
-        card.m_tokens        = roundness;
-        card.m_startExpanded = true;
-        result.append(card);
-    }
-    if (!sizing.isEmpty())
-    {
-        CardDef card;
-        card.m_title         = "Sizing";
-        card.m_tokens        = sizing;
-        card.m_startExpanded = false;
-        result.append(card);
-    }
+        if (!tokens.isEmpty())
+        {
+            CardDef card;
+            card.m_title         = QString::fromUtf8(title);
+            card.m_tokens        = tokens;
+            card.m_startExpanded = expanded;
+            result.append(card);
+        }
+    };
+
+    appendCard("Roundness", roundness, true);
+    appendCard("Border",    border,    false);
+    appendCard("Spacing",   spacing,   false);
+    appendCard("Sizing",    sizing,    false);
+
     return result;
 }
 

@@ -25,9 +25,9 @@ QSpinBox:hover,
 QDoubleSpinBox:hover
 {
     margin: 1px;
-    border-width: 1px;
+    border-width: $BorderControl;
     border-style: solid;
-    border-radius: $RadiusInputHover;
+    border-radius: $RadiusInput;
 }
 
 QSpinBox:hover,
@@ -60,9 +60,9 @@ QSpinBox:enabled[HasError=true],
 QDoubleSpinBox:enabled[HasError=true]
 {
     margin: 0px;
-    border-width: 2px;
+    border-width: $BorderControlEmphasis;
     border-style: solid;
-    border-radius: $RadiusInputError;
+    border-radius: $RadiusInput;
     border-color: $ErrorColor;
 }
 

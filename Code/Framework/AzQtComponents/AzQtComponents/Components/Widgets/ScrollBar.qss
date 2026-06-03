@@ -16,12 +16,12 @@ QScrollBar
 
 QScrollBar:vertical
 {
-    width: 8px;
+    width: $SizeScrollBarThickness;
 }
 
 QScrollBar:horizontal
 {
-    height: 8px;
+    height: $SizeScrollBarThickness;
 }
 
 QScrollBar::handle

@@ -24,7 +24,7 @@ QMenu::item
     /* 6 / 2 = 3 */
     /* top, right, bottom, left */
     padding: 2px auto 4px 20px;
-    height: 18px;
+    height: $SizeMenuItemHeight;
 }
 
 /* Hover */

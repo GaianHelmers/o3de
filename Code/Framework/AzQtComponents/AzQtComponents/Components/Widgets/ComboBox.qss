@@ -22,9 +22,9 @@ QComboBox
 QComboBox:hover
 {
     margin: 0px;
-    border-width: 1px;
+    border-width: $BorderControl;
     border-style: solid;
-    border-radius: $RadiusInputHover;
+    border-radius: $RadiusInput;
     border-color: $ComboBoxHoverBorderColor;
 }
 
@@ -33,9 +33,9 @@ QComboBox[HasPopupOpen=true],
 QComboBox[HasPopupOpen=true][HasPopupOpen=true]
 {
     margin: 0px;
-    border-width: 1px;
+    border-width: $BorderControl;
     border-style: solid;
-    border-radius: $RadiusInputHover;
+    border-radius: $RadiusInput;
     border-color: $FocusBorderColor;
 
     background-color: $InputFocusBackgroundColor;
@@ -44,9 +44,9 @@ QComboBox[HasPopupOpen=true][HasPopupOpen=true]
 QComboBox[HasError=true]
 {
     margin: 0px;
-    border-width: 2px;
+    border-width: $BorderControlEmphasis;
     border-style: solid;
-    border-radius: $RadiusInputError;
+    border-radius: $RadiusInput;
     border-color: $ErrorColor;
 }
 

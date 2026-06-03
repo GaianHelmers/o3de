@@ -17,8 +17,8 @@ AzQtComponents--ColorLabel AzQtComponents--Swatch
 {
     margin: 0px;
     padding: 0px;
-    min-width: 32px;
-    max-width: 32px;
+    min-width: $SizeColorSwatchWidth;
+    max-width: $SizeColorSwatchWidth;
     min-height: 16px;
     max-height: 16px;
     border: 0px;

@@ -30,8 +30,8 @@ AzQtComponents--FilterCriteriaButton
     border: 1px solid $FilterCriteriaButtonBorderColor;
     background-color: $FilterCriteriaButtonBackgroundColor;
     /* 22 + 2 * 1 = 24 */
-    min-height: 22px;
-    max-height: 22px;
+    min-height: $SizeSearchFieldHeight;
+    max-height: $SizeSearchFieldHeight;
 }
 
 AzQtComponents--FilterCriteriaButton QPushButton#closeTag
@@ -72,8 +72,8 @@ AzQtComponents--SelectionCountButton
     border: 1px solid $FilterCriteriaButtonBorderColor;
     background-color: $FilterCriteriaButtonBackgroundColor;
     /* 22 + 2 * 1 = 24 */
-    min-height: 22px;
-    max-height: 22px;
+    min-height: $SizeSearchFieldHeight;
+    max-height: $SizeSearchFieldHeight;
 }
 
 AzQtComponents--FilterTextButton
@@ -83,8 +83,8 @@ AzQtComponents--FilterTextButton
     border: 1px solid $FilterCriteriaButtonBorderColor;
     background-color: $FilterCriteriaButtonBackgroundColor;
     /* 22 + 2 * 1 = 24 */
-    min-height: 22px;
-    max-height: 22px;
+    min-height: $SizeSearchFieldHeight;
+    max-height: $SizeSearchFieldHeight;
 }
 
 AzQtComponents--FilterTextButton QPushButton#closeTag

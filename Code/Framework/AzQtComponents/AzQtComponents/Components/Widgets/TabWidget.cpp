@@ -15,6 +15,8 @@
 #include <AzQtComponents/Components/Widgets/TabWidget.h>
 #include <AzQtComponents/Components/Widgets/TabWidgetActionToolBar.h>
 
+#include <AzCore/Interface/Interface.h>
+
 #include <QAction>
 #include <QActionEvent>
 #include <QApplication>
@@ -23,11 +25,13 @@
 #include <QLayout>
 #include <QMenu>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPushButton>
 #include <QSettings>
 #include <QSpacerItem>
 #include <QStyle>
 #include <QStyleOption>
+#include <QStylePainter>
 #include <QTabWidget>
 #include <QTimer>
 #include <QToolButton>
@@ -528,7 +532,72 @@ namespace AzQtComponents
         showCloseButtonAt(m_hoveredTab);
         setToolTipIfNeeded(m_hoveredTab);
 
-        QTabBar::paintEvent(paintEvent);
+        // Rounded-top tabs are painted here, not via QSS or drawControl: with an app stylesheet active,
+        // QStyleSheetStyle owns the tab shape and never delegates CE_TabBarTabShape to our Style, so
+        // border-radius in qss and a drawControl override are both ignored. We paint the shape directly
+        // and let the style draw the label. This covers DockTabBar (the pane tabs) too, since it derives
+        // from TabBar. RadiusTabTop == 0 falls back to normal stylesheet rendering -- a safe off switch.
+        auto* styleManager = AZ::Interface<StyleManagerInterface>::Get();
+        const int radiusTop = styleManager ? qMax(0, styleManager->GetStylePropertyAsInteger("RadiusTabTop")) : 0;
+
+        const bool customRound = styleManager && radiusTop > 0 && shape() == QTabBar::RoundedNorth
+            && !Style::hasClass(this, QStringLiteral("Secondary"));
+
+        if (!customRound)
+        {
+            QTabBar::paintEvent(paintEvent);
+            return;
+        }
+
+        const QColor inactiveColor = styleManager->GetStylePropertyAsColor("TabWidgetInactiveTabColor");
+        const QColor activeColor   = styleManager->GetStylePropertyAsColor("BackgroundColor");
+        const QColor borderColor   = styleManager->GetStylePropertyAsColor("SeparatorColor");
+        if (!inactiveColor.isValid() || !activeColor.isValid() || !borderColor.isValid())
+        {
+            QTabBar::paintEvent(paintEvent);
+            return;
+        }
+
+        QStylePainter painter(this);
+        for (int i = 0; i < count(); ++i)
+        {
+            QStyleOptionTab opt;
+            initStyleOption(&opt, i);
+
+            const bool selected = opt.state & QStyle::State_Selected;
+            const bool hovered  = opt.state & QStyle::State_MouseOver;
+            const QColor fillColor = (selected || hovered) ? activeColor : inactiveColor;
+
+            // Inset by half a pixel so the 1px cosmetic border anti-aliases crisply; bottom stays flush
+            // so a selected tab (filled with the pane colour) seams into the pane below it.
+            const QRectF r = QRectF(opt.rect).adjusted(0.5, 0.5, -0.5, 0.0);
+            const qreal rad = qMin<qreal>(radiusTop, qMin(r.width(), r.height()) / 2.0);
+
+            QPainterPath edge;
+            edge.moveTo(r.left(), r.bottom());
+            edge.lineTo(r.left(), r.top() + rad);
+            edge.quadTo(r.left(), r.top(), r.left() + rad, r.top());
+            edge.lineTo(r.right() - rad, r.top());
+            edge.quadTo(r.right(), r.top(), r.right(), r.top() + rad);
+            edge.lineTo(r.right(), r.bottom());
+
+            QPainterPath fillPath = edge;
+            fillPath.lineTo(r.left(), r.bottom());
+            fillPath.closeSubpath();
+
+            painter.save();
+            painter.setRenderHint(QPainter::Antialiasing, true);
+            painter.fillPath(fillPath, fillColor);
+            QPen pen(borderColor, 1);
+            pen.setCosmetic(true);
+            painter.setPen(pen);
+            painter.setBrush(Qt::NoBrush);
+            painter.drawPath(edge);
+            painter.restore();
+
+            // Draw the tab label (text + icon) through the style (-> Style::drawTabBarTabLabel).
+            painter.drawControl(QStyle::CE_TabBarTabLabel, opt);
+        }
     }
 
     QSize TabBar::minimumSizeHint() const

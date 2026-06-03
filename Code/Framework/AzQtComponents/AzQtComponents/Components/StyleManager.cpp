@@ -512,6 +512,19 @@ namespace AzQtComponents
         {
             m_stylesheetPreprocessor->ClearColorCache();
         }
+
+        // Default-fill from O3DE_Original first so no theme can ever render a blank token. Themes are
+        // authored complete (self-contained), but any property a theme happens to omit -- e.g. a
+        // community theme created before a token was added -- falls back to the canonical O3DE_Original
+        // value instead of resolving to an empty string. This only covers gaps; a theme's own values
+        // always win because they are loaded second and overwrite.
+        const QString originalPath =
+            QStringLiteral("%1:O3DE_Original/themeProperties.json").arg(g_themeSearchPathPrefix.toString());
+        if (filePath != originalPath)
+        {
+            LoadThemeFileWithBase(originalPath, 0);
+        }
+
         return LoadThemeFileWithBase(filePath, 0);
     }
 

@@ -25,7 +25,7 @@ QToolBar
     * desired height is 28px
     * 5 = (28 - (iconSize + 2 * (ToolButton::Config.defaultButtonMargin = 1))) / 2
     */
-    padding: 5px;
+    padding: $SpacingToolBar;
 }
 
 MainWindow QToolBar
@@ -41,7 +41,7 @@ AzQtComponents--DockMainWindow QToolBar
 QToolBar.MainToolBar
 {
     qproperty-iconSize: 20px 20px;
-    padding: 5px;
+    padding: $SpacingToolBar;
 }
 
 QToolBar.IconNormal,

@@ -17,7 +17,11 @@
 // AzQtComponents
 #include <AzQtComponents/Components/Widgets/CheckBox.h>
 #include <AzQtComponents/Components/Style.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
 #include <AzQtComponents/Utilities/DesktopUtilities.h>
+
+// AzCore
+#include <AzCore/Interface/Interface.h>
 
 // Qt
 #include <QMenu>
@@ -184,7 +188,20 @@ void StatusBarItem::paintEvent([[maybe_unused]] QPaintEvent* pe)
 
     if (m_hasLeadingSpacer)
     {
-        QPen pen{ spacerColor };
+        // The separator line colour comes from the active theme ($StatusBarSpacerColor) when defined,
+        // falling back to the compiled-in default.
+        QColor spacerCol(spacerColor);
+        if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+            styleManager && styleManager->IsStylePropertyDefined("StatusBarSpacerColor"))
+        {
+            const QColor themed = styleManager->GetStylePropertyAsColor("StatusBarSpacerColor");
+            if (themed.isValid())
+            {
+                spacerCol = themed;
+            }
+        }
+
+        QPen pen{ spacerCol };
         painter.setPen(pen);
         painter.drawLine(spacerSpacing / 2, 3, spacerSpacing / 2, rect.height() + 2);
     }

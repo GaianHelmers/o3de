@@ -144,11 +144,28 @@
 			"PrimaryDisabledColor": "#BBBBBB"
 		},
 
+		"Card":
+		{
+			"BackgroundColor": "#555555",
+			"HeaderColor": "#333333",
+			"ModifiedTextColor": "#E57829"
+		},
+
+		"StatusBar":
+		{
+			"BackgroundColor": "#2D2D2D",
+			"TextColor": "#CCCCCC",
+			"SpacerColor": "#6F6D6D"
+		},
+
+		"Console":
+		{
+			"BackgroundColor": "#222222"
+		},
+
 		"Radius":
 		{
 			"Input": "2px",
-			"InputHover": "3px",
-			"InputError": "4px",
 			"TabTop": "4px",
 			"Card": "2px",
 			"CardFrame": "3px",
@@ -157,6 +174,26 @@
 			"Chip": "2px",
 			"Button": "4px",
 			"ButtonSmall": "2px"
+		},
+
+		"Size":
+		{
+			"ScrollBarThickness": "8px",
+			"MenuItemHeight": "18px",
+			"SearchFieldHeight": "22px",
+			"ColorSwatchWidth": "32px"
+		},
+
+		"Border":
+		{
+			"Control": "1px",
+			"ControlEmphasis": "2px"
+		},
+
+		"Spacing":
+		{
+			"CardContent": "4px",
+			"ToolBar": "5px"
 		},
 
 		"WindowBackgroundColor": "#393a3c",
@@ -261,8 +298,8 @@
 		"CheckBoxDisabledBorderColor": "rgb(126, 119, 116)",
 		"TextEditDarkBackgroundColor": "rgb(34, 35, 38)",
 		"GlobalScrollBarBackgroundColor": "#333333",
-		"ProgressBarTrackColor": "rgb(108, 111, 112)",
-		"ProgressBarFillColor": "rgb(17, 102, 187)",
+		"ProgressBarTrackColor": "#9A9A9A",
+		"ProgressBarFillColor": "#1E70EB",
 		"ComboBoxDisabledTextColor": "rgb(105, 105, 105)",
 		"ComboBoxDisabledBackgroundColor": "rgb(78, 80, 81)",
 		"VectorEditFocusBackgroundColor": "rgb(204, 204, 204)",

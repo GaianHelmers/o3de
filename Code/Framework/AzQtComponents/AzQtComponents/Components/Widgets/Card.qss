@@ -20,27 +20,27 @@ AzQtComponents--Card
 
 AzQtComponents--Card #contentContainer
 {
-    background-color: #555555;
+    background-color: $CardBackgroundColor;
     /* 1px border with background colour so the contents doesn't move when selected */
-    border: 1px solid #555555;
+    border: 1px solid $CardBackgroundColor;
     border-top: none;
     margin: 0px;
     /* Take the border into account with the padding */
     padding: 8px 7px 7px 7px;
-    spacing: 4px;
+    spacing: $SpacingCardContent;
     border-bottom-left-radius: $RadiusCard;
     border-bottom-right-radius: $RadiusCard;
 }
 
 AzQtComponents--Card[selected="true"] > #contentContainer
 {
-    border: 1px solid #94D2FF;
+    border: 1px solid $FocusBorderColor;
     border-top: none;
 }
 
 AzQtComponents--Card #contentContainer
 {
-    background-color: #555555;
+    background-color: $CardBackgroundColor;
 }
 
 AzQtComponents--Card[hideFrame=true]
@@ -50,21 +50,21 @@ AzQtComponents--Card[hideFrame=true]
 
 AzQtComponents--CardNotification
 {
-    background-color: #555555;
-    spacing: 4px;
+    background-color: $CardBackgroundColor;
+    spacing: $SpacingCardContent;
 }
 
 AzQtComponents--CardNotification #HeaderFrame
 {
     padding: 0px 8px 0px 8px;
-    spacing: 4px;
+    spacing: $SpacingCardContent;
 }
 
 AzQtComponents--CardNotification #HeaderFrame,
 AzQtComponents--CardNotification #Icon,
 AzQtComponents--CardNotification #Title
 {
-    background-color: #444444;
+    background-color: $BackgroundColor;
     border-radius: $RadiusCardFrame;
     border: none;
 }
@@ -85,7 +85,7 @@ AzQtComponents--CardHeader
 
 AzQtComponents--CardHeader *
 {
-    background-color: #555555;
+    background-color: $CardBackgroundColor;
 }
 
 AzQtComponents--CardHeader #Background
@@ -100,7 +100,7 @@ AzQtComponents--CardHeader #Background
 
 AzQtComponents--Card[selected="true"] > AzQtComponents--CardHeader #Background
 {
-    border: 1px solid #94D2FF;
+    border: 1px solid $FocusBorderColor;
     border-bottom: none;
     border-top-left-radius: $RadiusCard;
     border-top-right-radius: $RadiusCard;
@@ -108,7 +108,7 @@ AzQtComponents--Card[selected="true"] > AzQtComponents--CardHeader #Background
 
 AzQtComponents--Card[selected="true"][expanded="false"] > AzQtComponents--CardHeader #Background
 {
-    border: 1px solid #94D2FF;
+    border: 1px solid $FocusBorderColor;
     border-radius: $RadiusCard
 }
 
@@ -126,7 +126,7 @@ AzQtComponents--Card[class~="ContainerCard"] > #contentContainer
 
 AzQtComponents--CardHeader[class~="ContainerCardHeader"]
 {
-    background-color: #333333;
+    background-color: $CardHeaderColor;
     border-radius: 0px;
     border: none;
 }
@@ -152,14 +152,14 @@ AzQtComponents--CardHeader[class~="SectionCardHeader"]
 
 .primaryCardHeader
 {
-    background-color: #333333;
+    background-color: $CardHeaderColor;
     border-top-left-radius: $RadiusCard;
     border-top-right-radius: $RadiusCard;
 }
 
 .secondaryCardHeader
 {
-    background-color: #555555;
+    background-color: $CardBackgroundColor;
     padding: 0px;
 }
 
@@ -171,7 +171,7 @@ AzQtComponents--CardHeader[class~="SectionCardHeader"]
 
 AzQtComponents--CardHeader[contentModified=true] *
 {
-    color: #E57829;
+    color: $CardModifiedTextColor;
 }
 
 AzQtComponents--CardHeader[warning=true] #Background
@@ -258,7 +258,7 @@ AzQtComponents--CardHeader #Help
 
 .separator
 {
-    color: #999999;
+    color: $DisabledTextColor;
     margin: 0px;
     padding: 0px;
 }
@@ -271,7 +271,7 @@ AzQtComponents--Card #SeparatorContainer
 
 AzQtComponents--Card QLabel:disabled
 {
-    color: #999999;
+    color: $DisabledTextColor;
 }
 
 /* Show expander arrow in card header at full opacity even when card is disabled */

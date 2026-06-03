@@ -16,7 +16,7 @@ AzQtComponents--SegmentBar QAbstractButton
     background-color: $SegmentControlButtonColor;
     border-color: $MenuBackgroundColor;
     border-style: solid;
-    border-width: 1px;
+    border-width: $BorderControl;
 
     font-size: $FontSize;
 

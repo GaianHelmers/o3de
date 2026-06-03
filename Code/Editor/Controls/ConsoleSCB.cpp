@@ -26,6 +26,8 @@
 #include <AzQtComponents/Components/Widgets/ScrollBar.h>
 #include <AzQtComponents/Components/Widgets/SliderCombo.h>
 
+#include <AzCore/Interface/Interface.h>
+
 // Editor
 #include "QtViewPaneManager.h"
 #include "Core/QtEditorApplication.h"
@@ -456,6 +458,16 @@ void CConsoleSCB::RefreshStyle()
     if (!GetIEditor()->IsInConsolewMode() && CConsoleSCB::GetCreatedInstance() && m_backgroundTheme == AzToolsFramework::ConsoleColorTheme::Dark)
     {
         bgColor = QColor(0x22, 0x22, 0x22);
+        // Prefer the active theme's console background ($ConsoleBackgroundColor) over the hardcoded default.
+        if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+            styleManager && styleManager->IsStylePropertyDefined("ConsoleBackgroundColor"))
+        {
+            const QColor themed = styleManager->GetStylePropertyAsColor("ConsoleBackgroundColor");
+            if (themed.isValid())
+            {
+                bgColor = themed;
+            }
+        }
         AzQtComponents::ScrollBar::applyLightStyle(ui->textEdit);
     }
     else
