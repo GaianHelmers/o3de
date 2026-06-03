@@ -106,7 +106,7 @@ AzQtComponents--ColorPicker #addColorButton
 {
     /* Note: Swatches will ignore any 'background*' property set here */
     border: 1px solid $ColorPickerSwatchBorderColor;
-    border-radius: 2px;
+    border-radius: $RadiusChip;
 }
 
 AzQtComponents--Swatch:selected

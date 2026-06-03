@@ -51,6 +51,11 @@ AzQtComponents--TabBar:tab
     border: 1px solid $SeparatorColor;
     background-color: $TabWidgetInactiveTabColor;
 
+    /* NOTE: tab corner rounding is intentionally NOT done here. Qt's QStyleSheetStyle rounds the
+       tab border but does not clip the tab background fill to border-radius, producing a rounded
+       border over a square fill. Rounded tabs are painted in C++ (Style::drawControl,
+       CE_TabBarTabShape) using the $RadiusTabTop token. See theming/structural_pass_plan S.3. */
+
     text-align: left;
     padding: 6px -2px 6px 9px; /* top, right, bottom, left */
 }

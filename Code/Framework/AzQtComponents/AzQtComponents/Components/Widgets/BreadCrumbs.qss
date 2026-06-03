@@ -33,5 +33,5 @@ AzQtComponents--BreadCrumbs QLineEdit
 AzQtComponents--BreadCrumbs[editable="true"]
 {
     border: 1px solid $BreadCrumbsEditableBorderColor;
-    border-radius: 2px;
+    border-radius: $RadiusChip;
 }

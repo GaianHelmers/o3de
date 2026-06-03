@@ -37,14 +37,14 @@ AzQtComponents--SegmentBar[orientation="1"] QAbstractButton.TabLast
     margin-left: -1px;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
+    border-top-right-radius: $RadiusSegment;
+    border-bottom-right-radius: $RadiusSegment;
 }
 
 AzQtComponents--SegmentBar[orientation="1"] QAbstractButton.TabFirst
 {
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
+    border-top-left-radius: $RadiusSegment;
+    border-bottom-left-radius: $RadiusSegment;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
 }

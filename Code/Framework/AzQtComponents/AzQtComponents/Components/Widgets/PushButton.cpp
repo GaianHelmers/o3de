@@ -10,7 +10,10 @@
 
 #include <AzQtComponents/Components/ConfigHelpers.h>
 #include <AzQtComponents/Components/Style.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
 #include <AzQtComponents/Components/Widgets/PushButton.h>
+
+#include <AzCore/Interface/Interface.h>
 
 #include <QDialogButtonBox>
 #include <QImage>
@@ -29,6 +32,18 @@ namespace AzQtComponents
 
 static QString g_primaryClass = QStringLiteral("Primary");
 static QString g_smallIconClass = QStringLiteral("SmallIcon");
+
+// Returns the active theme's button corner radius for the given token (e.g. "RadiusButton"), or the
+// supplied fallback (the compiled-in config radius) when the active theme does not define the token.
+static int ThemeButtonRadius(const char* token, int fallback)
+{
+    if (auto* styleManager = AZ::Interface<StyleManagerInterface>::Get();
+        styleManager && styleManager->IsStylePropertyDefined(token))
+    {
+        return styleManager->GetStylePropertyAsInteger(token);
+    }
+    return fallback;
+}
 
 void PushButton::applyPrimaryStyle(QPushButton* button)
 {
@@ -191,7 +206,10 @@ bool PushButton::drawPushButtonBevel(const Style* style, const QStyleOption* opt
             border = config.focusedBorder;
         }
 
-        float radius = isSmallIconButton ? aznumeric_cast<float>(config.smallIcon.frame.radius) : aznumeric_cast<float>(config.defaultFrame.radius);
+        const int radiusPx = isSmallIconButton
+            ? ThemeButtonRadius("RadiusButtonSmall", config.smallIcon.frame.radius)
+            : ThemeButtonRadius("RadiusButton", config.defaultFrame.radius);
+        float radius = aznumeric_cast<float>(radiusPx);
         drawFilledFrame(painter, r, gradientStartColor, gradientEndColor, border, radius);
     }
 
@@ -528,7 +546,7 @@ void PushButton::drawSmallIconFrame(const Style* style, const QStyleOption* opti
 
     selectColors(option, config.secondary, isDisabled, gradientStartColor, gradientEndColor);
 
-    float radius = aznumeric_cast<float>(config.smallIcon.frame.radius);
+    float radius = aznumeric_cast<float>(ThemeButtonRadius("RadiusButtonSmall", config.smallIcon.frame.radius));
     drawFilledFrame(painter, frame, gradientStartColor, gradientEndColor, border, radius);
 }
 

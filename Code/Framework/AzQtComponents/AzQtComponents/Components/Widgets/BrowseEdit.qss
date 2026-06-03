@@ -18,8 +18,8 @@ AzQtComponents--BrowseEdit QLineEdit
     border-width: 0px;
     border-style: solid;
     border-color: transparent;
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
+    border-top-left-radius: $RadiusInput;
+    border-bottom-left-radius: $RadiusInput;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
     /* 2px padding already applied */
@@ -67,8 +67,8 @@ AzQtComponents--BrowseEdit #attached-button
     border-left: none;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-top-right-radius: $RadiusInput;
+    border-bottom-right-radius: $RadiusInput;
 }
 
 AzQtComponents--BrowseEdit #attached-button:hover

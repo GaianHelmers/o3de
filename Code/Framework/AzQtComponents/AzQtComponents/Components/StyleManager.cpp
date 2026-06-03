@@ -72,7 +72,12 @@ namespace AzQtComponents
 
     int StyleManager::GetStylePropertyAsInteger(const char* propertyKey) const
     {
-        return m_themeProperties.value(QString::fromUtf8(propertyKey)).toInt();
+        QString value = m_themeProperties.value(QString::fromUtf8(propertyKey)).trimmed();
+        if (value.endsWith(QLatin1String("px")))
+        {
+            value.chop(2); // tolerate pixel-valued tokens such as "4px"
+        }
+        return value.toInt();
     }
 
     QColor StyleManager::GetStylePropertyAsColor(const char* propertyKey) const

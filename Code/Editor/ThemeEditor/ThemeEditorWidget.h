@@ -14,10 +14,14 @@
 #include <QWidget>
 
 class QCheckBox;
+class QComboBox;
 class QFrame;
 class QLabel;
 class QPushButton;
 class QScrollArea;
+class QShowEvent;
+class QSpinBox;
+class QTabWidget;
 class QTimer;
 class QVBoxLayout;
 
@@ -46,11 +50,18 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
+    void showEvent(QShowEvent* event) override;
 
 private slots:
     void RebuildFromActiveTheme();
+    void OnReloadActiveTheme();
     void OnSaveAsNewTheme();
     void OnApplyToEditor();
+    void OnThemeComboChanged(int index);
+
+private:
+    // Fills the theme selector from the themes pool and selects the active theme (signals blocked).
+    void PopulateThemeCombo();
 
 private:
     //----------------------------------------------------------------------
@@ -74,12 +85,16 @@ private:
         bool         m_startExpanded = false;
     };
 
-    // Returns the ordered list of card definitions (General first, Other last).
+    // Returns the ordered list of card definitions for the Colors tab (General first, Other last).
+    // Metric (px) tokens are excluded -- they belong to the Structure tab.
     static QList<CardDef> BuildCardDefs(const QHash<QString, QString>& flat);
 
-    // Builds one collapsible card QFrame for the given CardDef.
-    // Each row in the body: [token label] [value label] [color swatch button]
-    QFrame* BuildCard(const CardDef& def);
+    // Returns the card definitions for the Structure tab (Roundness, Sizing) from the metric tokens.
+    static QList<CardDef> BuildStructureCardDefs(const QHash<QString, QString>& flat);
+
+    // Builds one collapsible card QFrame for the given CardDef, parented to parentContainer.
+    // Each row: [token label] [value label] [color swatch button OR numeric px spin box].
+    QFrame* BuildCard(const CardDef& def, QWidget* parentContainer);
 
     // Distributes m_cards across m_columnLayouts based on current width.
     // Chooses column count: width < 700 -> 1, < 1100 -> 2, else 3.
@@ -90,20 +105,29 @@ private:
     //----------------------------------------------------------------------
 
     // Top bar
-    QLabel*      m_themeNameLabel  = nullptr;
+    QComboBox*   m_themeCombo      = nullptr;   // active-theme selector (switches the live theme)
     QPushButton* m_reloadButton    = nullptr;
     QPushButton* m_saveAsButton    = nullptr;
     QPushButton* m_applyButton     = nullptr;
     QCheckBox*   m_livePreviewCheck = nullptr;
 
-    // Scroll area + column container
+    // Tabbed body: Colors | Structure
+    QTabWidget*  m_tabs            = nullptr;
+
+    // Colors tab: scroll area + responsive column container
     QScrollArea* m_scrollArea      = nullptr;
     QWidget*     m_columnContainer = nullptr;
     QList<QVBoxLayout*> m_columnLayouts;   // [0..2] column VBoxes inside m_columnContainer
     int          m_currentColumns  = 0;
 
-    // Ordered list of all built card frames (owned by m_columnContainer via re-parent).
+    // Ordered list of all built color card frames (owned by m_columnContainer via re-parent).
     QList<QFrame*> m_cards;
+
+    // Structure tab: single-column scroll of metric (roundness/sizing) cards
+    QScrollArea* m_structureScroll    = nullptr;
+    QWidget*     m_structureContainer = nullptr;
+    QVBoxLayout* m_structureLayout    = nullptr;
+    QList<QFrame*> m_structureCards;
 
     // Debounce timer for the slow full re-polish (live preview path).
     QTimer* m_applyTimer = nullptr;

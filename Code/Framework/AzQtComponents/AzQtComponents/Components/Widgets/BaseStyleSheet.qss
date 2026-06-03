@@ -75,7 +75,7 @@ QComboBox
     background-color: $InputBackgroundColor;
     color: $InputTextColor;
     font-family: "$FontFamily";
-    border-radius: 2px;
+    border-radius: $RadiusInput;
     border-width: 0px;
     border-color: $InputBorderColor;
     font-size: $FontSize;

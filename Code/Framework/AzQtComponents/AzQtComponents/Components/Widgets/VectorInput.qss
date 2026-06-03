@@ -10,8 +10,8 @@ AzQtComponents--VectorElement QLabel
 {
     margin-top: 2px;
     margin-bottom: 2px;
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
+    border-top-left-radius: $RadiusInput;
+    border-bottom-left-radius: $RadiusInput;
     text-align: center;
 }
 

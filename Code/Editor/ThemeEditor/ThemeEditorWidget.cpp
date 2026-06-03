@@ -19,9 +19,11 @@
 
 // Editor
 #include "LyViewPaneNames.h"
+#include "Settings.h"   // for gSettings (persist the active theme)
 
 // Qt
 #include <QCheckBox>
+#include <QComboBox>
 #include <QColor>
 #include <QColorDialog>
 #include <QDir>
@@ -39,7 +41,10 @@
 #include <QRegularExpression>
 #include <QResizeEvent>
 #include <QScrollArea>
+#include <QShowEvent>
 #include <QScrollBar>
+#include <QSpinBox>
+#include <QTabWidget>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -50,7 +55,10 @@
 void ThemeEditorWidget::RegisterViewClass()
 {
     AzToolsFramework::ViewPaneOptions options;
-    options.preferedDockingArea = Qt::RightDockWidgetArea;
+    // Open as its own floating window by default (NoDockWidgetArea + an initial rect), rather than
+    // docking/tabbing onto an existing pane. A previously-saved layout still takes precedence.
+    options.preferedDockingArea = Qt::NoDockWidgetArea;
+    options.paneRect = QRect(120, 120, 760, 820);
     AzToolsFramework::RegisterViewPane<ThemeEditorWidget>(WidgetName, LyViewPane::CategoryTools, options);
 }
 
@@ -60,13 +68,21 @@ void ThemeEditorWidget::RegisterViewClass()
 ThemeEditorWidget::ThemeEditorWidget(QWidget* parent)
     : QWidget(parent)
 {
-    // --- Theme name label ---
-    m_themeNameLabel = new QLabel(this);
-    m_themeNameLabel->setObjectName("ThemeNameLabel");
+    // --- Theme selector (active theme + switch to others) ---
+    QLabel* themeSelectLabel = new QLabel(tr("Theme:"), this);
+    m_themeCombo = new QComboBox(this);
+    m_themeCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_themeCombo->setToolTip(tr("Active editor theme. Selecting another theme applies it immediately."));
+    connect(m_themeCombo, &QComboBox::currentIndexChanged, this, &ThemeEditorWidget::OnThemeComboChanged);
+
+    QHBoxLayout* themeRow = new QHBoxLayout;
+    themeRow->addWidget(themeSelectLabel);
+    themeRow->addWidget(m_themeCombo, 1);
 
     // --- Button row ---
     m_reloadButton = new QPushButton(tr("Reload Active Theme"), this);
-    connect(m_reloadButton, &QPushButton::clicked, this, &ThemeEditorWidget::RebuildFromActiveTheme);
+    m_reloadButton->setToolTip(tr("Reload the active theme from disk, discarding unsaved edits, and re-apply it."));
+    connect(m_reloadButton, &QPushButton::clicked, this, &ThemeEditorWidget::OnReloadActiveTheme);
 
     m_saveAsButton = new QPushButton(tr("Save As New Theme..."), this);
     connect(m_saveAsButton, &QPushButton::clicked, this, &ThemeEditorWidget::OnSaveAsNewTheme);
@@ -112,6 +128,26 @@ ThemeEditorWidget::ThemeEditorWidget(QWidget* parent)
 
     m_scrollArea->setWidget(m_columnContainer);
 
+    // --- Structure tab: single-column scroll of metric (roundness/sizing) cards ---
+    m_structureScroll = new QScrollArea(this);
+    m_structureScroll->setWidgetResizable(true);
+    m_structureScroll->setFrameShape(QFrame::NoFrame);
+
+    m_structureContainer = new QWidget;
+    m_structureContainer->setObjectName("StructureColumnContainer");
+
+    m_structureLayout = new QVBoxLayout(m_structureContainer);
+    m_structureLayout->setAlignment(Qt::AlignTop);
+    m_structureLayout->setContentsMargins(4, 4, 4, 4);
+    m_structureLayout->setSpacing(6);
+
+    m_structureScroll->setWidget(m_structureContainer);
+
+    // --- Tab widget wrapping both panes (Colors | Structure) ---
+    m_tabs = new QTabWidget(this);
+    m_tabs->addTab(m_scrollArea, tr("Colors"));
+    m_tabs->addTab(m_structureScroll, tr("Structure"));
+
     // --- Debounce timer for optional live-preview re-polish ---
     m_applyTimer = new QTimer(this);
     m_applyTimer->setSingleShot(true);
@@ -123,9 +159,9 @@ ThemeEditorWidget::ThemeEditorWidget(QWidget* parent)
     // --- Top-level layout ---
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 6, 6, 6);
-    layout->addWidget(m_themeNameLabel);
+    layout->addLayout(themeRow);
     layout->addLayout(buttonRow);
-    layout->addWidget(m_scrollArea, 1);
+    layout->addWidget(m_tabs, 1);
     setLayout(layout);
 
     RebuildFromActiveTheme();
@@ -184,6 +220,19 @@ QJsonObject ThemeEditorWidget::ResolveEffectiveProperties(const QString& themeNa
 static bool IsColorValue(const QString& value)
 {
     return QColor(value).isValid() || value.trimmed().startsWith(QLatin1String("rgb"));
+}
+
+// A pixel metric value such as "2px", "0px" or "12px" (optionally negative).
+static bool IsMetricValue(const QString& value)
+{
+    static const QRegularExpression re(QStringLiteral("^-?\\d+px$"));
+    return re.match(value.trimmed()).hasMatch();
+}
+
+// Parses the integer pixel count out of a metric value ("4px" -> 4).
+static int ParseMetricPx(const QString& value)
+{
+    return value.trimmed().chopped(2).toInt(); // strip trailing "px"
 }
 
 static QColor ParseColorValue(const QString& value)
@@ -304,7 +353,8 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
     QStringList remainder;
     for (auto it = flat.constBegin(); it != flat.constEnd(); ++it)
     {
-        if (!claimed.contains(it.key()))
+        // Metric (px) tokens live in the Structure tab, not the Colors "Other" card.
+        if (!claimed.contains(it.key()) && !IsMetricValue(it.value()))
         {
             remainder.append(it.key());
         }
@@ -317,13 +367,60 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
 }
 
 //////////////////////////////////////////////////////////////////////////
+// STRUCTURE CARD DEFINITION -- metric (px) tokens grouped by kind
+//////////////////////////////////////////////////////////////////////////
+
+// static
+QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildStructureCardDefs(const QHash<QString, QString>& flat)
+{
+    QStringList roundness;
+    QStringList sizing;
+    for (auto it = flat.constBegin(); it != flat.constEnd(); ++it)
+    {
+        if (!IsMetricValue(it.value()))
+        {
+            continue;
+        }
+        if (it.key().startsWith(QLatin1String("Radius")))
+        {
+            roundness.append(it.key());
+        }
+        else
+        {
+            sizing.append(it.key());
+        }
+    }
+    roundness.sort(Qt::CaseInsensitive);
+    sizing.sort(Qt::CaseInsensitive);
+
+    QList<CardDef> result;
+    if (!roundness.isEmpty())
+    {
+        CardDef card;
+        card.m_title         = "Roundness";
+        card.m_tokens        = roundness;
+        card.m_startExpanded = true;
+        result.append(card);
+    }
+    if (!sizing.isEmpty())
+    {
+        CardDef card;
+        card.m_title         = "Sizing";
+        card.m_tokens        = sizing;
+        card.m_startExpanded = false;
+        result.append(card);
+    }
+    return result;
+}
+
+//////////////////////////////////////////////////////////////////////////
 // CARD BUILDER -- One collapsible card per category
 //////////////////////////////////////////////////////////////////////////
 
-QFrame* ThemeEditorWidget::BuildCard(const CardDef& def)
+QFrame* ThemeEditorWidget::BuildCard(const CardDef& def, QWidget* parentContainer)
 {
     // Outer card frame
-    QFrame* card = new QFrame(m_columnContainer);
+    QFrame* card = new QFrame(parentContainer);
     card->setObjectName("ThemeEditorCard");
     card->setFrameShape(QFrame::StyledPanel);
     card->setFrameShadow(QFrame::Raised);
@@ -420,6 +517,32 @@ QFrame* ThemeEditorWidget::BuildCard(const CardDef& def)
 
             rowHBox->addWidget(swatch);
         }
+        else if (IsMetricValue(valueStr))
+        {
+            QSpinBox* spin = new QSpinBox(rowWidget);
+            spin->setRange(0, 64);
+            spin->setSuffix(QStringLiteral("px"));
+            spin->setValue(ParseMetricPx(valueStr));   // set before connecting to avoid a spurious edit
+
+            connect(spin, qOverload<int>(&QSpinBox::valueChanged), this,
+                [this, flatName, valueLabel](int px)
+                {
+                    const QString newValue = QString::number(px) + QStringLiteral("px");
+
+                    // Update the value label, the flat edit map, and push the single token.
+                    valueLabel->setText(newValue);
+                    m_effectiveFlat[flatName] = newValue;
+                    AzQtComponents::StyleManager::setThemeProperty(flatName, newValue);
+
+                    // Trigger a full re-polish only if live preview is enabled.
+                    if (m_livePreviewCheck->isChecked())
+                    {
+                        m_applyTimer->start(300);
+                    }
+                });
+
+            rowHBox->addWidget(spin);
+        }
 
         form->addRow(tokenLabel, rowWidget);
     }
@@ -498,6 +621,17 @@ void ThemeEditorWidget::resizeEvent(QResizeEvent* event)
 }
 
 //////////////////////////////////////////////////////////////////////////
+// showEvent -- reflow once the widget has its real (docked) width
+//////////////////////////////////////////////////////////////////////////
+void ThemeEditorWidget::showEvent(QShowEvent* event)
+{
+    QWidget::showEvent(event);
+    // At construction the widget has no meaningful width, so the initial reflow defaults
+    // to a single column. Reflow once after the real size is known.
+    QTimer::singleShot(0, this, [this]() { ReflowCards(); });
+}
+
+//////////////////////////////////////////////////////////////////////////
 // RebuildFromActiveTheme
 //////////////////////////////////////////////////////////////////////////
 void ThemeEditorWidget::RebuildFromActiveTheme()
@@ -512,15 +646,25 @@ void ThemeEditorWidget::RebuildFromActiveTheme()
     m_effectiveFlat.clear();
     m_currentColumns = 0; // Force a reflow after rebuild.
 
-    const QString themeName = AzQtComponents::StyleManager::currentThemeName();
-
-    if (themeName.isEmpty())
+    // Tear down old structure cards + any trailing stretch.
+    for (QFrame* card : m_structureCards)
     {
-        m_themeNameLabel->setText(tr("Active theme: (none)"));
-        return;
+        delete card;
+    }
+    m_structureCards.clear();
+    while (QLayoutItem* item = m_structureLayout->takeAt(0))
+    {
+        delete item;
     }
 
-    m_themeNameLabel->setText(tr("Active theme: %1").arg(themeName));
+    // Refresh the theme selector (picks up any newly-saved themes and selects the active one).
+    PopulateThemeCombo();
+
+    const QString themeName = AzQtComponents::StyleManager::currentThemeName();
+    if (themeName.isEmpty())
+    {
+        return;
+    }
 
     // Resolve the full effective token set (including base-theme inheritance).
     const QJsonObject effectiveProps = ResolveEffectiveProperties(themeName);
@@ -550,11 +694,21 @@ void ThemeEditorWidget::RebuildFromActiveTheme()
     const QList<CardDef> defs = BuildCardDefs(m_effectiveFlat);
     for (const CardDef& def : defs)
     {
-        m_cards.append(BuildCard(def));
+        m_cards.append(BuildCard(def, m_columnContainer));
     }
 
-    // Distribute cards into columns.
+    // Distribute color cards into columns.
     ReflowCards();
+
+    // Build the Structure tab (roundness / sizing) from the metric tokens.
+    const QList<CardDef> structDefs = BuildStructureCardDefs(m_effectiveFlat);
+    for (const CardDef& def : structDefs)
+    {
+        QFrame* card = BuildCard(def, m_structureContainer);
+        m_structureCards.append(card);
+        m_structureLayout->addWidget(card);
+    }
+    m_structureLayout->addStretch(1);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -563,6 +717,68 @@ void ThemeEditorWidget::RebuildFromActiveTheme()
 void ThemeEditorWidget::OnApplyToEditor()
 {
     AzQtComponents::StyleManager::reapplyTheme();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// OnReloadActiveTheme -- discard unsaved edits, restore the on-disk theme
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Theme selector
+//////////////////////////////////////////////////////////////////////////
+void ThemeEditorWidget::PopulateThemeCombo()
+{
+    const QSignalBlocker blocker(m_themeCombo);
+    m_themeCombo->clear();
+
+    const QString current = AzQtComponents::StyleManager::currentThemeName();
+    int currentIndex = -1;
+    const auto themes = AzQtComponents::StyleManager::availableThemes();
+    for (const auto& theme : themes)
+    {
+        m_themeCombo->addItem(theme.displayName, theme.folderName);
+        if (theme.folderName == current)
+        {
+            currentIndex = m_themeCombo->count() - 1;
+        }
+    }
+    if (currentIndex >= 0)
+    {
+        m_themeCombo->setCurrentIndex(currentIndex);
+    }
+}
+
+void ThemeEditorWidget::OnThemeComboChanged(int index)
+{
+    if (index < 0)
+    {
+        return;
+    }
+    const QString folderName = m_themeCombo->itemData(index).toString();
+    if (folderName.isEmpty() || folderName == AzQtComponents::StyleManager::currentThemeName())
+    {
+        return;
+    }
+
+    // Switch + apply the selected theme, and persist the choice (kept in sync with Global Preferences).
+    AzQtComponents::StyleManager::setTheme(folderName);
+    gSettings.gui.editorTheme = folderName.toUtf8().constData();
+
+    // Rebuild the token cards for the newly active theme.
+    RebuildFromActiveTheme();
+}
+
+void ThemeEditorWidget::OnReloadActiveTheme()
+{
+    // setTheme clears the live override map, reloads the on-disk theme, and re-applies it --
+    // so this discards any unsaved color edits made this session and truly restores the theme.
+    const QString themeName = AzQtComponents::StyleManager::currentThemeName();
+    if (!themeName.isEmpty())
+    {
+        AzQtComponents::StyleManager::setTheme(themeName);
+    }
+
+    // Refresh the display from the now-clean theme.
+    RebuildFromActiveTheme();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -632,6 +848,9 @@ void ThemeEditorWidget::OnSaveAsNewTheme()
 
     file.write(QJsonDocument(root).toJson());
     file.close();
+
+    // The new theme is now in the pool -- refresh the selector so it appears.
+    PopulateThemeCombo();
 
     QMessageBox::information(this, tr("Save As New Theme"),
         tr("Theme \"%1\" saved.\n\nIt will appear in Global Preferences > General > Editor Theme "

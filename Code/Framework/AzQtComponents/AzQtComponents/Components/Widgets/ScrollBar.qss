@@ -27,14 +27,14 @@ QScrollBar:horizontal
 QScrollBar::handle
 {
     border: 0px solid $ScrollBarHandleBorderColor;
-    border-radius: 2px;
+    border-radius: $RadiusScrollHandle;
     background-color: $ScrollBarHandleColor;
 }
 
 QAbstractScrollArea.DarkScrollBar QScrollBar::handle
 {
     border: 0px solid $ScrollBarHandleBorderColor;
-    border-radius: 2px;
+    border-radius: $RadiusScrollHandle;
     background-color: $ScrollBarDarkHandleColor;
 }
 
@@ -89,7 +89,7 @@ QAbstractScrollArea.DarkScrollBar QScrollBar:hover
 
 QScrollBar::handle:hover
 {
-    border-radius: 3px;
+    border-radius: $RadiusScrollHandle;
     background-color: $ScrollBarHandleHoverColor;
 }
 

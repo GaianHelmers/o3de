@@ -28,8 +28,8 @@ AzQtComponents--Card #contentContainer
     /* Take the border into account with the padding */
     padding: 8px 7px 7px 7px;
     spacing: 4px;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: $RadiusCard;
+    border-bottom-right-radius: $RadiusCard;
 }
 
 AzQtComponents--Card[selected="true"] > #contentContainer
@@ -65,7 +65,7 @@ AzQtComponents--CardNotification #Icon,
 AzQtComponents--CardNotification #Title
 {
     background-color: #444444;
-    border-radius: 3px;
+    border-radius: $RadiusCardFrame;
     border: none;
 }
 
@@ -102,14 +102,14 @@ AzQtComponents--Card[selected="true"] > AzQtComponents--CardHeader #Background
 {
     border: 1px solid #94D2FF;
     border-bottom: none;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: $RadiusCard;
+    border-top-right-radius: $RadiusCard;
 }
 
 AzQtComponents--Card[selected="true"][expanded="false"] > AzQtComponents--CardHeader #Background
 {
     border: 1px solid #94D2FF;
-    border-radius: 2px
+    border-radius: $RadiusCard
 }
 
 AzQtComponents--Card[class~="ContainerCard"]
@@ -153,8 +153,8 @@ AzQtComponents--CardHeader[class~="SectionCardHeader"]
 .primaryCardHeader
 {
     background-color: #333333;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: $RadiusCard;
+    border-top-right-radius: $RadiusCard;
 }
 
 .secondaryCardHeader
@@ -176,8 +176,8 @@ AzQtComponents--CardHeader[contentModified=true] *
 
 AzQtComponents--CardHeader[warning=true] #Background
 {
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: $RadiusCard;
+    border-top-right-radius: $RadiusCard;
 
     background-origin: border;
     background-clip: border;
