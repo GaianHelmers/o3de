@@ -17,6 +17,7 @@ class QCheckBox;
 class QComboBox;
 class QFrame;
 class QLabel;
+class QLineEdit;
 class QPushButton;
 class QScrollArea;
 class QShowEvent;
@@ -62,6 +63,9 @@ private slots:
 private:
     // Fills the theme selector from the themes pool and selects the active theme (signals blocked).
     void PopulateThemeCombo();
+
+    // Shows/hides token rows (and empty cards) across both tabs by name/value substring.
+    void FilterTokens(const QString& text);
 
 private:
     //----------------------------------------------------------------------
@@ -110,6 +114,9 @@ private:
     QPushButton* m_saveAsButton    = nullptr;
     QPushButton* m_applyButton     = nullptr;
     QCheckBox*   m_livePreviewCheck = nullptr;
+
+    // Search box (filters tokens across both tabs)
+    QLineEdit*   m_searchBox       = nullptr;
 
     // Tabbed body: Colors | Structure
     QTabWidget*  m_tabs            = nullptr;

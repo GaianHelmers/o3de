@@ -36,6 +36,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -156,11 +157,18 @@ ThemeEditorWidget::ThemeEditorWidget(QWidget* parent)
         AzQtComponents::StyleManager::reapplyTheme();
     });
 
+    // --- Search box (filters tokens across both tabs by name or value) ---
+    m_searchBox = new QLineEdit(this);
+    m_searchBox->setPlaceholderText(tr("Search tokens by name or value..."));
+    m_searchBox->setClearButtonEnabled(true);
+    connect(m_searchBox, &QLineEdit::textChanged, this, &ThemeEditorWidget::FilterTokens);
+
     // --- Top-level layout ---
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 6, 6, 6);
     layout->addLayout(themeRow);
     layout->addLayout(buttonRow);
+    layout->addWidget(m_searchBox);
     layout->addWidget(m_tabs, 1);
     setLayout(layout);
 
@@ -287,36 +295,148 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
         { "General", {
             "BackgroundColor", "WindowTextColor", "PrimaryTextColor",
             "SeparatorColor", "SeparatorHoveredColor", "MenuItemSelectedColor",
-            "FocusBorderColor", "ErrorColor"
+            "FocusBorderColor", "ErrorColor",
+            "WindowBackgroundColor", "PanelBackgroundColor", "DarkPanelBackgroundColor",
+            "WidgetBackgroundColor"
           }, true },
         { "Text", {
-            "SecondaryTextColor", "DisabledTextColor", "HighlightTextColor", "BlackTextColor"
+            "SecondaryTextColor", "DisabledTextColor", "HighlightTextColor", "BlackTextColor",
+            "LabelTextColor", "LinkColor", "LinkHoverColor",
+            "TextErrorColor", "TextPositiveColor", "TextWarningColor", "TextInfoColor",
+            "OverrideHighlightColor"
+          }, false },
+        { "Typography", {
+            "FontFamily", "AmazonEmberFontFamily"
           }, false },
         { "Menus", {
             "MenuBackgroundColor", "MenuItemSelectedBackgroundColor", "MenuItemDisabledColor",
-            "MenuSeparatorColor", "MenuBarItemSelectedBackgroundColor"
+            "MenuSeparatorColor", "MenuSeparatorTopColor", "MenuBorderColor",
+            "MenuBarBackgroundColor", "MenuBarItemSelectedBackgroundColor",
+            "MenuBarItemSelectedColor", "GlobalMenuItemSelectedColor"
           }, false },
         { "Inputs & Fields", {
             "InputBackgroundColor", "InputTextColor", "InputBorderColor",
             "InputDisabledBackgroundColor", "InputFocusBackgroundColor",
-            "ComboBoxHoverBorderColor", "ComboBoxSeparatorColor", "SpinBoxHoverBorderColor",
+            "ComboBoxHoverBorderColor", "ComboBoxSeparatorColor",
+            "ComboBoxDisabledTextColor", "ComboBoxDisabledBackgroundColor",
+            "SpinBoxHoverBorderColor", "SpinBoxDisabledBackgroundColor",
             "TextEditBackgroundColor", "TextEditTextColor", "TextEditHoverBorderColor",
-            "ToolTipBackgroundColor"
+            "TextEditDarkBackgroundColor", "ToolTipBackgroundColor",
+            "SearchInputBackgroundColor", "SearchLineEditErrorColor", "SearchLineEditNormalColor",
+            "InputInvalidBackgroundColor", "InputInvalidFocusBackgroundColor",
+            "BrowseEditFocusBorderColor", "BrowseEditDisabledBorderColor",
+            "BrowseEditButtonGradientTop", "BrowseEditButtonGradientBottom",
+            "BrowseEditButtonHoverGradientTop", "BreadCrumbsSeparatorColor",
+            "BreadCrumbsEditableBorderColor"
+          }, false },
+        { "Vectors & Axes", {
+            "VectorInputXColor", "VectorInputYColor", "VectorInputZColor", "VectorInputWColor",
+            "VectorEditBackgroundColor", "VectorEditFocusBackgroundColor",
+            "VectorXAxisColor", "VectorYAxisColor", "VectorZAxisColor",
+            "VectorFlavorInformationColor", "VectorFlavorInvalidColor", "VectorFlavorValidColor"
           }, false },
         { "Tabs, Docks & Title Bars", {
             "TabWidgetInactiveTabColor", "TabWidgetSecondaryTabTextColor",
             "TabWidgetSecondarySelectedBorderColor", "TabWidgetSecondaryPaneBorderColor",
-            "QDockWidgetTitleColor", "StyledDockWidgetFloatingBorderColor",
-            "TitleBarBorderColor", "TitleBarCloseButtonHoverColor"
+            "TabWidgetSecondaryHoverColor",
+            "QDockWidgetTitleColor", "DockWindowTitleBarColor", "StyledDockWidgetFloatingBorderColor",
+            "TitleBarBorderColor", "TitleBarButtonHoverColor", "TitleBarCloseButtonHoverColor",
+            "TitleBarSimpleBackgroundColor", "TitleBarLogoColor"
+          }, false },
+        { "Buttons & Controls", {
+            "PushButtonPrimaryDisabledColor", "PushButtonDisabledColor",
+            "PushButtonSecondaryNormalStartColor", "PushButtonSecondaryNormalEndColor",
+            "PushButtonSecondaryHoveredStartColor", "PushButtonSecondaryHoveredEndColor",
+            "PushButtonSecondarySunkenStartColor", "PushButtonSecondarySunkenEndColor",
+            "PushButtonSecondaryDisabledStartColor", "PushButtonSecondaryDisabledEndColor",
+            "SegmentControlButtonColor", "CheckBoxDisabledColor", "CheckBoxDisabledBorderColor",
+            "TinyButtonBorderColor", "TinyButtonCheckedBorderColor",
+            "StyledSliderGrooveColor", "ProgressBarTrackColor", "ProgressBarFillColor",
+            "ResourceGroupHighlightColor", "SingleRequiredSelectionBorderColor"
+          }, false },
+        { "Tool Buttons", {
+            "ToolButtonPressedBackgroundColor", "ToolButtonPressedBorderColor",
+            "ToolButtonHoverBackgroundColor", "ToolButtonHoverBorderColor",
+            "ToolButtonCheckedBackgroundColor"
+          }, false },
+        { "Scrollbars", {
+            "ScrollBarBorderColor", "ScrollBarHandleBorderColor", "ScrollBarHandleColor",
+            "ScrollBarDarkHandleColor", "ScrollBarHandleHoverColor", "ScrollBarTrackHoverColor",
+            "ScrollBarDarkTrackHoverColor", "ScrollbarBackgroundColor", "ScrollbarBorderColor",
+            "ScrollbarHandleBackgroundColor", "ScrollbarHandleBorderColor",
+            "GlobalScrollBarBackgroundColor"
           }, false },
         { "Lists & Tables", {
             "TableViewAlternateRowColor", "TableViewSelectionColor", "TableViewHoverColor",
-            "TableViewHeaderColor", "TableViewDisabledItemColor"
+            "TableViewHeaderColor", "TableViewDisabledItemColor",
+            "AbstractItemViewAlternateBackgroundColor", "AbstractItemViewTextColor"
           }, false },
-        { "Buttons & Controls", {
-            "PushButtonPrimaryDisabledColor", "SegmentControlButtonColor",
-            "BrowseEditFocusBorderColor", "BrowseEditDisabledBorderColor",
-            "ScrollBarHandleHoverColor"
+        { "Asset Browser", {
+            "AssetGridBackgroundColor", "AssetBrowserPreviewBackgroundColor",
+            "AssetBrowserSearchBarBackgroundColor",
+            "AssetThumbnailRootBackgroundColor", "AssetThumbnailRootBorderColor",
+            "AssetThumbnailChildBackgroundColor", "AssetThumbnailChildBorderColor",
+            "AssetThumbnailChildFrameBackgroundColor", "AssetThumbnailExpandButtonColor",
+            "AssetThumbnailSelectedBorderColor",
+            "AssetEditorHeaderBackgroundColor", "AssetEditorBodyBackgroundColor",
+            "AssetImporterLabelColor", "ResourceImporterListItemBackgroundColor"
+          }, false },
+        { "Cards & Components", {
+            "CardBackgroundColor", "CardHeaderColor", "CardModifiedTextColor", "CardSelectedBorderColor",
+            "ComponentPanelFrameColor", "ComponentEditorBorderColor",
+            "ComponentEditorNotificationBackgroundColor", "ComponentEditorNotificationBorderColor",
+            "ComponentPaletteWidgetBorderColor", "ComponentPaletteWidgetBackgroundColor",
+            "ComponentPaletteTreeSelectionColor"
+          }, false },
+        { "Color Picker", {
+            "ColorPickerModifiedTitleColor", "ColorPickerSeparatorBorderColor",
+            "ColorPickerSwatchBorderColor", "ColorPickerSwatchSelectedBorderColor"
+          }, false },
+        { "Slices & Prefabs", {
+            "SliceRootBackgroundColor", "SliceRootNameColor", "SelectedSliceRootBackgroundColor",
+            "SelectedSliceRootBorderColor", "SliceEntityColor", "SliceOverrideColor",
+            "SliceWarningColor", "SlicePushWarningBottomColor", "SlicePushWarningTreeSelectedColor",
+            "HierarchyLinesSlices", "HierarchyLinesSlicesSelected",
+            "HierarchyLinesNonSliceEntities", "HierarchyLinesNonSliceEntitiesSelected"
+          }, false },
+        { "Layers", {
+            "LayerBackgroundColor", "LayerChildBackgroundColor", "LayerBorderTop", "LayerBorderBottom",
+            "LayerMenuSelected", "LayerMenuDisabled", "NewLayerDefaultColor",
+            "LayerBGSelectionColor", "LayerChildBGSelectionColor"
+          }, false },
+        { "Outliner & Selection", {
+            "OutlinerSelectionColor", "OutlinerSearchBackgroundColor",
+            "OutlinerSelectionBackgroundColor", "OutlinerHoverBackgroundColor",
+            "OutlinerMixedStateIndicatorColor",
+            "SelectionHighlightColor", "SearchSelectionBackgroundColor"
+          }, false },
+        { "Viewport", {
+            "ViewportTitleDlgBackgroundColor", "ViewportTitleSearchBackgroundUrl"
+          }, false },
+        { "Status Bar & Console", {
+            "StatusBarBackgroundColor", "StatusBarTextColor", "StatusBarSpacerColor",
+            "ConsoleBackgroundColor"
+          }, false },
+        { "Filters", {
+            "FilterCriteriaButtonBorderColor", "FilterCriteriaButtonBackgroundColor",
+            "FilterClearLabelColor"
+          }, false },
+        { "Preferences & Dividers", {
+            "PreferencesTreeBackgroundColor", "PreferencesPropertyLabelColor",
+            "PropertySectionDividerColor"
+          }, false },
+        { "Dialogs (Login / Welcome / Survey)", {
+            "NetPromoterDialogBackgroundColor", "NetPromoterRatingButtonBackgroundColor",
+            "NetPromoterRatingButtonHoverColor", "NetPromoterRatingButtonPressColor",
+            "NetPromoterCommentBoxBeforeColor", "NetPromoterCommentBoxAfterColor",
+            "LoginDialogBackgroundColor", "LoginDialogTextColor", "LoginDialogFrameBorderColor",
+            "WelcomeScreenLinkHoverColor", "WelcomeScreenPinnedArticleBackgroundColor",
+            "WelcomeScreenPinnedArticleBorderColor", "WelcomeScreenArticleRootGradient",
+            "AddDeploymentLinkColor", "AddDeploymentLinkHoverColor",
+            "NoChangesOverlayColor", "NoChangesOverlayTextColor"
+          }, false },
+        { "Legacy (CryTooltip / Table)", {
+            "CToolTipText", "CToolTipBackground", "CTableRowOdd", "CTableRowEven"
           }, false },
     };
 
@@ -723,6 +843,92 @@ void ThemeEditorWidget::RebuildFromActiveTheme()
         m_structureLayout->addWidget(card);
     }
     m_structureLayout->addStretch(1);
+
+    // Re-apply any active search filter to the freshly rebuilt cards.
+    if (m_searchBox && !m_searchBox->text().isEmpty())
+    {
+        FilterTokens(m_searchBox->text());
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// FilterTokens -- show/hide token rows (and empty cards) by name/value
+//////////////////////////////////////////////////////////////////////////
+void ThemeEditorWidget::FilterTokens(const QString& text)
+{
+    const QString needle = text.trimmed();
+    const bool searching = !needle.isEmpty();
+
+    auto filterCards = [&](const QList<QFrame*>& cards)
+    {
+        for (QFrame* card : cards)
+        {
+            QFormLayout* form = card->findChild<QFormLayout*>();
+            if (!form)
+            {
+                continue;
+            }
+            QWidget*     body   = form->parentWidget();
+            QToolButton* header = card->findChild<QToolButton*>();
+
+            int visibleRows = 0;
+            for (int row = 0; row < form->rowCount(); ++row)
+            {
+                QWidget* labelW = nullptr;
+                QWidget* fieldW = nullptr;
+                if (QLayoutItem* li = form->itemAt(row, QFormLayout::LabelRole))
+                {
+                    labelW = li->widget();
+                }
+                if (QLayoutItem* fi = form->itemAt(row, QFormLayout::FieldRole))
+                {
+                    fieldW = fi->widget();
+                }
+
+                bool match = !searching;
+                if (searching)
+                {
+                    if (auto* lbl = qobject_cast<QLabel*>(labelW))
+                    {
+                        match = lbl->text().contains(needle, Qt::CaseInsensitive);
+                    }
+                    if (!match && fieldW)
+                    {
+                        // Also match the value text (e.g. search a hex like "FFFFFF").
+                        if (auto* valueLabel = fieldW->findChild<QLabel*>())
+                        {
+                            match = valueLabel->text().contains(needle, Qt::CaseInsensitive);
+                        }
+                    }
+                }
+
+                if (labelW)
+                {
+                    labelW->setVisible(match);
+                }
+                if (fieldW)
+                {
+                    fieldW->setVisible(match);
+                }
+                if (match)
+                {
+                    ++visibleRows;
+                }
+            }
+
+            // Hide a card entirely when nothing in it matches; expand it when it has matches.
+            card->setVisible(visibleRows > 0);
+            if (searching && visibleRows > 0 && body && header)
+            {
+                body->setVisible(true);
+                header->setChecked(true);
+                header->setArrowType(Qt::DownArrow);
+            }
+        }
+    };
+
+    filterCards(m_cards);
+    filterCards(m_structureCards);
 }
 
 //////////////////////////////////////////////////////////////////////////

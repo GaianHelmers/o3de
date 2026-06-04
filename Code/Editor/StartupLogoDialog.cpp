@@ -51,7 +51,8 @@ CStartupLogoDialog::CStartupLogoDialog(
         m_ui->m_TransparentConfidential->setTextFormat(Qt::RichText);
         m_ui->m_TransparentConfidential->setText(richTextCopyrightNotice);
         m_ui->m_TransparentVersion->setText(versionText);
-        setStyleSheet("QLabel { background: transparent; color: 'white' }\
+        setStyleSheet("CStartupLogoDialog { background: transparent; }\
+                            QLabel { background: transparent; color: 'white' }\
                             QLabel#copyrightNotice { color: #AAAAAA; font-size: 9px; } ");
 
         break;
@@ -62,7 +63,8 @@ CStartupLogoDialog::CStartupLogoDialog(
         m_ui->m_transparentAllRightReserved->setTextFormat(Qt::RichText);
         m_ui->m_transparentAllRightReserved->setText(richTextCopyrightNotice);
         m_ui->m_transparentTrademarks->setText(versionText);
-        setStyleSheet("QLabel#copyrightNotice { color: #AAAAAA; font-size: 9px; }\
+        setStyleSheet("CStartupLogoDialog { background: transparent; }\
+                            QLabel#copyrightNotice { color: #AAAAAA; font-size: 9px; }\
                             QLabel#link { text-decoration: underline; color: #94D2FF; }");
         break;
     }

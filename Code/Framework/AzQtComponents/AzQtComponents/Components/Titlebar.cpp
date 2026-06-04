@@ -422,6 +422,17 @@ namespace AzQtComponents
         m_tabBar->setTabText(0, text);
     }
 
+    void TitleBar::setIcon(const QPixmap& icon)
+    {
+        m_hasCustomIcon = !icon.isNull();
+        if (m_icon)
+        {
+            m_icon->setPixmap(icon);
+            m_icon->setContentsMargins(4, 0, 6, 0);
+            m_icon->setVisible(m_hasCustomIcon);
+        }
+    }
+
     void TitleBar::updateTitleBar()
     {
         setFixedHeight(style()->pixelMetric(QStyle::PM_TitleBarHeight, nullptr, this));
@@ -490,7 +501,7 @@ namespace AzQtComponents
             return false;
         }
 
-        titleBar->m_icon->setVisible(config.icon.visible);
+        titleBar->m_icon->setVisible(config.icon.visible || titleBar->m_hasCustomIcon);
         titleBar->m_label->setIndent(config.title.indent);
         titleBar->m_showLabelWhenSimple = config.title.visibleWhenSimple;
         titleBar->setDrawAsTabBar(config.titleBar.appearAsTabBar);

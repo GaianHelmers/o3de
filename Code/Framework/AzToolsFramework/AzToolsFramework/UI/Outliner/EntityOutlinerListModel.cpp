@@ -29,7 +29,10 @@
 #include <AzCore/Asset/AssetManagerBus.h>
 #include <AzCore/Asset/AssetTypeInfoBus.h>
 #include <AzCore/Casting/numeric_cast.h>
+#include <AzCore/Interface/Interface.h>
 #include <AzCore/Component/Entity.h>
+
+#include <AzQtComponents/Components/StyleManagerInterface.h>
 #include <AzCore/Component/TransformBus.h>
 #include <AzCore/Component/ComponentApplication.h>
 #include <AzCore/Debug/Profiler.h>
@@ -2006,10 +2009,25 @@ namespace AzToolsFramework
 
             backgroundPath.addRect(backgroundRect);
 
+            // The outliner paints its own selection/hover (the qss is transparent). Follow the active
+            // theme so the highlight is a colourful blue like the other views, not the grey white-overlay
+            // fallback (s_selectedColor = white@45). Falls back to the statics when the token is absent.
             QColor backgroundColor = s_hoverColor;
             if (isSelected)
             {
                 backgroundColor = s_selectedColor;
+            }
+            if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get())
+            {
+                const char* token = isSelected ? "OutlinerSelectionBackgroundColor" : "OutlinerHoverBackgroundColor";
+                if (styleManager->IsStylePropertyDefined(token))
+                {
+                    const QColor themed = styleManager->GetStylePropertyAsColor(token);
+                    if (themed.isValid())
+                    {
+                        backgroundColor = themed;
+                    }
+                }
             }
 
             painter->fillPath(backgroundPath, backgroundColor);

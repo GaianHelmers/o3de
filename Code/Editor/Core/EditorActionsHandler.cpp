@@ -50,8 +50,11 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMainWindow>
+#include <QAction>
 #include <QMenu>
+#include <QMenuBar>
 #include <QTimer>
+#include <QToolBar>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QWidget>
@@ -1558,6 +1561,41 @@ void EditorActionsHandler::OnWidgetActionRegistrationHook()
         );
     }
 
+    // A second, DISTINCT expander identifier. The Action Manager tracks one widget per identifier, so
+    // reusing "o3de.widgetAction.expander" twice in the same toolbar only yields a single expander. The
+    // merged bar needs two (one to centre the tools, one to right-align play), so register a second id.
+    {
+        AzToolsFramework::WidgetActionProperties widgetActionProperties;
+        widgetActionProperties.m_name = "Center Expander";
+        widgetActionProperties.m_category = "Widgets";
+
+        m_actionManagerInterface->RegisterWidgetAction(
+            "o3de.widgetAction.centerExpander",
+            widgetActionProperties,
+            [&]
+            {
+                return CreateExpander();
+            }
+        );
+    }
+
+    // Play-block left pad (width set later in PopulateMergedMenuBar) -- pads the play controls into a
+    // right-aligned block the same width as the File menu so the tools centre on the window.
+    {
+        AzToolsFramework::WidgetActionProperties widgetActionProperties;
+        widgetActionProperties.m_name = "Play Block Pad";
+        widgetActionProperties.m_category = "Widgets";
+
+        m_actionManagerInterface->RegisterWidgetAction(
+            "o3de.widgetAction.playBlockPad",
+            widgetActionProperties,
+            [&]
+            {
+                return CreatePlayBlockPadWidget();
+            }
+        );
+    }
+
     // Play Controls - Label
     {
         AzToolsFramework::WidgetActionProperties widgetActionProperties;
@@ -2020,24 +2058,34 @@ void EditorActionsHandler::OnToolBarRegistrationHook()
 
 void EditorActionsHandler::OnToolBarBindingHook()
 {
-    // Add ToolBars to ToolBar Areas
-    // We space the sortkeys by 100 to allow external systems to add toolbars in-between.
+    // The ENTIRE merged top bar is built into the Tools toolbar, which is the only toolbar in the top
+    // area (so it fills the row and the expanders can centre the tools). The Action Manager maintains it:
+    // RefreshToolActions only removes/re-adds the tool actions (small alphabetical sort keys) in the
+    // middle, so the menu, expanders and play controls -- at sort keys outside that range -- persist.
     m_toolBarManagerInterface->AddToolBarToToolBarArea(
         EditorIdentifiers::MainWindowTopToolBarAreaIdentifier, EditorIdentifiers::ToolsToolBarIdentifier, 100);
-    m_toolBarManagerInterface->AddToolBarToToolBarArea(
-        EditorIdentifiers::MainWindowTopToolBarAreaIdentifier, EditorIdentifiers::PlayControlsToolBarIdentifier, 200);
 
-    // Add actions to each toolbar
+    // Centring expander before the tools (the menu lives in a separate toolbar to the left). Uses a
+    // distinct identifier from play's expander below -- two of the same identifier collapse into one.
+    m_toolBarManagerInterface->AddWidgetToToolBar(EditorIdentifiers::ToolsToolBarIdentifier, "o3de.widgetAction.centerExpander", 1);
 
-    // Play Controls
+    // Play controls (far right), after ALL tools -- large sort keys keep them past the alphabetical tools.
+    // The play controls form a RIGHT-ALIGNED block padded to the same width as the File menu: a stretch
+    // expander, then a fixed left pad (width = menuWidth - playControlsWidth, set in PopulateMergedMenuBar),
+    // then the controls. With equal menu/play blocks and the two stretch expanders, the tools land truly
+    // window-centred; the play controls sit flush against the right edge so their dropdown opens leftwards
+    // (no right-hand gap). The pad's sort key stays past the alphabetical tools, so RefreshToolActions
+    // (which only removes tool-action identifiers) never disturbs it -- the centring survives level loads.
     {
-        m_toolBarManagerInterface->AddWidgetToToolBar(EditorIdentifiers::PlayControlsToolBarIdentifier, "o3de.widgetAction.expander", 100);
-        m_toolBarManagerInterface->AddSeparatorToToolBar(EditorIdentifiers::PlayControlsToolBarIdentifier, 200);
-        m_toolBarManagerInterface->AddWidgetToToolBar(EditorIdentifiers::PlayControlsToolBarIdentifier, "o3de.widgetAction.game.playControlsLabel", 300);
+        constexpr int playBase = 1000000;
+        m_toolBarManagerInterface->AddWidgetToToolBar(EditorIdentifiers::ToolsToolBarIdentifier, "o3de.widgetAction.expander", playBase);
+        m_toolBarManagerInterface->AddWidgetToToolBar(EditorIdentifiers::ToolsToolBarIdentifier, "o3de.widgetAction.playBlockPad", playBase + 50);
+        m_toolBarManagerInterface->AddSeparatorToToolBar(EditorIdentifiers::ToolsToolBarIdentifier, playBase + 100);
+        m_toolBarManagerInterface->AddWidgetToToolBar(EditorIdentifiers::ToolsToolBarIdentifier, "o3de.widgetAction.game.playControlsLabel", playBase + 200);
         m_toolBarManagerInterface->AddActionWithSubMenuToToolBar(
-            EditorIdentifiers::PlayControlsToolBarIdentifier, "o3de.action.game.play", EditorIdentifiers::PlayGameMenuIdentifier, 400);
-        m_toolBarManagerInterface->AddSeparatorToToolBar(EditorIdentifiers::PlayControlsToolBarIdentifier, 500);
-        m_toolBarManagerInterface->AddActionToToolBar(EditorIdentifiers::PlayControlsToolBarIdentifier, "o3de.action.game.simulate", 600);
+            EditorIdentifiers::ToolsToolBarIdentifier, "o3de.action.game.play", EditorIdentifiers::PlayGameMenuIdentifier, playBase + 300);
+        m_toolBarManagerInterface->AddSeparatorToToolBar(EditorIdentifiers::ToolsToolBarIdentifier, playBase + 400);
+        m_toolBarManagerInterface->AddActionToToolBar(EditorIdentifiers::ToolsToolBarIdentifier, "o3de.action.game.simulate", playBase + 500);
     }
 }
 
@@ -2062,11 +2110,18 @@ void EditorActionsHandler::OnPostActionManagerRegistrationHook()
             RefreshToolActions();
         }
     );
-    
+
     RefreshToolActions();
 
     // Initialize the Toolbox Macro actions
     RefreshToolboxMacroActions();
+
+    // Fill the merged menu bar (hosted in the Tools toolbar) once the real menu bar has been populated by
+    // the Menu Manager (asynchronous). Deferred; PopulateMergedMenuBar re-polls until it is ready.
+    QTimer::singleShot(0, m_mainWindow, [this]()
+    {
+        PopulateMergedMenuBar();
+    });
 }
 
 QWidget* EditorActionsHandler::CreateExpander()
@@ -2077,11 +2132,101 @@ QWidget* EditorActionsHandler::CreateExpander()
     return expander;
 }
 
+QWidget* EditorActionsHandler::CreatePlayBlockPadWidget()
+{
+    // Fixed-width pad in front of the play controls; its width is set in PopulateMergedMenuBar once the
+    // menu bar is measured (= menuWidth - playControlsWidth) so the play block matches the menu width.
+    // Hosted via the Action Manager so RefreshToolActions never disturbs it.
+    if (!m_playBlockPadSpacer)
+    {
+        m_playBlockPadSpacer = new QWidget();
+        m_playBlockPadSpacer->setFixedWidth(0);
+    }
+    return m_playBlockPadSpacer;
+}
+
 QWidget* EditorActionsHandler::CreatePlayControlsLabel()
 {
     QLabel* label = new QLabel(m_mainWindow);
     label->setText("Play Controls");
     return label;
+}
+
+void EditorActionsHandler::PopulateMergedMenuBar()
+{
+    if (!m_mainWindow || m_mergedMenuToolBar)
+    {
+        return; // already built (or no main window)
+    }
+
+    // The Menu Manager populates the real menu bar asynchronously; wait for it.
+    QMenuBar* realMenuBar = m_mainWindow->menuBar();
+    if (realMenuBar->actions().isEmpty())
+    {
+        QTimer::singleShot(50, m_mainWindow, [this]() { PopulateMergedMenuBar(); });
+        return;
+    }
+
+    // Find the Tools toolbar (the only toolbar in the top area) so the menu toolbar can be inserted to
+    // its left -- keeping the Tools toolbar as the last/stretching one whose expanders centre the tools.
+    QToolBar* toolsToolBar = nullptr;
+    const QList<QToolBar*> toolBars = m_mainWindow->findChildren<QToolBar*>();
+    for (QToolBar* toolBar : toolBars)
+    {
+        if (m_mainWindow->toolBarArea(toolBar) == Qt::TopToolBarArea)
+        {
+            toolsToolBar = toolBar;
+            break;
+        }
+    }
+    if (!toolsToolBar)
+    {
+        QTimer::singleShot(50, m_mainWindow, [this]() { PopulateMergedMenuBar(); });
+        return;
+    }
+
+    // A separate menu toolbar to the LEFT: a fresh QMenuBar carrying the same menus (owned by the Menu
+    // Manager, so sharing their actions is safe). Then hide the real menu bar so its row collapses.
+    m_mergedMenuToolBar = new QToolBar(m_mainWindow);
+    m_mergedMenuToolBar->setObjectName(QStringLiteral("MergedMenuToolBar"));
+    m_mergedMenuToolBar->setMovable(false);
+    m_mergedMenuToolBar->setFloatable(false);
+    // Zero the toolbar padding so the menu bar can sit flush with the bottom (otherwise the menu items'
+    // underline floats above the bar's bottom edge).
+    m_mergedMenuToolBar->setContentsMargins(0, 0, 0, 0);
+    if (QLayout* toolBarLayout = m_mergedMenuToolBar->layout())
+    {
+        toolBarLayout->setContentsMargins(0, 0, 0, 0);
+    }
+
+    m_mergedMenuBar = new QMenuBar();
+    m_mergedMenuBar->addActions(realMenuBar->actions());
+    // Cap horizontal to content width; expand vertically so the menu fills the row height and its item
+    // underline aligns with the bottom edge.
+    m_mergedMenuBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+    m_mergedMenuToolBar->addWidget(m_mergedMenuBar);
+
+    m_mainWindow->insertToolBar(toolsToolBar, m_mergedMenuToolBar);
+
+    // TRUE-centre the tools on the window: pad the play controls (width P) into a right-aligned block the
+    // same width as the menu (width M) by inserting a fixed (M-P) pad IN FRONT of the play controls. With
+    // two equal blocks (menu left, play-block right) and two equal stretch expanders, the tools land
+    // window-centred AND the play controls sit flush right (so their dropdown opens leftwards, no gap).
+    // P is estimated (the play controls are a fixed set of buttons); nudge if it ends up slightly off.
+    constexpr int playWidthEstimate = 175;
+    const int playPad = m_mergedMenuBar->sizeHint().width() - playWidthEstimate;
+    if (m_playBlockPadSpacer && playPad > 0)
+    {
+        m_playBlockPadSpacer->setFixedWidth(playPad);
+    }
+
+    // Give the merged top bar a taller, less-cramped height so the tools and play controls have breathing
+    // room (a widget property, so RefreshToolActions does not reset it).
+    constexpr int topBarMinHeight = 40;
+    m_mergedMenuToolBar->setMinimumHeight(topBarMinHeight);
+    toolsToolBar->setMinimumHeight(topBarMinHeight);
+
+    realMenuBar->setVisible(false);
 }
 
 QWidget* EditorActionsHandler::CreateDocsSearchWidget()

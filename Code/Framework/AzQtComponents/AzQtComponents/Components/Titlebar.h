@@ -122,6 +122,10 @@ namespace AzQtComponents
         const QString& windowTitleOverride() const { return m_titleOverride; }
         void setWindowTitleOverride(const QString&);
 
+        // Sets a custom icon (e.g. the application logo) shown at the left of the title bar. Passing a
+        // null pixmap clears it. A custom icon stays visible regardless of the config's icon.visible.
+        void setIcon(const QPixmap& icon);
+
         /**
          * Sets the titlebar buttons to show.
          * By default shows: | Minimize | Maximize | Close
@@ -224,6 +228,7 @@ namespace AzQtComponents
         DockTabBar* m_tabBar = nullptr;
         QWidget* m_firstButton = nullptr;
         QLabel* m_icon = nullptr;
+        bool m_hasCustomIcon = false;
         ElidingLabel* m_label = nullptr;
         bool m_showLabelWhenSimple = true;
         bool m_appearAsTabBar = false;

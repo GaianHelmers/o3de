@@ -53,6 +53,14 @@ AzToolsFramework--ComponentEditorHeader #Title[IsOverridden="true"]
     color: $OverrideHighlightColor;
 }
 
+/* Asset Editor window body -- the "additionally dark" surface that the input-field darkness was
+   originally tuned for. It now has its own token so the general input fields can sit lighter. */
+#AssetEditorWidget,
+#AssetEditorWidgetPropertyEditor
+{
+    background-color: $AssetEditorBodyBackgroundColor;
+}
+
 /* Asset Editor */
 Ui--AssetEditorHeader
 {
@@ -212,4 +220,49 @@ ConsoleTextEdit:focus,
     border-width: 0px;
     border-color: $InputBorderColor;
     border-style: solid;
+}
+
+/* Viewport title bar -- the viewport's own top bar (CViewportTitleDlg). Styled uniquely (it is not a
+   pane title bar) via its own $ViewportTitleDlgBackgroundColor token. NOTE: the dead stylesheet's old
+   #ViewportTitleDlgContainer objectName no longer exists; the live widget is the CViewportTitleDlg class. */
+CViewportTitleDlg,
+CViewportTitleDlg > QWidget
+{
+    background-color: $ViewportTitleDlgBackgroundColor;
+}
+
+/* Asset Browser body + favourites bar -- otherwise fall back to the default grey. Covers all three view
+   modes (tree / table / thumbnail) plus the favourites view, and the window background behind them. */
+AzAssetBrowserWindow,
+AzToolsFramework--AssetBrowser--AssetBrowserTreeView,
+AzToolsFramework--AssetBrowser--AssetBrowserTableView,
+AzToolsFramework--AssetBrowser--AssetBrowserThumbnailView,
+AzToolsFramework--AssetBrowser--AssetBrowserFavoritesView
+{
+    background-color: $PanelBackgroundColor;
+}
+
+/* Asset Browser thumbnail (grid) view body -- its own token so the grid behind the tiles can be tuned
+   independently. The tile boxes themselves are themed in C++ (AssetFolderThumbnailView loadConfig). */
+AzQtComponents--AssetFolderThumbnailView,
+AzQtComponents--AssetFolderThumbnailView > QWidget
+{
+    background-color: $AssetGridBackgroundColor;
+}
+
+/* Entity Inspector status block ("dark box"). The hardcoded rgb(51,51,51) inline stylesheet was removed
+   from EntityPropertyEditor.ui so this themed rule can apply. */
+QWidget#m_darkBox
+{
+    background-color: $DarkPanelBackgroundColor;
+}
+
+/* Inspector status-block fields (Name / Entity ID / Status) -- drop their individual field backgrounds
+   so they pass through to the status block's colour (user request) instead of sitting as grey pills. */
+QWidget#m_darkBox QLineEdit,
+QWidget#m_darkBox QComboBox,
+QWidget#m_darkBox QLabel,
+QWidget#m_darkBox QFrame
+{
+    background-color: transparent;
 }

@@ -45,6 +45,20 @@ static int ThemeButtonRadius(const char* token, int fallback)
     return fallback;
 }
 
+static QColor ThemeButtonColor(const char* token, const QColor& fallback)
+{
+    if (auto* styleManager = AZ::Interface<StyleManagerInterface>::Get();
+        styleManager && styleManager->IsStylePropertyDefined(token))
+    {
+        const QColor themed = styleManager->GetStylePropertyAsColor(token);
+        if (themed.isValid())
+        {
+            return themed;
+        }
+    }
+    return fallback;
+}
+
 void PushButton::applyPrimaryStyle(QPushButton* button)
 {
     button->setDefault(true);
@@ -397,6 +411,18 @@ PushButton::Config PushButton::loadConfig(QSettings& settings)
 
     ReadButtonColorSet(settings, QStringLiteral("PrimaryColorSet"), config.primary);
     ReadButtonColorSet(settings, QStringLiteral("SecondaryColorSet"), config.secondary);
+
+    // Secondary ("grey") buttons follow the active theme when it defines these tokens: a neutral
+    // blue-steel gradient at rest, accent on press. Falls back to the loaded/default grey gradient
+    // so O3DE_Original stays pixel-identical. (Read at config-load time; re-applied on theme refresh.)
+    config.secondary.normal.start   = ThemeButtonColor("PushButtonSecondaryNormalStartColor",   config.secondary.normal.start);
+    config.secondary.normal.end     = ThemeButtonColor("PushButtonSecondaryNormalEndColor",     config.secondary.normal.end);
+    config.secondary.hovered.start  = ThemeButtonColor("PushButtonSecondaryHoveredStartColor",  config.secondary.hovered.start);
+    config.secondary.hovered.end    = ThemeButtonColor("PushButtonSecondaryHoveredEndColor",    config.secondary.hovered.end);
+    config.secondary.sunken.start   = ThemeButtonColor("PushButtonSecondarySunkenStartColor",   config.secondary.sunken.start);
+    config.secondary.sunken.end     = ThemeButtonColor("PushButtonSecondarySunkenEndColor",     config.secondary.sunken.end);
+    config.secondary.disabled.start = ThemeButtonColor("PushButtonSecondaryDisabledStartColor", config.secondary.disabled.start);
+    config.secondary.disabled.end   = ThemeButtonColor("PushButtonSecondaryDisabledEndColor",   config.secondary.disabled.end);
 
     ReadBorder(settings, QStringLiteral("Border"), config.defaultBorder);
     ReadBorder(settings, QStringLiteral("DisabledBorder"), config.disabledBorder);

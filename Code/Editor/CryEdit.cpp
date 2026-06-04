@@ -28,6 +28,9 @@ AZ_POP_DISABLE_WARNING
 
 // Qt
 #include <QCommandLineParser>
+#include <QIcon>
+#include <QPainter>
+#include <QPixmap>
 #include <QSharedMemory>
 #include <QSystemSemaphore>
 #include <QDesktopServices>
@@ -81,6 +84,10 @@ AZ_POP_DISABLE_WARNING
 
 // AzQtComponents
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzQtComponents/Components/Titlebar.h>
+
+#include <AzCore/Interface/Interface.h>
 #include <AzQtComponents/Utilities/HandleDpiAwareness.h>
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
 #include <AzQtComponents/Utilities/QtPluginPaths.h>
@@ -1559,6 +1566,27 @@ bool CCryEditApp::InitInstance()
         QStringLiteral(":/Assets/Editor/Style"),
         engineRootPath);
     AzQtComponents::StyleManager::setStyleSheet(mainWindow, QStringLiteral("style:Editor.qss"));
+
+    // Show the O3DE "O" mark at the top-left of the main window's custom title bar (o3de_icon.svg is the
+    // O glyph traced from the official O3DE wordmark, white fill). A theme re-tints it via TitleBarLogoColor.
+    if (AzQtComponents::TitleBar* mainTitleBar = mainWindowWrapper->titleBar())
+    {
+        QIcon logoIcon(QStringLiteral(":/StartupLogoDialog/o3de_icon.svg"));
+        QPixmap logoPixmap = logoIcon.pixmap(QSize(20, 20));
+        if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+            styleManager && styleManager->IsStylePropertyDefined("TitleBarLogoColor") && !logoPixmap.isNull())
+        {
+            const QColor tint = styleManager->GetStylePropertyAsColor("TitleBarLogoColor");
+            if (tint.isValid())
+            {
+                QPainter painter(&logoPixmap);
+                painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+                painter.fillRect(logoPixmap.rect(), tint);
+                painter.end();
+            }
+        }
+        mainTitleBar->setIcon(logoPixmap);
+    }
 
     // Connect to the AssetProcessor at this point
     // It will be launched if not running

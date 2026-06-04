@@ -10,7 +10,9 @@
 #include <AzCore/Casting/numeric_cast.h>
 #include <AzCore/Debug/Trace.h>
 #include <AzCore/std/algorithm.h>
+#include <AzCore/Interface/Interface.h>
 #include <AzQtComponents/Components/Style.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
 
 AZ_PUSH_DISABLE_WARNING(4244 4251 4800, "-Wunknown-warning-option") // 4244: 'initializing': conversion from 'int' to 'float', possible loss of data
                                                                     // 4251: 'QInputEvent::modState': class 'QFlags<Qt::KeyboardModifier>' needs to have dll-interface to be used by clients of class 'QInputEvent'
@@ -36,6 +38,21 @@ AZ_POP_DISABLE_WARNING
 
 namespace
 {
+    // Overrides a Config colour from the active theme when the token is defined; otherwise keeps the
+    // value loaded from the .ini / defaults so O3DE_Original stays pixel-identical.
+    void ApplyThemeColor(const char* token, QColor& color)
+    {
+        if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+            styleManager && styleManager->IsStylePropertyDefined(token))
+        {
+            const QColor themed = styleManager->GetStylePropertyAsColor(token);
+            if (themed.isValid())
+            {
+                color = themed;
+            }
+        }
+    }
+
     // Returns the QString that will be displayed under each thumbnail
     QString elidedTextWithExtension(const QFontMetrics& fm, const QString& text, int width)
     {
@@ -379,6 +396,18 @@ namespace AzQtComponents
         settings.beginGroup(QStringLiteral("ChildFrame"));
         readChildFrame(settings, config.childFrame);
         settings.endGroup();
+
+        // Theme overrides: the asset-browser thumbnail tiles + frames follow the active theme so the
+        // grid stops rendering the hardcoded grey boxes (#444/#222) on dark themes.
+        ApplyThemeColor("AssetThumbnailRootBackgroundColor", config.rootThumbnail.backgroundColor);
+        ApplyThemeColor("AssetThumbnailRootBorderColor", config.rootThumbnail.borderColor);
+        ApplyThemeColor("AssetThumbnailSelectedBorderColor", config.rootThumbnail.selectedBorderColor);
+        ApplyThemeColor("AssetThumbnailChildBackgroundColor", config.childThumbnail.backgroundColor);
+        ApplyThemeColor("AssetThumbnailChildBorderColor", config.childThumbnail.borderColor);
+        ApplyThemeColor("AssetThumbnailSelectedBorderColor", config.childThumbnail.selectedBorderColor);
+        ApplyThemeColor("AssetThumbnailExpandButtonColor", config.expandButton.backgroundColor);
+        ApplyThemeColor("AssetThumbnailChildFrameBackgroundColor", config.childFrame.backgroundColor);
+        ApplyThemeColor("AssetThumbnailChildBorderColor", config.childFrame.borderColor);
 
         return config;
     }

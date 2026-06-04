@@ -21,6 +21,8 @@ class CCryEditApp;
 class MainWindow;
 class QMainWindow;
 class QtViewPaneManager;
+class QMenuBar;
+class QToolBar;
 class QWidget;
 
 namespace AzToolsFramework
@@ -51,7 +53,13 @@ public:
 private:
     QWidget* CreateDocsSearchWidget();
     QWidget* CreateExpander();
+    QWidget* CreatePlayBlockPadWidget();
     QWidget* CreatePlayControlsLabel();
+
+    // The tools + play live in the Action-Manager-maintained Tools toolbar (so RefreshToolActions keeps
+    // them alive). The menu goes in its OWN toolbar to the left, inserted once the real menu bar is
+    // populated -- keeping the menu out of the Tools toolbar preserves its expander-based centering.
+    void PopulateMergedMenuBar();
 
     // ActionManagerRegistrationNotificationBus overrides ...
     void OnActionContextRegistrationHook() override;
@@ -128,6 +136,14 @@ private:
     CCryEditApp* m_cryEditApp;
     MainWindow* m_mainWindow;
     QtViewPaneManager* m_qtViewPaneManager;
+
+    // The separate menu toolbar (left of the Tools toolbar) and its menu bar, built once.
+    QToolBar* m_mergedMenuToolBar = nullptr;
+    QMenuBar* m_mergedMenuBar = nullptr;
+
+    // Fixed pad in front of the play controls, sizing the play block to the menu width so the tools
+    // centre on the window. Hosted via the Action Manager (so RefreshToolActions never disturbs it).
+    QWidget* m_playBlockPadSpacer = nullptr;
 
     EditorViewportDisplayInfoHandler* m_editorViewportDisplayInfoHandler = nullptr;
 

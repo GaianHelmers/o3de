@@ -64,6 +64,38 @@ QDockWidget
     background-color: $BackgroundColor;
 }
 
+/* Bottom status bars -- the main editor's and every tool window's (e.g. Script Canvas) follow the same
+   theme tokens. This is app-wide (BaseStyleSheet) so it reaches tool windows; the main editor's
+   MainStatusBar adds its own border + custom-item rules on top in Editor.qss. */
+QStatusBar
+{
+    background-color: $StatusBarBackgroundColor;
+    color: $StatusBarTextColor;
+}
+
+/* Each permanent/normal widget Qt adds to a status bar sits inside a QStatusBar::item frame that
+   otherwise fills with a lighter palette colour -- which is why the individual fields (P4V, game
+   folder, memory, ...) did not follow the bar's themed background. Flatten the item frames so the
+   bar colour shows through uniformly behind every field. */
+QStatusBar::item
+{
+    background: transparent;
+    border: none;
+}
+
+QStatusBar QLabel
+{
+    background: transparent;
+    color: $StatusBarTextColor;
+}
+
+/* The editor's own status-bar fields (StatusBarItem subclasses: P4V / connection / game folder /
+   memory) paint a PE_Widget background -- keep it transparent so they match the bar block. */
+QStatusBar > QWidget
+{
+    background: transparent;
+}
+
 QTextEdit,
 QPlainText,
 QPlainTextEdit,
