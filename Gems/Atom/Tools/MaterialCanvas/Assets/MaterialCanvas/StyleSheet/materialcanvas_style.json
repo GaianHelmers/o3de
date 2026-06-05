@@ -21,7 +21,7 @@
     "font-size": "default",
     "font-style": "default",
     "font-variant": "default",
-    "font-weight": "regular",
+    "font-weight": "medium",
 
     "color": "black",
 
@@ -131,7 +131,7 @@
     "border-color": "transparent",
     "border-radius": 1,
 
-    "padding": 2,
+    "padding": 4,
     "spacing": 0,
     "margin": 0
   },
@@ -151,7 +151,7 @@
 
     "text-alignment": "left",
 
-    "padding": 2,
+    "padding": 6,
     "spacing": 0,
     "margin": 0
   },
@@ -599,7 +599,7 @@
 
     "text-alignment": "left",
 
-    "padding": 2,
+    "padding": 6,
     "spacing": 0,
     "margin": 0
   },

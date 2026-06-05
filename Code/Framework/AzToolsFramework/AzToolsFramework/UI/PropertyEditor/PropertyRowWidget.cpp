@@ -46,7 +46,16 @@ namespace AzToolsFramework
 
         m_mainLayout = new QHBoxLayout();
         m_mainLayout->setSpacing(0);
-        m_mainLayout->setContentsMargins(0, 1, 0, 1);
+        // Right inset keeps the value-column inputs off the inspector's right edge. Driven by the theme
+        // (0px in O3DE_Original so it stays pixel-identical); rows are built after the theme has loaded,
+        // so this read is live. qss margins do not work here -- the layout owns the contents margins.
+        int valueMarginRight = 0;
+        if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+            sm && sm->IsStylePropertyDefined("SpacingPropertyValueMarginRight"))
+        {
+            valueMarginRight = sm->GetStylePropertyAsInteger("SpacingPropertyValueMarginRight");
+        }
+        m_mainLayout->setContentsMargins(0, 1, valueMarginRight, 1);
 
         m_leftHandSideLayoutParent = new QVBoxLayout(nullptr);
         m_leftHandSideLayout = new QHBoxLayout(nullptr);

@@ -24,6 +24,7 @@
 #include <AzCore/Interface/Interface.h>
 
 #include <AzQtComponents/Components/Widgets/AssetFolderThumbnailView.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
 #include <AzQtComponents/DragAndDrop/MainWindowDragAndDrop.h>
 
 #include <QDragEnterEvent>
@@ -113,6 +114,37 @@ namespace AzToolsFramework
                     }
 
                     QMenu menu(this);
+
+                    // The grid's context menu does not reliably inherit the global QMenu theming
+                    // (the thumbnail view is heavily palette-driven, and the default grey leaks back
+                    // through), so apply the active theme's menu colours to this menu explicitly.
+                    // Falls back to the global qss look when the tokens are absent.
+                    if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+                        styleManager && styleManager->IsStylePropertyDefined("MenuBackgroundColor"))
+                    {
+                        const QColor menuBackground = styleManager->GetStylePropertyAsColor("MenuBackgroundColor");
+                        if (menuBackground.isValid())
+                        {
+                            QString menuSheet = QStringLiteral("QMenu { background-color: %1; }").arg(menuBackground.name());
+                            if (styleManager->IsStylePropertyDefined("PrimaryTextColor"))
+                            {
+                                const QColor menuText = styleManager->GetStylePropertyAsColor("PrimaryTextColor");
+                                if (menuText.isValid())
+                                {
+                                    menuSheet += QStringLiteral(" QMenu::item { color: %1; }").arg(menuText.name());
+                                }
+                            }
+                            if (styleManager->IsStylePropertyDefined("MenuItemSelectedBackgroundColor"))
+                            {
+                                const QColor menuSelected = styleManager->GetStylePropertyAsColor("MenuItemSelectedBackgroundColor");
+                                if (menuSelected.isValid())
+                                {
+                                    menuSheet += QStringLiteral(" QMenu::item:selected { background-color: %1; }").arg(menuSelected.name());
+                                }
+                            }
+                            menu.setStyleSheet(menuSheet);
+                        }
+                    }
 
                     if (entries.size() == 1)
                     {

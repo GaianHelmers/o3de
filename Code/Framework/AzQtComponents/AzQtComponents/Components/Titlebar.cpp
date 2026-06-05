@@ -91,7 +91,7 @@ namespace AzQtComponents
     {
         Config config;
 
-        config.titleBar.height = 32;
+        config.titleBar.height = 36;
         config.titleBar.simpleHeight = 14;
         config.titleBar.appearAsTabBar = true;
 
@@ -428,7 +428,10 @@ namespace AzQtComponents
         if (m_icon)
         {
             m_icon->setPixmap(icon);
-            m_icon->setContentsMargins(4, 0, 6, 0);
+            // NOTE: the logo's breathing room is set in TitleBar.qss (#icon margin), not here.
+            // The "AzQtComponents--TitleBar *" stylesheet rule styles this label, and once a widget
+            // is stylesheet-styled Qt's box model ignores setContentsMargins -- so margins must be qss.
+            m_icon->setContentsMargins(0, 0, 0, 0);
             m_icon->setVisible(m_hasCustomIcon);
         }
     }

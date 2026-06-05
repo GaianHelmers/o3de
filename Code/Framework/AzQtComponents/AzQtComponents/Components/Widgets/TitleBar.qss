@@ -28,6 +28,14 @@ AzQtComponents--TitleBar *
     background-color: transparent;
 }
 
+AzQtComponents--TitleBar #icon
+{
+    /* Breathing room for the window logo so it is not flush against the window edge / title text.
+       Must live here (not setContentsMargins) because the rule above stylesheet-styles this label. */
+    margin-left: 10px;
+    margin-right: 8px;
+}
+
 AzQtComponents--TitleBar #title
 {
     font-family: "$FontFamily";

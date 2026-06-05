@@ -1572,7 +1572,7 @@ bool CCryEditApp::InitInstance()
     if (AzQtComponents::TitleBar* mainTitleBar = mainWindowWrapper->titleBar())
     {
         QIcon logoIcon(QStringLiteral(":/StartupLogoDialog/o3de_icon.svg"));
-        QPixmap logoPixmap = logoIcon.pixmap(QSize(20, 20));
+        QPixmap logoPixmap = logoIcon.pixmap(QSize(24, 24));
         if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
             styleManager && styleManager->IsStylePropertyDefined("TitleBarLogoColor") && !logoPixmap.isNull())
         {

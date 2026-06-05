@@ -11,8 +11,7 @@
 QLineEdit
 {
     height: $SizeInputHeight;
-    /* 4px padding already applied*/
-    padding-left: 0px;
+    padding-left: $SpacingInputTextPadLeft;
     border-width: $BorderControlEmphasis;
     border-style: solid;
     padding-bottom: $SpacingInputPadBottom;

@@ -17,7 +17,10 @@ AZ_PUSH_DISABLE_WARNING(4244 4251, "-Wunknown-warning-option")
 #include <QComboBox>
 #include <QDebug>
 #include <QGraphicsDropShadowEffect>
+#include <QIcon>
 #include <QLineEdit>
+#include <QPainter>
+#include <QPalette>
 #include <QSettings>
 #include <QStyledItemDelegate>
 #include <QToolButton>
@@ -334,9 +337,19 @@ namespace AzQtComponents
             style->repolishOnSettingsChange(comboBox);
 
             comboBox->installEventFilter(s_comboBoxWatcher);
-            if (comboBox->view())
+            if (QAbstractItemView* view = comboBox->view())
             {
-                comboBox->view()->installEventFilter(s_comboBoxWatcher);
+                view->installEventFilter(s_comboBoxWatcher);
+
+                // Qt6 stopped honouring the "QComboBox QAbstractItemView" qss colours for the popup, so
+                // push the themed colours onto the view's palette directly. Value-preserving in
+                // O3DE_Original (it reads back its own menu colours).
+                QPalette viewPalette = view->palette();
+                viewPalette.setColor(QPalette::Base, ConfigHelpers::themeColor("MenuBackgroundColor", viewPalette.color(QPalette::Base)));
+                viewPalette.setColor(QPalette::Text, ConfigHelpers::themeColor("PrimaryTextColor", viewPalette.color(QPalette::Text)));
+                viewPalette.setColor(QPalette::Highlight, ConfigHelpers::themeColor("MenuItemSelectedBackgroundColor", viewPalette.color(QPalette::Highlight)));
+                viewPalette.setColor(QPalette::HighlightedText, ConfigHelpers::themeColor("PrimaryTextColor", viewPalette.color(QPalette::HighlightedText)));
+                view->setPalette(viewPalette);
             }
 
             // Prevent QComboBoxes from automatically gaining focus on a wheel event
@@ -461,7 +474,11 @@ namespace AzQtComponents
 
         if (opt->checkState != Qt::Unchecked)
         {
-            style->QProxyStyle::drawPrimitive(QStyle::PE_IndicatorItemViewItemCheck, opt, painter, widget);
+            // Draw only the check-mark glyph on the active row. PE_IndicatorItemViewItemCheck renders a
+            // full check-box frame in Qt6, which these inputs do not want -- just the selected item's tick.
+            static const QIcon checkIcon(QStringLiteral(":/stylesheet/img/UI20/checkmark.svg"));
+            const QRect indicatorRect = style->subElementRect(QStyle::SE_ItemViewItemCheckIndicator, opt, widget);
+            checkIcon.paint(painter, indicatorRect, Qt::AlignCenter);
         }
 
         return true;
