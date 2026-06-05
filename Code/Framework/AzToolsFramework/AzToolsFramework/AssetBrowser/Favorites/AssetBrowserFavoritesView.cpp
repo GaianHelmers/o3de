@@ -7,6 +7,8 @@
  */
 
 #include "AssetBrowserFavoritesView.h"
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
 
 #include <AzToolsFramework/AssetBrowser/Favorites/AssetBrowserFavoritesModel.h>
 #include <AzToolsFramework/AssetBrowser/Favorites/FavoritesEntryDelegate.h>
@@ -216,7 +218,13 @@ namespace AzToolsFramework
         {
             if (!index.parent().isValid() && !selectedIndexes().contains(index))
             {
-                painter->fillRect(rect, 0x333333);
+                QColor favColor(51, 51, 51);
+                if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("AssetBrowserRootBackgroundColor"))
+                {
+                    const QColor themed_ = sm->GetStylePropertyAsColor("AssetBrowserRootBackgroundColor");
+                    if (themed_.isValid()) { favColor = themed_; }
+                }
+                painter->fillRect(rect, favColor);
             }
 
             QTreeView::drawBranches(painter, rect, index);

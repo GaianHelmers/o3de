@@ -904,6 +904,9 @@ SpinBox::Config SpinBox::loadConfig(QSettings& settings)
     ConfigHelpers::read<int>(settings, QStringLiteral("LabelSize"), config.labelSize);
     ConfigHelpers::read<bool>(settings, QStringLiteral("AutoSelectAllOnClickFocus"), config.autoSelectAllOnClickFocus);
 
+    // Theme override (value-preserving in O3DE_Original).
+    config.labelSize = ConfigHelpers::themeInt("SizeInputHeight", config.labelSize);
+
     return config;
 }
 

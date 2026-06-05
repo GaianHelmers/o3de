@@ -10,7 +10,7 @@
 QRadioButton
 {
     font-size: $FontSize;
-    line-height: 18px;
+    line-height: $LineHeightRadio;
     outline: 0;
 }
 
@@ -21,16 +21,16 @@ QRadioButton:disabled
 
 QRadioButton::indicator:!focus
 {
-    width: 16px;
-    height: 16px;
-    margin: 2px;
+    width: $SizeGlyph;
+    height: $SizeGlyph;
+    margin: $SpacingControlMargin;
 }
 
 QRadioButton::indicator:focus
 {
-    width: 18px;
-    height: 18px;
-    margin: 1px;
+    width: $SizeGlyphMedium;
+    height: $SizeGlyphMedium;
+    margin: $SpacingControlMarginTight;
 }
 
 QRadioButton::indicator:checked

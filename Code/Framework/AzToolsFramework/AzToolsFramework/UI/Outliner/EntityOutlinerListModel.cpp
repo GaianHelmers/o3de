@@ -1910,8 +1910,15 @@ namespace AzToolsFramework
         const bool isSelected = (option.state & QStyle::State_Selected);
         const bool isHovered = (option.state & QStyle::State_MouseOver) && (option.state & QStyle::State_Enabled);
 
-        // Paint the Selection/Hover Rect
-        PaintSelectionHoverRect(painter, option, index, isSelected, isHovered);
+        // The stylesheet (EntityOutliner.qss item/branch hover/selected -> the Outliner*BackgroundColor
+        // tokens) paints the highlight for the default-painted cells (visibility / lock) and the branch.
+        // The Name column, however, is custom-painted below, so the qss item background never reaches it
+        // and the name cell would read as un-highlighted. Paint that one cell's highlight here, using the
+        // same tokens, so the whole row reads as a single uniform bar (no double-paint on other columns).
+        if (index.column() == EntityOutlinerListModel::ColumnName)
+        {
+            PaintSelectionHoverRect(painter, option, index, isSelected, isHovered);
+        }
 
         // Paint Ancestor Backgrounds
         PaintAncestorBackgrounds(painter, option, index);

@@ -7,6 +7,7 @@
  */
 
 #include <AzCore/Casting/numeric_cast.h>
+#include <QColor>
 #include <AzCore/std/algorithm.h>
 #include <AzCore/std/numeric.h>
 #include <AzQtComponents/Components/Widgets/BreadCrumbs.h>
@@ -642,6 +643,10 @@ namespace AzQtComponents
 
         ConfigHelpers::read<QString>(settings, QStringLiteral("DisabledLinkColor"), config.disabledLinkColor);
         ConfigHelpers::read<QString>(settings, QStringLiteral("LinkColor"), config.linkColor);
+
+        // Theme overrides (value-preserving in O3DE_Original). Config stores colours as QString.
+        config.disabledLinkColor = ConfigHelpers::themeColor("DisabledTextColor", QColor(config.disabledLinkColor)).name();
+        config.linkColor         = ConfigHelpers::themeColor("PrimaryTextColor", QColor(config.linkColor)).name();
 
         return config;
     }

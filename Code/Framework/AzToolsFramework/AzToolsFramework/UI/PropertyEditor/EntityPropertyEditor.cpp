@@ -714,7 +714,7 @@ namespace AzToolsFramework
     void EntityPropertyEditor::OnSearchContextMenu(const QPoint& pos)
     {
         QMenu* menu = m_gui->m_entitySearchBox->createStandardContextMenu();
-        menu->setStyleSheet("background-color: #333333");
+        menu->setStyleSheet(QString());
         menu->exec(m_gui->m_entitySearchBox->mapToGlobal(pos));
         delete menu;
     }

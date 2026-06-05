@@ -8,21 +8,21 @@
 
 QMenuBar
 {
-    min-height: 28px;
-    height: 28px;
+    min-height: $SizeMenuBarHeight;
+    height: $SizeMenuBarHeight;
     font-family: "$AmazonEmberFontFamily";
     font-size: $FontSize;
     margin: 0px;
     spacing: 0px;
-    border-bottom-width: 2px;
+    border-bottom-width: $BorderDivider;
     border-bottom-color: $SeparatorColor;
     border-bottom-style: solid;
 }
 
 QMenuBar::item
 {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: $SpacingMenuBarItemH;
+    padding-right: $SpacingMenuBarItemH;
 }
 
 QMenuBar::item:selected

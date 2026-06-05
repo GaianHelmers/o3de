@@ -14,7 +14,7 @@ AzQtComponents--StyledDockWidget
 
 AzQtComponents--StyledDockWidget[floating="true"]
 {
-    border: 1px solid $StyledDockWidgetFloatingBorderColor;
+    border: $BorderThin solid $StyledDockWidgetFloatingBorderColor;
 }
 
 AzQtComponents--DockTabWidget::pane

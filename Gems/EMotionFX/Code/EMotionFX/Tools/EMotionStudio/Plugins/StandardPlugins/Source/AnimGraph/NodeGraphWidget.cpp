@@ -7,6 +7,8 @@
  */
 
 #include <EMotionFX/Source/AnimGraphNodeGroup.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
 #include <MCore/Source/LogManager.h>
 #include <EMotionFX/CommandSystem/Source/AnimGraphConnectionCommands.h>
 #include <EMotionFX/Source/ActorManager.h>
@@ -193,7 +195,13 @@ namespace EMStudio
 
         // fill the background
         //painter.fillRect( event->rect(), QColor(30, 30, 30) );
-        painter.setBrush(QColor(47, 47, 47));
+        QColor graphBackground(47, 47, 47);
+        if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("GraphCanvasBackgroundColor"))
+        {
+            const QColor c_ = sm->GetStylePropertyAsColor("GraphCanvasBackgroundColor");
+            if (c_.isValid()) { graphBackground = c_; }
+        }
+        painter.setBrush(graphBackground);
         painter.setPen(Qt::NoPen);
         painter.drawRect(QRect(0, 0, width, height));
 

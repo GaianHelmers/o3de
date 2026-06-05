@@ -9,14 +9,11 @@
 QSpinBox,
 QDoubleSpinBox
 {
-    height: 16px;
-    margin: 2px;
+    height: $SizeInputHeight;
+    margin: $SpacingControlMargin;
     border: none;
-    /* 4px padding already applied */
-    padding-right: 12px;
-    padding-left: 0px;
-    padding-bottom: 1px;
-    padding-top: -1px;
+    /* 4px padding already applied; T R B L */
+    padding: $SpacingSpinBoxPad;
 }
 
 QSpinBox:focus,
@@ -24,7 +21,7 @@ QDoubleSpinBox:focus,
 QSpinBox:hover,
 QDoubleSpinBox:hover
 {
-    margin: 1px;
+    margin: $SpacingControlMarginTight;
     border-width: $BorderControl;
     border-style: solid;
     border-radius: $RadiusInput;
@@ -78,8 +75,8 @@ QDoubleSpinBox::up-button,
 QSpinBox::down-button,
 QDoubleSpinBox::down-button
 {
-    width: 6px;
-    height: 10px;
+    width: $SizeSpinButtonW;
+    height: $SizeSpinButtonH;
 }
 
 QSpinBox::down-button,

@@ -9,7 +9,7 @@
 AzQtComponents--FilteredSearchWidget QLineEdit
 {
     qproperty-frame: true;
-    width: 260px; /* This is just a reasonable default */
+    width: $SizeSearchDefaultWidth; /* This is just a reasonable default */
 }
 
 AzQtComponents--FilteredSearchWidget QPushButton
@@ -27,7 +27,7 @@ AzQtComponents--FilterCriteriaButton
 {
     padding: 0px;
     border-radius: $RadiusChip;
-    border: 1px solid $FilterCriteriaButtonBorderColor;
+    border: $BorderThin solid $FilterCriteriaButtonBorderColor;
     background-color: $FilterCriteriaButtonBackgroundColor;
     /* 22 + 2 * 1 = 24 */
     min-height: $SizeSearchFieldHeight;
@@ -37,14 +37,14 @@ AzQtComponents--FilterCriteriaButton
 AzQtComponents--FilterCriteriaButton QPushButton#closeTag
 {
     qproperty-icon: url(:/stylesheet/img/close_x.svg);
-    qproperty-iconSize: 10px 10px;
+    qproperty-iconSize: $SizeGlyphClose $SizeGlyphClose;
     qproperty-flat: true;
     background-color: transparent;
     padding: 0px;
     margin: 0px;
-    max-height: 16px;
-    max-width: 16px;
-    min-width: 16px;
+    max-height: $SizeGlyph;
+    max-width: $SizeGlyph;
+    min-width: $SizeGlyph;
 }
 
 AzQtComponents--FilterCriteriaButton QLabel
@@ -56,20 +56,20 @@ AzQtComponents--FilterCriteriaButton QLabel
 
 AzQtComponents--FilterCriteriaButton #tagIcon
 {
-    margin-right: 4px;
+    margin-right: $SpacingSearchTagGap;
 }
 
 AzQtComponents--FilterCriteriaButton #tagText
 {
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: $SpacingSearchTagGap;
+    margin-right: $SpacingSearchTagGap;
 }
 
 AzQtComponents--SelectionCountButton
 {
     padding: 0px;
     border-radius: $RadiusChip;
-    border: 1px solid $FilterCriteriaButtonBorderColor;
+    border: $BorderThin solid $FilterCriteriaButtonBorderColor;
     background-color: $FilterCriteriaButtonBackgroundColor;
     /* 22 + 2 * 1 = 24 */
     min-height: $SizeSearchFieldHeight;
@@ -80,7 +80,7 @@ AzQtComponents--FilterTextButton
 {
     padding: 0px;
     border-radius: $RadiusChip;
-    border: 1px solid $FilterCriteriaButtonBorderColor;
+    border: $BorderThin solid $FilterCriteriaButtonBorderColor;
     background-color: $FilterCriteriaButtonBackgroundColor;
     /* 22 + 2 * 1 = 24 */
     min-height: $SizeSearchFieldHeight;
@@ -90,14 +90,14 @@ AzQtComponents--FilterTextButton
 AzQtComponents--FilterTextButton QPushButton#closeTag
 {
     qproperty-icon: url(:/stylesheet/img/close_x.svg);
-    qproperty-iconSize: 10px 10px;
+    qproperty-iconSize: $SizeGlyphClose $SizeGlyphClose;
     qproperty-flat: true;
     background-color: transparent;
     padding: 0px;
     margin: 0px;
-    max-height: 16px;
-    max-width: 16px;
-    min-width: 16px;
+    max-height: $SizeGlyph;
+    max-width: $SizeGlyph;
+    min-width: $SizeGlyph;
 }
 
 AzQtComponents--FilterTextButton QLabel
@@ -109,13 +109,13 @@ AzQtComponents--FilterTextButton QLabel
 
 AzQtComponents--FilterTextButton #tagIcon
 {
-    margin-right: 4px;
+    margin-right: $SpacingSearchTagGap;
 }
 
 AzQtComponents--FilterTextButton #tagText
 {
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: $SpacingSearchTagGap;
+    margin-right: $SpacingSearchTagGap;
 }
 
 AzQtComponents--SearchTypeSelector QTreeView
@@ -129,5 +129,5 @@ AzQtComponents--SearchTypeSelector QTreeView
 
 AzQtComponents--SearchTypeSelector QTreeView::item
 {
-    height: 24px;
+    height: $SizeRowHeight;
 }

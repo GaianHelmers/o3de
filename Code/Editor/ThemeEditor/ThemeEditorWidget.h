@@ -100,9 +100,18 @@ private:
     // Each row: [token label] [value label] [color swatch button OR numeric px spin box].
     QFrame* BuildCard(const CardDef& def, QWidget* parentContainer);
 
-    // Distributes m_cards across m_columnLayouts based on current width.
+    // Distributes the Colors cards across m_columnLayouts based on current width.
     // Chooses column count: width < 700 -> 1, < 1100 -> 2, else 3.
-    void ReflowCards();
+    void ReflowCards(bool force = false);
+
+    // Same responsive reflow for the Structure tab's metric cards.
+    void ReflowStructureCards(bool force = false);
+
+    // Shared reflow: distribute the (non-hidden) cards into the first N column layouts by the scroll
+    // area's width. force=true re-packs even when the column count is unchanged (used after filtering).
+    static void ReflowColumns(
+        QScrollArea* scrollArea, QWidget* container, QList<QVBoxLayout*>& columns,
+        const QList<QFrame*>& cards, int& currentColumns, bool force);
 
     //----------------------------------------------------------------------
     // Members
@@ -130,10 +139,11 @@ private:
     // Ordered list of all built color card frames (owned by m_columnContainer via re-parent).
     QList<QFrame*> m_cards;
 
-    // Structure tab: single-column scroll of metric (roundness/sizing) cards
+    // Structure tab: responsive column scroll of metric (roundness/spacing/sizing) cards
     QScrollArea* m_structureScroll    = nullptr;
     QWidget*     m_structureContainer = nullptr;
-    QVBoxLayout* m_structureLayout    = nullptr;
+    QList<QVBoxLayout*> m_structureColumnLayouts;   // [0..2] column VBoxes inside m_structureContainer
+    int          m_structureCurrentColumns = 0;
     QList<QFrame*> m_structureCards;
 
     // Debounce timer for the slow full re-polish (live preview path).

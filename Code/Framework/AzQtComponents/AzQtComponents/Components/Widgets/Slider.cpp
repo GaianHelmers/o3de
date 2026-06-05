@@ -224,6 +224,14 @@ Slider::Config Slider::loadConfig(QSettings& settings)
     ConfigHelpers::read<QPoint>(settings, QStringLiteral("HorizontalToolTipOffset"), config.horizontalToolTipOffset);
     ConfigHelpers::read<QPoint>(settings, QStringLiteral("VerticalToolTipOffset"), config.verticalToolTipOffset);
 
+    // Theme overrides (value-preserving in O3DE_Original; the handle follows the accent elsewhere).
+    config.slider.handle.color               = ConfigHelpers::themeColor("SliderHandleColor", config.slider.handle.color);
+    config.slider.handle.colorDisabled       = ConfigHelpers::themeColor("DisabledTextColor", config.slider.handle.colorDisabled);
+    config.slider.grove.color                = ConfigHelpers::themeColor("SliderGrooveColor", config.slider.grove.color);
+    config.slider.grove.colorHovered         = ConfigHelpers::themeColor("SliderGrooveHoveredColor", config.slider.grove.colorHovered);
+    config.gradientSlider.grooveBorder.color = ConfigHelpers::themeColor("SliderGradientGrooveBorderColor", config.gradientSlider.grooveBorder.color);
+    config.gradientSlider.handleBorder.color = ConfigHelpers::themeColor("SliderGradientHandleBorderColor", config.gradientSlider.handleBorder.color);
+
     return config;
 }
 

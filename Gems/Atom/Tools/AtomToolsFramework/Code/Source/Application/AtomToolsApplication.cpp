@@ -6,6 +6,8 @@
  */
 
 #include <Atom/RPI.Edit/Common/AssetUtils.h>
+#include <AzQtComponents/Components/StyleManager.h>
+#include <QSettings>
 #include <Atom/RPI.Public/RPISystemInterface.h>
 #include <AtomToolsFramework/Application/AtomToolsApplication.h>
 #include <AtomToolsFramework/Util/Util.h>
@@ -73,6 +75,16 @@ namespace AtomToolsFramework
             GetSettingsValue(AZ::SettingsRegistryMergeUtils::FilePathKey_EngineRootFolder, AZStd::string()));
         m_styleManager.reset(new AzQtComponents::StyleManager(this));
         m_styleManager->initialize(this, engineRootPath);
+
+        // Follow the editor's selected theme (shared "O3DE"/"O3DE Editor" settings) so the Atom tools
+        // (Material Editor, Material Canvas, Pass Canvas, Shader Console) are not stuck on the default
+        // O3DE_Original grey.
+        QSettings editorSettings(QStringLiteral("O3DE"), QStringLiteral("O3DE Editor"));
+        const QString editorTheme = editorSettings.value(QStringLiteral("Settings/EditorTheme")).toString();
+        if (!editorTheme.isEmpty())
+        {
+            AzQtComponents::StyleManager::setTheme(editorTheme);
+        }
     }
 
     AtomToolsApplication ::~AtomToolsApplication()

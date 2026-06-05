@@ -15,7 +15,7 @@ QTabBar
 
 QTabBar::tab
 {
-    max-width: 200px;
+    max-width: $SizeTabMaxWidth;
 }
 
 AzQtComponents--TabWidget
@@ -35,7 +35,7 @@ AzQtComponents--TabWidget:pane
 
 AzQtComponents--TabWidget.Empty:pane
 {
-    margin-top: 30px;
+    margin-top: $SpacingTabEmptyPaneMarginTop;
 }
 
 AzQtComponents--TabBar
@@ -43,27 +43,36 @@ AzQtComponents--TabBar
     qproperty-drawBase: false; /* Stop the base being visible during tab position change animation */
     background-color: $SeparatorColor;
     margin-bottom: 0;
-    min-height: 28px;
+    min-height: $SizeTabBarHeight;
 }
 
 AzQtComponents--TabBar:tab
 {
-    border: 1px solid $SeparatorColor;
+    border: $BorderThin solid $SeparatorColor;
     background-color: $TabWidgetInactiveTabColor;
 
     text-align: left;
-    padding: 6px -2px 6px 9px; /* top, right, bottom, left */
+    /* top right bottom left (Vector4) -- right padding reserves room for the close (X) button so it no
+       longer overlaps the tab text (was -2px). */
+    padding: $SpacingTabPadding;
+}
+
+/* Keep the close (X) button clear of the label and the tab's right edge. */
+AzQtComponents--TabBar::close-button
+{
+    subcontrol-position: right;
+    margin-left: $SpacingTabCloseGap;
 }
 
 AzQtComponents--TabBar::tab:text
 {
     font-size: $FontSize;
-    line-height: 24px;
+    line-height: $LineHeightTall;
 }
 
 AzQtComponents--TabBar::tab:selected
 {
-    border-bottom: 1px solid $BackgroundColor;
+    border-bottom: $BorderThin solid $BackgroundColor;
 }
 
 AzQtComponents--TabBar::tab:selected,
@@ -87,21 +96,21 @@ AzQtComponents--TabWidget.Secondary
 
 AzQtComponents--TabWidget.Secondary.Bordered
 {
-    border: 1px solid $SeparatorColor;
+    border: $BorderThin solid $SeparatorColor;
 }
 
 AzQtComponents--TabWidget.Secondary:pane
 {
     border: 0 none;
-    border-top: 2px solid $TabWidgetSecondaryPaneBorderColor;
-    padding: 3px;
+    border-top: $BorderDivider solid $TabWidgetSecondaryPaneBorderColor;
+    padding: $SpacingTabSecondaryPanePad;
     padding-top: 0;
 }
 
 AzQtComponents--TabWidget.Secondary:tab-bar
 {
     left: 1px;
-    min-height: 30px;
+    min-height: $SizeTabBarSecondaryHeight;
 }
 
 AzQtComponents--TabBar.Secondary
@@ -111,17 +120,17 @@ AzQtComponents--TabBar.Secondary
 
 AzQtComponents--TabBar.Secondary.Bordered
 {
-    border-left: 1px solid $SeparatorColor;
-    border-top: 1px solid $SeparatorColor;
+    border-left: $BorderThin solid $SeparatorColor;
+    border-top: $BorderThin solid $SeparatorColor;
 }
 
 AzQtComponents--TabBar.Secondary::tab
 {
     background-color: $BackgroundColor;
     border: 0 none;
-    border-bottom: 3px solid $TabWidgetInactiveTabColor;
+    border-bottom: $BorderTabUnderline solid $TabWidgetInactiveTabColor;
     text-align: center;
-    padding: 7px 0 5px 14px;
+    padding: $SpacingTabSecondaryPadding;
     color: $TabWidgetSecondaryTabTextColor;
 }
 
@@ -133,18 +142,18 @@ AzQtComponents--TabBar.Secondary::close-button
 AzQtComponents--TabBar.Secondary::tab:hover
 {
     background: $TabWidgetSecondaryHoverColor;
-    border-bottom: 3px solid $BackgroundColor;
+    border-bottom: $BorderTabUnderline solid $BackgroundColor;
     color: $PrimaryTextColor;
 }
 
 AzQtComponents--TabBar.Secondary.Bordered::tab
 {
-    border-top: 1px solid $SeparatorColor;
-    padding: 6px 0 6px 14px;
+    border-top: $BorderThin solid $SeparatorColor;
+    padding: $SpacingTabSecondaryBorderedPadding;
 }
 
 AzQtComponents--TabBar.Secondary::tab:selected
 {
-    border-bottom: 3px solid $TabWidgetSecondarySelectedBorderColor;
+    border-bottom: $BorderTabUnderline solid $TabWidgetSecondarySelectedBorderColor;
     color: $PrimaryTextColor;
 }

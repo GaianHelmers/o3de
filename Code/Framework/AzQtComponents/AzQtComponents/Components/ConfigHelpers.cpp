@@ -7,6 +7,9 @@
  */
 
 #include <AzQtComponents/Components/ConfigHelpers.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+
+#include <AzCore/Interface/Interface.h>
 
 #include <QPoint>
 #include <QPixmap>
@@ -51,6 +54,31 @@ namespace AzQtComponents
             {
                 cursor = QCursor(cursorPixmap);
             }
+        }
+
+        int themeInt(const char* token, int fallback)
+        {
+            auto* sm = AZ::Interface<StyleManagerInterface>::Get();
+            return (sm && sm->IsStylePropertyDefined(token)) ? sm->GetStylePropertyAsInteger(token) : fallback;
+        }
+
+        qreal themeReal(const char* token, qreal fallback)
+        {
+            auto* sm = AZ::Interface<StyleManagerInterface>::Get();
+            return (sm && sm->IsStylePropertyDefined(token)) ? static_cast<qreal>(sm->GetStylePropertyAsInteger(token)) : fallback;
+        }
+
+        QColor themeColor(const char* token, const QColor& fallback)
+        {
+            if (auto* sm = AZ::Interface<StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined(token))
+            {
+                const QColor c = sm->GetStylePropertyAsColor(token);
+                if (c.isValid())
+                {
+                    return c;
+                }
+            }
+            return fallback;
         }
     } // namespace ConfigHelpers
 } // namespace AzQtComponents

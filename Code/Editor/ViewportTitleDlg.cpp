@@ -36,6 +36,11 @@
 #include <AzCore/std/algorithm.h>
 #include <AzFramework/API/ApplicationAPI.h>
 #include <AzQtComponents/Components/Widgets/CheckBox.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+
+#include <AzCore/Interface/Interface.h>
+
+#include <QPainter>
 #include <AzToolsFramework/ActionManager/Menu/MenuManagerInterface.h>
 #include <AzToolsFramework/ActionManager/Menu/MenuManagerInternalInterface.h>
 #include <AzToolsFramework/Editor/ActionManagerUtils.h>
@@ -70,6 +75,24 @@ CViewportTitleDlg::CViewportTitleDlg(QWidget* pParent)
 
 CViewportTitleDlg::~CViewportTitleDlg()
 {
+}
+
+void CViewportTitleDlg::paintEvent([[maybe_unused]] QPaintEvent* event)
+{
+    // The viewport title bar lives on the viewport render surface, which does not inherit the editor
+    // stylesheet, so paint its background from the theme directly.
+    QColor barColor(0x15, 0x16, 0x1D); // dark fallback if the token read fails (was panel-coloured)
+    if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+        styleManager && styleManager->IsStylePropertyDefined("ViewportTitleDlgBackgroundColor"))
+    {
+        const QColor themed = styleManager->GetStylePropertyAsColor("ViewportTitleDlgBackgroundColor");
+        if (themed.isValid())
+        {
+            barColor = themed;
+        }
+    }
+    QPainter painter(this);
+    painter.fillRect(rect(), barColor);
 }
 
 //////////////////////////////////////////////////////////////////////////

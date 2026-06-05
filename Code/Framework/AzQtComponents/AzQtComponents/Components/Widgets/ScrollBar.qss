@@ -9,7 +9,7 @@
 
 QScrollBar
 {
-    border: 2px solid $ScrollBarBorderColor;
+    border: $BorderDivider solid $ScrollBarBorderColor;
     background: none;
     margin: 0px;
 }
@@ -39,11 +39,11 @@ QAbstractScrollArea.DarkScrollBar QScrollBar::handle
 }
 
 QScrollBar::handle:vertical {
-    min-height: 32px;
+    min-height: $SizeScrollHandleMin;
 }
 
 QScrollBar::handle:horizontal {
-    min-width: 32px;
+    min-width: $SizeScrollHandleMin;
 }
 
 QScrollBar::add-line,
@@ -75,14 +75,14 @@ QAbstractScrollArea > .QWidget
 
 QScrollBar:hover
 {
-    border: 1px solid $ScrollBarBorderColor;
+    border: $BorderThin solid $ScrollBarBorderColor;
     background: none;
     margin: 0px;
 }
 
 QAbstractScrollArea.DarkScrollBar QScrollBar:hover
 {
-    border: 1px solid $ScrollBarDarkHandleColor;
+    border: $BorderThin solid $ScrollBarDarkHandleColor;
     background: none;
     margin: 0px;
 }

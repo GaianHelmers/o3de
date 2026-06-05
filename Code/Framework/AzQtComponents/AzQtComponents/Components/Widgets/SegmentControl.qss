@@ -8,7 +8,7 @@
 
 AzQtComponents--SegmentBar
 {
-    margin-bottom: 15px;
+    margin-bottom: $SpacingSegmentMarginBottom;
 }
 
 AzQtComponents--SegmentBar QAbstractButton
@@ -20,21 +20,21 @@ AzQtComponents--SegmentBar QAbstractButton
 
     font-size: $FontSize;
 
-    height: 28px;
+    height: $SizeSegmentHeight;
 
-    line-height: 24px;
+    line-height: $LineHeightTall;
 
     margin-left: 0px;
 
-    min-width: 68px; /* 100 - (padding-left + padding-right) */
+    min-width: $SizeSegmentMinWidth; /* 100 - (padding-left + padding-right) */
 
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: $SpacingSegmentH;
+    padding-right: $SpacingSegmentH;
 }
 
 AzQtComponents--SegmentBar[orientation="1"] QAbstractButton.TabLast
 {
-    margin-left: -1px;
+    margin-left: $SpacingSegmentOverlap;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     border-top-right-radius: $RadiusSegment;
@@ -51,7 +51,7 @@ AzQtComponents--SegmentBar[orientation="1"] QAbstractButton.TabFirst
 
 AzQtComponents--SegmentBar[orientation="1"] QAbstractButton.TabMiddle
 {
-    margin-left: -1px;
+    margin-left: $SpacingSegmentOverlap;
 }
 
 AzQtComponents--SegmentBar[orientation="2"] QAbstractButton
@@ -62,7 +62,7 @@ AzQtComponents--SegmentBar[orientation="2"] QAbstractButton
 AzQtComponents--SegmentBar[orientation="2"] QAbstractButton.TabMiddle,
 AzQtComponents--SegmentBar[orientation="2"] QAbstractButton.TabLast
 {
-    margin-top: -1px;
+    margin-top: $SpacingSegmentOverlap;
 }
 
 AzQtComponents--SegmentBar QAbstractButton:checked

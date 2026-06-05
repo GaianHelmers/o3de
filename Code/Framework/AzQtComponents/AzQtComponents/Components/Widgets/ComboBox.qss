@@ -12,9 +12,9 @@
 
 QComboBox
 {
-    height: 16px;
-    padding-left: 4px;
-    margin: 1px;
+    height: $SizeInputHeight;
+    padding-left: $SpacingComboItemH;
+    margin: $SpacingControlMarginTight;
     font-size: $FontSize;
     background-color: $InputBackgroundColor;
 }
@@ -63,9 +63,9 @@ QComboBox::drop-down
 
 QComboBox::down-arrow
 {
-    width: 16px;
-    height: 16px;
-    margin-right: 4px;
+    width: $SizeGlyph;
+    height: $SizeGlyph;
+    margin-right: $SpacingComboArrowMarginRight;
     image: url(":/stylesheet/img/UI20/combobox-arrow.svg");
 }
 
@@ -87,8 +87,7 @@ QComboBox QAbstractItemView
 QComboBox QAbstractItemView::item
 {
     color: $PrimaryTextColor;
-    padding-right: 24px;
-    padding-left: 2px; /* There is already 22px from the check mark */
+    padding: $SpacingComboItemPad; /* T R B L; left has 22px from the check mark */
 
     /* Without that the padding don't apply */
     border: 0px solid transparent;
@@ -118,8 +117,8 @@ QComboBox QAbstractItemView::separator
 QComboBox QAbstractItemView::indicator
 {
     /* Keep in sync with the check mark image size */
-    width: 16px;
-    height: 16px;
+    width: $SizeGlyph;
+    height: $SizeGlyph;
     image: none;
 }
 
@@ -135,7 +134,7 @@ QComboBox QAbstractItemView::indicator:indeterminate
 
 QMenu QComboBox
 {
-    margin: 3px 8px;
+    margin: $SpacingComboInMenu;
 }
 
 QMenu QComboBox:hover,
@@ -143,5 +142,5 @@ QMenu QComboBox:focus,
 QMenu QComboBox[HasPopupOpen=true],
 QMenu QComboBox[HasPopupOpen=true][HasPopupOpen=true]
 {
-    margin: 2px 7px;
+    margin: $SpacingComboInMenuHover;
 }

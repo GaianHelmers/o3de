@@ -459,6 +459,19 @@ namespace AzQtComponents
         ConfigHelpers::read<int>(settings, QStringLiteral("DropFrameOffset"), config.dropFrameOffset);
         ConfigHelpers::read<int>(settings, QStringLiteral("DropFrameRadius"), config.dropFrameRadius);
 
+        // Theme overrides (value-preserving in O3DE_Original; follow the active theme elsewhere). The
+        // C++-painted line-edit frame radius/line-widths/colours now track the theme instead of the
+        // hardcoded defaults (e.g. the hover background was a literal #FFFFFF -> white on dark themes).
+        config.borderRadius         = ConfigHelpers::themeInt("RadiusInput", config.borderRadius);
+        config.hoverLineWidth       = ConfigHelpers::themeInt("BorderControl", config.hoverLineWidth);
+        config.focusedLineWidth     = ConfigHelpers::themeInt("BorderControl", config.focusedLineWidth);
+        config.errorLineWidth       = ConfigHelpers::themeInt("BorderControlEmphasis", config.errorLineWidth);
+        config.hoverBackgroundColor = ConfigHelpers::themeColor("InputFocusBackgroundColor", config.hoverBackgroundColor);
+        config.hoverBorderColor     = ConfigHelpers::themeColor("TextEditHoverBorderColor", config.hoverBorderColor);
+        config.focusedBorderColor   = ConfigHelpers::themeColor("FocusBorderColor", config.focusedBorderColor);
+        config.errorBorderColor     = ConfigHelpers::themeColor("ErrorColor", config.errorBorderColor);
+        config.placeHolderTextColor = ConfigHelpers::themeColor("SecondaryTextColor", config.placeHolderTextColor);
+
         return config;
     }
 

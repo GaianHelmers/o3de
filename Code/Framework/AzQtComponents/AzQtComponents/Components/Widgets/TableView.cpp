@@ -38,6 +38,11 @@ namespace AzQtComponents
         ConfigHelpers::read<QColor>(settings, QStringLiteral("FocusFillColor"), config.focusFillColor);
         settings.endGroup();
 
+        // Theme overrides (value-preserving in O3DE_Original).
+        config.borderWidth      = ConfigHelpers::themeInt("BorderControl", config.borderWidth);
+        config.focusBorderWidth = ConfigHelpers::themeReal("BorderControl", config.focusBorderWidth);
+        config.focusBorderColor = ConfigHelpers::themeColor("FocusBorderColor", config.focusBorderColor);
+
         return config;
     }
 

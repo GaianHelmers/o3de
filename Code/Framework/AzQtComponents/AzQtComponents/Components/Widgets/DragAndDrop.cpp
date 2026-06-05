@@ -36,6 +36,13 @@ namespace AzQtComponents
         ConfigHelpers::read<int>(settings, QStringLiteral("rectBorderRadius"), config.dragIndicator.rectBorderRadius);
         ConfigHelpers::read<QColor>(settings, QStringLiteral("rectFillColor"), config.dragIndicator.rectFillColor);
 
+        // Theme overrides (value-preserving in O3DE_Original).
+        config.dropIndicator.rectOutlineColor   = ConfigHelpers::themeColor("FocusBorderColor", config.dropIndicator.rectOutlineColor);
+        config.dropIndicator.lineSeparatorColor = ConfigHelpers::themeColor("FocusBorderColor", config.dropIndicator.lineSeparatorColor);
+        config.dropIndicator.ballOutlineColor   = ConfigHelpers::themeColor("FocusBorderColor", config.dropIndicator.ballOutlineColor);
+        config.dropIndicator.ballFillColor      = ConfigHelpers::themeColor("BackgroundColor", config.dropIndicator.ballFillColor);
+        config.dragIndicator.rectFillColor      = ConfigHelpers::themeColor("SecondaryTextColor", config.dragIndicator.rectFillColor);
+
         return config;
     }
 

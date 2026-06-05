@@ -7,6 +7,8 @@
  */
 
 #include <AzCore/Asset/AssetTypeInfoBus.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
 #include <AzQtComponents/Components/Widgets/CardHeader.h>
 #include <AzQtComponents/Components/Widgets/SegmentBar.h>
 #include <AzToolsFramework/API/AssetDatabaseBus.h>
@@ -166,7 +168,13 @@ namespace AzToolsFramework
 
             // Create the layout for the asset icon preview
             m_previewImage = new AzQtComponents::ExtendedLabel(m_populatedLayoutWidget);
-            m_previewImage->setStyleSheet("QLabel {background-color: #333333;}");
+            QColor previewBg(51, 51, 51);
+            if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("AssetBrowserPreviewBackgroundColor"))
+            {
+                const QColor themed_ = sm->GetStylePropertyAsColor("AssetBrowserPreviewBackgroundColor");
+                if (themed_.isValid()) { previewBg = themed_; }
+            }
+            m_previewImage->setStyleSheet(QStringLiteral("QLabel {background-color: %1;}").arg(previewBg.name()));
             m_previewImage->setAlignment(Qt::AlignCenter);
             m_previewImage->setWordWrap(true);
 

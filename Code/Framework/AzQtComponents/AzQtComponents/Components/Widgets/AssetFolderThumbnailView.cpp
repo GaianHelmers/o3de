@@ -369,6 +369,22 @@ namespace AzQtComponents
         childFrame.closeButtonWidth = settings.value(QStringLiteral("CloseButtonWidth"), childFrame.padding).toInt();
     }
 
+    // Re-applies the theme tile/frame colours onto a Config. Used at load AND at paint time: the
+    // Config is first loaded at Style init (before the theme JSON is ready), so the tokens would be
+    // undefined then and the tiles would stay the hardcoded grey. Re-running at paint guarantees them.
+    static void ApplyThemeColorsToConfig(AssetFolderThumbnailView::Config& config)
+    {
+        ApplyThemeColor("AssetThumbnailRootBackgroundColor", config.rootThumbnail.backgroundColor);
+        ApplyThemeColor("AssetThumbnailRootBorderColor", config.rootThumbnail.borderColor);
+        ApplyThemeColor("AssetThumbnailSelectedBorderColor", config.rootThumbnail.selectedBorderColor);
+        ApplyThemeColor("AssetThumbnailChildBackgroundColor", config.childThumbnail.backgroundColor);
+        ApplyThemeColor("AssetThumbnailChildBorderColor", config.childThumbnail.borderColor);
+        ApplyThemeColor("AssetThumbnailSelectedBorderColor", config.childThumbnail.selectedBorderColor);
+        ApplyThemeColor("AssetThumbnailExpandButtonColor", config.expandButton.backgroundColor);
+        ApplyThemeColor("AssetThumbnailChildFrameBackgroundColor", config.childFrame.backgroundColor);
+        ApplyThemeColor("AssetThumbnailChildBorderColor", config.childFrame.borderColor);
+    }
+
     AssetFolderThumbnailView::Config AssetFolderThumbnailView::loadConfig(QSettings& settings)
     {
         auto config = defaultConfig();
@@ -397,17 +413,8 @@ namespace AzQtComponents
         readChildFrame(settings, config.childFrame);
         settings.endGroup();
 
-        // Theme overrides: the asset-browser thumbnail tiles + frames follow the active theme so the
-        // grid stops rendering the hardcoded grey boxes (#444/#222) on dark themes.
-        ApplyThemeColor("AssetThumbnailRootBackgroundColor", config.rootThumbnail.backgroundColor);
-        ApplyThemeColor("AssetThumbnailRootBorderColor", config.rootThumbnail.borderColor);
-        ApplyThemeColor("AssetThumbnailSelectedBorderColor", config.rootThumbnail.selectedBorderColor);
-        ApplyThemeColor("AssetThumbnailChildBackgroundColor", config.childThumbnail.backgroundColor);
-        ApplyThemeColor("AssetThumbnailChildBorderColor", config.childThumbnail.borderColor);
-        ApplyThemeColor("AssetThumbnailSelectedBorderColor", config.childThumbnail.selectedBorderColor);
-        ApplyThemeColor("AssetThumbnailExpandButtonColor", config.expandButton.backgroundColor);
-        ApplyThemeColor("AssetThumbnailChildFrameBackgroundColor", config.childFrame.backgroundColor);
-        ApplyThemeColor("AssetThumbnailChildBorderColor", config.childFrame.borderColor);
+        // Theme overrides so the grid stops rendering the hardcoded grey boxes (#444/#222).
+        ApplyThemeColorsToConfig(config);
 
         return config;
     }
@@ -487,6 +494,11 @@ namespace AzQtComponents
     {
         setItemDelegate(m_delegate);
         setSelectionMode(ExtendedSelection);
+
+        // Auto-fill the grid viewport so the themed background (set in paintEvent) actually paints
+        // instead of the default grey.
+        viewport()->setAutoFillBackground(true);
+        viewport()->setBackgroundRole(QPalette::Window);
 
         connect(
             m_delegate,
@@ -726,6 +738,20 @@ namespace AzQtComponents
 
     void AssetFolderThumbnailView::paintEvent(QPaintEvent* event)
     {
+        // The Config was first loaded at Style init (before the theme JSON), so re-apply the theme
+        // tile/frame colours at paint time and push them to the delegate; and theme the grid background.
+        ApplyThemeColorsToConfig(m_config);
+        m_delegate->polish(m_config);
+
+        // Fill the grid background from the theme, under the tiles. (The viewport palette/auto-fill did
+        // not take, so paint it explicitly before the base + custom item drawing.)
+        {
+            QColor gridBackground = viewport()->palette().color(QPalette::Window);
+            ApplyThemeColor("AssetGridBackgroundColor", gridBackground);
+            QPainter backgroundPainter(viewport());
+            backgroundPainter.fillRect(viewport()->rect(), gridBackground);
+        }
+
         QAbstractItemView::paintEvent(event);
 
         const auto rowCount = model()->rowCount();

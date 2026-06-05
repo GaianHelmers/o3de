@@ -8,6 +8,11 @@
 
 #include <Editor/DocumentationLinkWidget.h>
 
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
+
+#include <QColor>
+
 namespace PhysX
 {
     namespace Editor
@@ -21,7 +26,18 @@ namespace PhysX
             setAlignment(Qt::AlignCenter);
             setContentsMargins(60, 7, 60, 7);
             setWordWrap(true);
-            setStyleSheet(QString::fromUtf8("background-color: rgb(51, 51, 51);"));
+            // Banner background follows the active theme (value-preserving #333333 in O3DE_Original).
+            QColor bannerColor(51, 51, 51);
+            if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+                styleManager && styleManager->IsStylePropertyDefined("CardHeaderColor"))
+            {
+                const QColor themed = styleManager->GetStylePropertyAsColor("CardHeaderColor");
+                if (themed.isValid())
+                {
+                    bannerColor = themed;
+                }
+            }
+            setStyleSheet(QStringLiteral("background-color: %1;").arg(bannerColor.name()));
         }
     }
 }

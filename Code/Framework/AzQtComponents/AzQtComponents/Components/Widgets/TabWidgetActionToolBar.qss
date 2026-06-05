@@ -1,9 +1,9 @@
 AzQtComponents--TabWidget > AzQtComponents--TabWidgetActionToolBarContainer
 {
     background: $SeparatorColor;
-    min-height: 28px;
+    min-height: $SizeTabBarHeight;
     margin: 0;
-    margin-bottom: 9px;
+    margin-bottom: $SpacingActionToolBarBottom;
 }
 
 AzQtComponents--TabWidget.Secondary > AzQtComponents--TabWidgetActionToolBarContainer
@@ -26,7 +26,7 @@ AzQtComponents--TabWidgetActionToolBar QToolButton:pressed
 AzQtComponents--DockTabWidget > AzQtComponents--TabWidgetActionToolBarContainer
 {
     background: $SeparatorColor;
-    min-height: 28px;
+    min-height: $SizeTabBarHeight;
     margin: 0;
-    margin-bottom: 9px;
+    margin-bottom: $SpacingActionToolBarBottom;
 }

@@ -23,7 +23,7 @@ QMenu::item
     /* 24 - 18 = 6 */
     /* 6 / 2 = 3 */
     /* top, right, bottom, left */
-    padding: 2px auto 4px 20px;
+    padding: $SpacingMenuItemTop auto $SpacingMenuItemBottom $SpacingMenuItemLeft;
     height: $SizeMenuItemHeight;
 }
 
@@ -37,8 +37,8 @@ QMenu::item .WidgetAction:hover
 QMenu::icon,
 QMenu::right-arrow
 {
-    width: 16px;
-    height: 16px;
+    width: $SizeGlyph;
+    height: $SizeGlyph;
 
     subcontrol-position: right center;
 }
@@ -55,9 +55,9 @@ QMenu::icon
 
 QMenu::indicator:checked
 {
-    width: 16px;
-    height: 16px;
-    margin-left: 2px;
+    width: $SizeGlyph;
+    height: $SizeGlyph;
+    margin-left: $SpacingMenuIndicatorMarginLeft;
     image: url(:/stylesheet/img/UI20/checkmark-menu.svg);
 }
 
@@ -69,18 +69,18 @@ QMenu::item:disabled
 QMenu::separator
 {
     height: 0px;
-    border-bottom: 1px solid $MenuSeparatorColor;
-    margin-top: 2px;
-    margin-bottom: 3px;
+    border-bottom: $BorderThin solid $MenuSeparatorColor;
+    margin-top: $SpacingMenuSeparatorMarginTop;
+    margin-bottom: $SpacingMenuSeparatorMarginBottom;
 }
 
 QMenu.SourceControlMenu
 {
-    margin-left: 8px;
-    margin-right: 8px;
+    margin-left: $SpacingSourceControlMenuMarginH;
+    margin-right: $SpacingSourceControlMenuMarginH;
 }
 
 QMenu.SourceControlMenu::item
 {
-    margin-left: 22px;
+    margin-left: $SpacingSourceControlMenuItemMarginLeft;
 }

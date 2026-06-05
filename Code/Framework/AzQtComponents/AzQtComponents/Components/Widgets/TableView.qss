@@ -33,9 +33,9 @@ QTableView::item,
 QListView::item,
 QTreeView::item
 {
-    height: 24px;
+    height: $SizeRowHeight;
 
-    padding-left: 4px; /* QStyle::PM_FocusFrameHMargin (2) + 1 + 4 = 7 */
+    padding-left: $SpacingTableItemPadLeft; /* QStyle::PM_FocusFrameHMargin (2) + 1 + 4 = 7 */
     border: none; /* A border, background or image is required to actually make use of the padding */
 }
 
@@ -64,7 +64,7 @@ QTableView QHeaderView::section,
 QListView QHeaderView::section,
 QTreeView QHeaderView::section
 {
-    height: 24px;
+    height: $SizeRowHeight;
 
     background: $TableViewHeaderColor;
     border: none;
@@ -72,28 +72,28 @@ QTreeView QHeaderView::section
     font-size: $FontSize;
     font-style: normal;
 
-    padding-left: 7px;
+    padding-left: $SpacingTableHeaderPadLeft;
 }
 
 /* Undo QAbstractItemView::indicator rule in CheckBox.qss */
 QTreeView::indicator
 {
     margin: 0px;
-    width: 16px;
-    height: 16px;
-    margin-left: -3px;
+    width: $SizeGlyph;
+    height: $SizeGlyph;
+    margin-left: $SpacingTreeIndicatorMarginLeft;
 }
 
 QTreeView::branch:has-children:!has-siblings:closed,
 QTreeView::branch:closed:has-children:has-siblings {
     image: url(:/TreeView/closed.svg);
-    padding: 8px 6px;
+    padding: $SpacingTreeBranchClosed;
 }
 
 QTreeView::branch:open:has-children:!has-siblings,
 QTreeView::branch:open:has-children:has-siblings  {
     image: url(:/TreeView/open.svg);
-    padding: 10px 4px;
+    padding: $SpacingTreeBranchOpen;
 }
 
 QTreeView::item:disabled

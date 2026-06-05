@@ -21,14 +21,21 @@ AzToolsFramework--EntityOutlinerWidget QTreeView
  *  Entity Outliner handles hover and selected state of items via code,
  *  so we need to override the AzQtComponents::Treeview style.
  */
+/* The full-row bar uses the SAME highlight tokens as the custom element selector drawn in
+ * EntityOutlinerItemDelegate::PaintSelectionHoverRect, so the bar and the element match (was a grey
+ * fallback while these were transparent). */
 AzToolsFramework--EntityOutlinerWidget QTreeView::branch:hover
 , AzToolsFramework--EntityOutlinerWidget QTreeView::item:hover
-, AzToolsFramework--EntityOutlinerWidget QTreeView::branch:selected
+{
+    background: $OutlinerHoverBackgroundColor;
+}
+
+AzToolsFramework--EntityOutlinerWidget QTreeView::branch:selected
 , AzToolsFramework--EntityOutlinerWidget QTreeView::item:selected
 , AzToolsFramework--EntityOutlinerWidget QTreeView::branch:selected:active
 , AzToolsFramework--EntityOutlinerWidget QTreeView::item:selected:active
 {
-    background: transparent;
+    background: $OutlinerSelectionBackgroundColor;
 }
 
 

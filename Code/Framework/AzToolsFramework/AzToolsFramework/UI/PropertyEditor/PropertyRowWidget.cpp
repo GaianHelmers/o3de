@@ -6,6 +6,8 @@
  *
  */
 #include "PropertyRowWidget.hxx"
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
 
 #include <AzQtComponents/Components/StyleManager.h>
 #include <AzQtComponents/Components/Widgets/CheckBox.h>
@@ -329,7 +331,13 @@ namespace AzToolsFramework
             if (m_parentRow && m_parentRow->m_isSceneSetting)
             {
                 m_isSceneSetting = true;
-                setStyleSheet("QFrame {background-color: #555555; color: white;}");
+                QColor frameBg(85, 85, 85);
+                if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("CardBackgroundColor"))
+                {
+                    const QColor themed_ = sm->GetStylePropertyAsColor("CardBackgroundColor");
+                    if (themed_.isValid()) { frameBg = themed_; }
+                }
+                setStyleSheet(QStringLiteral("QFrame {background-color: %1; color: white;}").arg(frameBg.name()));
                 setContentsMargins(0, 0, 8, 0);
                 if (m_treeDepth > 0)
                 {
@@ -1001,7 +1009,13 @@ namespace AzToolsFramework
             {
                 m_isSceneSetting = true;
                 setContentsMargins(8, 0, 4, 0);
-                setStyleSheet("QFrame {background-color: #333333; margin-top: 5px; border-top-right-radius: 2px; border-top-left-radius: 2px;}");
+                QColor headerBg(51, 51, 51);
+                if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("CardHeaderColor"))
+                {
+                    const QColor themed_ = sm->GetStylePropertyAsColor("CardHeaderColor");
+                    if (themed_.isValid()) { headerBg = themed_; }
+                }
+                setStyleSheet(QStringLiteral("QFrame {background-color: %1; margin-top: 5px; border-top-right-radius: 2px; border-top-left-radius: 2px;}").arg(headerBg.name()));
             }
         }
         // Attribute types you are NOT allowed to update at runtime

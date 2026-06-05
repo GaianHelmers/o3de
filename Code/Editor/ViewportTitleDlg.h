@@ -64,6 +64,7 @@ Q_SIGNALS:
     void ActionTriggered(int command);
 
 protected:
+    void paintEvent(QPaintEvent* event) override;
     virtual void OnInitDialog();
 
     void OnMaximize();

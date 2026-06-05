@@ -9,12 +9,12 @@
 
 AzQtComponents--BrowseEdit
 {
-    margin: 2px;
+    margin: $SpacingControlMargin;
 }
 
 AzQtComponents--BrowseEdit QLineEdit
 {
-    height: 16px;
+    height: $SizeInputHeight;
     border-width: 0px;
     border-style: solid;
     border-color: transparent;
@@ -22,10 +22,8 @@ AzQtComponents--BrowseEdit QLineEdit
     border-bottom-left-radius: $RadiusInput;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
-    /* 2px padding already applied */
-    padding-left: 2px;
-    /* 14px padding applied by default: 14 - 4 = 10 */
-    padding-right: -4px;
+    /* T R B L; left 2 (2px already applied), right -4 (14px default applied: 14-4=10) */
+    padding: $SpacingBrowseEditPad;
 }
 
 AzQtComponents--BrowseEdit.ValidDropTarget QLineEdit,
@@ -52,12 +50,12 @@ AzQtComponents--BrowseEdit #attached-button
     /* Set the flat property to true to enable QPushButton styling from QSS */
     qproperty-flat: true;
 
-    max-width: 16px;
-    min-width: 16px;
-    max-height: 16px;
-    min-height: 16px;
+    max-width: $SizeGlyph;
+    min-width: $SizeGlyph;
+    max-height: $SizeGlyph;
+    min-height: $SizeGlyph;
 
-    qproperty-iconSize: 12px 12px;
+    qproperty-iconSize: $SizeGlyphTiny $SizeGlyphTiny;
 
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                       stop: 0 $BrowseEditButtonGradientTop, stop: 1 $BrowseEditButtonGradientBottom);
@@ -85,5 +83,5 @@ AzQtComponents--BrowseEdit #attached-button:pressed
 AzQtComponents--BrowseEdit #attached-button:disabled
 {
     background-color: $InputDisabledBackgroundColor;
-    border-left: 1px solid $BrowseEditButtonGradientBottom;
+    border-left: $BorderThin solid $BrowseEditButtonGradientBottom;
 }

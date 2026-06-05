@@ -18,7 +18,7 @@ QToolBar
      * displaying an overflow menu, or when floating
      */
     background-color: $BackgroundColor;
-    qproperty-iconSize: 16px 16px;
+    qproperty-iconSize: $SizeGlyph $SizeGlyph;
     border: 0 none;
 
     /*
@@ -30,7 +30,7 @@ QToolBar
 
 MainWindow QToolBar
 {
-    border-bottom: 2px solid $SeparatorColor;
+    border-bottom: $BorderDivider solid $SeparatorColor;
 }
 
 AzQtComponents--DockMainWindow QToolBar
@@ -40,32 +40,32 @@ AzQtComponents--DockMainWindow QToolBar
 
 QToolBar.MainToolBar
 {
-    qproperty-iconSize: 20px 20px;
+    qproperty-iconSize: $SizeGlyphLarge $SizeGlyphLarge;
     padding: $SpacingToolBar;
 }
 
 QToolBar.IconNormal,
 QToolBar.IconNormal QToolButton
 {
-    qproperty-iconSize: 16px 16px;
+    qproperty-iconSize: $SizeGlyph $SizeGlyph;
 }
 
 QToolBar.MainToolBar.IconNormal,
 QToolBar.MainToolBar.IconNormal QToolButton
 {
-    qproperty-iconSize: 20px 20px;
+    qproperty-iconSize: $SizeGlyphLarge $SizeGlyphLarge;
 }
 
 QToolBar.IconLarge,
 QToolBar.IconLarge QToolButton
 {
-    qproperty-iconSize: 20px 20px;
+    qproperty-iconSize: $SizeGlyphLarge $SizeGlyphLarge;
 }
 
 QToolBar.MainToolBar.IconLarge,
 QToolBar.MainToolBar.IconLarge QToolButton
 {
-    qproperty-iconSize: 32px 32px;
+    qproperty-iconSize: $SizeGlyphHuge $SizeGlyphHuge;
 }
 
 QToolBar::separator
@@ -74,7 +74,7 @@ QToolBar::separator
     width: 1px;
     height: 1px;
 
-    margin: 4px 0px;
+    margin: $SpacingToolBarSeparatorMargin;
     padding: 0px;
 }
 
@@ -91,49 +91,49 @@ QToolBar::handle:vertical
 /* height/width: 52 */
 QToolBar.MainToolBar.IconLarge::handle:horizontal
 {
-    padding: 1px 4px;
+    padding: $SpacingToolBarHandleH;
 }
 
 QToolBar.MainToolBar.IconLarge::handle:vertical
 {
-    padding: 2px 1px;
+    padding: $SpacingToolBarHandleV;
 }
 
 /* height/width: 40 */
 QToolBar.MainToolBar::handle:horizontal,
 QToolBar.MainToolBar.IconNormal::handle:horizontal
 {
-    padding: 1px 4px;
+    padding: $SpacingToolBarHandleH;
 }
 
 QToolBar.MainToolBar::handle:vertical,
 QToolBar.MainToolBar.IconNormal::handle:vertical
 {
-    padding: 2px -2px;
+    padding: $SpacingToolBarHandleVNeg;
 }
 
 /* height/width: 32 */
 QToolBar.IconLarge::handle:horizontal
 {
-    padding: 4px 3px;
+    padding: $SpacingToolBarHandleHLarge;
 }
 
 QToolBar.IconLarge::handle:vertical
 {
-    padding: 2px -2px;
+    padding: $SpacingToolBarHandleVNeg;
 }
 
 /* height/width: 28 */
 QToolBar::handle:horizontal,
 QToolBar.IconNormal::handle:horizontal
 {
-    padding: 2px 4px;
+    padding: $SpacingToolBarHandleHNormal;
 }
 
 QToolBar::handle:vertical,
 QToolBar.IconNormal::handle:vertical
 {
-    padding: 2px -2px;
+    padding: $SpacingToolBarHandleVNeg;
 }
 
 QToolBarExtension#qt_toolbar_ext_button

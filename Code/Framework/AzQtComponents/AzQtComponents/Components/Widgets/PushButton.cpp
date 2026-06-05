@@ -59,6 +59,22 @@ static QColor ThemeButtonColor(const char* token, const QColor& fallback)
     return fallback;
 }
 
+static PushButton::ColorSet ThemedSecondaryColorSet(const PushButton::ColorSet& base)
+{
+    // Read the secondary ("grey") button colours from the theme at PAINT time. loadConfig runs before the
+    // theme JSON is ready (tokens undefined -> grey fallback), so the buttons stayed light grey.
+    PushButton::ColorSet cs = base;
+    cs.normal.start   = ThemeButtonColor("PushButtonSecondaryNormalStartColor",   cs.normal.start);
+    cs.normal.end     = ThemeButtonColor("PushButtonSecondaryNormalEndColor",     cs.normal.end);
+    cs.hovered.start  = ThemeButtonColor("PushButtonSecondaryHoveredStartColor",  cs.hovered.start);
+    cs.hovered.end    = ThemeButtonColor("PushButtonSecondaryHoveredEndColor",    cs.hovered.end);
+    cs.sunken.start   = ThemeButtonColor("PushButtonSecondarySunkenStartColor",   cs.sunken.start);
+    cs.sunken.end     = ThemeButtonColor("PushButtonSecondarySunkenEndColor",     cs.sunken.end);
+    cs.disabled.start = ThemeButtonColor("PushButtonSecondaryDisabledStartColor", cs.disabled.start);
+    cs.disabled.end   = ThemeButtonColor("PushButtonSecondaryDisabledEndColor",   cs.disabled.end);
+    return cs;
+}
+
 void PushButton::applyPrimaryStyle(QPushButton* button)
 {
     button->setDefault(true);
@@ -213,7 +229,8 @@ bool PushButton::drawPushButtonBevel(const Style* style, const QStyleOption* opt
 
         const bool isPrimary = (style->hasClass(widget, g_primaryClass));
 
-        selectColors(option, isPrimary ? config.primary : config.secondary, isDisabled, gradientStartColor, gradientEndColor);
+        const PushButton::ColorSet buttonColors = isPrimary ? config.primary : ThemedSecondaryColorSet(config.secondary);
+        selectColors(option, buttonColors, isDisabled, gradientStartColor, gradientEndColor);
 
         if (option->state & QStyle::State_HasFocus)
         {
@@ -412,17 +429,6 @@ PushButton::Config PushButton::loadConfig(QSettings& settings)
     ReadButtonColorSet(settings, QStringLiteral("PrimaryColorSet"), config.primary);
     ReadButtonColorSet(settings, QStringLiteral("SecondaryColorSet"), config.secondary);
 
-    // Secondary ("grey") buttons follow the active theme when it defines these tokens: a neutral
-    // blue-steel gradient at rest, accent on press. Falls back to the loaded/default grey gradient
-    // so O3DE_Original stays pixel-identical. (Read at config-load time; re-applied on theme refresh.)
-    config.secondary.normal.start   = ThemeButtonColor("PushButtonSecondaryNormalStartColor",   config.secondary.normal.start);
-    config.secondary.normal.end     = ThemeButtonColor("PushButtonSecondaryNormalEndColor",     config.secondary.normal.end);
-    config.secondary.hovered.start  = ThemeButtonColor("PushButtonSecondaryHoveredStartColor",  config.secondary.hovered.start);
-    config.secondary.hovered.end    = ThemeButtonColor("PushButtonSecondaryHoveredEndColor",    config.secondary.hovered.end);
-    config.secondary.sunken.start   = ThemeButtonColor("PushButtonSecondarySunkenStartColor",   config.secondary.sunken.start);
-    config.secondary.sunken.end     = ThemeButtonColor("PushButtonSecondarySunkenEndColor",     config.secondary.sunken.end);
-    config.secondary.disabled.start = ThemeButtonColor("PushButtonSecondaryDisabledStartColor", config.secondary.disabled.start);
-    config.secondary.disabled.end   = ThemeButtonColor("PushButtonSecondaryDisabledEndColor",   config.secondary.disabled.end);
 
     ReadBorder(settings, QStringLiteral("Border"), config.defaultBorder);
     ReadBorder(settings, QStringLiteral("DisabledBorder"), config.disabledBorder);
@@ -570,7 +576,8 @@ void PushButton::drawSmallIconFrame(const Style* style, const QStyleOption* opti
     QColor gradientStartColor;
     QColor gradientEndColor;
 
-    selectColors(option, config.secondary, isDisabled, gradientStartColor, gradientEndColor);
+    const PushButton::ColorSet buttonColors = ThemedSecondaryColorSet(config.secondary);
+    selectColors(option, buttonColors, isDisabled, gradientStartColor, gradientEndColor);
 
     float radius = aznumeric_cast<float>(ThemeButtonRadius("RadiusButtonSmall", config.smallIcon.frame.radius));
     drawFilledFrame(painter, frame, gradientStartColor, gradientEndColor, border, radius);

@@ -22,6 +22,9 @@ ProgressBar::Config ProgressBar::loadConfig(QSettings& settings)
 
     ConfigHelpers::read<int>(settings, QStringLiteral("Height"), config.height);
 
+    // Theme override (value-preserving in O3DE_Original).
+    config.height = ConfigHelpers::themeInt("SizeProgressBarHeight", config.height);
+
     return config;
 }
 

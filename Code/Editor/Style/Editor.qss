@@ -226,6 +226,7 @@ ConsoleTextEdit:focus,
    pane title bar) via its own $ViewportTitleDlgBackgroundColor token. NOTE: the dead stylesheet's old
    #ViewportTitleDlgContainer objectName no longer exists; the live widget is the CViewportTitleDlg class. */
 CViewportTitleDlg,
+QWidget#ViewportTitleDlg,
 CViewportTitleDlg > QWidget
 {
     background-color: $ViewportTitleDlgBackgroundColor;

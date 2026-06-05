@@ -9,7 +9,7 @@
 AzQtComponents--TitleBar
 {
     background-color: $SeparatorColor;
-    border: 1px solid $TitleBarBorderColor;
+    border: $BorderThin solid $TitleBarBorderColor;
 }
 
 AzQtComponents--TitleBar[drawAsTabBar="true"]
@@ -20,7 +20,7 @@ AzQtComponents--TitleBar[drawAsTabBar="true"]
 AzQtComponents--TitleBar[drawSimple="true"]
 {
     background-color: $MenuBackgroundColor;
-    border-bottom: 3px solid $SeparatorColor;
+    border-bottom: $BorderTabUnderline solid $SeparatorColor;
 }
 
 AzQtComponents--TitleBar *
@@ -31,9 +31,8 @@ AzQtComponents--TitleBar *
 AzQtComponents--TitleBar #title
 {
     font-family: "$FontFamily";
-    font-size: 14px;
-    margin-left: 10px;
-    margin-right: 16px;
+    font-size: $FontSizeTitleBar;
+    margin: $SpacingTitleBarTitleMargin; /* T R B L */
 }
 
 AzQtComponents--TitleBar #buttons
@@ -44,58 +43,58 @@ AzQtComponents--TitleBar #buttons
 AzQtComponents--DockBarButton
 {
     border: 0 none;
-    qproperty-iconSize: 16px 16px;
-    min-width: 32px;
-    max-width: 32px;
-    min-height: 32px;
-    max-height: 32px;
+    qproperty-iconSize: $SizeGlyph $SizeGlyph;
+    min-width: $SizeTitleBarButton;
+    max-width: $SizeTitleBarButton;
+    min-height: $SizeTitleBarButton;
+    max-height: $SizeTitleBarButton;
 }
 
 AzQtComponents--TitleBar[drawAsTabBar="true"] #tabButtons
 {
-    margin-bottom: 3px;
+    margin-bottom: $SpacingTitleBarTabButtonsMarginBottom;
 }
 
 AzQtComponents--TitleBar[drawAsTabBar="true"] #tabButtons AzQtComponents--DockBarButton
 {
-    qproperty-iconSize: 14px 14px;
+    qproperty-iconSize: $SizeGlyphSmall $SizeGlyphSmall;
     border: 0 none;
-    min-width: 26px;
-    max-width: 26px;
-    min-height: 26px;
-    max-height: 26px;
+    min-width: $SizeTitleBarButtonTab;
+    max-width: $SizeTitleBarButtonTab;
+    min-height: $SizeTitleBarButtonTab;
+    max-height: $SizeTitleBarButtonTab;
 }
 
 AzQtComponents--TitleBar[drawSimple="true"] AzQtComponents--DockBarButton
 {
-    qproperty-iconSize: 14px 14px;
+    qproperty-iconSize: $SizeGlyphSmall $SizeGlyphSmall;
     border: 0 none;
-    min-width: 24px;
-    max-width: 24px;
-    min-height: 24px;
-    max-height: 24px;
+    min-width: $SizeTitleBarButtonSmall;
+    max-width: $SizeTitleBarButtonSmall;
+    min-height: $SizeTitleBarButtonSmall;
+    max-height: $SizeTitleBarButtonSmall;
 }
 
 AzQtComponents--TabBar AzQtComponents--DockBarButton
 {
-    qproperty-iconSize: 12px 12px;
+    qproperty-iconSize: $SizeGlyphTiny $SizeGlyphTiny;
     border: 0 none;
-    min-width: 14px;
-    max-width: 14px;
-    min-height: 14px;
-    max-height: 14px;
+    min-width: $SizeGlyphSmall;
+    max-width: $SizeGlyphSmall;
+    min-height: $SizeGlyphSmall;
+    max-height: $SizeGlyphSmall;
 }
 
 QToolButton#minimizeButton,
 QToolButton#maximizeButton,
 QToolButton#closeButton
 {
-    qproperty-iconSize: 14px 14px;
+    qproperty-iconSize: $SizeGlyphSmall $SizeGlyphSmall;
     background: transparent;
-    max-width: 24px;
-    min-width: 24px;
-    min-height: 24px;
-    max-height: 24px;
+    max-width: $SizeTitleBarButtonSmall;
+    min-width: $SizeTitleBarButtonSmall;
+    min-height: $SizeTitleBarButtonSmall;
+    max-height: $SizeTitleBarButtonSmall;
 }
 
 QToolButton#minimizeButton:hover,

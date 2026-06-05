@@ -41,6 +41,7 @@
 #include <AzToolsFramework/Thumbnails/ThumbnailerBus.h>
 
 #include <AzQtComponents/Components/Widgets/MessageBox.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
 #include <AzQtComponents/DragAndDrop/MainWindowDragAndDrop.h>
 
 #include <QApplication>
@@ -199,7 +200,18 @@ namespace AzToolsFramework
         {
             if (!index.parent().isValid() && ! selectedIndexes().contains(index))
             {
-                painter->fillRect(rect, 0x333333);
+                // Root/parent row branch fill follows the theme (value-preserving #333333 in Original).
+                QColor branchColor(0x33, 0x33, 0x33);
+                if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+                    styleManager && styleManager->IsStylePropertyDefined("AssetBrowserRootBackgroundColor"))
+                {
+                    const QColor themedBranch = styleManager->GetStylePropertyAsColor("AssetBrowserRootBackgroundColor");
+                    if (themedBranch.isValid())
+                    {
+                        branchColor = themedBranch;
+                    }
+                }
+                painter->fillRect(rect, branchColor);
             }
 
             QTreeView::drawBranches(painter, rect, index);

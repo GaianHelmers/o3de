@@ -15,6 +15,9 @@
 #include <GraphCanvas/Editor/GraphCanvasProfiler.h>
 #include <GraphCanvas/Utils/QtDrawingUtils.h>
 
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
+
 namespace GraphCanvas
 {
     ////////////////////////
@@ -297,6 +300,17 @@ namespace GraphCanvas
 
         QPainter painter(stencil);
         QColor backgroundColor = m_style.GetColor(Styling::Attribute::BackgroundColor);
+        // Follow the editor theme when it defines a graph background, so the canvas tracks the
+        // active theme instead of the GraphCanvas style sheet's default grey.
+        if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+            styleManager && styleManager->IsStylePropertyDefined("GraphCanvasBackgroundColor"))
+        {
+            const QColor themedBackground = styleManager->GetStylePropertyAsColor("GraphCanvasBackgroundColor");
+            if (themedBackground.isValid())
+            {
+                backgroundColor = themedBackground;
+            }
+        }
 
         painter.fillRect(0, 0, majorX, majorY, backgroundColor);
 

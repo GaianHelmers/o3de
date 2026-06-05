@@ -11,10 +11,10 @@ QToolTip
 {
     color: $PrimaryTextColor;
     background-color: $ToolTipBackgroundColor;
-    border: 1px transparent black;
-    margin-left: 2px;
+    border: $BorderThin transparent black;
+    margin-left: $SpacingToolTipMarginLeft;
     font-size: $FontSize;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin-top: $SpacingToolTipV;
+    margin-bottom: $SpacingToolTipV;
     font-family: "$FontFamily";
 }

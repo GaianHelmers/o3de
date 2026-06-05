@@ -12,7 +12,7 @@ QProgressBar
     border: 0px transparent #000000;
     border-radius: 0px;
     background: $ProgressBarTrackColor;
-    height: 5px;
+    height: $SizeProgressBarHeight;
     font-size: 1px; /* hack to get around the fact that QProgressBar's minimumSizeHint
                        is computed from font size, even when text is invisible */
     qproperty-textVisible: False;

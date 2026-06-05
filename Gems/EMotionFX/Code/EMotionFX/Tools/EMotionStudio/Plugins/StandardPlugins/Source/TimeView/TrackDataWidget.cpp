@@ -7,6 +7,8 @@
  */
 
 #include <AzCore/std/algorithm.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
 #include <AzCore/std/containers/vector.h>
 
 #include <EMotionStudio/Plugins/StandardPlugins/Source/TimeView/TrackDataWidget.h>
@@ -75,6 +77,13 @@ namespace EMStudio
         , m_rectSelecting(false)
     {
         setObjectName("TrackDataWidget");
+
+        // Theme the time-view background (overrides the init-list QColor(40, 45, 50)).
+        if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("GraphCanvasBackgroundColor"))
+        {
+            const QColor c_ = sm->GetStylePropertyAsColor("GraphCanvasBackgroundColor");
+            if (c_.isValid()) { m_brushBackground = QBrush(c_, Qt::SolidPattern); }
+        }
 
         m_dataFont.setPixelSize(13);
 

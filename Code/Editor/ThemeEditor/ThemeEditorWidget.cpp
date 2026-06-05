@@ -129,7 +129,7 @@ ThemeEditorWidget::ThemeEditorWidget(QWidget* parent)
 
     m_scrollArea->setWidget(m_columnContainer);
 
-    // --- Structure tab: single-column scroll of metric (roundness/sizing) cards ---
+    // --- Structure tab: responsive column scroll of metric (roundness/spacing/sizing) cards ---
     m_structureScroll = new QScrollArea(this);
     m_structureScroll->setWidgetResizable(true);
     m_structureScroll->setFrameShape(QFrame::NoFrame);
@@ -137,10 +137,20 @@ ThemeEditorWidget::ThemeEditorWidget(QWidget* parent)
     m_structureContainer = new QWidget;
     m_structureContainer->setObjectName("StructureColumnContainer");
 
-    m_structureLayout = new QVBoxLayout(m_structureContainer);
-    m_structureLayout->setAlignment(Qt::AlignTop);
-    m_structureLayout->setContentsMargins(4, 4, 4, 4);
-    m_structureLayout->setSpacing(6);
+    // Three column VBoxes inside one HBox, mirroring the Colors tab; ReflowStructureCards() distributes.
+    QHBoxLayout* structureHBox = new QHBoxLayout(m_structureContainer);
+    structureHBox->setAlignment(Qt::AlignTop);
+    structureHBox->setContentsMargins(4, 4, 4, 4);
+    structureHBox->setSpacing(8);
+
+    for (int i = 0; i < 3; ++i)
+    {
+        QVBoxLayout* col = new QVBoxLayout;
+        col->setAlignment(Qt::AlignTop);
+        col->setSpacing(6);
+        structureHBox->addLayout(col, 1);
+        m_structureColumnLayouts.append(col);
+    }
 
     m_structureScroll->setWidget(m_structureContainer);
 
@@ -230,17 +240,24 @@ static bool IsColorValue(const QString& value)
     return QColor(value).isValid() || value.trimmed().startsWith(QLatin1String("rgb"));
 }
 
-// A pixel metric value such as "2px", "0px" or "12px" (optionally negative).
+// A pixel metric value: 1 to 4 space-separated "px" components (each optionally negative).
+// e.g. "2px" (single), "2px 4px" (vertical horizontal), "8px 7px 7px 7px" (top right bottom left).
 static bool IsMetricValue(const QString& value)
 {
-    static const QRegularExpression re(QStringLiteral("^-?\\d+px$"));
+    static const QRegularExpression re(QStringLiteral("^-?\\d+px( +-?\\d+px){0,3}$"));
     return re.match(value.trimmed()).hasMatch();
 }
 
-// Parses the integer pixel count out of a metric value ("4px" -> 4).
-static int ParseMetricPx(const QString& value)
+// Splits a metric value into its integer pixel components ("8px 7px 7px 7px" -> [8,7,7,7]).
+static QList<int> SplitMetricPx(const QString& value)
 {
-    return value.trimmed().chopped(2).toInt(); // strip trailing "px"
+    static const QRegularExpression ws(QStringLiteral("\\s+"));
+    QList<int> out;
+    for (const QString& part : value.trimmed().split(ws, Qt::SkipEmptyParts))
+    {
+        out.append(part.endsWith(QStringLiteral("px")) ? part.chopped(2).toInt() : part.toInt());
+    }
+    return out;
 }
 
 static QColor ParseColorValue(const QString& value)
@@ -297,7 +314,7 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
             "SeparatorColor", "SeparatorHoveredColor", "MenuItemSelectedColor",
             "FocusBorderColor", "ErrorColor",
             "WindowBackgroundColor", "PanelBackgroundColor", "DarkPanelBackgroundColor",
-            "WidgetBackgroundColor"
+            "WidgetBackgroundColor", "GraphCanvasBackgroundColor", "GraphCanvasNodeBackgroundColor"
           }, true },
         { "Text", {
             "SecondaryTextColor", "DisabledTextColor", "HighlightTextColor", "BlackTextColor",
@@ -351,7 +368,9 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
             "PushButtonSecondaryDisabledStartColor", "PushButtonSecondaryDisabledEndColor",
             "SegmentControlButtonColor", "CheckBoxDisabledColor", "CheckBoxDisabledBorderColor",
             "TinyButtonBorderColor", "TinyButtonCheckedBorderColor",
-            "StyledSliderGrooveColor", "ProgressBarTrackColor", "ProgressBarFillColor",
+            "StyledSliderGrooveColor", "SliderHandleColor", "SliderGrooveColor", "SliderGrooveHoveredColor",
+            "SliderGradientGrooveBorderColor", "SliderGradientHandleBorderColor",
+            "ProgressBarTrackColor", "ProgressBarFillColor",
             "ResourceGroupHighlightColor", "SingleRequiredSelectionBorderColor"
           }, false },
         { "Tool Buttons", {
@@ -372,8 +391,8 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
             "AbstractItemViewAlternateBackgroundColor", "AbstractItemViewTextColor"
           }, false },
         { "Asset Browser", {
-            "AssetGridBackgroundColor", "AssetBrowserPreviewBackgroundColor",
-            "AssetBrowserSearchBarBackgroundColor",
+            "AssetGridBackgroundColor", "AssetBrowserRootBackgroundColor",
+            "AssetBrowserPreviewBackgroundColor", "AssetBrowserSearchBarBackgroundColor",
             "AssetThumbnailRootBackgroundColor", "AssetThumbnailRootBorderColor",
             "AssetThumbnailChildBackgroundColor", "AssetThumbnailChildBorderColor",
             "AssetThumbnailChildFrameBackgroundColor", "AssetThumbnailExpandButtonColor",
@@ -487,62 +506,141 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
 }
 
 //////////////////////////////////////////////////////////////////////////
-// STRUCTURE CARD DEFINITION -- metric (px) tokens grouped by kind
+// STRUCTURE CARD DEFINITION -- metric (px) tokens grouped by WIDGET / feature
 //////////////////////////////////////////////////////////////////////////
 
 // static
 QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildStructureCardDefs(const QHash<QString, QString>& flat)
 {
-    QStringList roundness;
-    QStringList border;
-    QStringList spacing;
-    QStringList sizing;
-    for (auto it = flat.constBegin(); it != flat.constEnd(); ++it)
+    // Curated WIDGET / feature categories so a widget's size + width + padding + radius + border all sit
+    // together (e.g. all spin-box metrics under "Spin Box"). Only metric tokens present in flat are shown;
+    // anything not claimed lands in a sorted "Other (metrics)" card.
+    struct CategorySpec
     {
-        if (!IsMetricValue(it.value()))
-        {
-            continue;
-        }
-        if (it.key().startsWith(QLatin1String("Radius")))
-        {
-            roundness.append(it.key());
-        }
-        else if (it.key().startsWith(QLatin1String("Border")))
-        {
-            border.append(it.key());
-        }
-        else if (it.key().startsWith(QLatin1String("Spacing")))
-        {
-            spacing.append(it.key());
-        }
-        else
-        {
-            sizing.append(it.key());   // Size*, FontSize, ...
-        }
-    }
-    roundness.sort(Qt::CaseInsensitive);
-    border.sort(Qt::CaseInsensitive);
-    spacing.sort(Qt::CaseInsensitive);
-    sizing.sort(Qt::CaseInsensitive);
-
-    QList<CardDef> result;
-
-    auto appendCard = [&result](const char* title, const QStringList& tokens, bool expanded)
-    {
-        if (!tokens.isEmpty())
-        {
-            CardDef card;
-            card.m_title         = QString::fromUtf8(title);
-            card.m_tokens        = tokens;
-            card.m_startExpanded = expanded;
-            result.append(card);
-        }
+        const char*        m_title;
+        QList<const char*> m_tokens;
+        bool               m_startExpanded;
     };
 
-    appendCard("Roundness", roundness, true);
-    appendCard("Border",    border,    false);
-    appendCard("Spacing",   spacing,   false);
-    appendCard("Sizing",    sizing,    false);
+    static const CategorySpec k_specs[] =
+    {
+        { "Inputs (shared)", {
+            "RadiusInput", "SizeInputHeight", "BorderControl", "BorderControlEmphasis",
+            "SpacingInputPadTop", "SpacingInputPadBottom"
+          }, true },
+        { "Frames & Dividers", { "BorderThin", "BorderDivider" }, false },
+        { "Spin Box", { "SpacingSpinBoxPad", "SizeSpinButtonW", "SizeSpinButtonH" }, false },
+        { "Combo Box", {
+            "SpacingComboItemH", "SpacingComboItemPad", "SpacingComboArrowMarginRight",
+            "SpacingComboInMenu", "SpacingComboInMenuHover"
+          }, false },
+        { "Line Edit", { "SpacingLineEditPadLeftIcon" }, false },
+        { "Browse Edit", { "SpacingBrowseEditPad" }, false },
+        { "Vector Input", { "SizeVectorHoverHeight" }, false },
+        { "Buttons", { "RadiusButton", "RadiusButtonSmall" }, false },
+        { "Checkboxes, Radios & Toggles", {
+            "SizeToggleW", "SizeToggleFocusW", "LineHeightBase", "LineHeightRadio",
+            "SpacingControlMargin", "SpacingControlMarginTight"
+          }, false },
+        { "Icons & Glyphs", {
+            "SizeGlyph", "SizeGlyphTiny", "SizeGlyphSmall", "SizeGlyphMedium",
+            "SizeGlyphLarge", "SizeGlyphHuge", "SizeGlyphClose"
+          }, false },
+        { "Cards", {
+            "RadiusCard", "RadiusCardFrame", "BorderCardShadow", "SpacingCardContent",
+            "SpacingCardContentPadding", "SpacingCardHeaderPad", "SpacingCardSecondaryHeaderPad",
+            "SpacingCardHeaderItemMargin", "SpacingCardIconGap", "SpacingCardMarginBottom",
+            "SpacingCardNotificationH", "SpacingCardShadowPad", "SizeCardContextMenuMaxW"
+          }, false },
+        { "Tabs", {
+            "RadiusTabTop", "BorderTabUnderline", "SpacingTabPadding", "SpacingTabCloseGap",
+            "SpacingTabSecondaryPadding", "SpacingTabSecondaryBorderedPadding", "SpacingTabSecondaryPanePad",
+            "SpacingTabEmptyPaneMarginTop", "SpacingActionToolBarBottom",
+            "SizeTabBarHeight", "SizeTabBarSecondaryHeight", "SizeTabMaxWidth"
+          }, false },
+        { "Menus & Menu Bar", {
+            "SizeMenuItemHeight", "SizeMenuBarHeight", "SpacingMenuItemTop", "SpacingMenuItemBottom",
+            "SpacingMenuItemLeft", "SpacingMenuBarItemH", "SpacingMenuIndicatorMarginLeft",
+            "SpacingMenuSeparatorMarginTop", "SpacingMenuSeparatorMarginBottom",
+            "SpacingSourceControlMenuMarginH", "SpacingSourceControlMenuItemMarginLeft"
+          }, false },
+        { "Scrollbars", { "RadiusScrollHandle", "SizeScrollBarThickness", "SizeScrollHandleMin" }, false },
+        { "Segment Control", {
+            "RadiusSegment", "SizeSegmentHeight", "SizeSegmentMinWidth", "SpacingSegmentH",
+            "SpacingSegmentMarginBottom", "SpacingSegmentOverlap"
+          }, false },
+        { "Toolbars", {
+            "SpacingToolBar", "SpacingToolBarSeparatorMargin", "SpacingToolBarHandleH",
+            "SpacingToolBarHandleHLarge", "SpacingToolBarHandleHNormal", "SpacingToolBarHandleV",
+            "SpacingToolBarHandleVNeg"
+          }, false },
+        { "Title Bar", {
+            "SizeTitleBarButton", "SizeTitleBarButtonSmall", "SizeTitleBarButtonTab",
+            "SpacingTitleBarTitleMargin", "SpacingTitleBarTabButtonsMarginBottom", "FontSizeTitleBar"
+          }, false },
+        { "Tables & Trees", {
+            "SizeRowHeight", "SpacingTableItemPadLeft", "SpacingTableHeaderPadLeft",
+            "SpacingTreeIndicatorMarginLeft", "SpacingTreeBranchClosed", "SpacingTreeBranchOpen"
+          }, false },
+        { "Search & Filter", {
+            "RadiusChip", "SizeSearchFieldHeight", "SizeSearchDefaultWidth", "SpacingSearchTagGap"
+          }, false },
+        { "Color Picker & Swatch", {
+            "SizeColorSwatchWidth", "SizeColorComponentWidth", "SpacingColorGridPad"
+          }, false },
+        { "Tooltip", { "SpacingToolTipV", "SpacingToolTipMarginLeft" }, false },
+        { "Message Box", { "SpacingMessageBox" }, false },
+        { "Progress Bar", { "SizeProgressBarHeight" }, false },
+        { "Breadcrumbs", { "SizeBreadCrumbIconW", "SizeBreadCrumbIconH" }, false },
+        { "Typography", {
+            "FontSize", "FontSizeHeadline", "FontSizeTitle", "FontSizeSubtitle", "LineHeightTall",
+            "SpacingTextHeadlineV", "SpacingTextTitleV", "SpacingTextSubtitleV", "SpacingTextMenuV",
+            "SpacingTextParagraphV", "SpacingTextButtonV", "SpacingTextLabelV", "SpacingTextTooltipV"
+          }, false },
+        { "Property Editor", { "SpacingReflectedPropMarginLeft" }, false },
+    };
+
+    QSet<QString>  claimed;
+    QList<CardDef> result;
+
+    for (const CategorySpec& spec : k_specs)
+    {
+        CardDef card;
+        card.m_title         = QString::fromUtf8(spec.m_title);
+        card.m_startExpanded = spec.m_startExpanded;
+        for (const char* tok : spec.m_tokens)
+        {
+            const QString key = QString::fromUtf8(tok);
+            if (flat.contains(key) && IsMetricValue(flat.value(key)))
+            {
+                card.m_tokens.append(key);
+                claimed.insert(key);
+            }
+        }
+        if (!card.m_tokens.isEmpty())
+        {
+            result.append(card);
+        }
+    }
+
+    // Any metric token not claimed above -> sorted "Other (metrics)" card (safety net).
+    CardDef other;
+    other.m_title         = "Other (metrics)";
+    other.m_startExpanded = false;
+    QStringList remainder;
+    for (auto it = flat.constBegin(); it != flat.constEnd(); ++it)
+    {
+        if (IsMetricValue(it.value()) && !claimed.contains(it.key()))
+        {
+            remainder.append(it.key());
+        }
+    }
+    remainder.sort(Qt::CaseInsensitive);
+    other.m_tokens = remainder;
+    if (!other.m_tokens.isEmpty())
+    {
+        result.append(other);
+    }
 
     return result;
 }
@@ -653,29 +751,65 @@ QFrame* ThemeEditorWidget::BuildCard(const CardDef& def, QWidget* parentContaine
         }
         else if (IsMetricValue(valueStr))
         {
-            QSpinBox* spin = new QSpinBox(rowWidget);
-            spin->setRange(0, 64);
-            spin->setSuffix(QStringLiteral("px"));
-            spin->setValue(ParseMetricPx(valueStr));   // set before connecting to avoid a spurious edit
+            // 1 / 2 / 4 px components -> single spin / Vector2 (V H) / Vector4 (T R B L).
+            const QList<int> comps = SplitMetricPx(valueStr);
 
-            connect(spin, qOverload<int>(&QSpinBox::valueChanged), this,
-                [this, flatName, valueLabel](int px)
+            // Axis labels by component count (CSS shorthand order).
+            static const QStringList k2{ "V", "H" };
+            static const QStringList k3{ "T", "H", "B" };
+            static const QStringList k4{ "T", "R", "B", "L" };
+            const QStringList& axis =
+                (comps.size() == 4) ? k4 : (comps.size() == 3) ? k3 : (comps.size() == 2) ? k2 : QStringList();
+
+            // Host widget carrying the component spin boxes (found in construction order when recomposing).
+            QWidget*     vecWidget = new QWidget(rowWidget);
+            QHBoxLayout* vecLayout = new QHBoxLayout(vecWidget);
+            vecLayout->setContentsMargins(0, 0, 0, 0);
+            vecLayout->setSpacing(4);
+
+            for (int i = 0; i < comps.size(); ++i)
+            {
+                if (i < axis.size())
                 {
-                    const QString newValue = QString::number(px) + QStringLiteral("px");
+                    QLabel* axisLabel = new QLabel(axis[i], vecWidget);
+                    axisLabel->setObjectName(QStringLiteral("AxisLabel"));
+                    vecLayout->addWidget(axisLabel);
+                }
+                QSpinBox* spin = new QSpinBox(vecWidget);
+                spin->setRange(-64, 64); // metrics can be negative (alignment tweaks)
+                spin->setSuffix(QStringLiteral("px"));
+                spin->setValue(comps[i]);   // set before connecting to avoid a spurious edit
+                // Fixed width so the global QSpinBox hover style (margin 2px->1px) cannot resize it on
+                // hover inside the editor's form layout -- the Theme-Editor-only resize the user saw.
+                spin->setFixedWidth(60);
 
-                    // Update the value label, the flat edit map, and push the single token.
-                    valueLabel->setText(newValue);
-                    m_effectiveFlat[flatName] = newValue;
-                    AzQtComponents::StyleManager::setThemeProperty(flatName, newValue);
-
-                    // Trigger a full re-polish only if live preview is enabled.
-                    if (m_livePreviewCheck->isChecked())
+                connect(spin, qOverload<int>(&QSpinBox::valueChanged), this,
+                    [this, flatName, valueLabel, vecWidget](int)
                     {
-                        m_applyTimer->start(300);
-                    }
-                });
+                        // Recompose all components (left-to-right = construction order) into one value.
+                        QStringList parts;
+                        for (QSpinBox* sp : vecWidget->findChildren<QSpinBox*>())
+                        {
+                            parts << (QString::number(sp->value()) + QStringLiteral("px"));
+                        }
+                        const QString newValue = parts.join(QLatin1Char(' '));
 
-            rowHBox->addWidget(spin);
+                        valueLabel->setText(newValue);
+                        m_effectiveFlat[flatName] = newValue;
+                        AzQtComponents::StyleManager::setThemeProperty(flatName, newValue);
+
+                        // Trigger a full re-polish only if live preview is enabled.
+                        if (m_livePreviewCheck->isChecked())
+                        {
+                            m_applyTimer->start(300);
+                        }
+                    });
+
+                vecLayout->addWidget(spin);
+            }
+            vecLayout->addStretch(1);
+
+            rowHBox->addWidget(vecWidget);
         }
 
         form->addRow(tokenLabel, rowWidget);
@@ -696,20 +830,22 @@ QFrame* ThemeEditorWidget::BuildCard(const CardDef& def, QWidget* parentContaine
 //////////////////////////////////////////////////////////////////////////
 // RESPONSIVE REFLOW -- Distribute cards into 1/2/3 columns by widget width
 //////////////////////////////////////////////////////////////////////////
-void ThemeEditorWidget::ReflowCards()
+void ThemeEditorWidget::ReflowColumns(
+    QScrollArea* scrollArea, QWidget* container, QList<QVBoxLayout*>& columns,
+    const QList<QFrame*>& cards, int& currentColumns, bool force)
 {
     // Choose column count by available width (account for scroll bar).
-    const int w = m_scrollArea->viewport()->width();
+    const int w = scrollArea->viewport()->width();
     const int targetColumns = (w < 700) ? 1 : (w < 1100) ? 2 : 3;
 
-    if (targetColumns == m_currentColumns && !m_cards.isEmpty())
+    if (!force && targetColumns == currentColumns && !cards.isEmpty())
     {
         return; // No change needed.
     }
-    m_currentColumns = targetColumns;
+    currentColumns = targetColumns;
 
-    // Remove all card widgets from every column layout without destroying them.
-    for (QVBoxLayout* col : m_columnLayouts)
+    // Remove all card widgets (and any stretch spacers) from every column without destroying the cards.
+    for (QVBoxLayout* col : columns)
     {
         while (col->count() > 0)
         {
@@ -722,27 +858,31 @@ void ThemeEditorWidget::ReflowCards()
         }
     }
 
-    // Show/hide column layouts by toggling stretch factor is not enough;
-    // use a spacer in unused columns to collapse them visually.
-    // Simpler: just distribute into the first N columns.
-    const int total = m_cards.size();
-    for (int i = 0; i < total; ++i)
+    // Distribute the cards round-robin into the first N columns. (setParent() hides a widget as a side
+    // effect, so we must NOT test isHidden() here -- every freshly built/re-parented card would look
+    // hidden. Search-filtered cards are setVisible(false) by FilterTokens and a QBoxLayout already gives
+    // hidden widgets zero size, so the visible cards pack with no gaps.)
+    for (int i = 0; i < cards.size(); ++i)
     {
-        const int col = i % targetColumns;
-        m_cards[i]->setParent(m_columnContainer);
-        m_columnLayouts[col]->addWidget(m_cards[i]);
+        cards[i]->setParent(container);
+        columns[i % targetColumns]->addWidget(cards[i]);
     }
 
-    // Add a vertical stretch to the active columns and remove from inactive ones.
-    for (int c = 0; c < 3; ++c)
+    // Give every column a trailing stretch so cards pack to the top and unused columns stay collapsed.
+    for (QVBoxLayout* col : columns)
     {
-        // If fewer columns are active, add an invisible stretch so the layout
-        // does not expand unused columns.
-        if (c >= targetColumns)
-        {
-            m_columnLayouts[c]->addStretch(1);
-        }
+        col->addStretch(1);
     }
+}
+
+void ThemeEditorWidget::ReflowCards(bool force)
+{
+    ReflowColumns(m_scrollArea, m_columnContainer, m_columnLayouts, m_cards, m_currentColumns, force);
+}
+
+void ThemeEditorWidget::ReflowStructureCards(bool force)
+{
+    ReflowColumns(m_structureScroll, m_structureContainer, m_structureColumnLayouts, m_structureCards, m_structureCurrentColumns, force);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -752,6 +892,7 @@ void ThemeEditorWidget::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
     ReflowCards();
+    ReflowStructureCards();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -762,7 +903,7 @@ void ThemeEditorWidget::showEvent(QShowEvent* event)
     QWidget::showEvent(event);
     // At construction the widget has no meaningful width, so the initial reflow defaults
     // to a single column. Reflow once after the real size is known.
-    QTimer::singleShot(0, this, [this]() { ReflowCards(); });
+    QTimer::singleShot(0, this, [this]() { ReflowCards(); ReflowStructureCards(); });
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -780,16 +921,21 @@ void ThemeEditorWidget::RebuildFromActiveTheme()
     m_effectiveFlat.clear();
     m_currentColumns = 0; // Force a reflow after rebuild.
 
-    // Tear down old structure cards + any trailing stretch.
+    // Tear down old structure cards + any trailing stretch spacers in the structure columns.
     for (QFrame* card : m_structureCards)
     {
+        card->setParent(nullptr);
         delete card;
     }
     m_structureCards.clear();
-    while (QLayoutItem* item = m_structureLayout->takeAt(0))
+    for (QVBoxLayout* col : m_structureColumnLayouts)
     {
-        delete item;
+        while (QLayoutItem* item = col->takeAt(0))
+        {
+            delete item;
+        }
     }
+    m_structureCurrentColumns = 0; // Force a reflow after rebuild.
 
     // Refresh the theme selector (picks up any newly-saved themes and selects the active one).
     PopulateThemeCombo();
@@ -838,11 +984,11 @@ void ThemeEditorWidget::RebuildFromActiveTheme()
     const QList<CardDef> structDefs = BuildStructureCardDefs(m_effectiveFlat);
     for (const CardDef& def : structDefs)
     {
-        QFrame* card = BuildCard(def, m_structureContainer);
-        m_structureCards.append(card);
-        m_structureLayout->addWidget(card);
+        m_structureCards.append(BuildCard(def, m_structureContainer));
     }
-    m_structureLayout->addStretch(1);
+
+    // Distribute structure cards into columns (forced: card set just changed).
+    ReflowStructureCards(true);
 
     // Re-apply any active search filter to the freshly rebuilt cards.
     if (m_searchBox && !m_searchBox->text().isEmpty())
@@ -929,6 +1075,8 @@ void ThemeEditorWidget::FilterTokens(const QString& text)
 
     filterCards(m_cards);
     filterCards(m_structureCards);
+    // No reflow here: hidden (non-matching) cards take zero size in the column layouts, so the visible
+    // matches pack on their own. Re-running the reflow would re-parent and re-show the filtered cards.
 }
 
 //////////////////////////////////////////////////////////////////////////

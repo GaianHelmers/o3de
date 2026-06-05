@@ -11,7 +11,7 @@ QCheckBox
 {
     background-color: transparent;
     font-size: $FontSize;
-    line-height: 16px;
+    line-height: $LineHeightBase;
     outline: 0;
 }
 
@@ -22,9 +22,9 @@ QCheckBox:disabled
 
 QAbstractItemView::indicator,
 QCheckBox::indicator {
-    width: 16px;
-    height: 16px;
-    margin: 2px;
+    width: $SizeGlyph;
+    height: $SizeGlyph;
+    margin: $SpacingControlMargin;
 }
 
 QAbstractItemView::indicator:indeterminate,
@@ -74,10 +74,10 @@ QCheckBox::indicator:unchecked:disabled {
 
 QCheckBox.ToggleSwitch::indicator
 {
-    width: 32px;
-    height: 16px;
+    width: $SizeToggleW;
+    height: $SizeGlyph;
     border-width: 0px;
-    margin: 2px;
+    margin: $SpacingControlMargin;
 }
 
 QCheckBox.ToggleSwitch::indicator:Unchecked
@@ -92,10 +92,10 @@ QCheckBox.ToggleSwitch::indicator:disabled
 
 QCheckBox.ToggleSwitch::indicator:Unchecked:focus
 {
-    width: 34px;
-    height: 18px;
+    width: $SizeToggleFocusW;
+    height: $SizeGlyphMedium;
     border-width: 0px;
-    margin: 1px;
+    margin: $SpacingControlMarginTight;
     image: url(:/stylesheet/img/UI20/toggleswitch/unchecked-focus.svg);
 }
 
@@ -111,10 +111,10 @@ QCheckBox.ToggleSwitch::indicator:Checked:disabled
 
 QCheckBox.ToggleSwitch::indicator:Checked:focus
 {
-    width: 34px;
-    height: 18px;
+    width: $SizeToggleFocusW;
+    height: $SizeGlyphMedium;
     border-width: 0px;
-    margin: 1px;
+    margin: $SpacingControlMarginTight;
     image: url(:/stylesheet/img/UI20/toggleswitch/checked-focus.svg);
 }
 
@@ -124,16 +124,16 @@ QCheckBox.Expander
     spacing: 0px;
     margin: 0px;
     padding: 0px;
-    min-height: 16px;
-    max-height: 16px;
-    min-width: 16px;
-    max-width: 16px;
+    min-height: $SizeGlyph;
+    max-height: $SizeGlyph;
+    min-width: $SizeGlyph;
+    max-width: $SizeGlyph;
 }
 
 QCheckBox.Expander::indicator
 {
-    width: 16px;
-    height: 16px;
+    width: $SizeGlyph;
+    height: $SizeGlyph;
     border: none;
     margin: 0px;
 }

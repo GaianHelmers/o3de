@@ -8,6 +8,8 @@
 
 #include <AzToolsFramework/UI/Prefab/PrefabUiHandler.h>
 
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+
 #include <AzFramework/API/ApplicationAPI.h>
 #include <AzQtComponents/Utilities/ScreenUtilities.h>
 #include <AzQtComponents/Utilities/TextUtilities.h>
@@ -32,8 +34,24 @@ namespace AzToolsFramework
 
     AzFramework::EntityContextId PrefabUiHandler::s_editorEntityContextId = AzFramework::EntityContextId::CreateNull();
 
+    // Reads a prefab row colour from the theme at PAINT time (the ctor runs before the theme JSON is
+    // ready, so reading there left the rows grey). Returns the token when defined, else the fallback.
+    static QColor ThemedPrefabColor(const char* token, const QColor& fallback)
+    {
+        if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined(token))
+        {
+            const QColor themed = sm->GetStylePropertyAsColor(token);
+            if (themed.isValid())
+            {
+                return themed;
+            }
+        }
+        return fallback;
+    }
+
     PrefabUiHandler::PrefabUiHandler()
     {
+
         m_containerEntityInterface = AZ::Interface<ContainerEntityInterface>::Get();
         if (m_containerEntityInterface == nullptr)
         {
@@ -277,16 +295,16 @@ namespace AzToolsFramework
                     painter->setPen(Qt::NoPen);
 
                     // Cover the right side of the entity icon's cube with the background color
-                    QColor backgroundColor = m_backgroundColor;
+                    QColor backgroundColor = ThemedPrefabColor("BackgroundColor", m_backgroundColor);
                     const bool isHovered = (option.state & QStyle::State_MouseOver);
                     const bool isSelected = descendantIndex.data(EntityOutlinerListModel::SelectedRole).template value<bool>();
                     if (isSelected)
                     {
-                        backgroundColor = m_backgroundSelectedColor;
+                        backgroundColor = ThemedPrefabColor("PrefabRowSelectedColor", m_backgroundSelectedColor);
                     }
                     else if (isHovered)
                     {
-                        backgroundColor = m_backgroundHoverColor;
+                        backgroundColor = ThemedPrefabColor("PrefabRowHoverColor", m_backgroundHoverColor);
                     }
 
                     // Create a path to fill with the background color
@@ -446,14 +464,14 @@ namespace AzToolsFramework
                 if (isExpanded || noChild)
                 {
                     // Use the same color as the background.
-                    QColor editIconBackgroundColor = m_backgroundColor;
+                    QColor editIconBackgroundColor = ThemedPrefabColor("BackgroundColor", m_backgroundColor);
                     if (isSelected)
                     {
-                        editIconBackgroundColor = m_backgroundSelectedColor;
+                        editIconBackgroundColor = ThemedPrefabColor("PrefabRowSelectedColor", m_backgroundSelectedColor);
                     }
                     else if (isHovered)
                     {
-                        editIconBackgroundColor = m_backgroundHoverColor;
+                        editIconBackgroundColor = ThemedPrefabColor("PrefabRowHoverColor", m_backgroundHoverColor);
                     }
 
                     // Paint a rect to cover up the expander.

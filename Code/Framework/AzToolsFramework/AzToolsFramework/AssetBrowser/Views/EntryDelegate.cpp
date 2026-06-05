@@ -16,6 +16,9 @@
 #include <AzToolsFramework/AssetBrowser/Views/EntryDelegate.h>
 #include <AzCore/Utils/Utils.h>
 #include <AzQtComponents/Components/StyledBusyLabel.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+
+#include <AzCore/Interface/Interface.h>
 #include <AzToolsFramework/Editor/RichTextHighlighter.h>
 
 #include <QApplication>
@@ -132,7 +135,17 @@ namespace AzToolsFramework
                 // draw the background
                 if (!index.parent().isValid() && !(option.state & QStyle::State_MouseOver) && !(option.state & QStyle::State_Selected))
                 {
-                    painter->fillRect(option.rect, 0x333333);
+                    QColor rootColor(0x33, 0x33, 0x33);
+                    if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+                        styleManager && styleManager->IsStylePropertyDefined("AssetBrowserRootBackgroundColor"))
+                    {
+                        const QColor themed = styleManager->GetStylePropertyAsColor("AssetBrowserRootBackgroundColor");
+                        if (themed.isValid())
+                        {
+                            rootColor = themed;
+                        }
+                    }
+                    painter->fillRect(option.rect, rootColor);
                 }
                 else
                 {

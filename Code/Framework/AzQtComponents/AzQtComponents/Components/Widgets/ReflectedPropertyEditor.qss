@@ -8,14 +8,14 @@
 
 AzToolsFramework--PropertyRowWidget QLabel#Name
 {
-    min-height: 16px;
-    max-height: 16px;
+    min-height: $SizeGlyph;
+    max-height: $SizeGlyph;
     margin: 0px;
-    margin-left: 4px; /* Add 4px to match CardHeader */
+    margin-left: $SpacingReflectedPropMarginLeft; /* Add 4px to match CardHeader */
 }
 
 AzToolsFramework--PropertyRowWidget QLabel#DefaultLabel
 {
-    min-height: 16px;
-    max-height: 16px;
+    min-height: $SizeGlyph;
+    max-height: $SizeGlyph;
 }

@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <QColor>
 #include <QFile>
 #include <QFileSystemWatcher>
 #include <QSettings>
@@ -63,6 +64,16 @@ namespace AzQtComponents
 
         template <>
         void read(QSettings& settings, const QString& key, QCursor& configValue);
+
+        /* Theme overrides: return the active theme's token value (via StyleManagerInterface) when the
+         * token is defined, otherwise `fallback`. These let a widget's C++ Config::loadConfig keep its
+         * C++-painted metrics/colours in sync with the active theme. Value-preserving when the token
+         * equals the .ini/default (so O3DE_Original stays pixel-identical). themeInt/themeReal read px
+         * metric tokens; themeColor reads colour tokens.
+         */
+        int themeInt(const char* token, int fallback);
+        qreal themeReal(const char* token, qreal fallback);
+        QColor themeColor(const char* token, const QColor& fallback);
 
         /* ConfigHelpers::loadConfig loads the ConfigType from a QSettings IniFormat file and
          * watches that file for further changes. When changes occur, the notify function is called.

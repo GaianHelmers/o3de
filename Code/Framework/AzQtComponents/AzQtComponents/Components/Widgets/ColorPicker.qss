@@ -10,7 +10,7 @@
 
 AzQtComponents--ColorPicker
 {
-    padding: 100px;
+    padding: $SpacingColorGridPad;
 }
 
 AzQtComponents--ColorPicker *
@@ -23,10 +23,10 @@ AzQtComponents--ColorPicker *
 AzQtComponents--ColorPicker > QToolButton
 {
     border: none;
-    max-width: 16px;
-    min-width: 16px;
-    max-height: 16px;
-    min-height: 16px;
+    max-width: $SizeGlyph;
+    min-width: $SizeGlyph;
+    max-height: $SizeGlyph;
+    min-height: $SizeGlyph;
     background-color: transparent;
 }
 
@@ -82,8 +82,8 @@ AzQtComponents--ColorPicker QDoubleSpinBox::up-button
 
 AzQtComponents--ColorPicker .HorizontalSeparator
 {
-    border-top: 1px solid $ColorPickerSeparatorBorderColor;
-    border-bottom: 1px solid $ColorPickerSeparatorBorderColor;
+    border-top: $BorderThin solid $ColorPickerSeparatorBorderColor;
+    border-bottom: $BorderThin solid $ColorPickerSeparatorBorderColor;
     border-left: none;
     border-right: none;
     background: $MenuBackgroundColor;
@@ -105,14 +105,14 @@ AzQtComponents--Swatch,
 AzQtComponents--ColorPicker #addColorButton
 {
     /* Note: Swatches will ignore any 'background*' property set here */
-    border: 1px solid $ColorPickerSwatchBorderColor;
+    border: $BorderThin solid $ColorPickerSwatchBorderColor;
     border-radius: $RadiusChip;
 }
 
 AzQtComponents--Swatch:selected
 {
     /* Note: Swatches will ignore any 'background*' property set here */
-    border: 2px solid $ColorPickerSwatchSelectedBorderColor;
+    border: $BorderControlEmphasis solid $ColorPickerSwatchSelectedBorderColor;
 }
 
 AzQtComponents--GradientSlider.HorizontalSlider

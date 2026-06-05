@@ -8,6 +8,8 @@
 
 #include <AtomToolsFramework/Inspector/InspectorGroupHeaderWidget.h>
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
 #include <AzQtComponents/Components/Widgets/Text.h>
 
 #include <QApplication>
@@ -23,7 +25,19 @@ namespace AtomToolsFramework
     {
         AzQtComponents::Text::addPrimaryStyle(this);
         AzQtComponents::Text::addLabelStyle(this);
-        setStyleSheet("background-color: #333333; border-style: solid; border-color: #1B1B1B; border-width: 1px; border-left: none; border-right: none;");
+        QColor hdrBg(0x33, 0x33, 0x33);
+        if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("CardHeaderColor"))
+        {
+            const QColor c_ = sm->GetStylePropertyAsColor("CardHeaderColor");
+            if (c_.isValid()) { hdrBg = c_; }
+        }
+        QColor hdrBorder(0x1B, 0x1B, 0x1B);
+        if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("SeparatorColor"))
+        {
+            const QColor c_ = sm->GetStylePropertyAsColor("SeparatorColor");
+            if (c_.isValid()) { hdrBorder = c_; }
+        }
+        setStyleSheet(QStringLiteral("background-color: %1; border-style: solid; border-color: %2; border-width: 1px; border-left: none; border-right: none;").arg(hdrBg.name(), hdrBorder.name()));
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         setFixedHeight(24);
         setContentsMargins(0, 0, 0, 0);

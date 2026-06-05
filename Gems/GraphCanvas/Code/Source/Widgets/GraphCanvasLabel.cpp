@@ -14,6 +14,9 @@
 #include <QWidget>
 
 #include <AzCore/Serialization/EditContext.h>
+#include <AzCore/Interface/Interface.h>
+
+#include <AzQtComponents/Components/StyleManagerInterface.h>
 
 #include <Widgets/GraphCanvasLabel.h>
 
@@ -386,7 +389,24 @@ namespace GraphCanvas
             QRectF innerBounds = m_displayedSize;
             innerBounds = innerBounds.adjusted(padding, padding, -padding, -padding);
 
-            painter->setPen(m_styleHelper.GetColor(Styling::Attribute::Color));
+            QColor textColor = m_styleHelper.GetColor(Styling::Attribute::Color);
+            // Follow the editor theme for node text. The per-tool style sheets (Landscape / Material
+            // Canvas) hardcode "black" for the node body font, which is invisible on a dark themed node.
+            // Only re-target dark text so intentional light / category-coloured text (titles) is preserved.
+            if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+                styleManager && styleManager->IsStylePropertyDefined("GraphCanvasNodeTextColor"))
+            {
+                const qreal luminance = 0.299 * textColor.redF() + 0.587 * textColor.greenF() + 0.114 * textColor.blueF();
+                if (luminance < 0.4)
+                {
+                    const QColor themedText = styleManager->GetStylePropertyAsColor("GraphCanvasNodeTextColor");
+                    if (themedText.isValid())
+                    {
+                        textColor = themedText;
+                    }
+                }
+            }
+            painter->setPen(textColor);
             painter->setBrush(QBrush());
             painter->setFont(m_styleHelper.GetFont());
 

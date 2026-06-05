@@ -19,8 +19,8 @@ AzQtComponents--ColorLabel AzQtComponents--Swatch
     padding: 0px;
     min-width: $SizeColorSwatchWidth;
     max-width: $SizeColorSwatchWidth;
-    min-height: 16px;
-    max-height: 16px;
+    min-height: $SizeGlyph;
+    max-height: $SizeGlyph;
     border: 0px;
 }
 
@@ -28,12 +28,12 @@ AzQtComponents--ColorLabel AzQtComponents--ColorHexEdit
 {
     margin: 0px;
     padding: 0px;
-    max-width: 100px;
-    min-width: 100px;
+    max-width: $SizeColorComponentWidth;
+    min-width: $SizeColorComponentWidth;
 }
 
 AzQtComponents--ColorLabel AzQtComponents--ColorHexEdit > QLineEdit
 {
-    max-width: 100px;
-    min-width: 100px;
+    max-width: $SizeColorComponentWidth;
+    min-width: $SizeColorComponentWidth;
 }

@@ -7,6 +7,8 @@
  */
 
 #include <AzCore/PlatformDef.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
 
 AZ_PUSH_DISABLE_WARNING(4251 4800 4244, "-Wunknown-warning-option")
 #include <QPainter>
@@ -129,6 +131,16 @@ namespace GraphCanvas
 
         QPen border = m_style.GetBorder();
         QBrush background = m_style.GetBrush(Styling::Attribute::BackgroundColor);
+        // Follow the editor theme for the node body so the cards are not the style-sheet default grey.
+        if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+            styleManager && styleManager->IsStylePropertyDefined("GraphCanvasNodeBackgroundColor"))
+        {
+            const QColor themedNode = styleManager->GetStylePropertyAsColor("GraphCanvasNodeBackgroundColor");
+            if (themedNode.isValid())
+            {
+                background = QBrush(themedNode);
+            }
+        }
 
         if (border.style() != Qt::NoPen || background.color().alpha() > 0)
         {

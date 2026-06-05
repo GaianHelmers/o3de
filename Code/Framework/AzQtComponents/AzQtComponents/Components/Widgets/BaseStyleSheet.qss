@@ -111,7 +111,7 @@ QComboBox
     border-width: 0px;
     border-color: $InputBorderColor;
     font-size: $FontSize;
-    line-height: 16px;
+    line-height: $LineHeightBase;
 }
 
 QTextEdit,
@@ -120,7 +120,7 @@ QPlainTextEdit
 {
     background-color: $TextEditBackgroundColor;
     color: $TextEditTextColor;
-    margin: 2px;
+    margin: $SpacingControlMargin;
     border-width: 0px;
     border-style: solid;
 }
@@ -129,7 +129,7 @@ QTextEdit:hover,
 QPlainText:hover,
 QPlainTextEdit:hover
 {
-    margin: 1px;
+    margin: $SpacingControlMarginTight;
     border-width: $BorderControl;
     border-style: solid;
     border-color: $TextEditHoverBorderColor;
@@ -139,7 +139,7 @@ QTextEdit:focus,
 QPlainText:focus,
 QPlainTextEdit:focus
 {
-    margin: 1px;
+    margin: $SpacingControlMarginTight;
     border-width: $BorderControl;
     border-color: $FocusBorderColor;
     background-color: $TextEditBackgroundColor;

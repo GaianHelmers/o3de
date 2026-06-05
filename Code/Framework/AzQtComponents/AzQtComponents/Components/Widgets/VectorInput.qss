@@ -8,8 +8,8 @@
 
 AzQtComponents--VectorElement QLabel
 {
-    margin-top: 2px;
-    margin-bottom: 2px;
+    margin-top: $SpacingControlMargin;
+    margin-bottom: $SpacingControlMargin;
     border-top-left-radius: $RadiusInput;
     border-bottom-left-radius: $RadiusInput;
     text-align: center;
@@ -31,7 +31,7 @@ AzQtComponents--VectorElement QDoubleSpinBox:focus
 AzQtComponents--VectorElement QSpinBox:hover,
 AzQtComponents--VectorElement QDoubleSpinBox:hover
 {
-    height: 19px;
+    height: $SizeVectorHoverHeight;
 }
 
 AzQtComponents--VectorElement[Coordinate="X"] QLabel

@@ -7,6 +7,8 @@
  */
 
 #include <AssetSelection/ui_AssetSelectionGrid.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
 #include <Atom/RPI.Edit/Common/AssetUtils.h>
 #include <AtomToolsFramework/AssetSelection/AssetSelectionGrid.h>
 #include <AtomToolsFramework/Util/Util.h>
@@ -156,7 +158,13 @@ namespace AtomToolsFramework
         header->setText(uniqueTitle);
         header->setFixedSize(QSize(m_tileSize.width(), headerHeight));
         header->setContentsMargins(0, 0, 0, 0);
-        header->setStyleSheet("background-color: rgb(35, 35, 35)");
+        QColor hdr(35, 35, 35);
+        if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("CardHeaderColor"))
+        {
+            const QColor c_ = sm->GetStylePropertyAsColor("CardHeaderColor");
+            if (c_.isValid()) { hdr = c_; }
+        }
+        header->setStyleSheet(QStringLiteral("background-color: %1").arg(hdr.name()));
         AzQtComponents::Text::addPrimaryStyle(header);
         AzQtComponents::Text::addLabelStyle(header);
         itemWidget->layout()->addWidget(header);
@@ -263,7 +271,7 @@ namespace AtomToolsFramework
     void AssetSelectionGrid::ShowSearchMenu(const QPoint& pos)
     {
         QScopedPointer<QMenu> menu(m_ui->m_searchWidget->createStandardContextMenu());
-        menu->setStyleSheet("background-color: #333333");
+        menu->setStyleSheet(QString()); // let the themed global QMenu rule apply
         menu->exec(m_ui->m_searchWidget->mapToGlobal(pos));
     }
 } // namespace AtomToolsFramework

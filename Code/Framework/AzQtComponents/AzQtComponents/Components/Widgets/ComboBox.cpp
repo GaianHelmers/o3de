@@ -248,6 +248,10 @@ namespace AzQtComponents
         ConfigHelpers::read<int>(settings, QStringLiteral("ItemPadding"), config.itemPadding);
         ConfigHelpers::read<int>(settings, QStringLiteral("LeftAdjust"), config.leftAdjust);
 
+        // Theme overrides (value-preserving in O3DE_Original).
+        config.placeHolderTextColor = ConfigHelpers::themeColor("DisabledTextColor", config.placeHolderTextColor);
+        config.framelessTextColor   = ConfigHelpers::themeColor("PrimaryTextColor", config.framelessTextColor);
+
         return config;
     }
 

@@ -7,6 +7,8 @@
  */
 
 #include <AzCore/std/numeric.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
+#include <AzCore/Interface/Interface.h>
 #include <AzCore/std/string/fixed_string.h>
 #include <AzQtComponents/Utilities/Conversions.h>
 #include <EMotionFX/Source/AnimGraphNodeGroup.h>
@@ -1010,7 +1012,13 @@ namespace EMStudio
             return;
         }
 
-        m_gridPen.setColor(QColor(61, 61, 61, alpha));
+        QColor gridColor(61, 61, 61, alpha);
+        if (auto* sm = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get(); sm && sm->IsStylePropertyDefined("GraphCanvasGridColor"))
+        {
+            QColor c_ = sm->GetStylePropertyAsColor("GraphCanvasGridColor");
+            if (c_.isValid()) { c_.setAlpha(alpha); gridColor = c_; }
+        }
+        m_gridPen.setColor(gridColor);
         m_subgridPen.setColor(QColor(55, 55, 55, alpha));
 
         // setup spacing and size of the grid

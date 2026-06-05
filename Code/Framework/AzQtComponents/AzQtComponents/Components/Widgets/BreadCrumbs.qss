@@ -20,7 +20,7 @@ AzQtComponents--BreadCrumbs #breadcrumbs-separator
 AzQtComponents--BreadCrumbs #MenuButton
 {
     qproperty-icon: url(:/Breadcrumb/img/UI20/Breadcrumb/dot-dot-dot_with_arrow.svg);
-    qproperty-iconSize: 22px 11px;
+    qproperty-iconSize: $SizeBreadCrumbIconW $SizeBreadCrumbIconH;
 }
 
 AzQtComponents--BreadCrumbs QLineEdit
@@ -32,6 +32,6 @@ AzQtComponents--BreadCrumbs QLineEdit
 
 AzQtComponents--BreadCrumbs[editable="true"]
 {
-    border: 1px solid $BreadCrumbsEditableBorderColor;
+    border: $BorderThin solid $BreadCrumbsEditableBorderColor;
     border-radius: $RadiusChip;
 }
