@@ -24,6 +24,7 @@ AZ_POP_DISABLE_WARNING
 #include <AzCore/Serialization/SerializeContext.h>
 #include <AzCore/Serialization/Utils.h>
 #include <AzCore/UserSettings/UserSettings.h>
+#include <AzCore/std/chrono/chrono.h>
 #include <AzCore/std/smart_ptr/unique_ptr.h>
 #include <AzCore/std/sort.h>
 
@@ -135,6 +136,28 @@ namespace AzToolsFramework
         nullptr,
         AZ::ConsoleFunctorFlags::DontReplicate | AZ::ConsoleFunctorFlags::DontDuplicate,
         "If set, enables experimental Document Property Editor support for the Entity Inspector");
+
+    static constexpr const char* inspectorRefreshDiagnosticsCVarName = "ed_inspectorRefreshDiagnostics";
+
+    AZ_CVAR(
+        bool,
+        ed_inspectorRefreshDiagnostics,
+        false,
+        nullptr,
+        AZ::ConsoleFunctorFlags::DontReplicate | AZ::ConsoleFunctorFlags::DontDuplicate,
+        "If set, logs Entity Inspector full-refresh timing and whether the component composition matches the "
+        "previous refresh (I.2 measurement harness for same-composition value-refresh reuse).");
+
+    AZ_CVAR(
+        int,
+        ed_inspectorRefreshDelayMs,
+        0,
+        nullptr,
+        AZ::ConsoleFunctorFlags::DontReplicate | AZ::ConsoleFunctorFlags::DontDuplicate,
+        "Delay (ms) before the Entity Inspector rebuilds after a queued refresh. >0 coalesces rapid selections into "
+        "a SINGLE rebuild of the final selection -- kills per-click stacking lag and most dropped clicks, at the cost "
+        "of that much latency before the inspector updates on a deliberate single selection. 0 = legacy immediate. "
+        "Try 33-50. Optimization track I-B (coalescing).");
 
     static bool ShouldUseDPE()
     {
@@ -1246,6 +1269,30 @@ namespace AzToolsFramework
     void EntityPropertyEditor::UpdateContents()
     {
         AZ_PROFILE_FUNCTION(AzToolsFramework);
+        const AZStd::chrono::steady_clock::time_point refreshStartTime = AZStd::chrono::steady_clock::now();
+        // D1b sub-phase timing (ed_inspectorRefreshDiagnostics): localize where UpdateContents spends its time.
+        // Default each boundary to the start so skipped phases (e.g. no entity selected) report 0ms.
+        AZStd::chrono::steady_clock::time_point tAfterClear = refreshStartTime;
+        AZStd::chrono::steady_clock::time_point tBeforeBuildArray = refreshStartTime;
+        AZStd::chrono::steady_clock::time_point tAfterBuildArray = refreshStartTime;
+        AZStd::chrono::steady_clock::time_point tAfterBuildUI = refreshStartTime;
+
+        // D1c: read the diagnostics cvar once for this rebuild and reset the per-component accumulators.
+        m_inspectorDiagnosticsActive = false;
+        if (auto* console = AZ::Interface<AZ::IConsole>::Get(); console != nullptr)
+        {
+            console->GetCvarValue(inspectorRefreshDiagnosticsCVarName, m_inspectorDiagnosticsActive);
+        }
+        m_diagCreateEditorUs = 0;
+        m_diagAddInstanceUs = 0;
+        m_diagOverrideVizUs = 0;
+        m_diagNotificationsUs = 0;
+        m_diagInvalidateUs = 0;
+        m_diagShowUs = 0;
+        m_diagClearHideUs = 0;
+        m_diagClearContentUs = 0;
+        m_diagClearPreventUs = 0;
+
         setUpdatesEnabled(false);
 
         m_isBuildingProperties = true;
@@ -1254,7 +1301,9 @@ namespace AzToolsFramework
         HideComponentPalette();
 
         ClearInstances(false);
+        const AZStd::chrono::steady_clock::time_point tAfterClearInstances = AZStd::chrono::steady_clock::now();
         ClearComponentEditorDragging();
+        tAfterClear = AZStd::chrono::steady_clock::now();
 
         m_selectedEntityIds.clear();
         GetSelectedEntities(m_selectedEntityIds);
@@ -1340,12 +1389,14 @@ namespace AzToolsFramework
         bool displayComponentSearchBox = hasEntitiesDisplayed;
         if (hasEntitiesDisplayed)
         {
+            tBeforeBuildArray = AZStd::chrono::steady_clock::now();
             // Build up components to display
             SharedComponentArray sharedComponentArray;
             BuildSharedComponentArray(sharedComponentArray,
                 !(selectionEntityTypeInfo == SelectionEntityTypeInfo::OnlyStandardEntities ||
                     selectionEntityTypeInfo == SelectionEntityTypeInfo::OnlyPrefabEntities) ||
                 selectionEntityTypeInfo == SelectionEntityTypeInfo::ContainerEntityOfFocusedPrefab);
+            tAfterBuildArray = AZStd::chrono::steady_clock::now();
 
             if (sharedComponentArray.size() == 0)
             {
@@ -1360,6 +1411,7 @@ namespace AzToolsFramework
 
             UpdateEntityIcon();
             UpdateEntityDisplay();
+            tAfterBuildUI = AZStd::chrono::steady_clock::now();
         }
 
         m_gui->m_darkBox->setVisible(displayComponentSearchBox && !m_isSystemEntityEditor && !isLevelLayout || isPrefabLayout);
@@ -1406,6 +1458,81 @@ namespace AzToolsFramework
         // Note: this is a sanity check in case IPropertyEditorNotify::BeforePropertyModified
         // is called, but a IPropertyEditorNotify::SetPropertyEditingComplete isn't called
         m_instanceUpdateExecutorInterface->SetShouldPauseInstancePropagation(false);
+
+        // D1/D1b measurement harness. Reports sub-phase timing of UpdateContents and, crucially, PER-COMPONENT reuse
+        // opportunity (reusableComps) rather than whole-entity composition match. ComponentEditors/adapters are
+        // per-component, so the reusable unit is the component TYPE, not the whole entity: most selections share
+        // common types (Transform, Mesh, ...) even when the entity as a whole differs. Whole-entity match almost
+        // never happens and is the wrong thing to optimize for.
+        {
+            AZStd::vector<AZ::Uuid> currentSignature;
+            currentSignature.reserve(m_componentEditorsUsed);
+            for (AZ::s32 componentEditorIndex = 0; componentEditorIndex < m_componentEditorsUsed; ++componentEditorIndex)
+            {
+                currentSignature.push_back(m_componentEditors[componentEditorIndex]->GetComponentType());
+            }
+
+            if (m_inspectorDiagnosticsActive)
+            {
+                // Per-component reuse vs the previous selection: multiset intersection of component types.
+                // Counts how many of this selection's component editors COULD have been kept-and-re-pointed
+                // instead of cleared and rebuilt.
+                int reusableComponents = 0;
+                AZStd::vector<bool> prevConsumed(m_lastBuiltComponentSignature.size(), false);
+                for (const AZ::Uuid& typeId : currentSignature)
+                {
+                    for (size_t prevIndex = 0; prevIndex < m_lastBuiltComponentSignature.size(); ++prevIndex)
+                    {
+                        if (!prevConsumed[prevIndex] && m_lastBuiltComponentSignature[prevIndex] == typeId)
+                        {
+                            prevConsumed[prevIndex] = true;
+                            ++reusableComponents;
+                            break;
+                        }
+                    }
+                }
+
+                const auto toMs = [](AZStd::chrono::steady_clock::duration d)
+                {
+                    return aznumeric_cast<double>(AZStd::chrono::duration_cast<AZStd::chrono::microseconds>(d).count()) / 1000.0;
+                };
+                const AZStd::chrono::steady_clock::time_point tEnd = AZStd::chrono::steady_clock::now();
+                AZ_Printf(
+                    "EntityInspector",
+                    "UpdateContents: entities=%zu components=%d total=%.2fms "
+                    "[clear=%.2f preamble=%.2f buildArray=%.2f buildUI=%.2f finalize=%.2f] reusableComps=%d/%d",
+                    m_selectedEntityIds.size(),
+                    static_cast<int>(m_componentEditorsUsed),
+                    toMs(tEnd - refreshStartTime),
+                    toMs(tAfterClear - refreshStartTime),
+                    toMs(tBeforeBuildArray - tAfterClear),
+                    toMs(tAfterBuildArray - tBeforeBuildArray),
+                    toMs(tAfterBuildUI - tAfterBuildArray),
+                    toMs(tEnd - tAfterBuildUI),
+                    reusableComponents,
+                    static_cast<int>(currentSignature.size()));
+
+                // D1c: per-component breakdown of buildUI + the split of the clear phase.
+                AZ_Printf(
+                    "EntityInspector",
+                    "  buildUI: createEditor=%.2f addInstance=%.2f overrideViz=%.2f notifications=%.2f invalidate=%.2f show=%.2f"
+                    " | clear: instances=%.2f dragging=%.2f [hide=%.2f content=%.2f prevent=%.2f] (ms)",
+                    aznumeric_cast<double>(m_diagCreateEditorUs) / 1000.0,
+                    aznumeric_cast<double>(m_diagAddInstanceUs) / 1000.0,
+                    aznumeric_cast<double>(m_diagOverrideVizUs) / 1000.0,
+                    aznumeric_cast<double>(m_diagNotificationsUs) / 1000.0,
+                    aznumeric_cast<double>(m_diagInvalidateUs) / 1000.0,
+                    aznumeric_cast<double>(m_diagShowUs) / 1000.0,
+                    toMs(tAfterClearInstances - refreshStartTime),
+                    toMs(tAfterClear - tAfterClearInstances),
+                    aznumeric_cast<double>(m_diagClearHideUs) / 1000.0,
+                    aznumeric_cast<double>(m_diagClearContentUs) / 1000.0,
+                    aznumeric_cast<double>(m_diagClearPreventUs) / 1000.0);
+            }
+
+            m_lastBuiltComponentSignature = AZStd::move(currentSignature);
+            m_lastBuiltSelectionCount = m_selectedEntityIds.size();
+        }
     }
 
     void EntityPropertyEditor::GetAllComponentsForEntityInOrder(
@@ -1629,11 +1756,29 @@ namespace AzToolsFramework
         // last-known widget, for the sake of tab-ordering
         QWidget* lastTabWidget = m_gui->m_addComponentButton;
 
+        // D1c per-component timing: attribute the buildUI cost to each sub-call. markUs() advances the marker and
+        // accumulates the elapsed microseconds into the given bucket; a no-op when diagnostics are off.
+        const bool diag = m_inspectorDiagnosticsActive;
+        auto markUs = [diag](AZStd::chrono::steady_clock::time_point& marker, AZ::s64& accumulatorUs)
+        {
+            if (!diag)
+            {
+                return;
+            }
+            const AZStd::chrono::steady_clock::time_point now = AZStd::chrono::steady_clock::now();
+            accumulatorUs += AZStd::chrono::duration_cast<AZStd::chrono::microseconds>(now - marker).count();
+            marker = now;
+        };
+
         for (auto& sharedComponentInfo : sharedComponentArray)
         {
             bool componentInFilter = ComponentMatchesCurrentFilter(sharedComponentInfo);
 
+            AZStd::chrono::steady_clock::time_point mark =
+                diag ? AZStd::chrono::steady_clock::now() : AZStd::chrono::steady_clock::time_point{};
+
             auto componentEditor = CreateComponentEditor();
+            markUs(mark, m_diagCreateEditorUs);
 
             // Add instances to componentEditor
             auto& componentInstances = sharedComponentInfo.m_instances;
@@ -1644,6 +1789,7 @@ namespace AzToolsFramework
 
                 componentEditor->AddInstance(componentInstance, aggregateInstance, nullptr);
             }
+            markUs(mark, m_diagAddInstanceUs);
 
             // Set up other entity property editor customization
             if (ShouldUseDPE() && Prefab::IsInspectorOverrideManagementEnabled())
@@ -1651,6 +1797,7 @@ namespace AzToolsFramework
                 // Set up visualization for overrides on the component
                 UpdateOverrideVisualization(*componentEditor);
             }
+            markUs(mark, m_diagOverrideVizUs);
 
             // Set tab order for editor
             setTabOrder(lastTabWidget, componentEditor);
@@ -1658,8 +1805,10 @@ namespace AzToolsFramework
 
             // Refresh editor
             componentEditor->AddNotifications();
+            markUs(mark, m_diagNotificationsUs);
             componentEditor->UpdateExpandability();
             componentEditor->InvalidateAll(!componentInFilter ? m_filterString.c_str() : nullptr);
+            markUs(mark, m_diagInvalidateUs);
 
             // If we are in read only mode, then show the components as disabled
             if (m_selectionContainsReadOnlyEntity)
@@ -1681,6 +1830,7 @@ namespace AzToolsFramework
                 componentEditor->hide();
                 componentEditor->ClearInstances(true);
             }
+            markUs(mark, m_diagShowUs);
         }
     }
 
@@ -2022,16 +2172,36 @@ namespace AzToolsFramework
 
     void EntityPropertyEditor::ClearInstances(bool invalidateImmediately)
     {
+        // Per-substep timing to localize the pool-wide teardown cost (hide vs content-clear vs prevent-refresh).
+        const bool diag = m_inspectorDiagnosticsActive;
+        const auto clearMarkUs = [diag](AZStd::chrono::steady_clock::time_point& marker, AZ::s64& accumulatorUs)
+        {
+            if (!diag)
+            {
+                return;
+            }
+            const AZStd::chrono::steady_clock::time_point now = AZStd::chrono::steady_clock::now();
+            accumulatorUs += AZStd::chrono::duration_cast<AZStd::chrono::microseconds>(now - marker).count();
+            marker = now;
+        };
+
         for (auto componentEditor : m_componentEditors)
         {
+            AZStd::chrono::steady_clock::time_point clearMark =
+                diag ? AZStd::chrono::steady_clock::now() : AZStd::chrono::steady_clock::time_point{};
+
             componentEditor->hide();
+            clearMarkUs(clearMark, m_diagClearHideUs);
+
             componentEditor->ClearInstances(invalidateImmediately);
+            clearMarkUs(clearMark, m_diagClearContentUs);
 
             // Re-enable RPE-level refresh calls.  Since we're clearing out the associated RPE, there's no longer a danger
             // that they will get a partial refresh while in an invalid state.
             // (RPE refreshes were prevented in QueuePropertyRefresh() to ensure that no RPEs tried a partial refresh in-between
             // the time an EPE full refresh was requested and when it executed.)
             componentEditor->PreventRefresh(false);
+            clearMarkUs(clearMark, m_diagClearPreventUs);
         }
 
         m_componentEditorsUsed = 0;
@@ -2129,7 +2299,15 @@ namespace AzToolsFramework
             // tree, not just refreshing values (that is taken care of elsewhere).
             // Sometimes, these events cause it to repeatedly refresh, so instead, give it a delay of more than 0 so that
             // tick can happen first.
-            QTimer::singleShot(0, this, &EntityPropertyEditor::UpdateContents);
+            // I-B coalescing: with ed_inspectorRefreshDelayMs > 0, rapid selections that all arrive within the delay
+            // window collapse to a single UpdateContents of the final selection (m_isAlreadyQueuedRefresh already
+            // guards re-queues; UpdateContents reads the current selection at fire time). 0 preserves legacy behavior.
+            int refreshDelayMs = static_cast<int>(ed_inspectorRefreshDelayMs);
+            if (refreshDelayMs < 0)
+            {
+                refreshDelayMs = 0;
+            }
+            QTimer::singleShot(refreshDelayMs, this, &EntityPropertyEditor::UpdateContents);
 
             //saving state any time refresh gets queued because requires valid components
             //attempting to call directly anywhere state needed to be preserved always occurred with QueuePropertyRefresh

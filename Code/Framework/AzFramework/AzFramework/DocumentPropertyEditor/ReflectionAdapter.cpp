@@ -22,6 +22,18 @@
 
 namespace AZ::DocumentPropertyEditor
 {
+    // When true, ReflectionAdapter::SetValue uses a SoftReset (diff new vs cached-old contents and emit patches,
+    // reusing widgets) instead of the default HardReset (clear cached contents + full rebuild). Tests whether the
+    // DPE's intended incremental-diff path beats clear-and-rebuild on selection. Default false = legacy HardReset.
+    AZ_CVAR(
+        bool,
+        ed_dpeSoftResetOnSetValue,
+        false,
+        nullptr,
+        AZ::ConsoleFunctorFlags::DontReplicate | AZ::ConsoleFunctorFlags::DontDuplicate,
+        "When true, ReflectionAdapter::SetValue uses SoftReset (incremental diff/patch, reuses widgets) instead of "
+        "HardReset (full rebuild). Tests whether DPE diff-on-selection beats clear-and-rebuild.");
+
     struct ReflectionAdapterReflectionImpl : public AZ::Reflection::IReadWrite
     {
         AZ::SerializeContext* m_serializeContext = nullptr;
@@ -1305,8 +1317,11 @@ namespace AZ::DocumentPropertyEditor
         m_instance = instance;
         m_typeId = AZStd::move(typeId);
 
-        // new top-value, do a full reset
-        NotifyResetDocument(DocumentResetType::HardReset);
+        // New top-value. Default is a full HardReset; ed_dpeSoftResetOnSetValue switches to a SoftReset that diffs the
+        // new contents against the cached previous contents and emits patches (reusing widgets) -- the DPE's intended
+        // incremental path. (On the first call cached contents are null, so SoftReset still does a full reset.)
+        NotifyResetDocument(
+            static_cast<bool>(ed_dpeSoftResetOnSetValue) ? DocumentResetType::SoftReset : DocumentResetType::HardReset);
     }
 
     void ReflectionAdapter::InvokeChangeNotify(const AZ::Dom::Value& domNode)
