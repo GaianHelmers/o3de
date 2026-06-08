@@ -4,6 +4,20 @@
 	"theme_description": "Mock light theme demonstrating live theme switching. Inherits O3DE_Original and overrides the core surfaces to a light palette.",
 	"theme_base": "",
 	"theme_properties": {
+		"ClassWizard": {
+			"WindowBackgroundColor": "#2b2b2b",
+			"InputBackgroundColor": "#3c3c3c",
+			"BorderColor": "#555555",
+			"TextColor": "#cccccc",
+			"DisabledTextColor": "#888888",
+			"OnAccentTextColor": "#ffffff",
+			"AccentColor": "#0078d4",
+			"AccentHoverColor": "#1084d8",
+			"AccentPressedColor": "#006cc1",
+			"DisabledBackgroundColor": "#555555",
+			"ControlRadius": "3px",
+			"GroupBoxRadius": "4px"
+		},
 		"FontFamily": "Open Sans",
 		"AmazonEmberFontFamily": "Amazon Ember",
 		"FontSize": "12px",

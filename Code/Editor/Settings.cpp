@@ -36,6 +36,7 @@
 // Editor
 #include "CryEdit.h"
 #include "MainWindow.h"
+#include "ThemeEditor/ThemeWorkingOverrides.h"   // re-apply Applied (unnamed) theme edits at startup
 
 //////////////////////////////////////////////////////////////////////////
 // Global Instance of Editor settings.
@@ -817,6 +818,10 @@ void SEditorSettings::PostInitApply()
 
     CCryEditApp::instance()->KeepEditorActive(keepEditorActive > 0);
     AzQtComponents::StyleManager::setTheme(QString::fromUtf8(gui.editorTheme.c_str()));
+
+    // Re-apply any Applied-but-unsaved theme edits from the previous session (the unnamed working
+    // overlay), so the editor looks as the user left it. No-op unless the overlay matches this theme.
+    ThemeWorkingOverrides::ApplyIfMatching(QString::fromUtf8(gui.editorTheme.c_str()));
 }
 
 //////////////////////////////////////////////////////////////////////////

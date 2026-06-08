@@ -383,6 +383,7 @@ set(FILES
     Dialogs/PythonScriptsDialog.ui
     ThemeEditor/ThemeEditorWidget.cpp
     ThemeEditor/ThemeEditorWidget.h
+    ThemeEditor/ThemeWorkingOverrides.h
     Dialogs/Generic/UserOptions.cpp
     Dialogs/Generic/UserOptions.h
     EditorFileMonitor.cpp

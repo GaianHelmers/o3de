@@ -21,6 +21,7 @@
 // Editor
 #include "MainWindow.h"
 #include "Core/QtEditorApplication.h"
+#include "ThemeEditor/ThemeWorkingOverrides.h"   // clear Applied theme edits when the theme changes
 
 #define EDITORPREFS_EVENTNAME "EPGEvent"
 #define EDITORPREFS_EVENTVALTOGGLE "operation"
@@ -162,6 +163,9 @@ void CEditorPreferencesPage_General::OnApply()
     {
         gSettings.gui.editorTheme = m_generalSettings.m_editorTheme;
         AzQtComponents::StyleManager::setTheme(QString::fromUtf8(m_generalSettings.m_editorTheme.c_str()));
+
+        // Selecting a different theme here discards any unsaved Applied edits from the Theme Editor.
+        ThemeWorkingOverrides::Clear();
     }
 
     //prefabs

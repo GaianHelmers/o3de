@@ -20,6 +20,7 @@
 // Editor
 #include "LyViewPaneNames.h"
 #include "Settings.h"   // for gSettings (persist the active theme)
+#include "ThemeEditor/ThemeWorkingOverrides.h"   // persist Applied (unnamed) edits across restart
 
 // Qt
 #include <QCheckBox>
@@ -457,6 +458,15 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
         { "Legacy (CryTooltip / Table)", {
             "CToolTipText", "CToolTipBackground", "CTableRowOdd", "CTableRowEven"
           }, false },
+        // Class Creation Wizard (standalone PySide6 tool). Its color surface, exposed here so the
+        // wizard can be themed alongside the editor. Tokens flatten from the ClassWizard group in
+        // each theme's themeProperties.json. Metric tokens (radii) live on the Structure tab.
+        { "Class Wizard", {
+            "ClassWizardWindowBackgroundColor", "ClassWizardInputBackgroundColor",
+            "ClassWizardBorderColor", "ClassWizardTextColor", "ClassWizardDisabledTextColor",
+            "ClassWizardOnAccentTextColor", "ClassWizardAccentColor", "ClassWizardAccentHoverColor",
+            "ClassWizardAccentPressedColor", "ClassWizardDisabledBackgroundColor"
+          }, false },
     };
 
     // Track which tokens we have already claimed so "Other" is the true remainder.
@@ -598,6 +608,9 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildStructureCardDefs(cons
             "SpacingTextParagraphV", "SpacingTextButtonV", "SpacingTextLabelV", "SpacingTextTooltipV"
           }, false },
         { "Property Editor", { "SpacingReflectedPropMarginLeft" }, false },
+        // Class Creation Wizard structural metrics (control + group-box corner radii). Paired with
+        // the "Class Wizard" color category on the Colors tab.
+        { "Class Wizard", { "ClassWizardControlRadius", "ClassWizardGroupBoxRadius" }, false },
     };
 
     QSet<QString>  claimed;
@@ -1085,6 +1098,10 @@ void ThemeEditorWidget::FilterTokens(const QString& text)
 void ThemeEditorWidget::OnApplyToEditor()
 {
     AzQtComponents::StyleManager::reapplyTheme();
+
+    // Persist the applied (still unnamed) edits so they survive an editor restart and so external
+    // tools (the Class Wizard) match the editor. Tagged with the base theme; cleared on switch/reload.
+    ThemeWorkingOverrides::Save(m_effectiveFlat, AzQtComponents::StyleManager::currentThemeName());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1131,6 +1148,9 @@ void ThemeEditorWidget::OnThemeComboChanged(int index)
     AzQtComponents::StyleManager::setTheme(folderName);
     gSettings.gui.editorTheme = folderName.toUtf8().constData();
 
+    // Selecting a different theme discards any unsaved Applied edits.
+    ThemeWorkingOverrides::Clear();
+
     // Rebuild the token cards for the newly active theme.
     RebuildFromActiveTheme();
 }
@@ -1144,6 +1164,9 @@ void ThemeEditorWidget::OnReloadActiveTheme()
     {
         AzQtComponents::StyleManager::setTheme(themeName);
     }
+
+    // Restoring the on-disk theme discards Applied edits -> drop the persisted working overlay too.
+    ThemeWorkingOverrides::Clear();
 
     // Refresh the display from the now-clean theme.
     RebuildFromActiveTheme();
@@ -1216,6 +1239,10 @@ void ThemeEditorWidget::OnSaveAsNewTheme()
 
     file.write(QJsonDocument(root).toJson());
     file.close();
+
+    // The edits are now captured in the named theme file, so the unnamed working overlay is no
+    // longer needed -- clear it so the named theme is the single source of truth.
+    ThemeWorkingOverrides::Clear();
 
     // The new theme is now in the pool -- refresh the selector so it appears.
     PopulateThemeCombo();
