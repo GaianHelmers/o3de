@@ -35,10 +35,20 @@
 
 namespace ThemeWorkingOverrides
 {
-    inline constexpr const char* OrgName      = "O3DE";
-    inline constexpr const char* AppName      = "O3DE Editor";
-    inline constexpr const char* GroupName    = "ThemeWorkingOverrides";
-    inline constexpr const char* BaseThemeKey = "__baseTheme";
+    inline constexpr const char* OrgName       = "O3DE";
+    inline constexpr const char* AppName       = "O3DE Editor";
+    inline constexpr const char* GroupName     = "ThemeWorkingOverrides";
+    inline constexpr const char* BaseThemeKey  = "__baseTheme";
+    inline constexpr const char* EditorThemeKey = "Settings/EditorTheme";   // the editor's selected theme
+
+    //! Publish the selected theme name to the shared store immediately. The editor otherwise only
+    //! flushes this on settings-save/shutdown, so without this a relaunched external tool (the Class
+    //! Wizard) would not see a theme switch until the editor is restarted.
+    inline void SaveSelectedTheme(const QString& themeName)
+    {
+        QSettings settings(QString::fromUtf8(OrgName), QString::fromUtf8(AppName));
+        settings.setValue(QString::fromUtf8(EditorThemeKey), themeName);
+    }
 
     //! Persist the current applied token values as the unnamed working overlay.
     inline void Save(const QHash<QString, QString>& tokens, const QString& baseTheme)

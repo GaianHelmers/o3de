@@ -164,8 +164,11 @@ void CEditorPreferencesPage_General::OnApply()
         gSettings.gui.editorTheme = m_generalSettings.m_editorTheme;
         AzQtComponents::StyleManager::setTheme(QString::fromUtf8(m_generalSettings.m_editorTheme.c_str()));
 
-        // Selecting a different theme here discards any unsaved Applied edits from the Theme Editor.
+        // Drop stale Applied edits, then publish the newly selected theme name immediately so a
+        // relaunched Class Wizard follows this choice without an editor restart. (The Theme Editor
+        // switch path also publishes the resolved palette; here only the name is available.)
         ThemeWorkingOverrides::Clear();
+        ThemeWorkingOverrides::SaveSelectedTheme(QString::fromUtf8(m_generalSettings.m_editorTheme.c_str()));
     }
 
     //prefabs

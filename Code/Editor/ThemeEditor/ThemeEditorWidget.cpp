@@ -1101,7 +1101,9 @@ void ThemeEditorWidget::OnApplyToEditor()
 
     // Persist the applied (still unnamed) edits so they survive an editor restart and so external
     // tools (the Class Wizard) match the editor. Tagged with the base theme; cleared on switch/reload.
-    ThemeWorkingOverrides::Save(m_effectiveFlat, AzQtComponents::StyleManager::currentThemeName());
+    const QString theme = AzQtComponents::StyleManager::currentThemeName();
+    ThemeWorkingOverrides::SaveSelectedTheme(theme);
+    ThemeWorkingOverrides::Save(m_effectiveFlat, theme);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1148,11 +1150,15 @@ void ThemeEditorWidget::OnThemeComboChanged(int index)
     AzQtComponents::StyleManager::setTheme(folderName);
     gSettings.gui.editorTheme = folderName.toUtf8().constData();
 
-    // Selecting a different theme discards any unsaved Applied edits.
-    ThemeWorkingOverrides::Clear();
-
-    // Rebuild the token cards for the newly active theme.
+    // Rebuild the token cards for the newly active theme (repopulates m_effectiveFlat).
     RebuildFromActiveTheme();
+
+    // Publish the switch to the shared store immediately so a relaunched Class Wizard follows it
+    // without an editor restart. SaveSelectedTheme records the name; Save publishes the resolved
+    // palette, so the wizard needs no theme files on its own --engine-path. This also overwrites any
+    // prior Applied edits (selecting a new theme discards them).
+    ThemeWorkingOverrides::SaveSelectedTheme(folderName);
+    ThemeWorkingOverrides::Save(m_effectiveFlat, folderName);
 }
 
 void ThemeEditorWidget::OnReloadActiveTheme()
