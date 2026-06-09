@@ -18,7 +18,7 @@
 }
 
 .TimerLine {
-    color: #888888;
+    color: $WindowTextColor;
 }
 
 QLabel#APStatusValueLabel {
@@ -62,7 +62,7 @@ QTreeView#OutgoingProductDependenciesTreeView::branch,
 QTreeView#IncomingProductDependenciesTreeView,
 QTreeView#IncomingProductDependenciesTreeView::item,
 QTreeView#IncomingProductDependenciesTreeView::branch {
-    background-color: rgb(45,45,45);
+    background-color: $BackgroundColor;
 }
 
 QTreeView#SourceAssetsTreeView::item:hover,
@@ -75,7 +75,7 @@ QTreeView#OutgoingProductDependenciesTreeView::item:hover,
 QTreeView#OutgoingProductDependenciesTreeView::branch:hover,
 QTreeView#IncomingProductDependenciesTreeView::item:hover,
 QTreeView#IncomingProductDependenciesTreeView::branch:hover {
-    background-color: rgb(60,60,60);
+    background-color: $TableViewHoverColor;
 }
 
 QTreeView#SourceAssetsTreeView::item:selected,
@@ -93,7 +93,7 @@ QTreeView#OutgoingProductDependenciesTreeView::item:selected:active,
 QTreeView#IncomingProductDependenciesTreeView::item:selected,
 QTreeView#IncomingProductDependenciesTreeView::branch:selected,
 QTreeView#IncomingProductDependenciesTreeView::item:selected:active {
-    background-color: rgb(73,73,73);
+    background-color: $TableViewSelectionColor;
 }
 
 QTreeView#SourceAssetsTreeView::item:selected:!active,
@@ -107,8 +107,8 @@ QTableWidget#incomingProductDependenciesTable:item:selected:!active,
 QTableWidget#productTable:item:selected:!active,
 QTableWidget#outgoingSourceDependenciesTable:item:selected:!active,
 QTableWidget#incomingSourceDependenciesTable:item:selected:!active {
-    background-color: rgb(60,60,60);
-    selection-color: rgb(192, 192, 192);
+    background-color: $TableViewHoverColor;
+    selection-color: $WindowTextColor;
 }
 
 QPushButton#sharedCacheSupport,
@@ -131,39 +131,39 @@ ConnectionEditDialog QLabel {
 }
 
 QTableWidget {
-    background-color: rgb(45,45,45);            /* Odd row */
-    alternate-background-color: rgb(34,34,34);  /* Even row */
-    selection-background-color: rgb(73,73,73);
+    background-color: $BackgroundColor;                  /* Odd row */
+    alternate-background-color: $TableViewAlternateRowColor;  /* Even row */
+    selection-background-color: $TableViewSelectionColor;
 }
 
 QTableWidget::item:selected {
-    background: rgb(73,73,73);
+    background: $TableViewSelectionColor;
 }
 
 QTableWidget::item:hover {
-    background: rgb(60,60,60);
+    background: $TableViewHoverColor;
 }
 
 QTableWidget QHeaderView::section {
-    background-color: rgb(34,34,34);
+    background-color: $TableViewHeaderColor;
 }
 
 QListWidget {
-    background-color: rgb(45,45,45);            /* Odd row */
-    alternate-background-color: rgb(34,34,34);  /* Even row */
-    selection-background-color: rgb(73,73,73);
+    background-color: $BackgroundColor;                  /* Odd row */
+    alternate-background-color: $TableViewAlternateRowColor;  /* Even row */
+    selection-background-color: $TableViewSelectionColor;
 }
 
 QListWidget::item:selected {
-    background: rgb(73,73,73);
+    background: $TableViewSelectionColor;
 }
 
 QListWidget::item:hover {
-    background: rgb(60,60,60);
+    background: $TableViewHoverColor;
 }
 
 QListWidget QHeaderView::section {
-    background-color: rgb(34,34,34);
+    background-color: $TableViewHeaderColor;
 }
 
 QLabel#sharedCacheStatus {
@@ -173,7 +173,7 @@ QLabel#sharedCacheStatus {
 
 QLabel#sharedCacheStatus[highlight = "blue"] {
     color : white;
-    font-weight: normal; 
+    font-weight: normal;
     background-color: rgba(88, 140, 188, 0.1);
     border: 1px solid #4285F4;
 }
@@ -209,11 +209,28 @@ QPushButton#removeButton {
 }
 
 QWidget#SharedCachePage {
-    background-color: rgba(34, 34, 34, 0.5);
+    background-color: $DarkPanelBackgroundColor;
     border: none;
 }
 
 QWidget#AssetRelocationPage {
-    background-color: rgba(34, 34, 34, 0.5);
+    background-color: $DarkPanelBackgroundColor;
     border: none;
+}
+
+/* Separator lines (formerly an inline #616161 styleSheet on the Line widgets in MainWindow.ui). */
+QFrame#line,
+QFrame#line_2,
+QFrame#line_3,
+QFrame#line_4,
+QFrame#line_5 {
+    background-color: $BorderColor;
+}
+
+/* Asset details panels (formerly an inline rgb(87,87,87) styleSheet on the root frame in the
+ * Source/Product AssetDetailsPanel .ui files). intermediateAssetDetailsPanel reuses the Product
+ * panel class, so its objectName is also ProductAssetDetailsPanel. */
+QFrame#SourceAssetDetailsPanel,
+QFrame#ProductAssetDetailsPanel {
+    background-color: $BackgroundColor;
 }

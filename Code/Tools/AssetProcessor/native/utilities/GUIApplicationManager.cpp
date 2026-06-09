@@ -193,6 +193,17 @@ bool GUIApplicationManager::Run()
     AzQtComponents::StyleManager* styleManager = new AzQtComponents::StyleManager(qApp);
     styleManager->initialize(qApp, engineRootPath);
 
+    // Follow the editor's selected theme (shared "O3DE" / "O3DE Editor" QSettings, written by the
+    // editor in Settings.cpp). The Asset Processor is a separate process, so StyleManager::initialize
+    // leaves it on the default O3DE_Original palette unless we explicitly adopt the chosen theme here
+    // (same mechanism the Atom tools use). Empty value -> keep the default.
+    QSettings editorSettings(QStringLiteral("O3DE"), QStringLiteral("O3DE Editor"));
+    const QString editorTheme = editorSettings.value(QStringLiteral("Settings/EditorTheme")).toString();
+    if (!editorTheme.isEmpty())
+    {
+        AzQtComponents::StyleManager::setTheme(editorTheme);
+    }
+
     QDir engineRoot;
     AssetUtilities::ComputeAssetRoot(engineRoot);
     AssetUtilities::ComputeEngineRoot(engineRoot);
