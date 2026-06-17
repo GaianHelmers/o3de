@@ -84,18 +84,27 @@ namespace AzQtComponents
                 >> restoredScreenWidth;
             if (maximized || fullScreen)
             {
-                // Apply a real Qt::WindowMaximized state -- the same state the titlebar Maximize
-                // button sets via setWindowState(). Restoring it this way means the maximized
-                // state round-trips cleanly through saveGeometry()/restoreGeometry() on every
-                // launch and is honored whether or not the window is already visible (the Editor
-                // main window restores after it has already been shown).
+                // Reconstruct a genuine maximized window that still remembers its organic
+                // (restored-down) size, deterministically and regardless of current visibility:
+                //   1) drop to a normal window state,
+                //   2) apply the saved organic geometry so Qt records it as the restore-down
+                //      target (the size the window returns to when un-maximized),
+                //   3) maximize.
+                // The result has isMaximized() == true, so the maximized state round-trips through
+                // saveGeometry()/restoreGeometry() on every launch instead of degrading into a
+                // normal window that merely happens to be screen-sized.
                 //
-                // This previously forced setGeometry(primaryScreen->availableGeometry()) as a
-                // Windows-10 frameless-window workaround. On Qt6 setGeometry() clears
-                // Qt::WindowMaximized, so the window came back un-maximized AND the next save then
-                // persisted the un-maximized state -- losing the maximized memory across sessions.
-                // Modern Qt honors the platform's available geometry for maximized windows, so the
-                // manual resize is no longer needed.
+                // This deliberately does NOT call setGeometry(primaryScreen->availableGeometry())
+                // anymore. That old Windows-10 frameless workaround cleared Qt::WindowMaximized on
+                // Qt6 (leaving "maximized size, normal state") AND overwrote normalGeometry with the
+                // full-screen size, so un-maximizing no longer returned to the organic window.
+                // Modern Qt honors the platform's available geometry for a maximized window itself.
+                window->setWindowState(window->windowState() & ~(Qt::WindowMaximized | Qt::WindowFullScreen));
+                if (restoredNormalGeometry.isValid())
+                {
+                    window->setGeometry(restoredNormalGeometry);
+                }
+
                 if (window->isVisible())
                 {
                     window->setWindowState((window->windowState() & ~Qt::WindowFullScreen) | Qt::WindowMaximized);

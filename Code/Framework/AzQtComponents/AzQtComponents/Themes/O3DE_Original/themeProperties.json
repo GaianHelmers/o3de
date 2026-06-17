@@ -443,6 +443,9 @@
 		"WelcomeScreenPageMargin": "24px",
 		"WelcomeScreenContentSpacing": "8px",
 		"WelcomeScreenSectionSpacing": "12px",
-		"WelcomeScreenFooterPadding": "8px"
+		"WelcomeScreenFooterPadding": "8px",
+		"WelcomeScreenCardHoverColor": "#45494E",
+		"WelcomeScreenRadius": "12px",
+		"WelcomeScreenCardPadding": "16px"
 	}
 }

@@ -201,6 +201,9 @@ namespace AzToolsFramework
             {
                 m_propertyEditor = new ReflectedPropertyEditor(this);
                 m_propertyEditor->Setup(m_serializeContext, this, true, 250);
+                // Hide the top-level class node (and its collapse caret) so the card title is the only
+                // header and the asset's fields show directly -- the card is JUST a title, not collapsible.
+                m_propertyEditor->SetHideRootProperties(true);
                 propertyEditor = m_propertyEditor;
             }
             else

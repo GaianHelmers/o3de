@@ -1638,6 +1638,14 @@ bool CCryEditApp::InitInstance()
     mainWindowWrapper->enableSaveRestoreGeometry("O3DE", "O3DE", "mainWindowGeometry");
     m_pDocManager->OnFileNew();
 
+    // Restore the saved window geometry/maximized state BEFORE the window is first shown.
+    // Restoring after the window is already visible makes the maximized state unreliable on Qt6
+    // for a frameless window (it comes back as "maximized size, normal state") and causes a brief
+    // un-maximized flash on startup. Restoring first lets the wrapper appear directly via
+    // showMaximized(). The view-pane layout is still restored later (RestoreLayout), once Python
+    // is up, using the result captured here.
+    bool restoreDefaults = true;
+
     if (MainWindow::instance())
     {
         if (m_bConsoleMode || IsInAutotestMode())
@@ -1647,6 +1655,15 @@ bool CCryEditApp::InitInstance()
         }
         else
         {
+            restoreDefaults = !mainWindowWrapper->restoreGeometryFromSettings();
+            if (restoreDefaults)
+            {
+                // No saved geometry yet (first run, or window state was cleared). The main Editor
+                // is a "master application" window, so it defaults to maximized. Restoring before
+                // the first show means showMaximized() yields a genuine maximized window. Smaller
+                // dialogs (e.g. the welcome popup) are shown by their own code and are unaffected.
+                mainWindowWrapper->showMaximized();
+            }
             MainWindow::instance()->show();
             MainWindow::instance()->raise();
             MainWindow::instance()->update();
@@ -1695,7 +1712,8 @@ bool CCryEditApp::InitInstance()
 
     if (!GetIEditor()->IsInConsolewMode())
     {
-        bool restoreDefaults = !mainWindowWrapper->restoreGeometryFromSettings();
+        // Geometry/maximized state was already restored before the first show (above); here we
+        // only restore the view-pane layout, now that Python has registered any custom panes.
         QtViewPaneManager::instance()->RestoreLayout(restoreDefaults);
     }
 

@@ -593,6 +593,8 @@ set(FILES
     WelcomeScreen/WelcomeScreenDialog.cpp
     WelcomeScreen/WelcomeScreenDialog.ui
     WelcomeScreen/WelcomeScreenDialog.qrc
+    WelcomeScreen/WelcomeNewsFeed.h
+    WelcomeScreen/WelcomeNewsFeed.cpp
     LayoutWnd.cpp
     LayoutWnd.h
     EditorViewportWidget.cpp
