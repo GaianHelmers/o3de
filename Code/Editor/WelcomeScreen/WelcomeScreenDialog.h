@@ -19,6 +19,7 @@ namespace Ui {
 }
 
 class QStringListModel;
+class QVBoxLayout;
 class RecentFileList;
 
 class WelcomeScreenDialog
@@ -51,6 +52,16 @@ private:
 
     bool IsValidLevelName(const QString& path);
     void RemoveLevelEntry(int index);
+
+    // ---- Welcome portal shell (fixed nav tabs + persistent support footer) ----
+    int ThemeMetric(const char* token, int fallback) const;
+    void BuildPortalShell();
+    void AddLinkButton(QVBoxLayout* layout, const QString& label, const QString& url);
+    QWidget* CreateNewsPage();
+    QWidget* CreateCommunityPage();
+    QWidget* CreateDocsPage();
+    QWidget* CreateSupportPage();
+    QWidget* CreateSupportFooter();
 
     void OnShowToolTip(const QModelIndex& index);
     void OnShowContextMenu(const QPoint& point);

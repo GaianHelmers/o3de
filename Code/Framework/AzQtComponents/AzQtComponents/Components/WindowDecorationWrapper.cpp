@@ -82,26 +82,33 @@ namespace AzQtComponents
                 >> maximized
                 >> fullScreen
                 >> restoredScreenWidth;
-            if (!window->isVisible())
+            if (maximized || fullScreen)
             {
-                if (maximized || fullScreen)
+                // Apply a real Qt::WindowMaximized state -- the same state the titlebar Maximize
+                // button sets via setWindowState(). Restoring it this way means the maximized
+                // state round-trips cleanly through saveGeometry()/restoreGeometry() on every
+                // launch and is honored whether or not the window is already visible (the Editor
+                // main window restores after it has already been shown).
+                //
+                // This previously forced setGeometry(primaryScreen->availableGeometry()) as a
+                // Windows-10 frameless-window workaround. On Qt6 setGeometry() clears
+                // Qt::WindowMaximized, so the window came back un-maximized AND the next save then
+                // persisted the un-maximized state -- losing the maximized memory across sessions.
+                // Modern Qt honors the platform's available geometry for maximized windows, so the
+                // manual resize is no longer needed.
+                if (window->isVisible())
                 {
-                    window->showMaximized();
+                    window->setWindowState((window->windowState() & ~Qt::WindowFullScreen) | Qt::WindowMaximized);
                 }
                 else
                 {
-                    window->show();
+                    window->showMaximized();
                 }
             }
-            if (maximized || fullScreen)
+            else if (!window->isVisible())
             {
-                // Need to separately resize based on the available geometry for
-                // the screen because since floating windows are frameless, on
-                // Windows 10 they end up taking up the entire screen when maximized
-                // instead of respecting the available space (e.g. taskbar)
-                window->setGeometry(QApplication::primaryScreen()->availableGeometry());
+                window->show();
             }
-            
 
             return true;
         }
@@ -344,7 +351,15 @@ namespace AzQtComponents
         m_settings = settings;
         m_settingsKey = key;
         m_autoRestoreOnShow = autoRestoreOnShow;
-        m_blockForRestoreOnShow = autoRestoreOnShow;
+
+        // Block saves until the first restore attempt, regardless of autoRestoreOnShow. Once
+        // save/restore is enabled the window can receive show / activation / window-state events
+        // (e.g. QGuiApplication::applicationStateChanged on startup) that would call
+        // saveGeometryToSettings() and overwrite the persisted geometry with the transient
+        // startup geometry BEFORE we ever read it back. Consumers that restore explicitly
+        // (e.g. the Editor main window, ColorPicker) previously left this unguarded.
+        // restoreGeometryFromSettings() clears this flag once it has consumed the stored value.
+        m_blockForRestoreOnShow = true;
 
         connect(qApp, &QCoreApplication::aboutToQuit, this, &WindowDecorationWrapper::saveGeometryToSettings);
         connect(qApp, &QGuiApplication::applicationStateChanged, this, &WindowDecorationWrapper::saveGeometryToSettings);
@@ -710,6 +725,11 @@ namespace AzQtComponents
         const QByteArray savedGeometry = m_settings->value(m_settingsKey).toByteArray();
         QScopedValueRollback<bool> rollback(m_restoringGeometry);
         m_restoringGeometry = true;
+
+        // We've now consumed the persisted geometry, so future saves may persist again. Cleared
+        // even if RestoreWindowState fails below: we've had our chance to read the stored value,
+        // so saving the default geometry from here on is correct.
+        m_blockForRestoreOnShow = false;
 
         if (!RestoreWindowState(this, savedGeometry))
         {

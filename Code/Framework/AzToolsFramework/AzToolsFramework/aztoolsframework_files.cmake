@@ -53,8 +53,6 @@ set(FILES
     AssetEditor/AssetEditorStatusBar.ui
     AssetEditor/AssetEditorWidget.cpp
     AssetEditor/AssetEditorWidget.h
-    AssetEditor/AssetEditorHeader.cpp
-    AssetEditor/AssetEditorHeader.h
     AssetEditor/AssetEditorUtils.h
     AssetEditor/AssetEditorTab.cpp
     AssetEditor/AssetEditorTab.h

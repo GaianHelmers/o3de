@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>945</width>
-    <height>639</height>
+    <width>1010</width>
+    <height>750</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,14 +21,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>945</width>
-    <height>639</height>
+    <width>1010</width>
+    <height>750</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>945</width>
-    <height>639</height>
+    <width>1010</width>
+    <height>750</height>
    </size>
   </property>
   <property name="focusPolicy">
@@ -57,21 +57,22 @@
     <number>0</number>
    </property>
    <item>
+    <widget class="QWidget" name="projectPageContainer" native="true">
     <layout class="QHBoxLayout" name="bodyContainer">
      <property name="spacing">
       <number>0</number>
      </property>
      <property name="leftMargin">
-      <number>0</number>
+      <number>24</number>
      </property>
      <property name="topMargin">
-      <number>0</number>
+      <number>20</number>
      </property>
      <property name="rightMargin">
-      <number>0</number>
+      <number>24</number>
      </property>
      <property name="bottomMargin">
-      <number>0</number>
+      <number>16</number>
      </property>
      <item>
       <widget class="QWidget" name="articleViewContainerRoot" native="true">
@@ -474,7 +475,7 @@
             </spacer>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,2,1">
+            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,2">
              <property name="leftMargin">
               <number>6</number>
              </property>
@@ -489,13 +490,6 @@
               <widget class="QLabel" name="modifiedLabel">
                <property name="text">
                 <string>Last modified</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="typeLabel">
-               <property name="text">
-                <string>Type</string>
                </property>
               </widget>
              </item>
@@ -555,7 +549,7 @@
              <enum>Qt::ScrollBarAlwaysOff</enum>
             </property>
             <property name="columnCount">
-             <number>3</number>
+             <number>2</number>
             </property>
             <attribute name="horizontalHeaderVisible">
              <bool>false</bool>
@@ -578,7 +572,6 @@
             <attribute name="verticalHeaderStretchLastSection">
              <bool>false</bool>
             </attribute>
-            <column/>
             <column/>
             <column/>
            </widget>
@@ -624,6 +617,7 @@
       </widget>
      </item>
     </layout>
+    </widget>
    </item>
   </layout>
  </widget>

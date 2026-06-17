@@ -13,7 +13,6 @@
 #include <API/ToolsApplicationAPI.h>
 
 #include <AssetEditor/AssetEditorBus.h>
-#include <AssetEditor/AssetEditorHeader.h>
 AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 'QLayoutItem::align': class 'QFlags<Qt::AlignmentFlag>' needs to have
                                                           // dll-interface to be used by clients of class 'QLayoutItem'
 #include <AzToolsFramework/AssetEditor/ui_AssetEditorToolbar.h>

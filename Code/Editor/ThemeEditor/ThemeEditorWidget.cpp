@@ -356,7 +356,7 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
         { "Tabs, Docks & Title Bars", {
             "TabWidgetInactiveTabColor", "TabWidgetSecondaryTabTextColor",
             "TabWidgetSecondarySelectedBorderColor", "TabWidgetSecondaryPaneBorderColor",
-            "TabWidgetSecondaryHoverColor",
+            "TabWidgetSecondaryHoverColor", "SubBarBackgroundColor",
             "QDockWidgetTitleColor", "DockWindowTitleBarColor", "StyledDockWidgetFloatingBorderColor",
             "TitleBarBorderColor", "TitleBarButtonHoverColor", "TitleBarCloseButtonHoverColor",
             "TitleBarSimpleBackgroundColor", "TitleBarLogoColor"
@@ -398,7 +398,6 @@ QList<ThemeEditorWidget::CardDef> ThemeEditorWidget::BuildCardDefs(const QHash<Q
             "AssetThumbnailChildBackgroundColor", "AssetThumbnailChildBorderColor",
             "AssetThumbnailChildFrameBackgroundColor", "AssetThumbnailExpandButtonColor",
             "AssetThumbnailSelectedBorderColor",
-            "AssetEditorHeaderBackgroundColor", "AssetEditorBodyBackgroundColor",
             "AssetImporterLabelColor", "ResourceImporterListItemBackgroundColor"
           }, false },
         { "Cards & Components", {

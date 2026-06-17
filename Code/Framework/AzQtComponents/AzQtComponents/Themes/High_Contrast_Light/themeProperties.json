@@ -96,6 +96,7 @@
 		"StatusBarBackgroundColor": "#FFFFFF",
 		"StatusBarTextColor": "#000000",
 		"StatusBarSpacerColor": "#FFFFFF",
+		"SubBarBackgroundColor": "#ECECEC",
 		"ConsoleBackgroundColor": "#ECECEC",
 		"RadiusInput": "4px",
 		"RadiusTabTop": "6px",
@@ -173,7 +174,6 @@
 		"ComponentPaletteWidgetBackgroundColor": "#ECECEC",
 		"ComponentPaletteTreeSelectionColor": "#0059C2",
 		"OverrideHighlightColor": "#C27900",
-		"AssetEditorHeaderBackgroundColor": "#FFFFFF",
 		"SelectionHighlightColor": "#0059C2",
 		"SlicePushWarningBottomColor": "#002AC2",
 		"SlicePushWarningTreeSelectedColor": "#0041C2",
@@ -241,7 +241,6 @@
 		"FilterClearLabelColor": "#004DC2",
 		"CardSelectedBorderColor": "#0059C2",
 		"SingleRequiredSelectionBorderColor": "#C27400",
-		"AssetEditorBodyBackgroundColor": "#FFFFFF",
 		"AssetThumbnailRootBackgroundColor": "#FFFFFF",
 		"AssetThumbnailRootBorderColor": "#000000",
 		"AssetThumbnailChildBackgroundColor": "#ECECEC",
@@ -380,6 +379,10 @@
 		"PrefabRowSelectedColor": "#0031E6",
 		"GraphCanvasNodeBackgroundColor": "#FFFFFF",
 		"GraphCanvasGridColor": "#FFFFFF",
-		"GraphCanvasNodeTextColor": "#000000"
+		"GraphCanvasNodeTextColor": "#000000",
+		"WelcomeScreenPageMargin": "24px",
+		"WelcomeScreenContentSpacing": "8px",
+		"WelcomeScreenSectionSpacing": "12px",
+		"WelcomeScreenFooterPadding": "8px"
 	}
 }

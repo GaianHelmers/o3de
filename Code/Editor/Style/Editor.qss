@@ -53,49 +53,43 @@ AzToolsFramework--ComponentEditorHeader #Title[IsOverridden="true"]
     color: $OverrideHighlightColor;
 }
 
-/* Asset Editor window body -- the "additionally dark" surface that the input-field darkness was
-   originally tuned for. It now has its own token so the general input fields can sit lighter. */
-#AssetEditorWidget,
+/* Asset Editor: the tab body is wrapped in an AzQtComponents::Card (file name = card title,
+   reflected data = card body), so the surfaces are driven by the shared Card tokens. The outer
+   widget intentionally has NO background override, falling back to the global
+   QWidget { $WidgetBackgroundColor } rule so the area behind the card matches the Entity
+   Inspector's far background. The reflected property editor is transparent so the card body
+   ($CardBackgroundColor) shows through it, mirroring the inspector's per-card property editors. */
 #AssetEditorWidgetPropertyEditor
 {
-    background-color: $AssetEditorBodyBackgroundColor;
+    background-color: transparent;
 }
 
-/* Asset Editor */
-Ui--AssetEditorHeader
+/* The asset file-tab strip gets a distinct "sub-bar" background so it reads as its own bar,
+   separated from the editor's main tab bar above it, and so the card visibly floats on the
+   lighter widget background below it. */
+AzQtComponents--TabWidget#AssetEditorTabWidget AzQtComponents--TabBar.Secondary
 {
+    background-color: $SubBarBackgroundColor;
+}
+
+/* The asset scroll area / its contents carry the inspector far background. */
+#AssetEditorScrollArea,
+#AssetEditorScrollArea > QWidget
+{
+    background-color: $WidgetBackgroundColor;
+}
+
+/* The card is a fixed title bar -- guarantee the expand/collapse caret is gone (belt-and-suspenders
+   alongside CardHeader::setExpandable(false); scoped so asset DATA row expanders are untouched). */
+#AssetEditorCard AzQtComponents--CardHeader #Expander,
+#AssetEditorCard AzQtComponents--CardHeader #Expander::indicator
+{
+    width: 0px;
+    height: 0px;
+    max-width: 0px;
+    max-height: 0px;
     margin: 0px;
     padding: 0px;
-}
-
-Ui--AssetEditorHeader *
-{
-    height: 16px;
-    background-color: $AssetEditorHeaderBackgroundColor;
-}
-
-Ui--AssetEditorHeader #Background
-{
-    margin: 0px;
-    padding: 2px 7px 3px 7px;
-    border: 1px solid transparent;
-    border-bottom: none;
-    background-image: none;
-    background-color: $AssetEditorHeaderBackgroundColor;
-}
-
-Ui--AssetEditorHeader #Name
-{
-    height: 16px;
-    font: italic;
-    background-color: transparent;
-}
-
-Ui--AssetEditorHeader #Location
-{
-    height: 16px;
-    font: italic;
-    background-color: transparent;
 }
 
 #AssetEditorWidgetPropertyEditor AzToolsFramework--PropertyRowWidget[isTopLevel="true"]

@@ -32,8 +32,12 @@ namespace Ui
 {
     class AssetEditorToolbar;
     class AssetEditorStatusBar;
-    class AssetEditorHeader;
 } // namespace Ui
+
+namespace AzQtComponents
+{
+    class Card;
+} // namespace AzQtComponents
 
 namespace AzToolsFramework
 {
@@ -128,7 +132,7 @@ namespace AzToolsFramework
 
             AZ::Data::AssetId m_sourceAssetId;
             AZ::Data::Asset<AZ::Data::AssetData> m_inMemoryAsset;
-            Ui::AssetEditorHeader* m_header;
+            AzQtComponents::Card* m_card = nullptr;
             ReflectedPropertyEditor* m_propertyEditor;
             AZStd::shared_ptr<AZ::DocumentPropertyEditor::ReflectionAdapter> m_adapter;
             FilteredDPE* m_filteredWidget = nullptr;

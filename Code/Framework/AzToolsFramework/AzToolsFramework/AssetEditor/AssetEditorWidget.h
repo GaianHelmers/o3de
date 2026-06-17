@@ -32,7 +32,6 @@ namespace Ui
 {
     class AssetEditorToolbar;
     class AssetEditorStatusBar;
-    class AssetEditorHeader;
 } // namespace Ui
 
 class QMenu;
@@ -145,7 +144,6 @@ namespace AzToolsFramework
             AZStd::vector<AZ::Data::AssetType>  m_genericAssetTypes;
             AZ::Data::AssetId                    m_sourceAssetId;
             AZ::Data::Asset<AZ::Data::AssetData> m_inMemoryAsset;
-            Ui::AssetEditorHeader* m_header = nullptr;
             ReflectedPropertyEditor* m_propertyEditor = nullptr;
             AZStd::shared_ptr<AZ::DocumentPropertyEditor::ReflectionAdapter> m_adapter;
             FilteredDPE* m_filteredWidget = nullptr;

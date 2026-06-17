@@ -13,7 +13,8 @@
 #include <API/ToolsApplicationAPI.h>
 
 #include <AssetEditor/AssetEditorBus.h>
-#include <AssetEditor/AssetEditorHeader.h>
+#include <AzQtComponents/Components/Widgets/Card.h>
+#include <AzQtComponents/Components/Widgets/CardHeader.h>
 
 #include <AssetBrowser/AssetSelectionModel.h>
 
@@ -52,6 +53,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QScrollArea>
 #include <QVBoxLayout>
 
 AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 'QFileInfo::d_ptr': class 'QSharedDataPointer<QFileInfoPrivate>' needs to have
@@ -170,7 +172,6 @@ namespace AzToolsFramework
 
         namespace TextStrings
         {
-            static QString assetLocation = QObject::tr("Asset location: ");
             static QString unsaved = QObject::tr("Unsaved");
         } // namespace TextStrings
 
@@ -217,19 +218,43 @@ namespace AzToolsFramework
             }
 
             propertyEditor->setObjectName("AssetEditorWidgetPropertyEditor");
-            propertyEditor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            // Maximum (not Expanding) vertical policy so the editor hugs its content height instead
+            // of stretching -- this is what lets the card size to its data (same recipe the Entity
+            // Inspector uses for its component editors).
+            propertyEditor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
             propertyEditor->show();
 
             QVBoxLayout* mainLayout = new QVBoxLayout();
             mainLayout->setContentsMargins(0, 0, 0, 0);
             mainLayout->setSpacing(0);
 
-            m_header = new Ui::AssetEditorHeader(this);
-            mainLayout->addWidget(m_header);
-            m_header->show();
+            // Wrap the asset's data in a Card so the Asset Editor matches the inspector idiom:
+            // the file name is the card title, the reflected data is the card body. The header is a
+            // fixed title bar (no expander) since collapsing a whole-tab card would hide all data.
+            m_card = new AzQtComponents::Card(this);
+            m_card->setObjectName("AssetEditorCard");
+            m_card->header()->setExpandable(false);
+            m_card->header()->setHasContextMenu(false);
+            m_card->setContentWidget(propertyEditor);
+            m_card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
-            propertyEditor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-            mainLayout->addWidget(propertyEditor);
+            // The card hugs its data and is top-aligned; an outer scroll area scrolls the whole card
+            // (header + data) when the asset is taller than the panel -- like the Entity Inspector.
+            QWidget* scrollContents = new QWidget();
+            QVBoxLayout* scrollContentsLayout = new QVBoxLayout(scrollContents);
+            scrollContentsLayout->setContentsMargins(0, 0, 0, 0);
+            scrollContentsLayout->setSpacing(0);
+            scrollContentsLayout->addWidget(m_card);
+            scrollContentsLayout->addStretch(1);
+
+            QScrollArea* scrollArea = new QScrollArea(this);
+            scrollArea->setObjectName("AssetEditorScrollArea");
+            scrollArea->setWidgetResizable(true);
+            scrollArea->setFrameShape(QFrame::NoFrame);
+            scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            scrollArea->setWidget(scrollContents);
+
+            mainLayout->addWidget(scrollArea);
 
             setLayout(mainLayout);
 
@@ -909,26 +934,19 @@ namespace AzToolsFramework
             AZ::Data::AssetCatalogRequestBus::BroadcastResult(
                 assetPath, &AZ::Data::AssetCatalogRequests::GetAssetPathById, m_sourceAssetId);
 
-            QString headerText = QString("<b>%1</b>").arg(TextStrings::assetLocation);
+            // The file name is the card title; the full project-relative location is the header tooltip.
+            m_card->setTitle(m_currentAsset);
+
             if (!assetPath.empty())
             {
-                // Add the asset location to the right of the header. Location is relative to the Project directory.
-                QString pathAndAsset = assetPath.c_str();
-                int seperatorPos = static_cast<int>(pathAndAsset.lastIndexOf('/'));
-                if (seperatorPos >= 0)
-                {
-                    headerText.append(pathAndAsset.left(seperatorPos));
-                }
+                m_card->setTitleToolTip(assetPath.c_str());
             }
             else
             {
-                headerText.append(TextStrings::unsaved);
+                m_card->setTitleToolTip(TextStrings::unsaved);
             }
 
-            m_header->setName(headerText);
-
-            m_header->setIcon(QIcon(QStringLiteral(":/TreeView/open_small.svg")));
-            m_header->show();
+            m_card->header()->setIcon(QIcon(QStringLiteral(":/TreeView/open_small.svg")));
         }
 
         void AssetEditorTab::SetStatusText(const QString& assetStatus)
