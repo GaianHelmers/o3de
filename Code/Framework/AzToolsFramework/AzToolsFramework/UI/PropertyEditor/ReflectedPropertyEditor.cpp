@@ -12,18 +12,23 @@
 #include <AzCore/Serialization/SerializeContext.h>
 #include <AzCore/Serialization/EditContext.h>
 #include <AzCore/Math/Sfmt.h>
+#include <AzCore/Interface/Interface.h>
 #include <AzToolsFramework/Slice/SliceUtilities.h>
+#include <AzQtComponents/Components/StyleManagerInterface.h>
 #include <QMessageBox>
 #include <QMenu>
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include <QApplication>
+#include <QCursor>
 #include <QPainter>
+#include <QScreen>
 AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 'QTextFormat::d': class 'QSharedDataPointer<QTextFormatPrivate>' needs to have dll-interface to be used by clients of class 'QTextFormat'
 #include <QInputDialog>
 AZ_POP_DISABLE_WARNING
 #include <QTimer>
+#include <QPointer>
 #include <QSet>
 #include <AzToolsFramework/UI/PropertyEditor/ComponentEditor.hxx>
 #include <AzCore/std/sort.h>
@@ -33,7 +38,9 @@ namespace AzToolsFramework
     // Add implementation of IPropertyEditor RTTI virtual functions in the cpp file along with the ReflectedPropertyEditor
     AZ_RTTI_NO_TYPE_INFO_IMPL(IPropertyEditor);
     AZ_RTTI_NO_TYPE_INFO_IMPL(ReflectedPropertyEditor, IPropertyEditor);
-    const AZ::SerializeContext::ClassData* CreateContainerElementSelectClassCallback(const AZ::Uuid& classId, const AZ::Uuid& typeId, AZ::SerializeContext* context)
+    // interfaceWidget is the property panel that requested the add (entity inspector, asset editor, etc.).
+    // It is used purely to position the "Class to create" prompt; nullptr falls back to default placement.
+    const AZ::SerializeContext::ClassData* CreateContainerElementSelectClassCallback(const AZ::Uuid& classId, const AZ::Uuid& typeId, AZ::SerializeContext* context, QWidget* interfaceWidget = nullptr)
     {
         AZStd::vector<const AZ::SerializeContext::ClassData*> derivedClasses;
         context->EnumerateDerived(
@@ -80,6 +87,62 @@ namespace AzToolsFramework
         // Dialog box won't adjust size until after it is shown.
         dialog.show();
         dialog.adjustSize();
+        // adjustSize() collapses the dialog to its minimal content width, which truncates longer
+        // class permutation names ("chosen_class_thr...") and leaves the combo barely legible.
+        // Add some extra breathing room so the full names are visible. The amount is tunable via the
+        // active theme's "ClassPromptExtraWidth" sizing token (a "<N>px" value); we fall back to a sane
+        // default when the token is undefined, so this works before the theme side defines it.
+        static constexpr int classSelectDefaultExtraWidth = 100;
+        int classSelectExtraWidth = classSelectDefaultExtraWidth;
+        if (auto* styleManager = AZ::Interface<AzQtComponents::StyleManagerInterface>::Get();
+            styleManager && styleManager->IsStylePropertyDefined("ClassPromptExtraWidth"))
+        {
+            classSelectExtraWidth = styleManager->GetStylePropertyAsInteger("ClassPromptExtraWidth");
+        }
+        const int classSelectMinWidth = dialog.width() + classSelectExtraWidth;
+        dialog.setMinimumWidth(classSelectMinWidth);
+        dialog.resize(classSelectMinWidth, dialog.height());
+
+        // Position the prompt relative to the panel that requested it: horizontally centered on that
+        // panel (so it always sits mid-interface regardless of where the [+] button is), and vertically
+        // just below the mouse cursor (which is on the [+] at the moment of the click).
+        //
+        // NOTE: On show() this QInputDialog is auto-wrapped in a WindowDecorationWrapper
+        // (AutoCustomWindowDecorations, Mode_Approved). The real top-level window then becomes the
+        // wrapper, not this dialog -- so we must move dialog.window() (the wrapper); moving the dialog
+        // itself only shifts the guest inside the wrapper and blanks its contents. The wrapper also
+        // re-centers itself on a deferred (singleShot) timer, which would clobber any move() we do now,
+        // so we defer our reposition with our own singleShot(0): queued after the wrapper's, it wins.
+        if (interfaceWidget)
+        {
+            const int cursorY = QCursor::pos().y();
+            QPointer<QInputDialog> dialogPtr(&dialog);
+            QPointer<QWidget> panelPtr(interfaceWidget);
+            QTimer::singleShot(0, &dialog, [dialogPtr, panelPtr, cursorY]()
+            {
+                if (!dialogPtr || !panelPtr)
+                {
+                    return;
+                }
+
+                static constexpr int classSelectCursorGap = 4;
+                QWidget* window = dialogPtr->window();
+                const QRect panelRect(panelPtr->mapToGlobal(QPoint(0, 0)), panelPtr->size());
+
+                int x = panelRect.center().x() - window->width() / 2;
+                int y = cursorY + classSelectCursorGap;
+
+                // Clamp to the screen the panel lives on so the prompt can never spawn off-screen.
+                if (const QScreen* screen = panelPtr->screen())
+                {
+                    const QRect available = screen->availableGeometry();
+                    x = qBound(available.left(), x, available.right() - window->width() + 1);
+                    y = qBound(available.top(), y, available.bottom() - window->height() + 1);
+                }
+                window->move(x, y);
+            });
+        }
+
         bool ok = dialog.exec();
         if (ok)
         {
@@ -1602,9 +1665,15 @@ namespace AzToolsFramework
                 {
                     if (parentInstanceDataNode->GetClassMetadata() && parentInstanceDataNode->GetClassMetadata()->m_container)
                     {
+                        // Route the prompt's placement to the panel that owns this property editor.
+                        QWidget* interfaceWidget = m_editor;
+                        auto selectClassCallback = [interfaceWidget](const AZ::Uuid& classId, const AZ::Uuid& typeId, AZ::SerializeContext* context)
+                        {
+                            return CreateContainerElementSelectClassCallback(classId, typeId, context, interfaceWidget);
+                        };
                         for (size_t index = 0; index < numElements; index++)
                         {
-                            parentInstanceDataNode->CreateContainerElement(CreateContainerElementSelectClassCallback, fillDataCallback);
+                            parentInstanceDataNode->CreateContainerElement(selectClassCallback, fillDataCallback);
                         }
 
                         m_editor->QueueInvalidation(Refresh_EntireTree);
@@ -2246,7 +2315,14 @@ namespace AzToolsFramework
 
         AZStd::shared_ptr<void> keyToAdd(nullptr);
 
-        bool createdElement = pContainerNode->CreateContainerElement(CreateContainerElementSelectClassCallback,
+        // Route the prompt's placement to this property editor panel (the requesting interface).
+        QWidget* interfaceWidget = this;
+        auto selectClassCallback = [interfaceWidget](const AZ::Uuid& classId, const AZ::Uuid& typeId, AZ::SerializeContext* context)
+        {
+            return CreateContainerElementSelectClassCallback(classId, typeId, context, interfaceWidget);
+        };
+
+        bool createdElement = pContainerNode->CreateContainerElement(selectClassCallback,
             [pContainerNode, promptForValue, &keyToAdd](void* dataPtr, const AZ::SerializeContext::ClassElement* classElement, bool noDefaultData, AZ::SerializeContext*) -> bool
         {
             bool handled = false;
