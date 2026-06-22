@@ -254,7 +254,7 @@ namespace O3DEWelcome
 
         QVector<NewsArticle> loaded;
         const QJsonArray array = document.object().value(QStringLiteral("articles")).toArray();
-        for (const QJsonValue& value : array)
+        for (const QJsonValue value : array)   // QJsonArray yields temporaries; bind by value (clang -Werror)
         {
             const QJsonObject object = value.toObject();
             NewsArticle article;
