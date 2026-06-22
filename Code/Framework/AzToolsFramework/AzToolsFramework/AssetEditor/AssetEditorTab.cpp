@@ -201,9 +201,6 @@ namespace AzToolsFramework
             {
                 m_propertyEditor = new ReflectedPropertyEditor(this);
                 m_propertyEditor->Setup(m_serializeContext, this, true, 250);
-                // Hide the top-level class node (and its collapse caret) so the card title is the only
-                // header and the asset's fields show directly -- the card is JUST a title, not collapsible.
-                m_propertyEditor->SetHideRootProperties(true);
                 propertyEditor = m_propertyEditor;
             }
             else
@@ -232,8 +229,11 @@ namespace AzToolsFramework
             mainLayout->setSpacing(0);
 
             // Wrap the asset's data in a Card so the Asset Editor matches the inspector idiom:
-            // the file name is the card title, the reflected data is the card body. The header is a
-            // fixed title bar (no expander) since collapsing a whole-tab card would hide all data.
+            // the file name is the card title, the reflected data is the card body.
+            // The card is JUST a title: setExpandable(false) hides the card's OWN expander and prevents
+            // collapse. This is scoped to the card header ONLY -- it does not touch the reflected
+            // property grid's expanders (the earlier editing blocker came from qss that hid THOSE, plus
+            // a dead :/TreeView/open_small.svg header icon that merely looked like a second caret).
             m_card = new AzQtComponents::Card(this);
             m_card->setObjectName("AssetEditorCard");
             m_card->header()->setExpandable(false);
@@ -949,7 +949,8 @@ namespace AzToolsFramework
                 m_card->setTitleToolTip(TextStrings::unsaved);
             }
 
-            m_card->header()->setIcon(QIcon(QStringLiteral(":/TreeView/open_small.svg")));
+            // No header icon: the old :/TreeView/open_small.svg glyph is a disclosure triangle that
+            // reads as a second, dead caret next to the card's real expander. The title stands alone.
         }
 
         void AssetEditorTab::SetStatusText(const QString& assetStatus)

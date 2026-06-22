@@ -79,36 +79,9 @@ AzQtComponents--TabWidget#AssetEditorTabWidget AzQtComponents--TabBar.Secondary
     background-color: $WidgetBackgroundColor;
 }
 
-/* The card is a fixed title bar -- guarantee the expand/collapse caret is gone (belt-and-suspenders
-   alongside CardHeader::setExpandable(false); scoped so asset DATA row expanders are untouched). */
-#AssetEditorCard AzQtComponents--CardHeader #Expander,
-#AssetEditorCard AzQtComponents--CardHeader #Expander::indicator
-{
-    width: 0px;
-    height: 0px;
-    max-width: 0px;
-    max-height: 0px;
-    margin: 0px;
-    padding: 0px;
-}
-
 #AssetEditorWidgetPropertyEditor AzToolsFramework--PropertyRowWidget[isTopLevel="true"]
 {
     qproperty-appendDefaultLabelToName:1;
-}
-
-/* The card title IS the header, so suppress the top-level data row's expand/collapse caret -- the
-   asset's fields stay shown and the card reads as "just a title." Rows are flat siblings (not
-   widget-nested), so this targets ONLY the top row's own caret; nested sub-group carets are untouched. */
-#AssetEditorWidgetPropertyEditor AzToolsFramework--PropertyRowWidget[isTopLevel="true"] QCheckBox.Expander,
-#AssetEditorWidgetPropertyEditor AzToolsFramework--PropertyRowWidget[isTopLevel="true"] QCheckBox.Expander::indicator
-{
-    width: 0px;
-    height: 0px;
-    max-width: 0px;
-    max-height: 0px;
-    margin: 0px;
-    padding: 0px;
 }
 
 #AssetEditorWidgetPropertyEditor AzToolsFramework--PropertyRowWidget[isTopLevel="false"]
