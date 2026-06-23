@@ -200,7 +200,12 @@ namespace AzToolsFramework
             if (!m_useDPE)
             {
                 m_propertyEditor = new ReflectedPropertyEditor(this);
-                m_propertyEditor->Setup(m_serializeContext, this, true, 250);
+                // enableScrollbars=false: the RPE must NOT keep its own internal scrollbar. With it on,
+                // the RPE (a scroll area) reports a tiny size hint, and since the Card hugs its content
+                // (Card layouts use SetMinimumSize) the data area collapses to that sliver -- which hid
+                // the fields of populated / nested-subclass assets. Off, it reports full content height
+                // so the card sizes to all the data and the outer scroll area handles overflow.
+                m_propertyEditor->Setup(m_serializeContext, this, false, 250);
                 propertyEditor = m_propertyEditor;
             }
             else
@@ -218,9 +223,8 @@ namespace AzToolsFramework
             }
 
             propertyEditor->setObjectName("AssetEditorWidgetPropertyEditor");
-            // Maximum (not Expanding) vertical policy so the editor hugs its content height instead
-            // of stretching -- this is what lets the card size to its data (same recipe the Entity
-            // Inspector uses for its component editors).
+            // Maximum (hug content) so the editor reports its full content height to the Card; paired
+            // with enableScrollbars=false above so that height is the WHOLE asset, nested rows included.
             propertyEditor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
             propertyEditor->show();
 
@@ -228,21 +232,15 @@ namespace AzToolsFramework
             mainLayout->setContentsMargins(0, 0, 0, 0);
             mainLayout->setSpacing(0);
 
-            // Wrap the asset's data in a Card so the Asset Editor matches the inspector idiom:
-            // the file name is the card title, the reflected data is the card body.
-            // The card is JUST a title: setExpandable(false) hides the card's OWN expander and prevents
-            // collapse. This is scoped to the card header ONLY -- it does not touch the reflected
-            // property grid's expanders (the earlier editing blocker came from qss that hid THOSE, plus
-            // a dead :/TreeView/open_small.svg header icon that merely looked like a second caret).
+            // The Card fits the size of its insides: file name = title, reflected data = body. No
+            // caret/expand hiding anywhere; the card's own expander stays at its functional default.
             m_card = new AzQtComponents::Card(this);
             m_card->setObjectName("AssetEditorCard");
-            m_card->header()->setExpandable(false);
             m_card->header()->setHasContextMenu(false);
             m_card->setContentWidget(propertyEditor);
             m_card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
-            // The card hugs its data and is top-aligned; an outer scroll area scrolls the whole card
-            // (header + data) when the asset is taller than the panel -- like the Entity Inspector.
+            // Top-align the card; an outer scroll area handles assets taller than the panel.
             QWidget* scrollContents = new QWidget();
             QVBoxLayout* scrollContentsLayout = new QVBoxLayout(scrollContents);
             scrollContentsLayout->setContentsMargins(0, 0, 0, 0);
