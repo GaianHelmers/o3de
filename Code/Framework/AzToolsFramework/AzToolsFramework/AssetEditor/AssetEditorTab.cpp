@@ -557,6 +557,11 @@ namespace AzToolsFramework
 
             UpdatePropertyEditor(m_inMemoryAsset);
 
+            // Expand the tree on every (re)load, matching the new-asset path. Saving changes the asset
+            // id (and thus the RPE saved-state key), so the prior expansion can't be restored and the
+            // rebuilt tree would otherwise come back fully collapsed after each save.
+            ExpandAll();
+
             QString assetStatus = Status::assetLoaded;
 
             if (!m_sourceAssetId.IsValid())
