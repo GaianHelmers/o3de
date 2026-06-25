@@ -45,6 +45,8 @@ ly_add_target(
             AZ::AzCore
 )
 
+add_subdirectory(AzQtComponents/Themes)
+
 ly_add_target(
     NAME O3DEQtControlGallery APPLICATION
     NAMESPACE AZ
