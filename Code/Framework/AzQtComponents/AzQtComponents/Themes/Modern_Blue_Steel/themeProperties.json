@@ -366,7 +366,7 @@
 		"SpacingToolTipMarginLeft": "2px",
 		"SpacingColorGridPad": "100px",
 		"SpacingSpinBoxPad": "0px 12px 0px 2px",
-		"SpacingComboItemPad": "0px 24px 0px 2px",
+		"SpacingComboItemPad": "0px 16px 0px 24px",
 		"SpacingBrowseEditPad": "0px -4px 0px 2px",
 		"SpacingTitleBarTitleMargin": "0px 16px 0px 10px",
 		"SliderHandleColor": "#2680EB",
