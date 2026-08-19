@@ -47,6 +47,33 @@ namespace AzQtComponents
         return QStyleFactory::create("Fusion");
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Style sheet kill switch (GUI flattening work)
+    //
+    // When the environment variable O3DE_DISABLE_STYLESHEETS is set, or the
+    // application was launched with the --disable-stylesheets argument, the
+    // StyleManager installs no Qt style sheets at all - neither the app-wide
+    // BaseStyleSheet.qss nor any per-widget tracked sheet. Widgets then render
+    // through the plain style chain (Style -> Fusion base), with no
+    // QStyleSheetStyle interposed. This is the flattened target state; the
+    // switch exists to capture the visual breakage catalog and the
+    // no-stylesheet performance floor. Inline widget->setStyleSheet() calls
+    // outside StyleManager are not affected by this switch.
+    //////////////////////////////////////////////////////////////////////////
+    static bool areStyleSheetsDisabled()
+    {
+        // Cached on first use; every caller runs after QApplication exists
+        static const bool disabled = qEnvironmentVariableIsSet("O3DE_DISABLE_STYLESHEETS")
+            || (QCoreApplication::instance()
+                && QCoreApplication::arguments().contains(QStringLiteral("--disable-stylesheets"), Qt::CaseInsensitive));
+        return disabled;
+    }
+
+    bool StyleManager::stylesheetsDisabled()
+    {
+        return areStyleSheetsDisabled();
+    }
+
     void StyleManager::addSearchPaths(
         const QString& searchPrefix, const QString& pathOnDisk, const QString& qrcPrefix, const AZ::IO::PathView& engineRootPath)
     {
@@ -70,6 +97,11 @@ namespace AzQtComponents
         if (!widget)
         {
             qFatal("StyleManager::setStyleSheet called with null widget pointer");
+            return false;
+        }
+
+        if (areStyleSheetsDisabled())
+        {
             return false;
         }
 
@@ -194,12 +226,20 @@ namespace AzQtComponents
         m_autoCustomWindowDecorations = new AutoCustomWindowDecorations(this);
         m_autoCustomWindowDecorations->setMode(AutoCustomWindowDecorations::Mode_AnyWindow);
 
-        // Order matters: set the .qss stylesheet first so that Qt creates a (private) QStyleSheetStyle
-        const auto globalStyleSheet = m_stylesheetCache->loadStyleSheet(g_globalStyleSheetName.toString());
-        application->setStyleSheet(globalStyleSheet);
+        if (areStyleSheetsDisabled())
+        {
+            qDebug() << "StyleManager: O3DE_DISABLE_STYLESHEETS is set - no style sheets will be installed (flattened style chain: Style -> Fusion).";
+        }
+        else
+        {
+            // Order matters: set the .qss stylesheet first so that Qt creates a (private) QStyleSheetStyle
+            const auto globalStyleSheet = m_stylesheetCache->loadStyleSheet(g_globalStyleSheetName.toString());
+            application->setStyleSheet(globalStyleSheet);
+        }
 
         // The resulting style chain is: QStyleSheetStyle -> Style (our custom class) -> native base.
         // Anything not handled in via QStyleSheetStyle will be able to fallback in our custom Style class.
+        // (With the kill switch set, no QStyleSheetStyle exists and the chain is just Style -> native base.)
         m_style = new Style(createBaseStyle());
 
         QApplication::setStyle(m_style);
@@ -278,16 +318,19 @@ namespace AzQtComponents
 
     void StyleManager::refresh()
     {
-        const auto globalStyleSheet = m_stylesheetCache->loadStyleSheet(g_globalStyleSheetName.toString());
-        qApp->setStyleSheet(globalStyleSheet);
-
-        // Iterate widgets and update the stylesheet (the base style has already been set)
-        auto i = m_widgetToStyleSheetMap.constBegin();
-        while (i != m_widgetToStyleSheetMap.constEnd())
+        if (!areStyleSheetsDisabled())
         {
-            const auto styleSheet = m_stylesheetCache->loadStyleSheet(i.value());
-            i.key()->setStyleSheet(styleSheet);
-            ++i;
+            const auto globalStyleSheet = m_stylesheetCache->loadStyleSheet(g_globalStyleSheetName.toString());
+            qApp->setStyleSheet(globalStyleSheet);
+
+            // Iterate widgets and update the stylesheet (the base style has already been set)
+            auto i = m_widgetToStyleSheetMap.constBegin();
+            while (i != m_widgetToStyleSheetMap.constEnd())
+            {
+                const auto styleSheet = m_stylesheetCache->loadStyleSheet(i.value());
+                i.key()->setStyleSheet(styleSheet);
+                ++i;
+            }
         }
 
         // QMessageBox uses "QMdiSubWindowTitleBar" class to query the titlebar font

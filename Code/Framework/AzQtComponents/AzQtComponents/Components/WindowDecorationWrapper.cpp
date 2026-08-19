@@ -12,6 +12,7 @@
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
 #include <AzQtComponents/Components/DockBarButton.h>
 #include <AzQtComponents/Components/StyledDockWidget.h>
+#include <AzQtComponents/Components/StyleManager.h>
 #include <AzQtComponents/Components/Titlebar.h>
 #include <AzQtComponents/Utilities/QtWindowUtilities.h>
 
@@ -909,6 +910,21 @@ namespace AzQtComponents
         painter->setPen(QColor(33, 34, 35));
         painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
         painter->restore();
+    }
+
+    void WindowDecorationWrapper::paintEvent(QPaintEvent* ev)
+    {
+        if (!StyleManager::stylesheetsDisabled())
+        {
+            QFrame::paintEvent(ev);
+            return;
+        }
+
+        // WindowDecorationWrapper.qss: border 1px solid black. margins() already
+        // reserves this 1px gutter (FrameWidth); this paints it.
+        QPainter painter(this);
+        painter.setPen(QColor(Qt::black));
+        painter.drawRect(rect().adjusted(0, 0, -1, -1));
     }
 
     bool WindowDecorationWrapper::event(QEvent* ev)

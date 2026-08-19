@@ -13,6 +13,7 @@
 #include <AzQtComponents/Components/Widgets/CardNotification.h>
 #include <AzQtComponents/Components/ConfigHelpers.h>
 #include <AzQtComponents/Components/Style.h>
+#include <AzQtComponents/Components/StyleManager.h>
 #include <AzQtComponents/Components/StyleHelpers.h>
 #include <QMenu>
 #include <QPushButton>
@@ -381,6 +382,28 @@ namespace AzQtComponents
             card->m_warningIconSize = config.warningIconSize;
 
             card->m_rootLayout->setSpacing(config.rootLayoutSpacing);
+
+            if (StyleManager::stylesheetsDisabled())
+            {
+                // Card.qss: the Card itself is transparent (its qss box was only the
+                // shadow border-image, dropped); #contentContainer carries the #555555
+                // body fill with the 8/7/7/7 inset and joins flush to the header
+                card->setAutoFillBackground(false);
+                card->m_rootLayout->setContentsMargins(0, 0, 0, 0);
+
+                if (auto contentContainer = card->findChild<QFrame*>(QStringLiteral("contentContainer")))
+                {
+                    QPalette contentPalette = contentContainer->palette();
+                    contentPalette.setColor(QPalette::Window, QColor(0x55, 0x55, 0x55));
+                    contentContainer->setPalette(contentPalette);
+                    contentContainer->setAutoFillBackground(true);
+                    if (contentContainer->layout())
+                    {
+                        contentContainer->layout()->setContentsMargins(7, 8, 7, 7);
+                    }
+                }
+            }
+
             style->repolishOnSettingsChange(card);
             polished = true;
         }
@@ -388,10 +411,32 @@ namespace AzQtComponents
         {
             CardHeader::setIconSize(config.headerIconSizeInPixels);
 
-            QString newStyleSheet = QStringLiteral("QToolTip { padding: %1px; }").arg(config.toolTipPaddingInPixels);
-            if (newStyleSheet != cardHeader->styleSheet())
+            if (StyleManager::stylesheetsDisabled())
             {
-                cardHeader->setStyleSheet(newStyleSheet);
+                // Card.qss header: bg #333333, button glyphs were qproperty-icon rules,
+                // header inset 2px 7px 3px 7px (t/r/b/l)
+                cardHeader->m_helpButton->setIcon(QIcon(QStringLiteral(":/Cards/img/UI20/Cards/help.svg")));
+                cardHeader->m_helpButton->setFlat(true);
+                cardHeader->m_contextMenuButton->setIcon(QIcon(QStringLiteral(":/Cards/img/UI20/Cards/menu_ico.svg")));
+                cardHeader->m_contextMenuButton->setFlat(true);
+
+                // Card.qss CardHeader background is #555555 (NOT the CardHeaderColor
+                // #333333 token - qss is ground truth for parity)
+                QPalette headerPalette = cardHeader->m_backgroundFrame->palette();
+                headerPalette.setColor(QPalette::Window, QColor(0x55, 0x55, 0x55));
+                cardHeader->m_backgroundFrame->setPalette(headerPalette);
+                cardHeader->m_backgroundFrame->setAutoFillBackground(true);
+                cardHeader->m_backgroundLayout->setContentsMargins(7, 2, 7, 3);
+            }
+            else
+            {
+                // Installing this per-widget sheet would re-interpose QStyleSheetStyle
+                // over the flattened chain, so it is qss-mode only.
+                QString newStyleSheet = QStringLiteral("QToolTip { padding: %1px; }").arg(config.toolTipPaddingInPixels);
+                if (newStyleSheet != cardHeader->styleSheet())
+                {
+                    cardHeader->setStyleSheet(newStyleSheet);
+                }
             }
 
             cardHeader->configSettingsChanged();

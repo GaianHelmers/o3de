@@ -14,13 +14,17 @@
 #include <AzQtComponents/Components/DockMainWindow.h>
 #include <AzQtComponents/Components/StyleHelpers.h>
 #include <AzQtComponents/Components/DockTabBar.h>
+#include <AzQtComponents/Components/StyleManager.h>
 #include <AzQtComponents/Components/Widgets/ElidingLabel.h>
 
 #include <QApplication>
 #include <QDockWidget>
+#include <QFont>
 #include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QPaintEvent>
+#include <QPainter>
 #include <QHBoxLayout>
 #include <QOperatingSystemVersion>
 #include <QStackedLayout>
@@ -492,6 +496,15 @@ namespace AzQtComponents
 
         titleBar->m_icon->setVisible(config.icon.visible);
         titleBar->m_label->setIndent(config.title.indent);
+
+        if (StyleManager::stylesheetsDisabled())
+        {
+            // TitleBar.qss #title: font-size 14px, margin-left 10px, margin-right 16px
+            QFont titleFont = titleBar->m_label->font();
+            titleFont.setPixelSize(14);
+            titleBar->m_label->setFont(titleFont);
+            titleBar->m_label->setContentsMargins(10, 0, 16, 0);
+        }
         titleBar->m_showLabelWhenSimple = config.title.visibleWhenSimple;
         titleBar->setDrawAsTabBar(config.titleBar.appearAsTabBar);
         titleBar->m_buttonsLayout->setSpacing(config.buttons.spacing);
@@ -1168,6 +1181,27 @@ namespace AzQtComponents
                 QObject::connect(button, &DockBarButton::buttonPressed, this, &TitleBar::handleButtonClicked);
                 w = button;
 
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    // Footprints + icon sizes from TitleBar.qss per context (the qss
+                    // min/max width/height + qproperty-iconSize rules)
+                    if (container == m_tabButtonsContainer)
+                    {
+                        button->setFixedSize(26, 26);
+                        button->setIconSize(QSize(14, 14));
+                    }
+                    else if (drawSimple())
+                    {
+                        button->setFixedSize(24, 24);
+                        button->setIconSize(QSize(14, 14));
+                    }
+                    else
+                    {
+                        button->setFixedSize(32, 32);
+                        button->setIconSize(QSize(16, 16));
+                    }
+                }
+
                 if (disabledButtons.contains(buttonType))
                 {
                     button->setDisabled(true);
@@ -1180,6 +1214,26 @@ namespace AzQtComponents
             }
 
             layout->addWidget(w);
+        }
+    }
+
+    void TitleBar::paintEvent(QPaintEvent* event)
+    {
+        if (!StyleManager::stylesheetsDisabled())
+        {
+            QFrame::paintEvent(event);
+            return;
+        }
+
+        // TitleBar.qss: base/tab-bar background #111111; drawSimple #222222 with a
+        // 3px #111111 bottom accent (torn-off floating dock widgets)
+        QPainter painter(this);
+        const QColor background = drawSimple() ? QColor(0x22, 0x22, 0x22) : QColor(0x11, 0x11, 0x11);
+        painter.fillRect(rect(), background);
+
+        if (drawSimple())
+        {
+            painter.fillRect(QRect(0, height() - 3, width(), 3), QColor(0x11, 0x11, 0x11));
         }
     }
 

@@ -69,6 +69,12 @@ namespace AzQtComponents
         //! Utility - set an object property, and return true if it changed.
         static bool setObjectProperty(QWidget* widget, const char* propertyName, const QVariant& value);
 
+        //! True when the O3DE_DISABLE_STYLESHEETS environment variable is set or the application
+        //! was launched with --disable-stylesheets (GUI flattening work). In that mode no Qt style
+        //! sheets are installed anywhere and widgets render through the plain style chain
+        //! (Style -> Fusion base), driven by the palette instead of .qss rules.
+        static bool stylesheetsDisabled();
+
         explicit StyleManager(QObject* parent);
         ~StyleManager() override;
 

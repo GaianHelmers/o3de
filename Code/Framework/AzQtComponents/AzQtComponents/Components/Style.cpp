@@ -9,6 +9,7 @@
 
 #include <AzQtComponents/Components/Style.h>
 #include <AzQtComponents/Components/StyleHelpers.h>
+#include <AzQtComponents/Components/StyleManager.h>
 #include <AzQtComponents/Components/ConfigHelpers.h>
 #include <AzQtComponents/Components/Widgets/DialogButtonBox.h>
 #include <AzQtComponents/Components/Widgets/DragAndDrop.h>
@@ -43,8 +44,14 @@
 #include <AzQtComponents/Utilities/TextUtilities.h>
 
 AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 4251: class '...' needs to have dll-interface to be used by clients of class '...'
+#include <QAbstractScrollArea>
 #include <QApplication>
 #include <QCheckBox>
+#include <QDockWidget>
+#include <QLayout>
+#include <QPainterPath>
+#include <QTabBar>
+#include <QToolBar>
 #include <QComboBox>
 #include <QDebug>
 #include <QFile>
@@ -58,6 +65,7 @@ AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 4251: class '...' n
 #include <QPainter>
 #include <QPixmapCache>
 #include <QProgressBar>
+#include <QSvgRenderer>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QScopedValueRollback>
@@ -223,9 +231,56 @@ namespace AzQtComponents
 
     QSize Style::sizeFromContents(QStyle::ContentsType type, const QStyleOption* option, const QSize& size, const QWidget* widget) const
     {
+        // SegmentBar buttons carry flagToIgnore (hasStyle == false) - size them before
+        // the gate. SegmentControl.qss: height 28, padding 16/16, min-width 68.
+        if (StyleManager::stylesheetsDisabled() && type == CT_PushButton && widget
+            && (hasClass(widget, QStringLiteral("TabOne")) || hasClass(widget, QStringLiteral("TabFirst"))
+                || hasClass(widget, QStringLiteral("TabMiddle")) || hasClass(widget, QStringLiteral("TabLast"))))
+        {
+            QSize segmentSize = QProxyStyle::sizeFromContents(type, option, size, widget);
+            segmentSize.setHeight(28);
+            segmentSize.setWidth(qMax(segmentSize.width() + 16, 70));
+            return segmentSize;
+        }
+
         if (!hasStyle(widget))
         {
             return QProxyStyle::sizeFromContents(type, option, size, widget);
+        }
+
+        if (StyleManager::stylesheetsDisabled())
+        {
+            switch (type)
+            {
+                case CT_ItemViewItem:
+                {
+                    // qss-era item view row floor (24px)
+                    QSize itemSize = QProxyStyle::sizeFromContents(type, option, size, widget);
+                    itemSize.setHeight(qMax(itemSize.height(), 24));
+                    return itemSize;
+                }
+                case CT_TabBarTab:
+                {
+                    // TabWidgetConfig TabHeight 30; qss max tab width 200. DockTabBar excluded.
+                    if (!(widget && widget->inherits("AzQtComponents::DockTabBar")))
+                    {
+                        QSize tabSize = QProxyStyle::sizeFromContents(type, option, size, widget);
+                        tabSize.setHeight(30);
+                        tabSize.setWidth(qMin(tabSize.width(), 200));
+                        return tabSize;
+                    }
+                    break;
+                }
+                case CT_ComboBox:
+                {
+                    // qss-era combo height (16px content + border/padding = 20)
+                    QSize comboSize = QProxyStyle::sizeFromContents(type, option, size, widget);
+                    comboSize.setHeight(20);
+                    return comboSize;
+                }
+                default:
+                    break;
+            }
         }
 
         switch (type)
@@ -290,6 +345,39 @@ namespace AzQtComponents
     {
         QScopedValueRollback<const QWidget*> rollbackDrawControl(m_drawControlWidget, widget);
 
+        // SegmentBar buttons carry flagToIgnore (hasStyle == false), so their flattened
+        // look must be handled BEFORE the gate.
+        if (StyleManager::stylesheetsDisabled() && element == CE_PushButtonBevel && widget
+            && (hasClass(widget, QStringLiteral("TabOne")) || hasClass(widget, QStringLiteral("TabFirst"))
+                || hasClass(widget, QStringLiteral("TabMiddle")) || hasClass(widget, QStringLiteral("TabLast"))))
+        {
+            // SegmentControl.qss: flat #333333, hover #444444, selected #555555, #222222 border
+            QColor segmentFill(0x33, 0x33, 0x33);
+            if (option->state.testFlag(QStyle::State_On) || option->state.testFlag(QStyle::State_Sunken))
+            {
+                segmentFill = QColor(0x55, 0x55, 0x55);
+            }
+            else if (option->state.testFlag(QStyle::State_MouseOver))
+            {
+                segmentFill = QColor(0x44, 0x44, 0x44);
+            }
+            // SegmentControl.qss: seamless bar - each button has a 1px #222222 border
+            // and non-first buttons carry margin-left:-1px so adjacent borders OVERLAP
+            // into a single line. Mirror that by extending the border rect 1px left
+            // for every non-leading segment.
+            QRect borderRect = option->rect;
+            const bool leadingSegment = hasClass(widget, QStringLiteral("TabOne")) || hasClass(widget, QStringLiteral("TabFirst"));
+            if (!leadingSegment)
+            {
+                borderRect.adjust(-1, 0, 0, 0);
+            }
+
+            painter->fillRect(option->rect, segmentFill);
+            painter->setPen(QColor(0x22, 0x22, 0x22));
+            painter->drawRect(borderRect.adjusted(0, 0, -1, -1));
+            return;
+        }
+
         if (!hasStyle(widget))
         {
             QProxyStyle::drawControl(element, option, painter, widget);
@@ -301,8 +389,64 @@ namespace AzQtComponents
         {
             case CE_ShapedFrame:
             {
+                // FilteredSearchWidget.qss tag chips: dark blocks rgb(46,46,46),
+                // 1px #808080 border, 2px radius
+                if (StyleManager::stylesheetsDisabled() && widget
+                    && (widget->inherits("AzQtComponents::FilterCriteriaButton")
+                        || widget->inherits("AzQtComponents::FilterTextButton")))
+                {
+                    painter->save();
+                    painter->setRenderHint(QPainter::Antialiasing);
+                    painter->setPen(QColor(0x80, 0x80, 0x80));
+                    painter->setBrush(QColor(46, 46, 46));
+                    painter->drawRoundedRect(QRectF(option->rect).adjusted(0.5, 0.5, -0.5, -0.5), 2.0, 2.0);
+                    painter->restore();
+                    return;
+                }
                 if (BrowseEdit::drawFrame(this, option, painter, widget, m_data->browseEditConfig))
                 {
+                    return;
+                }
+            }
+            break;
+
+            case CE_Splitter:
+            {
+                // Splitter.qss: handle #222222, hover #1E70EB
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    painter->fillRect(option->rect,
+                        option->state.testFlag(QStyle::State_MouseOver) ? QColor(0x1E, 0x70, 0xEB) : QColor(0x22, 0x22, 0x22));
+                    return;
+                }
+            }
+            break;
+
+            case CE_TabBarTabShape:
+            {
+                // TabWidget.qss: flat boxes, inactive #333333 / active #444444, #111111 border
+                if (StyleManager::stylesheetsDisabled() && !(widget && widget->inherits("AzQtComponents::DockTabBar")))
+                {
+                    const bool selected = option->state.testFlag(QStyle::State_Selected);
+                    painter->fillRect(option->rect, selected ? QColor(0x44, 0x44, 0x44) : QColor(0x33, 0x33, 0x33));
+                    painter->setPen(QColor(0x11, 0x11, 0x11));
+                    painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
+                    return;
+                }
+            }
+            break;
+
+            case CE_DockWidgetTitle:
+            {
+                // QDockWidget.qss backup path: title strip #333333 (raw QDockWidgets in gems)
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    painter->fillRect(option->rect, QColor(0x33, 0x33, 0x33));
+                    if (auto dockOption = qstyleoption_cast<const QStyleOptionDockWidget*>(option))
+                    {
+                        painter->setPen(QColor(Qt::white));
+                        painter->drawText(option->rect.adjusted(8, 0, -8, 0), Qt::AlignVCenter | Qt::AlignLeft, dockOption->title);
+                    }
                     return;
                 }
             }
@@ -370,6 +514,23 @@ namespace AzQtComponents
 
             case CE_Header:
             {
+                // Flatten: hard-fill header sections (TableView.qss #2d2d2d) - the
+                // palette-only route was unreliable because Fusion blends Button
+                if (StyleManager::stylesheetsDisabled() && qobject_cast<const QHeaderView*>(widget))
+                {
+                    painter->fillRect(option->rect, QColor(0x2D, 0x2D, 0x2D));
+                    painter->setPen(QColor(0x22, 0x22, 0x22));
+                    painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+                    painter->drawLine(option->rect.topRight(), option->rect.bottomRight());
+                    if (auto headerOption = qstyleoption_cast<const QStyleOptionHeader*>(option))
+                    {
+                        QStyleOptionHeader labelOption = *headerOption;
+                        labelOption.rect = option->rect.adjusted(7, 0, -4, 0); // qss header pad-left 7
+                        labelOption.palette.setColor(QPalette::ButtonText, QColor(0xCC, 0xCC, 0xCC));
+                        QProxyStyle::drawControl(CE_HeaderLabel, &labelOption, painter, widget);
+                    }
+                    return;
+                }
                 if (qobject_cast<const QHeaderView*>(widget))
                 {
                     if (TableView::drawHeader(this, option, painter, widget, m_data->tableViewConfig))
@@ -449,6 +610,159 @@ namespace AzQtComponents
         }
 
         return QProxyStyle::drawControl(element, option, painter, widget);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Flattened indicator painting (GUI flattening)
+    //
+    // Check box, toggle switch, expander and radio button indicators were
+    // delivered by QSS "image:" rules (CheckBox.qss / RadioButton.qss) over
+    // SVGs compiled into the AzQtComponents resources. In flattened mode the
+    // style owns them: widget state maps to the same SVG assets, rendered
+    // through the pixmap cache. Item view check indicators route through the
+    // same PE_IndicatorCheckBox primitive.
+    //////////////////////////////////////////////////////////////////////////
+    static QPixmap flattenedIndicatorPixmap(const QString& svgPath, const QSize& size, qreal devicePixelRatio)
+    {
+        const QString cacheKey = QString::fromLatin1("O3DEFlatInd|%1|%2x%3|%4")
+            .arg(svgPath).arg(size.width()).arg(size.height()).arg(devicePixelRatio);
+
+        QPixmap pixmap;
+        if (!QPixmapCache::find(cacheKey, &pixmap))
+        {
+            QSvgRenderer renderer(svgPath);
+            pixmap = QPixmap(size * devicePixelRatio);
+            pixmap.setDevicePixelRatio(devicePixelRatio);
+            pixmap.fill(Qt::transparent);
+            QPainter pixmapPainter(&pixmap);
+            // Explicit logical bounds: render(painter) alone uses the pixmap's DEVICE
+            // pixel size as logical bounds, drawing scale-factor times too large on
+            // high-DPI displays (the clipped-indicator bug).
+            renderer.render(&pixmapPainter, QRectF(QPointF(0.0, 0.0), QSizeF(size)));
+            pixmapPainter.end();
+            QPixmapCache::insert(cacheKey, pixmap);
+        }
+        return pixmap;
+    }
+
+    static void drawFlattenedIndicator(const QString& svgPath, QPainter* painter, const QRect& rect)
+    {
+        if (svgPath.isEmpty() || !rect.isValid())
+        {
+            return;
+        }
+
+        const qreal devicePixelRatio = painter->device() ? painter->device()->devicePixelRatio() : 1.0;
+        painter->drawPixmap(rect, flattenedIndicatorPixmap(svgPath, rect.size(), devicePixelRatio));
+    }
+
+    static QString flattenedCheckBoxIndicatorPath(const QStyleOption* option, const QWidget* widget)
+    {
+        const bool enabled = option->state.testFlag(QStyle::State_Enabled);
+        const bool focused = option->state.testFlag(QStyle::State_HasFocus);
+        const bool checked = option->state.testFlag(QStyle::State_On);
+        const bool partial = option->state.testFlag(QStyle::State_NoChange);
+
+        // QCheckBox variants carried as style classes (see CheckBox.qss)
+        if (widget && Style::hasClass(widget, QStringLiteral("ToggleSwitch")))
+        {
+            QString name = checked ? QStringLiteral("checked") : QStringLiteral("unchecked");
+            if (!enabled)
+            {
+                name += QStringLiteral("-disabled");
+            }
+            else if (focused)
+            {
+                name += QStringLiteral("-focus");
+            }
+            return QStringLiteral(":/stylesheet/img/UI20/toggleswitch/%1.svg").arg(name);
+        }
+
+        if (widget && Style::hasClass(widget, QStringLiteral("Expander")))
+        {
+            QString name = checked ? QStringLiteral("caret-down") : QStringLiteral("caret-right");
+            if (!enabled)
+            {
+                name += QStringLiteral("-disabled");
+            }
+            return QStringLiteral(":/Cards/img/UI20/Cards/%1.svg").arg(name);
+        }
+
+        QString name = partial ? QStringLiteral("partial-selected") : (checked ? QStringLiteral("on") : QStringLiteral("off"));
+        if (!enabled)
+        {
+            name += QStringLiteral("-disabled");
+        }
+        else if (focused)
+        {
+            name += QStringLiteral("-focus");
+        }
+        return QStringLiteral(":/stylesheet/img/UI20/checkbox/%1.svg").arg(name);
+    }
+
+    static QString flattenedRadioButtonIndicatorPath(const QStyleOption* option)
+    {
+        const bool enabled = option->state.testFlag(QStyle::State_Enabled);
+        const bool focused = option->state.testFlag(QStyle::State_HasFocus);
+
+        QString name = option->state.testFlag(QStyle::State_On) ? QStringLiteral("checked") : QStringLiteral("unchecked");
+        if (!enabled)
+        {
+            name += QStringLiteral("-disabled");
+        }
+        else if (focused)
+        {
+            name += QStringLiteral("-focus");
+        }
+        return QStringLiteral(":/stylesheet/img/UI20/radiobutton/%1.svg").arg(name);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Flattened scroll bar painting (GUI flattening)
+    //
+    // ScrollBar.qss: transparent 8px lane, rounded semi-transparent handle
+    // (rgba 255,255,255,40%; DarkScrollBar class rgba 136,136,136,64%),
+    // opaque lane fill on hover (#555555 light / #DCDCDC dark), arrow
+    // buttons removed. The DarkScrollBar class lives on the owning
+    // QAbstractScrollArea (Console, Python terminal).
+    //////////////////////////////////////////////////////////////////////////
+    static void drawFlattenedScrollBar(const Style* style, const QStyleOptionComplex* option, QPainter* painter, const QWidget* widget)
+    {
+        auto sliderOption = qstyleoption_cast<const QStyleOptionSlider*>(option);
+        if (!sliderOption)
+        {
+            return;
+        }
+
+        const QWidget* scrollArea = widget ? widget->parentWidget() : nullptr;
+        while (scrollArea && !qobject_cast<const QAbstractScrollArea*>(scrollArea))
+        {
+            scrollArea = scrollArea->parentWidget();
+        }
+        const bool dark = scrollArea && Style::hasClass(scrollArea, QStringLiteral("DarkScrollBar"));
+
+        const QColor hoverFill = dark ? QColor(0xDC, 0xDC, 0xDC) : QColor(0x55, 0x55, 0x55);
+        const QColor handleColor = dark ? QColor(136, 136, 136, 163) : QColor(255, 255, 255, 102);
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+
+        if (option->state & QStyle::State_MouseOver)
+        {
+            painter->fillRect(option->rect, hoverFill);
+        }
+
+        QRect handleRect = style->subControlRect(QStyle::CC_ScrollBar, option, QStyle::SC_ScrollBarSlider, widget);
+        if (handleRect.isValid())
+        {
+            const bool horizontal = sliderOption->orientation == Qt::Horizontal;
+            handleRect.adjust(horizontal ? 0 : 2, horizontal ? 2 : 0, horizontal ? 0 : -2, horizontal ? -2 : 0);
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(handleColor);
+            painter->drawRoundedRect(handleRect, 2, 2);
+        }
+
+        painter->restore();
     }
 
     void Style::drawPrimitive(QStyle::PrimitiveElement element, const QStyleOption* option, QPainter* painter, const QWidget* widget) const
@@ -556,8 +870,104 @@ namespace AzQtComponents
 
             case PE_IndicatorBranch:
             {
+                // Flatten FIRST: the BranchDelegate path below delegates to raw Fusion
+                // baseStyle() (massive native arrows); in flatten mode the caret SVGs
+                // own this for every tree. TableView hides branches (qss).
+                if (StyleManager::stylesheetsDisabled() && !qobject_cast<const TableView*>(widget))
+                {
+                    if (option->state.testFlag(QStyle::State_Children))
+                    {
+                        // Natural caret svg sizes (TableView.qss draws them unscaled:
+                        // closed 4x8, open 8x4)
+                        const bool open = option->state.testFlag(QStyle::State_Open);
+                        QRect glyphRect = open ? QRect(0, 0, 8, 4) : QRect(0, 0, 4, 8);
+                        glyphRect.moveCenter(option->rect.center());
+                        drawFlattenedIndicator(open ? QStringLiteral(":/TreeView/open.svg")
+                                                    : QStringLiteral(":/TreeView/closed.svg"),
+                            painter, glyphRect);
+                    }
+                    return;
+                }
                 if (TreeView::drawBranchIndicator(this, option, painter, widget, m_data->treeViewConfig))
                 {
+                    return;
+                }
+            }
+            break;
+
+            case PE_IndicatorItemViewItemCheck:
+            {
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    // Combo box popups have NO check indicators (upstream combo design:
+                    // current row is pre-highlighted instead)
+                    for (const QWidget* ancestor = widget; ancestor; ancestor = ancestor->parentWidget())
+                    {
+                        if (ancestor->inherits("QComboBoxPrivateContainer"))
+                        {
+                            return;
+                        }
+                    }
+                    // Item view check boxes share the CheckBox.qss indicator images
+                    drawFlattenedIndicator(flattenedCheckBoxIndicatorPath(option, widget), painter, option->rect);
+                    return;
+                }
+            }
+            break;
+
+            case PE_IndicatorTabClose:
+            {
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    if (option->state.testFlag(QStyle::State_MouseOver))
+                    {
+                        painter->fillRect(option->rect, QColor(0x44, 0x44, 0x44));
+                    }
+                    QRect glyphRect(0, 0, 12, 12);
+                    glyphRect.moveCenter(option->rect.center());
+                    drawFlattenedIndicator(QStringLiteral(":/Application/titlebar-close.svg"), painter, glyphRect);
+                    return;
+                }
+            }
+            break;
+
+            case PE_FrameDockWidget:
+            {
+                // StyledDockWidget.qss: no frame when docked; 1px black when floating
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    const QDockWidget* dockWidget = qobject_cast<const QDockWidget*>(widget);
+                    if (dockWidget && dockWidget->isFloating())
+                    {
+                        painter->setPen(QColor(Qt::black));
+                        painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
+                    }
+                    return;
+                }
+            }
+            break;
+
+            case PE_IndicatorCheckBox:
+            {
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    drawFlattenedIndicator(flattenedCheckBoxIndicatorPath(option, widget), painter, option->rect);
+                    return;
+                }
+            }
+            break;
+
+            case PE_IndicatorRadioButton:
+            {
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    // The focus variant carries its own 18px ring; grow the 16px rect so the ring is not cropped
+                    QRect indicatorRect = option->rect;
+                    if (option->state.testFlag(QStyle::State_HasFocus) && option->state.testFlag(QStyle::State_Enabled))
+                    {
+                        indicatorRect.adjust(-1, -1, 1, 1);
+                    }
+                    drawFlattenedIndicator(flattenedRadioButtonIndicatorPath(option), painter, indicatorRect);
                     return;
                 }
             }
@@ -645,6 +1055,27 @@ namespace AzQtComponents
                 break;
 
             case CC_ComboBox:
+                // Flatten: flat rounded light face (BaseStyleSheet input rule shape);
+                // framed combos otherwise fall to Fusion's native 3D bevel because the
+                // ComboBox.cpp hooks decline when opt->frame is true.
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    painter->save();
+                    painter->setRenderHint(QPainter::Antialiasing);
+                    painter->setPen(Qt::NoPen);
+                    painter->setBrush(option->palette.button());
+                    painter->drawRoundedRect(QRectF(option->rect).adjusted(0.5, 0.5, -0.5, -0.5), 2.0, 2.0);
+
+                    if (auto comboOption = qstyleoption_cast<const QStyleOptionComboBox*>(option))
+                    {
+                        QStyleOption arrowOption = *option;
+                        arrowOption.rect = subControlRect(CC_ComboBox, comboOption, SC_ComboBoxArrow, widget);
+                        arrowOption.palette.setColor(QPalette::ButtonText, QColor(0x33, 0x33, 0x33));
+                        QProxyStyle::drawPrimitive(PE_IndicatorArrowDown, &arrowOption, painter, widget);
+                    }
+                    painter->restore();
+                    return;
+                }
                 if (ComboBox::drawComboBox(this, option, painter, widget, m_data->comboBoxConfig))
                 {
                     return;
@@ -652,6 +1083,11 @@ namespace AzQtComponents
                 break;
 
             case CC_ScrollBar:
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    drawFlattenedScrollBar(this, option, painter, widget);
+                    return;
+                }
                 if (ScrollBar::drawScrollBar(this, option, painter, widget, m_data->scrollBarConfig))
                 {
                     return;
@@ -722,6 +1158,48 @@ namespace AzQtComponents
                 }
             }
             break;
+            case CC_ScrollBar:
+            {
+                if (StyleManager::stylesheetsDisabled())
+                {
+                    if (auto sliderOption = qstyleoption_cast<const QStyleOptionSlider*>(option))
+                    {
+                        switch (subControl)
+                        {
+                            case SC_ScrollBarAddLine:
+                            case SC_ScrollBarSubLine:
+                                // ScrollBar.qss removes both arrow buttons (0px)
+                                return QRect();
+
+                            case SC_ScrollBarGroove:
+                                return option->rect;
+
+                            case SC_ScrollBarSlider:
+                            {
+                                const bool horizontal = sliderOption->orientation == Qt::Horizontal;
+                                const int trackLength = horizontal ? option->rect.width() : option->rect.height();
+                                const int sliderMin = 32; // matches PM_ScrollBarSliderMin above
+                                const int range = sliderOption->maximum - sliderOption->minimum;
+                                int sliderLength = range <= 0
+                                    ? trackLength
+                                    : (sliderOption->pageStep * trackLength) / (range + sliderOption->pageStep);
+                                sliderLength = qBound(sliderMin, sliderLength, trackLength);
+                                const int sliderPos = QStyle::sliderPositionFromValue(
+                                    sliderOption->minimum, sliderOption->maximum, sliderOption->sliderPosition,
+                                    trackLength - sliderLength, sliderOption->upsideDown);
+                                return horizontal
+                                    ? QRect(option->rect.x() + sliderPos, option->rect.y(), sliderLength, option->rect.height())
+                                    : QRect(option->rect.x(), option->rect.y() + sliderPos, option->rect.width(), sliderLength);
+                            }
+
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+            break;
+
             case CC_Slider:
             {
                 if (auto sliderOption = qstyleoption_cast<const QStyleOptionSlider*>(option))
@@ -852,6 +1330,45 @@ namespace AzQtComponents
         if (!hasStyle(widget))
         {
             return QProxyStyle::pixelMetric(metric, option, widget);
+        }
+
+        if (StyleManager::stylesheetsDisabled())
+        {
+            // Indicator footprints from CheckBox.qss / RadioButton.qss (16x16; toggle switch 32x16)
+            switch (metric)
+            {
+                case PM_IndicatorWidth:
+                    return (widget && hasClass(widget, QStringLiteral("ToggleSwitch"))) ? 32 : 16;
+                case PM_IndicatorHeight:
+                case PM_ExclusiveIndicatorWidth:
+                case PM_ExclusiveIndicatorHeight:
+                    return 16;
+                case PM_MenuHMargin:
+                    // Menu.qss QMenu padding: 4px 2px (horizontal component)
+                    return 2;
+                case PM_MenuVMargin:
+                    // Menu.qss QMenu padding: 4px 2px (vertical component)
+                    return 4;
+                case PM_ScrollBarExtent:
+                    // ScrollBar.qss QScrollBar:vertical width / :horizontal height
+                    return 8;
+                case PM_ScrollBarSliderMin:
+                    // ScrollBar.qss handle min-height/min-width
+                    return 32;
+                case PM_SplitterWidth:
+                    // qss used 1px visual; 4px keeps the handle grabbable
+                    return 4;
+                case PM_ToolBarIconSize:
+                    // ToolBar.qss qproperty-iconSize tiers: default 16, IconLarge 20,
+                    // MainToolBar 20, MainToolBar+IconLarge 32
+                    if (widget && hasClass(widget, QStringLiteral("MainToolBar")))
+                    {
+                        return hasClass(widget, QStringLiteral("IconLarge")) ? 32 : 20;
+                    }
+                    return (widget && hasClass(widget, QStringLiteral("IconLarge"))) ? 20 : 16;
+                default:
+                    break;
+            }
         }
 
         switch (metric)
@@ -1000,6 +1517,114 @@ namespace AzQtComponents
         return QProxyStyle::pixelMetric(metric, option, widget);
     }
 
+    // Defined with the application-polish section further down.
+    static QPalette buildO3DEBasePalette();
+    static QPalette buildO3DEMenuPalette(const QPalette& basePalette);
+
+    //////////////////////////////////////////////////////////////////////////
+    // Flattened typography (GUI flattening)
+    //
+    // Text.qss set per-class font sizes and colors on QLabel via the
+    // Text::add*Style/add*Color class tags. The app-wide Open Sans 12px font
+    // already covers Label/Menu/Paragraph/Tooltip; only the larger tiers and
+    // the color classes need explicit owners here.
+    //////////////////////////////////////////////////////////////////////////
+    static void applyFlattenedTypographyStyle(QWidget* widget)
+    {
+        if (!widget->inherits("QLabel"))
+        {
+            return;
+        }
+
+        int pixelSize = 0;
+        if (Style::hasClass(widget, QStringLiteral("Headline")))
+        {
+            pixelSize = 24;
+        }
+        else if (Style::hasClass(widget, QStringLiteral("Title")))
+        {
+            pixelSize = 18;
+        }
+        else if (Style::hasClass(widget, QStringLiteral("Subtitle")))
+        {
+            pixelSize = 16;
+        }
+
+        if (pixelSize > 0)
+        {
+            QFont classFont = widget->font();
+            classFont.setPixelSize(pixelSize);
+            widget->setFont(classFont);
+        }
+
+        QColor textColor;
+        if (Style::hasClass(widget, QStringLiteral("secondaryText")))
+        {
+            textColor = QColor(0x88, 0x88, 0x88);
+        }
+        else if (Style::hasClass(widget, QStringLiteral("highlightedText")))
+        {
+            textColor = QColor(0x44, 0xB2, 0xF8);
+        }
+        else if (Style::hasClass(widget, QStringLiteral("blackText")))
+        {
+            textColor = QColor(0x00, 0x00, 0x00);
+        }
+
+        if (textColor.isValid())
+        {
+            QPalette labelPalette = widget->palette();
+            labelPalette.setColor(QPalette::WindowText, textColor);
+            labelPalette.setColor(QPalette::Text, textColor);
+            widget->setPalette(labelPalette);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Flattened text-entry palette (GUI flattening)
+    //
+    // Mirrors the BaseStyleSheet.qss rule that gave text-entry widgets a
+    // light background with black text (QLineEdit/QSpinBox/QDoubleSpinBox/
+    // QComboBox: #CCCCCC + black; QTextEdit/QPlainTextEdit: #E9E9E9 +
+    // #545454). Applied per widget class because the app-wide palette keeps
+    // QPalette::Base dark for the item views.
+    //////////////////////////////////////////////////////////////////////////
+    static void applyFlattenedTextEntryPalette(QWidget* widget)
+    {
+        const bool isLineEntry = widget->inherits("QLineEdit") || widget->inherits("QAbstractSpinBox") || widget->inherits("QComboBox");
+        const bool isTextEdit = widget->inherits("QTextEdit") || widget->inherits("QPlainTextEdit");
+
+        if (!isLineEntry && !isTextEdit)
+        {
+            return;
+        }
+
+        QPalette entryPalette = widget->palette();
+        const QColor base = isTextEdit ? QColor(0xE9, 0xE9, 0xE9) : QColor(0xCC, 0xCC, 0xCC);
+        const QColor text = isTextEdit ? QColor(0x54, 0x54, 0x54) : QColor(Qt::black);
+
+        entryPalette.setColor(QPalette::Active, QPalette::Base, base);
+        entryPalette.setColor(QPalette::Inactive, QPalette::Base, base);
+        entryPalette.setColor(QPalette::Active, QPalette::Text, text);
+        entryPalette.setColor(QPalette::Inactive, QPalette::Text, text);
+        entryPalette.setColor(QPalette::Disabled, QPalette::Base, QColor(0x66, 0x66, 0x66));   // QLineEdit:disabled background
+        entryPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(0x99, 0x99, 0x99));   // QLineEdit:disabled color
+
+        if (widget->inherits("QComboBox") || widget->inherits("QAbstractSpinBox"))
+        {
+            // Fusion paints the closed combo face / spin buttons with Button/ButtonText;
+            // keep them light like the QSS look so labels are not black-on-dark.
+            entryPalette.setColor(QPalette::Active, QPalette::Button, base);
+            entryPalette.setColor(QPalette::Inactive, QPalette::Button, base);
+            entryPalette.setColor(QPalette::Active, QPalette::ButtonText, text);
+            entryPalette.setColor(QPalette::Inactive, QPalette::ButtonText, text);
+            entryPalette.setColor(QPalette::Disabled, QPalette::Button, QColor(0x66, 0x66, 0x66));
+            entryPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(0x99, 0x99, 0x99));
+        }
+
+        widget->setPalette(entryPalette);
+    }
+
     void Style::polish(QWidget* widget)
     {
         static QWidget* alreadyStyling = nullptr;
@@ -1009,6 +1634,123 @@ namespace AzQtComponents
         }
 
         QScopedValueRollback<QWidget*> recursionGuard(alreadyStyling, widget);
+
+        if (StyleManager::stylesheetsDisabled())
+        {
+            applyFlattenedTextEntryPalette(widget);
+
+            // Combo box popups share the menu chrome (Menu.qss #222222); the
+            // container's palette propagates to the popup list view inside it.
+            if (widget->inherits("QComboBoxPrivateContainer"))
+            {
+                widget->setPalette(buildO3DEMenuPalette(widget->palette()));
+            }
+
+            // Progress bar track and fill (ProgressBar.qss: track #9A9A9A, chunk #1E70EB,
+            // height 5px)
+            if (widget->inherits("QProgressBar"))
+            {
+                QPalette progressPalette = widget->palette();
+                progressPalette.setColor(QPalette::Base, QColor(0x9A, 0x9A, 0x9A));
+                progressPalette.setColor(QPalette::Highlight, QColor(0x1E, 0x70, 0xEB));
+                progressPalette.setColor(QPalette::HighlightedText, QColor(Qt::white));
+                widget->setPalette(progressPalette);
+                widget->setMaximumHeight(5);
+            }
+
+            // Scroll bars need WA_Hover for the hover lane fill; in qss mode the
+            // CSS engine enabled it automatically for any widget with a :hover rule.
+            if (widget->inherits("QScrollBar"))
+            {
+                widget->setAttribute(Qt::WA_Hover, true);
+            }
+
+            // Splitter handles need WA_Hover for the hover fill, same as scroll bars
+            if (widget->inherits("QSplitterHandle"))
+            {
+                widget->setAttribute(Qt::WA_Hover, true);
+            }
+
+            // Toolbars: ToolBar.qss iconSize tiers + homogeneous 5px padding.
+            // Set explicitly - QToolBar caches its icon size.
+            if (auto toolBar = qobject_cast<QToolBar*>(widget))
+            {
+                int iconExtent = 16;
+                if (hasClass(widget, QStringLiteral("MainToolBar")))
+                {
+                    iconExtent = hasClass(widget, QStringLiteral("IconLarge")) ? 32 : 20;
+                }
+                else if (hasClass(widget, QStringLiteral("IconLarge")))
+                {
+                    iconExtent = 20;
+                }
+                toolBar->setIconSize(QSize(iconExtent, iconExtent));
+                if (toolBar->layout())
+                {
+                    toolBar->layout()->setContentsMargins(5, 5, 5, 5);
+                }
+            }
+
+            // TabWidget.qss: the TabWidget itself is the #111111 backdrop; the stacked
+            // page area sits on #444444
+            if (widget->inherits("AzQtComponents::TabWidget"))
+            {
+                QPalette tabWidgetPalette = widget->palette();
+                tabWidgetPalette.setColor(QPalette::Window, QColor(0x11, 0x11, 0x11));
+                widget->setPalette(tabWidgetPalette);
+                widget->setAutoFillBackground(true);
+            }
+            if (widget->inherits("QStackedWidget") && widget->parentWidget()
+                && widget->parentWidget()->inherits("AzQtComponents::TabWidget"))
+            {
+                QPalette pageAreaPalette = widget->palette();
+                pageAreaPalette.setColor(QPalette::Window, QColor(0x44, 0x44, 0x44));
+                widget->setPalette(pageAreaPalette);
+                widget->setAutoFillBackground(true);
+            }
+
+            // Tab bars: qss-era #111111 row backdrop + no native base line. DockTabBar
+            // (docked panel strips) keeps its own treatment.
+            if (widget->inherits("QTabBar") && !widget->inherits("AzQtComponents::DockTabBar"))
+            {
+                if (auto tabBar = qobject_cast<QTabBar*>(widget))
+                {
+                    tabBar->setDrawBase(false);
+                }
+                QPalette tabPalette = widget->palette();
+                tabPalette.setColor(QPalette::Window, QColor(0x11, 0x11, 0x11));
+                widget->setPalette(tabPalette);
+                widget->setAutoFillBackground(true);
+            }
+
+            // Headers: TableView.qss flat #2d2d2d sections (Fusion draws from Button)
+            if (widget->inherits("QHeaderView"))
+            {
+                QPalette headerPalette = widget->palette();
+                headerPalette.setColor(QPalette::Button, QColor(0x2D, 0x2D, 0x2D));
+                headerPalette.setColor(QPalette::ButtonText, QColor(0xCC, 0xCC, 0xCC));
+                widget->setPalette(headerPalette);
+            }
+
+            // Text.qss class-driven typography
+            applyFlattenedTypographyStyle(widget);
+
+            // Scroll area corner tile: mirrors the qss [ShowBackground=true] rule.
+            // The watcher toggles the property on hover and re-polishes.
+            if (widget->property("ShowBackground").isValid())
+            {
+                const QWidget* cornerScrollArea = widget->parentWidget();
+                const bool darkCorner = cornerScrollArea && Style::hasClass(cornerScrollArea, QStringLiteral("DarkScrollBar"));
+                const bool showCorner = widget->property("ShowBackground").toBool();
+
+                QPalette cornerPalette = widget->palette();
+                cornerPalette.setColor(QPalette::Window, showCorner
+                    ? (darkCorner ? QColor(0xDC, 0xDC, 0xDC) : QColor(0x55, 0x55, 0x55))
+                    : QColor(Qt::transparent));
+                widget->setAutoFillBackground(showCorner);
+                widget->setPalette(cornerPalette);
+            }
+        }
 
         if (hasStyle(widget))
         {
@@ -1092,6 +1834,14 @@ namespace AzQtComponents
     void Style::polish(QPalette& palette)
     {
         QProxyStyle::polish(palette);
+
+        if (StyleManager::stylesheetsDisabled())
+        {
+            // Every palette Qt derives (including system color-scheme changes)
+            // passes through here - replacing it wholesale is what guarantees
+            // the engine's forced theme and disables reactive dark/light mode.
+            palette = buildO3DEBasePalette();
+        }
     }
     
     void Style::unpolish(QApplication* application)
@@ -1127,6 +1877,23 @@ namespace AzQtComponents
                 return QIcon(QString::fromUtf8(":/stylesheet/img/UI20/Info.svg"));
                 break;
 
+            // Title bar button glyphs (TitleBar.qss titlebar-*-icon rules). Only
+            // reachable when no QStyleSheetStyle intercepts standardIcon, i.e. in
+            // flattened mode - same pattern as SP_MessageBoxInformation above.
+            case QStyle::SP_TitleBarCloseButton:
+                return QIcon(QStringLiteral(":/Application/titlebar-close.svg"));
+
+            case QStyle::SP_TitleBarMinButton:
+                return QIcon(QStringLiteral(":/Application/titlebar-minimize.svg"));
+
+            case QStyle::SP_TitleBarNormalButton:
+                return QIcon(QStringLiteral(":/Application/titlebar-restore.svg"));
+
+            case QStyle::SP_TitleBarMaxButton:
+                return QIcon(Style::hasClass(widget, QStringLiteral("restore"))
+                    ? QStringLiteral(":/Application/titlebar-restore.svg")
+                    : QStringLiteral(":/Application/titlebar-maximize.svg"));
+
             default:
                 break;
         }
@@ -1138,6 +1905,14 @@ namespace AzQtComponents
         if (hint == QStyle::SH_SpinBox_StepModifier)
         {
             return Qt::ShiftModifier;
+        }
+
+        // Fusion defaults SH_ComboBox_Popup to menu-mode, which draws a checkmark on
+        // the current item stacked over the field. The qss-era rendering was list-mode
+        // (no checkmarks, pre-highlighted current row) - force it.
+        if (hint == QStyle::SH_ComboBox_Popup && StyleManager::stylesheetsDisabled())
+        {
+            return 0;
         }
 
         if (!hasStyle(widget))
@@ -1376,14 +2151,181 @@ namespace AzQtComponents
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // O3DE base application palette (GUI flattening)
+    //
+    // The single explicit owner of every application-wide color in the
+    // flattened (no style sheet) mode. Built FROM SCRATCH - never derived
+    // from the incoming system palette - because O3DE does not do reactive
+    // OS dark/light theming: the engine FORCES its theme, and a "dark theme"
+    // is simply a theme that is dark. Every value below mirrors a rule that
+    // BaseStyleSheet.qss used to apply - the source rule is noted per line
+    // and tracked in the flatten ledger. Fusion consumes this palette for all
+    // base widget painting.
+    //
+    // Note on QPalette::Base: O3DE's look is dark item views with LIGHT text
+    // entry fields, but Qt shares the Base role between both. The app-wide
+    // palette keeps Base dark for the views; text-entry widget classes get
+    // their light palette in Style::polish(QWidget*) below, mirroring the
+    // QLineEdit/QSpinBox/QComboBox rule from BaseStyleSheet.qss.
+    //////////////////////////////////////////////////////////////////////////
+    static QPalette buildO3DEBasePalette()
+    {
+        QPalette palette;
+        // Core surfaces
+        const QColor window(0x44, 0x44, 0x44);          // QMainWindow/QDialog/QDockWidget background-color: #444444
+        const QColor viewBase(0x44, 0x44, 0x44);        // parentless QTableView/QListView/QTreeView background-color: #444444
+        const QColor alternateBase(0x4D, 0x4D, 0x4D);   // TableView.qss alternate-background-color: rgb(77,77,77)
+        const QColor textWhite(0xFF, 0xFF, 0xFF);       // global '*' rule color: white
+        const QColor disabledText(0x99, 0x99, 0x99);    // QLineEdit:disabled color: #999999
+        const QColor disabledBase(0x66, 0x66, 0x66);    // QLineEdit:disabled background-color: #666666
+
+        // Buttons and the 3D bevel ladder (Fusion derives frame/bevel shading from these)
+        const QColor button(0x55, 0x55, 0x55);          // mid button surface (Original shared palette)
+        const QColor light(0x66, 0x66, 0x66);
+        const QColor midlight(0x55, 0x55, 0x55);
+        const QColor mid(0x33, 0x33, 0x33);
+        const QColor dark(0x22, 0x22, 0x22);
+        const QColor shadow(0x11, 0x11, 0x11);          // QMainWindow:separator background-color: #111111
+
+        // Selection (TableView.qss selection-background-color / selection-color)
+        const QColor highlight(0x65, 0x65, 0x65);       // rgb(101,101,101)
+        const QColor highlightedText(0xFF, 0xFF, 0xFF);
+
+        // Tooltips (ToolTip.qss)
+        const QColor toolTipBase(0x00, 0x00, 0x00);
+        const QColor toolTipText(0xFF, 0xFF, 0xFF);
+
+        // Hyperlinks (Text config hyperlinkColor re-applies over this at app polish)
+        const QColor link(0x94, 0xD2, 0xFF);
+
+        // Active and Inactive groups render identically in O3DE
+        for (const auto group : { QPalette::Active, QPalette::Inactive })
+        {
+            palette.setColor(group, QPalette::Window, window);
+            palette.setColor(group, QPalette::WindowText, textWhite);
+            palette.setColor(group, QPalette::Base, viewBase);
+            palette.setColor(group, QPalette::AlternateBase, alternateBase);
+            palette.setColor(group, QPalette::Text, textWhite);
+            palette.setColor(group, QPalette::PlaceholderText, disabledText);
+            palette.setColor(group, QPalette::Button, button);
+            palette.setColor(group, QPalette::ButtonText, textWhite);
+            palette.setColor(group, QPalette::BrightText, textWhite);
+            palette.setColor(group, QPalette::Light, light);
+            palette.setColor(group, QPalette::Midlight, midlight);
+            palette.setColor(group, QPalette::Mid, mid);
+            palette.setColor(group, QPalette::Dark, dark);
+            palette.setColor(group, QPalette::Shadow, shadow);
+            palette.setColor(group, QPalette::Highlight, highlight);
+            palette.setColor(group, QPalette::HighlightedText, highlightedText);
+            palette.setColor(group, QPalette::ToolTipBase, toolTipBase);
+            palette.setColor(group, QPalette::ToolTipText, toolTipText);
+            palette.setColor(group, QPalette::Link, link);
+            palette.setColor(group, QPalette::LinkVisited, link);
+        }
+
+        // Disabled group
+        palette.setColor(QPalette::Disabled, QPalette::Window, window);
+        palette.setColor(QPalette::Disabled, QPalette::WindowText, disabledText);
+        palette.setColor(QPalette::Disabled, QPalette::Base, disabledBase);
+        palette.setColor(QPalette::Disabled, QPalette::AlternateBase, alternateBase);
+        palette.setColor(QPalette::Disabled, QPalette::Text, disabledText);
+        palette.setColor(QPalette::Disabled, QPalette::PlaceholderText, disabledText);
+        palette.setColor(QPalette::Disabled, QPalette::Button, button);
+        palette.setColor(QPalette::Disabled, QPalette::ButtonText, disabledText);
+        palette.setColor(QPalette::Disabled, QPalette::BrightText, textWhite);
+        palette.setColor(QPalette::Disabled, QPalette::Light, light);
+        palette.setColor(QPalette::Disabled, QPalette::Midlight, midlight);
+        palette.setColor(QPalette::Disabled, QPalette::Mid, mid);
+        palette.setColor(QPalette::Disabled, QPalette::Dark, dark);
+        palette.setColor(QPalette::Disabled, QPalette::Shadow, shadow);
+        palette.setColor(QPalette::Disabled, QPalette::Highlight, highlight);
+        palette.setColor(QPalette::Disabled, QPalette::HighlightedText, disabledText);
+        palette.setColor(QPalette::Disabled, QPalette::ToolTipBase, toolTipBase);
+        palette.setColor(QPalette::Disabled, QPalette::ToolTipText, toolTipText);
+        palette.setColor(QPalette::Disabled, QPalette::Link, link);
+        palette.setColor(QPalette::Disabled, QPalette::LinkVisited, link);
+
+        return palette;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Menu popups are core chrome that appears everywhere, so their dark
+    // surface (Menu.qss: QMenu background-color #222222, selected item
+    // #444444) is owned here as a QMenu class palette rather than waiting
+    // for the Menu family batch. Applied AFTER the global setPalette call,
+    // which clears class palettes.
+    //////////////////////////////////////////////////////////////////////////
+    static QPalette buildO3DEMenuPalette(const QPalette& basePalette)
+    {
+        QPalette menuPalette = basePalette;
+        const QColor menuSurface(0x22, 0x22, 0x22);     // Menu.qss QMenu background-color: #222222
+        const QColor menuHighlight(0x44, 0x44, 0x44);   // Menu.qss selected item background: #444444
+        const QColor menuText(0xFF, 0xFF, 0xFF);
+        const QColor menuDisabledText(0x55, 0x55, 0x55);    // Menu.qss disabled item color: #555555
+
+        for (const auto group : { QPalette::Active, QPalette::Inactive, QPalette::Disabled })
+        {
+            menuPalette.setColor(group, QPalette::Window, menuSurface);
+            menuPalette.setColor(group, QPalette::Base, menuSurface);
+            menuPalette.setColor(group, QPalette::Highlight, menuHighlight);
+        }
+
+        // Force text roles: popups can inherit a light text-entry palette (combo box
+        // popup containers inherit from the combo box), which would leave near-black
+        // text on the dark menu surface.
+        for (const auto group : { QPalette::Active, QPalette::Inactive })
+        {
+            menuPalette.setColor(group, QPalette::Text, menuText);
+            menuPalette.setColor(group, QPalette::WindowText, menuText);
+            menuPalette.setColor(group, QPalette::ButtonText, menuText);
+            menuPalette.setColor(group, QPalette::HighlightedText, menuText);
+        }
+        menuPalette.setColor(QPalette::Disabled, QPalette::Text, menuDisabledText);
+        menuPalette.setColor(QPalette::Disabled, QPalette::WindowText, menuDisabledText);
+        menuPalette.setColor(QPalette::Disabled, QPalette::ButtonText, menuDisabledText);
+        menuPalette.setColor(QPalette::Disabled, QPalette::HighlightedText, menuDisabledText);
+
+        return menuPalette;
+    }
+
     void Style::polish(QApplication* application)
     {
         Q_UNUSED(application);
 
-        m_data->palette = application->palette();
+        if (StyleManager::stylesheetsDisabled())
+        {
+            // Forced O3DE palette - never derived from the system palette (no
+            // reactive OS dark/light theming; the engine owns its look).
+            m_data->palette = buildO3DEBasePalette();
+        }
+        else
+        {
+            m_data->palette = application->palette();
+        }
+
         m_data->palette.setColor(QPalette::Link, m_data->textConfig.hyperlinkColor);
 
         application->setPalette(m_data->palette);
+
+        if (StyleManager::stylesheetsDisabled())
+        {
+            // Class palettes must be applied after the global setPalette (which clears them)
+            application->setPalette(buildO3DEMenuPalette(m_data->palette), "QMenu");
+
+            // Menu bar strip: dark surface (user-verified vs baseline), selected item
+            // #555555 (MenuBar.qss)
+            QPalette menuBarPalette = m_data->palette;
+            const QColor menuBarSurface(0x22, 0x22, 0x22);
+            for (const auto group : { QPalette::Active, QPalette::Inactive, QPalette::Disabled })
+            {
+                menuBarPalette.setColor(group, QPalette::Window, menuBarSurface);
+                menuBarPalette.setColor(group, QPalette::Base, menuBarSurface);
+                menuBarPalette.setColor(group, QPalette::Button, menuBarSurface);
+                menuBarPalette.setColor(group, QPalette::Highlight, QColor(0x55, 0x55, 0x55));
+            }
+            application->setPalette(menuBarPalette, "QMenuBar");
+        }
 
         // need to listen to and fix tooltips so that they wrap
         application->installEventFilter(this);
