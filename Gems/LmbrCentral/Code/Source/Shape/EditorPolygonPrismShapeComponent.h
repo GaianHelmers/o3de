@@ -50,11 +50,17 @@ namespace LmbrCentral
             const AzFramework::ViewportInfo& viewportInfo,
             AzFramework::DebugDisplayRequests& debugDisplay) override;
 
+        // ShapeComponentNotificationsBus, through EditorBaseShapeComponent
+        void OnShapeChanged(ShapeChangeReasons changeReason) override;
+
         // EditorPolygonPrismShapeComponentRequestsBus
         void GenerateVertices() override;
-        
+
         PolygonPrismShape m_polygonPrismShape; ///< Stores configuration data of a polygon prism for this component.
         PolygonPrismMesh m_polygonPrismMesh; ///< Buffer to store triangles of top and bottom of Polygon Prism.
+        /// The flip signs the mesh above was built with. The shape callbacks that build it are dropped when BuildGameEntity
+        /// re-activates the shape, so a later flip is caught by OnShapeChanged when the two differ. Editor only.
+        AZ::Vector3 m_meshFlipSigns = AZ::Vector3::CreateOne();
         PolygonPrismShapeConfig m_polygonShapeConfig; ///< Configuration for polygon prism shape.
 
         using ComponentModeDelegate = AzToolsFramework::ComponentModeFramework::ComponentModeDelegate;

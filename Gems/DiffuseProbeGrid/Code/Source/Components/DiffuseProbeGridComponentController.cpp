@@ -523,7 +523,7 @@ namespace AZ
         AZ::Transform DiffuseProbeGridComponentController::ComputeOverallTransform(const AZ::Transform& entityTransform) const
         {
             const bool isTypeAxisAligned = m_boxShapeInterface ? m_boxShapeInterface->IsTypeAxisAligned() : false;
-            const AZ::Vector3 translationOffset = m_shapeBus ? m_shapeBus->GetTranslationOffset() : AZ::Vector3::CreateZero();
+            const AZ::Vector3 translationOffset = m_shapeBus ? m_shapeBus->GetEffectiveTranslationOffset() : AZ::Vector3::CreateZero();
             const AZ::Transform translationOffsetTransform = AZ::Transform::CreateTranslation(translationOffset);
 
             if (isTypeAxisAligned)

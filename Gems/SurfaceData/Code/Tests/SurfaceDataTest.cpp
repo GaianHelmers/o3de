@@ -662,6 +662,138 @@ TEST_F(SurfaceDataTestApp, SurfaceData_TestGetMeshRayIntersection)
     }
 }
 
+TEST_F(SurfaceDataTestApp, SurfaceData_TestGetMeshRayIntersectionWithFlippedScale)
+{
+    // A negative axis of the scale is a flip. The mesh is drawn mirrored, so a ray has to hit it on the drawn side and not on
+    // the authored one, and the surface it hits has to face the way it is drawn.
+    struct RayTest
+    {
+        // Scale of the mesh
+        AZ::Vector3 m_nonUniformScale;
+        // Input ray
+        AZ::Vector3 m_rayStart;
+        AZ::Vector3 m_rayEnd;
+        // Expected outputs
+        bool m_expectedResult;
+        AZ::Vector3 m_expectedOutPosition;
+        AZ::Vector3 m_expectedOutNormal;
+    };
+
+    RayTest tests[] = {
+        // Positive scale: the quad is on the authored side, at x = 5, facing +X
+        {
+          AZ::Vector3(1.0f, 1.0f, 1.0f),
+          AZ::Vector3(10.0f, 2.0f, 1.0f),
+          AZ::Vector3(0.0f, 2.0f, 1.0f),
+          true,
+          AZ::Vector3(5.0f, 2.0f, 1.0f),
+          AZ::Vector3(1.0f, 0.0f, 0.0f)
+        },
+
+        // Positive non-uniform scale: the quad is stretched out to x = 10, still facing +X
+        {
+          AZ::Vector3(2.0f, 1.0f, 1.0f),
+          AZ::Vector3(20.0f, 2.0f, 1.0f),
+          AZ::Vector3(0.0f, 2.0f, 1.0f),
+          true,
+          AZ::Vector3(10.0f, 2.0f, 1.0f),
+          AZ::Vector3(1.0f, 0.0f, 0.0f)
+        },
+
+        // Flipped in X: the quad is drawn at x = -5 facing -X, and a ray from -X finds it there with the mirrored normal
+        {
+          AZ::Vector3(-1.0f, 1.0f, 1.0f),
+          AZ::Vector3(-10.0f, 2.0f, 1.0f),
+          AZ::Vector3(0.0f, 2.0f, 1.0f),
+          true,
+          AZ::Vector3(-5.0f, 2.0f, 1.0f),
+          AZ::Vector3(-1.0f, 0.0f, 0.0f)
+        },
+
+        // Flipped in X: the authored side is empty
+        {
+          AZ::Vector3(-1.0f, 1.0f, 1.0f),
+          AZ::Vector3(10.0f, 2.0f, 1.0f),
+          AZ::Vector3(0.0f, 2.0f, 1.0f),
+          false,
+          AZ::Vector3(0.0f, 0.0f, 0.0f),
+          AZ::Vector3(0.0f, 0.0f, 0.0f)
+        },
+
+        // Flipped in X, drawn facing -X: a ray from +X reaches the back of the quad, which is culled
+        {
+          AZ::Vector3(-1.0f, 1.0f, 1.0f),
+          AZ::Vector3(10.0f, 2.0f, 1.0f),
+          AZ::Vector3(-10.0f, 2.0f, 1.0f),
+          false,
+          AZ::Vector3(0.0f, 0.0f, 0.0f),
+          AZ::Vector3(0.0f, 0.0f, 0.0f)
+        },
+
+        // Flipped and stretched in X: the quad is drawn at x = -10
+        {
+          AZ::Vector3(-2.0f, 1.0f, 1.0f),
+          AZ::Vector3(-20.0f, 2.0f, 1.0f),
+          AZ::Vector3(0.0f, 2.0f, 1.0f),
+          true,
+          AZ::Vector3(-10.0f, 2.0f, 1.0f),
+          AZ::Vector3(-1.0f, 0.0f, 0.0f)
+        },
+
+        // Flipped in X and Y is a half turn about Z: the quad is drawn at x = -5 for y from -5 to 0, still facing -X
+        {
+          AZ::Vector3(-1.0f, -1.0f, 1.0f),
+          AZ::Vector3(-10.0f, -2.0f, 1.0f),
+          AZ::Vector3(0.0f, -2.0f, 1.0f),
+          true,
+          AZ::Vector3(-5.0f, -2.0f, 1.0f),
+          AZ::Vector3(-1.0f, 0.0f, 0.0f)
+        },
+
+        // Flipped in X and Y: the authored side is empty
+        {
+          AZ::Vector3(-1.0f, -1.0f, 1.0f),
+          AZ::Vector3(10.0f, 2.0f, 1.0f),
+          AZ::Vector3(0.0f, 2.0f, 1.0f),
+          false,
+          AZ::Vector3(0.0f, 0.0f, 0.0f),
+          AZ::Vector3(0.0f, 0.0f, 0.0f)
+        },
+    };
+
+    // Register all the asset handlers necessary for constructing the test model.
+    auto resourcePoolAssetHandler = AZ::RPI::MakeAssetHandler<AZ::RPI::ResourcePoolAssetHandler>();
+    auto bufferAssetHandler = AZ::RPI::MakeAssetHandler<AZ::RPI::BufferAssetHandler>();
+    auto modelLodAssetHandler = AZ::RPI::MakeAssetHandler<AZ::RPI::ModelLodAssetHandler>();
+    auto modelAssetHandler = AZ::RPI::MakeAssetHandler<AZ::RPI::ModelAssetHandler>();
+
+    // Build a mesh containing a test quad. The test quad goes from 0-5 in the YZ plane, at a distance of 5 on the X axis. Both of its
+    // triangles are counter clockwise seen from +X, so the quad faces +X.
+    const AZStd::vector<uint32_t> indices = { 0, 1, 2, 0, 2, 3 };
+    const AZStd::vector<float> positions = { 5.0f, 0.0f, 0.0f, 5.0f, 5.0f, 0.0f, 5.0f, 5.0f, 5.0f, 5.0f, 0.0f, 5.0f };
+    const AZ::Transform meshTransform = AZ::Transform::CreateTranslation(AZ::Vector3::CreateZero());
+    const AZ::Transform meshTransformInverse = meshTransform.GetInverse();
+
+    auto modelAsset = BuildTestModel(positions, indices);
+
+    for (const auto& test : tests)
+    {
+        AZ::Vector3 outPosition = AZ::Vector3::CreateZero();
+        AZ::Vector3 outNormal = AZ::Vector3::CreateZero();
+
+        const bool result = SurfaceData::GetMeshRayIntersection(
+            *(modelAsset.Get()), meshTransform, meshTransformInverse, test.m_nonUniformScale, test.m_rayStart, test.m_rayEnd,
+            outPosition, outNormal);
+
+        EXPECT_EQ(result, test.m_expectedResult);
+        if (result && test.m_expectedResult)
+        {
+            EXPECT_TRUE(outPosition.IsClose(test.m_expectedOutPosition));
+            EXPECT_TRUE(outNormal.IsClose(test.m_expectedOutNormal));
+        }
+    }
+}
+
 TEST_F(SurfaceDataTestApp, SurfaceData_TestSurfacePointsFromRegion)
 {
     // This tests the basic functionality of GetSurfacePointsFromRegion:

@@ -35,6 +35,7 @@
 #include <PhysX/SystemComponentBus.h>
 #include <RigidBodyStatic.h>
 #include <ShapeColliderComponent.h>
+#include <Source/Transform2ColliderSupport.h>
 #include <Source/Utils.h>
 #include <System/PhysXSystem.h>
 
@@ -852,6 +853,12 @@ namespace PhysX
     void EditorShapeColliderComponent::Display([[maybe_unused]] const AzFramework::ViewportInfo& viewportInfo,
         AzFramework::DebugDisplayRequests& debugDisplay) const
     {
+        // A flipped entity draws mirrored. The offset and rotation of the collider mirror, and so do the meshes and the points
+        // of the prism. The primitives are symmetric, so they only need the mirrored pose.
+        const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId());
+        const AZStd::optional<Physics::ColliderConfiguration> mirrored = Transform2Mirror::MirrorConfiguration(signs, m_colliderConfig);
+        const Physics::ColliderConfiguration& colliderConfig = mirrored.has_value() ? mirrored.value() : m_colliderConfig;
+
         // polygon prism is a special case
         if (m_shapeType == ShapeType::PolygonPrism)
         {
@@ -863,8 +870,21 @@ namespace PhysX
                 const float transformScale = Utils::GetTransformScale(GetEntityId());
                 const AZ::Vector3 overallScale = transformScale * m_currentNonUniformScale;
                 const float height = polygonPrismPtr->GetHeight();
-                m_colliderDebugDraw.DrawPolygonPrism(debugDisplay, m_colliderConfig, m_mesh.GetDebugDrawPoints(height,
-                    overallScale));
+                const AZStd::vector<AZ::Vector3>& points = m_mesh.GetDebugDrawPoints(height, overallScale);
+                if (mirrored.has_value())
+                {
+                    AZStd::vector<AZ::Vector3> mirroredPoints;
+                    mirroredPoints.reserve(points.size());
+                    for (const AZ::Vector3& point : points)
+                    {
+                        mirroredPoints.push_back(Transform2Mirror::MirrorPosition(signs, point));
+                    }
+                    m_colliderDebugDraw.DrawPolygonPrism(debugDisplay, colliderConfig, mirroredPoints);
+                }
+                else
+                {
+                    m_colliderDebugDraw.DrawPolygonPrism(debugDisplay, colliderConfig, points);
+                }
             }
         }
 
@@ -878,9 +898,9 @@ namespace PhysX
                 m_colliderDebugDraw.BuildMeshes(*shapeConfig, shapeIndex);
                 m_colliderDebugDraw.DrawMesh(
                     debugDisplay,
-                    m_colliderConfig,
+                    colliderConfig,
                     *static_cast<Physics::CookedMeshShapeConfiguration*>(shapeConfig),
-                    AZ::Vector3(transformScale),
+                    AZ::Vector3(transformScale) * signs,
                     shapeIndex);
             }            
         }
@@ -894,7 +914,7 @@ namespace PhysX
                 {
                 case Physics::ShapeType::Box:
                 {
-                    Physics::ColliderConfiguration unscaledColliderConfig = m_colliderConfig;
+                    Physics::ColliderConfiguration unscaledColliderConfig = colliderConfig;
                     unscaledColliderConfig.m_position /= m_currentNonUniformScale;
                     const auto& boxConfig = static_cast<const Physics::BoxShapeConfiguration&>(*shapeConfig);
                     m_colliderDebugDraw.DrawBox(debugDisplay, unscaledColliderConfig, boxConfig, m_currentNonUniformScale);
@@ -903,13 +923,13 @@ namespace PhysX
                 case Physics::ShapeType::Capsule:
                 {
                     const auto& capsuleConfig = static_cast<const Physics::CapsuleShapeConfiguration&>(*shapeConfig);
-                    m_colliderDebugDraw.DrawCapsule(debugDisplay, m_colliderConfig, capsuleConfig, AZ::Vector3::CreateOne());
+                    m_colliderDebugDraw.DrawCapsule(debugDisplay, colliderConfig, capsuleConfig, AZ::Vector3::CreateOne());
                     break;
                 }
                 case Physics::ShapeType::Sphere:
                 {
                     const auto& sphereConfig = static_cast<const Physics::SphereShapeConfiguration&>(*shapeConfig);
-                    m_colliderDebugDraw.DrawSphere(debugDisplay, m_colliderConfig, sphereConfig);
+                    m_colliderDebugDraw.DrawSphere(debugDisplay, colliderConfig, sphereConfig);
                     break;
                 }
                 default:

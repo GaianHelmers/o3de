@@ -18,6 +18,7 @@
 #include <Editor/Source/ComponentModes/Joints/JointsComponentModeCommon.h>
 #include <Source/EditorHingeJointComponent.h>
 #include <Source/HingeJointComponent.h>
+#include <Source/Transform2ColliderSupport.h>
 #include <Source/Utils.h>
 
 namespace PhysX
@@ -98,6 +99,11 @@ namespace PhysX
         m_config.m_followerEntity = GetEntityId(); // joint is always in the same entity as the follower body.
         gameEntity->CreateComponent<HingeJointComponent>(
             m_config.ToGameTimeConfig(), m_config.ToGenericProperties(), m_angularLimit.ToGameTimeConfig(), m_motorConfiguration);
+    }
+
+    bool EditorHingeJointComponent::ReversesMotionAxis(const AZ::Vector3& signs) const
+    {
+        return Transform2Mirror::ReversesHingeAxis(signs);
     }
 
     float EditorHingeJointComponent::GetLinearValue(const AZStd::string& parameterName)

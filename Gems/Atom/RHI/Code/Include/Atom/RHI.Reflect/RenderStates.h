@@ -95,10 +95,34 @@ namespace AZ::RHI
         int32_t m_depthBias = 0;
         float m_depthBiasClamp = 0.0f;
         float m_depthBiasSlopeScale = 0.0f;
+        // Transform 2: bit 31 of this field carries the front face winding. Read the rules at the end of this struct.
         uint32_t m_multisampleEnable = 0;
         uint32_t m_depthClipEnable = 1;
         uint32_t m_conservativeRasterEnable = 0;
         uint32_t m_forcedSampleCount = 0;
+
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2: front face winding in bit 31 of m_multisampleEnable
+        //
+        // A mirrored object winds its triangles the other way on screen, so its draws need clockwise triangles as the front faces.
+        // RasterState is compared and hashed as raw bytes and stays nine 4 byte fields (36 bytes), so a Transform 1 draw has the
+        // exact bytes and hash of an unmodified engine. The winding therefore has no member of its own. It rides in bit 31 of
+        // m_multisampleEnable, a flag whose valid values are 0 and 1.
+        //
+        // Rules:
+        //  - Read the winding only with IsFrontFaceClockwise and write it only with SetFrontFaceClockwise.
+        //  - Code that reads m_multisampleEnable raw must mask FrontFaceClockwiseBit off first (DX12 ConvertRasterState does).
+        //    A new reader in another backend needs the same mask.
+        //  - Set the winding on the final descriptor, after MergeStateInto. A merge copies a valid overlay value over the whole
+        //    field, bit included, so a bit set before the merge can be lost. Never set it on a merge overlay, where the bit would
+        //    make the field look like a valid multisample value and overwrite the real one.
+        //  - A mirrored draw is the only code that sets the bit. A Transform 1 draw never writes this field.
+        //  - RenderStates_InvalidBool has every bit set, so the accessors treat it as "not mirrored" and leave it untouched.
+        static constexpr uint32_t FrontFaceClockwiseBit = 0x80000000u;
+
+        // Defined inline further down in this header, after RenderStates_InvalidBool.
+        bool IsFrontFaceClockwise() const;
+        void SetFrontFaceClockwise(bool frontFaceClockwise);
     };
 
     struct ATOM_RHI_REFLECT_API DepthState
@@ -214,6 +238,38 @@ namespace AZ::RHI
     static constexpr uint32_t RenderStates_InvalidUInt = std::numeric_limits<uint32_t>::max();
     static constexpr int32_t RenderStates_InvalidInt = std::numeric_limits<int32_t>::max();
     static constexpr float RenderStates_InvalidFloat = std::numeric_limits<float>::max();
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2: front face winding accessors
+    //
+    // These two functions are the only code that reads or writes the bit. The rules are in RasterState above. They are defined
+    // here, after RenderStates_InvalidBool, and inline, so a backend folds the check into its own code and a Transform 1 pipeline
+    // state creation makes no call into this library for it. Viewport.h defines its members the same way.
+
+    inline bool RasterState::IsFrontFaceClockwise() const
+    {
+        // RenderStates_InvalidBool has every bit set, so without the comparison an invalid field would read as mirrored.
+        return m_multisampleEnable != RenderStates_InvalidBool && (m_multisampleEnable & FrontFaceClockwiseBit) != 0;
+    }
+
+    inline void RasterState::SetFrontFaceClockwise(bool frontFaceClockwise)
+    {
+        // The invalid value is a marker for "not set", not a multisample value. Clearing the bit would corrupt the marker, so an
+        // invalid field is left alone. This is also what makes a stray call on a merge overlay harmless.
+        if (m_multisampleEnable == RenderStates_InvalidBool)
+        {
+            return;
+        }
+
+        if (frontFaceClockwise)
+        {
+            m_multisampleEnable |= FrontFaceClockwiseBit;
+        }
+        else
+        {
+            m_multisampleEnable &= ~FrontFaceClockwiseBit;
+        }
+    }
 
     //! Merges any render states in stateToMerge into the result state object. 
     //! The values in stateToMerge are only copied over into the result if they are

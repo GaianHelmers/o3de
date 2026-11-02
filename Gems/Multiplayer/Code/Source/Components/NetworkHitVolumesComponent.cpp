@@ -125,6 +125,17 @@ namespace Multiplayer
         EMotionFX::Integration::ActorComponentNotificationBus::Handler::BusConnect(GetEntityId());
         GetNetBindComponent()->AddEntitySyncRewindEventHandler(m_syncRewindHandler);
         GetNetBindComponent()->AddEntityPreRenderEventHandler(m_preRenderHandler);
+        if (!GetTransformComponent())
+        {
+            // A Transform2Component derives from TransformComponent but has its own type id, so the generated lookup misses it.
+            if (AZ::TransformInterface* fallbackTransform = GetEntity()->GetTransform())
+            {
+                fallbackTransform->BindTransformChangedEventHandler(m_transformChangedHandler);
+                OnTransformUpdate(fallbackTransform->GetWorldTM());
+            }
+            Physics::CharacterNotificationBus::Handler::BusConnect(GetEntityId());
+            return;
+        }
         GetTransformComponent()->BindTransformChangedEventHandler(m_transformChangedHandler);
         OnTransformUpdate(GetTransformComponent()->GetWorldTM());
 

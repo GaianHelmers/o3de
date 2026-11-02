@@ -75,6 +75,8 @@ set(FILES
     Source/Mesh/MeshComponent.cpp
     Source/Mesh/MeshComponentController.h
     Source/Mesh/MeshComponentController.cpp
+    Source/Mesh/Transform2MeshSupport.h
+    Source/Mesh/Transform2MeshSupport.cpp
     Source/OcclusionCullingPlane/OcclusionCullingPlaneComponent.h
     Source/OcclusionCullingPlane/OcclusionCullingPlaneComponent.cpp
     Source/OcclusionCullingPlane/OcclusionCullingPlaneComponentController.h

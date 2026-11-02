@@ -123,6 +123,17 @@ namespace AZ::Render
         {
             CreateOrUpdateMeshDrawPackets(drawabaleMetaData.GetFeatureProcessor(), modelLodIndex, model);
         }
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2: front face winding
+        //
+        // The upstream condition above is untouched. A flip changes the winding the draw packets were built with, so they are
+        // rebuilt when the mesh is mirrored or unmirrored at the same LOD. The else keeps one rebuild per Draw, since a rebuild
+        // above has already stored the current winding. The price on a Transform 1 mesh is this one IsMirrored call per Draw;
+        // Editor Mode Feedback is an editor only tool.
+        else if (m_mirrored != drawabaleMetaData.GetFeatureProcessor()->IsMirrored(*m_meshHandle))
+        {
+            CreateOrUpdateMeshDrawPackets(drawabaleMetaData.GetFeatureProcessor(), modelLodIndex, model);
+        }
 
         AZ::RPI::DynamicDrawInterface* dynamicDraw = AZ::RPI::GetDynamicDraw();
         for (auto& drawPacket : m_meshDrawPackets)
@@ -173,6 +184,8 @@ namespace AZ::Render
         {
             const auto maskMeshObjectSrg = CreateMaskShaderResourceGroup(featureProcessor);
             m_modelLodIndex = modelLodIndex;
+            // Transform 2: front face winding. Remember the winding these draw packets are built with, for the check in Draw.
+            m_mirrored = featureProcessor->IsMirrored(*m_meshHandle);
             BuildMeshDrawPackets(model->GetModelAsset(), maskMeshObjectSrg);
         }
     }
@@ -187,6 +200,8 @@ namespace AZ::Render
         for (size_t i = 0; i < modelLod->GetMeshes().size(); i++)
         {
             EditorStateMeshDrawPacket drawPacket(*modelLod, i, m_maskMaterial, m_drawList, meshObjectSrg);
+            // Transform 2: front face winding. The selection outline winds like the mesh it outlines.
+            drawPacket.SetFrontFaceClockwise(m_mirrored);
             m_meshDrawPackets.emplace_back(drawPacket);
         }
     }

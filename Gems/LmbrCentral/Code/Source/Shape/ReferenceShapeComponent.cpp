@@ -200,6 +200,15 @@ namespace LmbrCentral
         }
     }
 
+    void ReferenceShapeComponent::OnShapeFlipChanged()
+    {
+        if (AllowNotification())
+        {
+            LmbrCentral::ShapeComponentNotificationsBus::Event(
+                GetEntityId(), &LmbrCentral::ShapeComponentNotificationsBus::Events::OnShapeFlipChanged);
+        }
+    }
+
     AZ::Crc32 ReferenceShapeComponent::GetShapeType() const
     {
         AZ::Crc32 result = {};
@@ -298,6 +307,31 @@ namespace LmbrCentral
         if (AllowRequest())
         {
             LmbrCentral::ShapeComponentRequestsBus::EventResult(result, m_configuration.m_shapeEntityId, &LmbrCentral::ShapeComponentRequestsBus::Events::IntersectRay, src, dir, distance);
+        }
+
+        return result;
+    }
+
+    void ReferenceShapeComponent::GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
+    {
+        transform = AZ::Transform::CreateIdentity();
+        bounds = AZ::Aabb::CreateNull();
+
+        AZStd::shared_lock lock(m_mutex);
+        if (AllowRequest())
+        {
+            LmbrCentral::ShapeComponentRequestsBus::Event(m_configuration.m_shapeEntityId, &LmbrCentral::ShapeComponentRequestsBus::Events::GetTransformAndAuthoredLocalBounds, transform, bounds);
+        }
+    }
+
+    AZ::Vector3 ReferenceShapeComponent::GetFlipSigns() const
+    {
+        AZ::Vector3 result = AZ::Vector3::CreateOne();
+
+        AZStd::shared_lock lock(m_mutex);
+        if (AllowRequest())
+        {
+            LmbrCentral::ShapeComponentRequestsBus::EventResult(result, m_configuration.m_shapeEntityId, &LmbrCentral::ShapeComponentRequestsBus::Events::GetFlipSigns);
         }
 
         return result;

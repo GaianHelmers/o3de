@@ -151,6 +151,12 @@ namespace LmbrCentral
         SendEntityChangedNotification(entityId);
     }
 
+    inline void DependencyMonitor::OnShapeFlipChanged()
+    {
+        AZ::EntityId entityId = *ShapeComponentNotificationsBus::GetCurrentBusId();
+        SendEntityChangedNotification(entityId);
+    }
+
     inline void DependencyMonitor::OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData> asset)
     {
         SendAssetChangedNotification(asset.GetId());

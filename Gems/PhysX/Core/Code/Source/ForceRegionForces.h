@@ -38,6 +38,7 @@ namespace PhysX
         AZ::Vector3 m_position;
         AZ::Quaternion m_rotation;
         float m_scale;
+        AZ::u8 m_flipMask = 0; ///< Transform 2: the axes the region is flipped across, X is 1, Y is 2, Z is 4. Never read by a force.
         AZ::SplinePtr m_spline;
         AZ::Aabb m_aabb;
     };
@@ -67,6 +68,12 @@ namespace PhysX
         /// Calculate the size and direction the force.
         virtual AZ::Vector3 CalculateForce(const EntityParams& entityParams
             , const RegionParams& volumeParams) const = 0;
+
+        /// Transform 2: mirrors what the force holds in local terms across the local axes named by the signs, -1 for an axis to
+        /// flip and +1 for one to leave. The signs are the change, not the state: multiplying by minus one is exact, so mirroring
+        /// by the same signs again restores the force. A force with no direction in local space has nothing to mirror.
+        /// It does not notify, because a flip is how the force is drawn and not an edit to it.
+        virtual void Mirror([[maybe_unused]] const AZ::Vector3& signs) {}
 
     protected:
         void NotifyChanged();
@@ -122,6 +129,13 @@ namespace PhysX
         ForceLocalSpace(const AZ::Vector3& direction, float magnitude);
         static void Reflect(AZ::ReflectContext* context);
         AZ::Vector3 CalculateForce(const EntityParams& entity, const RegionParams& region) const override;
+
+        // Transform 2
+        void Mirror(const AZ::Vector3& signs) override;
+
+        /// A copy with the direction mirrored by the signs, for drawing a flipped region from the force that is serialized.
+        /// It is made from the values, so unlike a copy of this force it is not connected to any bus, and it can sit on the stack.
+        ForceLocalSpace CreateFlippedCopy(const AZ::Vector3& signs) const;
 
         // BaseForce
         void Activate(AZ::EntityId entityId) override

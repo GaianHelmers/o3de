@@ -9,9 +9,11 @@
 
 #include <PhysX/ColliderShapeBus.h>
 #include <PhysX/MeshAsset.h>
+#include <Source/Transform2ColliderSupport.h>
 #include <Source/Utils.h>
 
 #include <AzCore/Math/Color.h>
+#include <AzCore/std/smart_ptr/make_shared.h>
 #include <AzFramework/Physics/ColliderComponentBus.h>
 #include <AzFramework/Physics/RigidBodyBus.h>
 #include <AzFramework/Translation/TranslationDef.h>
@@ -99,6 +101,10 @@ namespace PhysX
 
     void ForceRegion::Deactivate()
     {
+        // Transform 2: the forces survive a deactivation, so the mirror is undone while the entity is still known. The next
+        // activation then starts from the authored forces with a mask of zero, and waits for a new push.
+        SetFlipMask(0);
+
         m_entityId.SetInvalid();
         for (auto& force : m_forces)
         {
@@ -157,7 +163,23 @@ namespace PhysX
 
     void ForceRegion::OnColliderChanged()
     {
+        // Transform 2: the flip is not part of the collider, and the rebuild below starts from the authored spline and a mask of
+        // zero. The mask and the mirrored spline are carried across it. This is a rare path, and a region that is not flipped
+        // pays two byte tests.
+        const AZ::u8 flipMask = m_regionParams.m_flipMask;
+        AZ::SplinePtr flippedSpline;
+        if (flipMask)
+        {
+            flippedSpline = AZStd::move(m_regionParams.m_spline);
+        }
+
         m_regionParams = ForceRegionUtil::CreateRegionParams(m_entityId);
+
+        if (flipMask)
+        {
+            m_regionParams.m_flipMask = flipMask;
+            m_regionParams.m_spline = AZStd::move(flippedSpline);
+        }
     }
 
     void ForceRegion::AddForceWorldSpace(const AZ::Vector3& direction, float magnitude)
@@ -190,6 +212,29 @@ namespace PhysX
         AddAndActivateForce(AZStd::make_unique<ForceLinearDamping>(damping));
     }
 
+    void ForceRegion::SetFlipMask(AZ::u8 flipMask)
+    {
+        const AZ::u32 changedAxes = static_cast<AZ::u32>(m_regionParams.m_flipMask ^ flipMask);
+        if (changedAxes == 0)
+        {
+            return;
+        }
+
+        // The forces hold their directions as drawn. Mirroring by the axes that changed takes them from the old flip to the new
+        // one, and each force keeps its own direction, which a push through the force bus could not do: that bus reaches every
+        // force of its kind on the entity with one value. Multiplying by minus one is exact, so flipping back is exact too.
+        const AZ::Vector3 changeSigns = Transform2Mirror::GetMaskSigns(changedAxes);
+        for (auto& force : m_forces)
+        {
+            force->Mirror(changeSigns);
+        }
+
+        // The region follows the spline of the Spline component as it is authored, or a mirrored clone of it while flipped.
+        // The spline handler fetches the authored one again and makes the clone from it, or takes the authored one back at zero.
+        m_regionParams.m_flipMask = flipMask;
+        OnSplineChanged();
+    }
+
     void ForceRegion::AddAndActivateForce(AZStd::unique_ptr<BaseForce> force)
     {
         AZ_Assert(force, "Failed to add and activate null force.");
@@ -199,6 +244,12 @@ namespace PhysX
         }
         m_forces.push_back(AZStd::move(force));
         m_forces.back()->Activate(m_entityId);
+
+        // Transform 2: a force comes in as authored, and every force of a flipped region is held as drawn.
+        if (m_regionParams.m_flipMask)
+        {
+            m_forces.back()->Mirror(Transform2Mirror::GetMaskSigns(m_regionParams.m_flipMask));
+        }
     }
 
     void ForceRegion::OnSplineChanged()
@@ -206,6 +257,14 @@ namespace PhysX
         LmbrCentral::SplineComponentRequestBus::EventResult(m_regionParams.m_spline
             , m_entityId
             , &LmbrCentral::SplineComponentRequestBus::Events::GetSpline);
+
+        // Transform 2: the spline just fetched is the shared one. While flipped, the region follows a mirrored clone of it, which
+        // is made again for every change. A script that moves the vertices of a flipped spline every frame pays a clone each time.
+        if (m_regionParams.m_flipMask)
+        {
+            m_regionParams.m_spline = ForceRegionUtil::CreateFlippedSpline(
+                m_regionParams.m_spline, Transform2Mirror::GetMaskSigns(m_regionParams.m_flipMask));
+        }
     }
 
     RegionParams ForceRegionUtil::CreateRegionParams(AZ::EntityId entityId)
@@ -267,5 +326,46 @@ namespace PhysX
             , entityId
             , &ColliderShapeRequestBus::Events::GetColliderShapeAabb);
         return triggerAabb.value;
+    }
+
+    AZ::SplinePtr ForceRegionUtil::CreateFlippedSpline(const AZ::SplinePtr& spline, const AZ::Vector3& signs)
+    {
+        // Fewer than two vertices answer no query. A Bezier spline with one vertex also reads past its vertices when it builds
+        // its control points, so there is nothing to gain by cloning it.
+        if (!spline || spline->GetVertexCount() < 2)
+        {
+            return spline;
+        }
+
+        // The clone has the type of the spline, copied with its own settings: closed, granularity and knot parameterization.
+        // A clone made as a base Spline would turn a Catmull-Rom into the default one.
+        AZ::SplinePtr flipped;
+        if (auto* linear = azrtti_cast<AZ::LinearSpline*>(spline.get()))
+        {
+            flipped = AZStd::make_shared<AZ::LinearSpline>(*linear);
+        }
+        else if (auto* bezier = azrtti_cast<AZ::BezierSpline*>(spline.get()))
+        {
+            flipped = AZStd::make_shared<AZ::BezierSpline>(*bezier);
+        }
+        else if (auto* catmullRom = azrtti_cast<AZ::CatmullRomSpline*>(spline.get()))
+        {
+            flipped = AZStd::make_shared<AZ::CatmullRomSpline>(*catmullRom);
+        }
+        else
+        {
+            AZ_Warning("PhysX", false, "A force region cannot mirror a spline of this type, so it follows the spline as authored.");
+            return spline;
+        }
+
+        // Setting the vertices makes a Bezier spline build its control points again from the mirrored vertices. They are built
+        // from vertex differences and distances only, which a reflection keeps, so they land on the mirror of the authored ones.
+        AZStd::vector<AZ::Vector3> vertices = spline->GetVertices();
+        for (AZ::Vector3& vertex : vertices)
+        {
+            vertex = Transform2Mirror::MirrorPosition(signs, vertex);
+        }
+        flipped->m_vertexContainer.SetVertices(AZStd::move(vertices));
+        return flipped;
     }
 }

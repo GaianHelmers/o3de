@@ -68,6 +68,7 @@ AZ_POP_DISABLE_WARNING
 #include <AzToolsFramework/ToolsComponents/EditorOnlyEntityComponentBus.h>
 #include <AzToolsFramework/ToolsComponents/EditorOnlyEntityComponent.h>
 #include <AzToolsFramework/ToolsComponents/EditorNonUniformScaleComponent.h>
+#include <AzToolsFramework/ToolsComponents/TransformComponent.h>
 #include <AzToolsFramework/ToolsMessaging/EntityHighlightBus.h>
 #include <AzToolsFramework/UI/ComponentPalette/ComponentPaletteUtil.hxx>
 #include <AzToolsFramework/UI/ComponentPalette/ComponentPaletteWidget.hxx>
@@ -922,7 +923,8 @@ namespace AzToolsFramework
 
     void EntityPropertyEditor::OnEntityActivated(const AZ::EntityId& entityId)
     {
-        if (IsEntitySelected(entityId))
+        // A transform cycling the activation of its entity leaves the components as they are, so the tree stays.
+        if (IsEntitySelected(entityId) && !Components::TransformComponent::IsReactivatingForTransform2(entityId))
         {
             QueuePropertyRefresh();
         }
@@ -930,7 +932,7 @@ namespace AzToolsFramework
 
     void EntityPropertyEditor::OnEntityDeactivated(const AZ::EntityId& entityId)
     {
-        if (IsEntitySelected(entityId))
+        if (IsEntitySelected(entityId) && !Components::TransformComponent::IsReactivatingForTransform2(entityId))
         {
             QueuePropertyRefresh();
         }
@@ -5359,6 +5361,18 @@ namespace AzToolsFramework
 
     void EntityPropertyEditor::OnEntityComponentPropertyChanged(AZ::ComponentId componentId)
     {
+        // A header tag is not a property row, so it updates even when this editor started the change. Hidden editors
+        // are not skipped: one that is not shown yet (or any more) must still carry the right tag when it appears.
+        // An unused editor holds no components, so it never matches.
+        for (auto componentEditor : m_componentEditors)
+        {
+            if (componentEditor->HasComponentWithId(componentId))
+            {
+                componentEditor->UpdateHeaderTag();
+                break;
+            }
+        }
+
         // When m_initiatingPropertyChangeNotification is true, it means this EntityPropertyEditor was
         // the one that is broadcasting this property change, so no need to refresh our values
         if (m_initiatingPropertyChangeNotification)

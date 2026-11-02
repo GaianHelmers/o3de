@@ -438,6 +438,12 @@ namespace AzToolsFramework
         // setup where manipulator should be
         m_translationManipulator->m_manipulator.SetLocalPosition(AdaptVertexOut(vertex));
 
+        // a space given to RefreshSpace holds for a manipulator made after it, over the scale of the entity read above
+        if (m_refreshedNonUniformScale.has_value())
+        {
+            m_translationManipulator->m_manipulator.SetNonUniformScale(m_refreshedNonUniformScale.value());
+        }
+
         // linear manipulator callbacks
         m_translationManipulator->m_manipulator.InstallLinearManipulatorMouseDownCallback(
             [this]([[maybe_unused]] const LinearManipulator::Action& action)
@@ -1197,6 +1203,8 @@ namespace AzToolsFramework
     void EditorVertexSelectionBase<Vertex>::RefreshSpace(const AZ::Transform& worldFromLocal, const AZ::Vector3& nonUniformScale)
     {
         AZ_PROFILE_FUNCTION(AzToolsFramework);
+
+        m_refreshedNonUniformScale = nonUniformScale;
 
         for (auto& manipulator : m_selectionManipulators)
         {

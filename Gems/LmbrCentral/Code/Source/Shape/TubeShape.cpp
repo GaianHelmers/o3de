@@ -79,6 +79,7 @@ namespace LmbrCentral
         m_currentTransform = rhs.m_currentTransform;
         m_entityId = rhs.m_entityId;
         m_radius = rhs.m_radius;
+        // m_flipMask is not copied: the flip is pushed to a shape that is active, so a copy starts as authored.
     }
 
 
@@ -104,6 +105,10 @@ namespace LmbrCentral
         SplineComponentNotificationBus::Handler::BusDisconnect();
         TubeShapeComponentRequestsBus::Handler::BusDisconnect();
         AZ::TransformNotificationBus::Handler::BusDisconnect();
+
+        // A re-activated shape starts as authored. The Transform 2 shape support pushes the flip again. A caller that
+        // re-activates a live shape with nobody to push it keeps the flip with GetFlipMask and RestoreFlipMask.
+        m_flipMask = 0;
     }
 
     void TubeShape::OnTransformChanged(const AZ::Transform& /*local*/, const AZ::Transform& world)
@@ -248,13 +253,25 @@ namespace LmbrCentral
         AZ::Transform worldFromLocalUniformScale = m_currentTransform;
         worldFromLocalUniformScale.SetUniformScale(worldFromLocalUniformScale.GetUniformScale());
 
+        if (m_flipMask)
+        {
+            // The mirrored local bounds put in the world. On a rotated entity that box is conservative. A tube with no vertices has
+            // null bounds, and moving a null box would make it the whole world.
+            AZ::Aabb flippedBounds = Flip(CalculateTubeBounds(*this, AZ::Transform::CreateIdentity()));
+            if (flippedBounds.IsValid())
+            {
+                flippedBounds.ApplyTransform(worldFromLocalUniformScale);
+            }
+            return flippedBounds;
+        }
+
         return CalculateTubeBounds(*this, worldFromLocalUniformScale);
     }
 
     void TubeShape::GetTransformAndLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
     {
         AZStd::shared_lock lock(m_mutex);
-        bounds = CalculateTubeBounds(*this, AZ::Transform::CreateIdentity());
+        bounds = Flip(CalculateTubeBounds(*this, AZ::Transform::CreateIdentity()));
         transform = m_currentTransform;
     }
 
@@ -269,7 +286,7 @@ namespace LmbrCentral
         AZ::Transform worldFromLocalNormalized = m_currentTransform;
         const float scale = worldFromLocalNormalized.ExtractUniformScale();
         const AZ::Transform localFromWorldNormalized = worldFromLocalNormalized.GetInverse();
-        const AZ::Vector3 localPoint = localFromWorldNormalized.TransformPoint(point) / scale;
+        const AZ::Vector3 localPoint = Flip(localFromWorldNormalized.TransformPoint(point) / scale);
 
         const auto address = m_spline->GetNearestAddressPosition(localPoint).m_splineAddress;
         const float radiusSq = powf(m_radius, 2.0f);
@@ -285,7 +302,7 @@ namespace LmbrCentral
         AZ::Transform worldFromLocalNormalized = m_currentTransform;
         const float uniformScale = worldFromLocalNormalized.ExtractUniformScale();
         const AZ::Transform localFromWorldNormalized = worldFromLocalNormalized.GetInverse();
-        const AZ::Vector3 localPoint = localFromWorldNormalized.TransformPoint(point) / uniformScale;
+        const AZ::Vector3 localPoint = Flip(localFromWorldNormalized.TransformPoint(point) / uniformScale);
 
         const auto splineQueryResult = m_spline->GetNearestAddressPosition(localPoint);
         const float variableRadius =
@@ -304,7 +321,16 @@ namespace LmbrCentral
     bool TubeShape::IntersectRay(const AZ::Vector3& src, const AZ::Vector3& dir, float& distance) const
     {
         AZStd::shared_lock lock(m_mutex);
-        const auto splineQueryResult = IntersectSpline(m_currentTransform, src, dir, *m_spline);
+
+        // A flipped tube is hit where it is drawn: the ray is mirrored about the entity and meets the authored spline.
+        AZ::Vector3 rayOrigin = src;
+        AZ::Vector3 rayDirection = dir;
+        if (m_flipMask)
+        {
+            MirrorRayAboutEntity(m_currentTransform, FlipMaskToSigns(m_flipMask), rayOrigin, rayDirection);
+        }
+
+        const auto splineQueryResult = IntersectSpline(m_currentTransform, rayOrigin, rayDirection, *m_spline);
         const float variableRadius = m_variableRadius.GetElementInterpolated(
             splineQueryResult.m_splineAddress, Lerpf);
 
@@ -312,6 +338,80 @@ namespace LmbrCentral
         distance = (splineQueryResult.m_rayDistance - totalRadius) * m_currentTransform.GetUniformScale();
 
         return static_cast<float>(sqrtf(splineQueryResult.m_distanceSq)) < totalRadius;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+    //
+    // The spline pointer is shared with SplineComponent, which saves it, and with others that hold it. It is never mirrored. The
+    // queries are: a local point or ray is mirrored before it meets the authored spline, which has the same distances as the mirrored
+    // spline meeting the original point. Radii stay with their spline address. Spline::GetNormal is not equivariant under a single
+    // X or Y flip, so a normal is never recomputed on the mirrored side: the mesh and the handles mirror the authored one.
+
+    void TubeShape::SetFlipMask(AZ::u8 flipMask)
+    {
+        {
+            AZStd::unique_lock lock(m_mutex);
+            if (flipMask == m_flipMask)
+            {
+                return;
+            }
+            m_flipMask = flipMask;
+        }
+
+        // Whatever the spline looks like, the tube answers on another side now. Telling whether the spline is symmetric across
+        // the flipped axis would take a walk over it.
+        ShapeComponentNotificationsBus::Event(
+            m_entityId, &ShapeComponentNotificationsBus::Events::OnShapeChanged,
+            ShapeComponentNotifications::ShapeChangeReasons::ShapeChanged);
+    }
+
+    void TubeShape::RestoreFlipMask(AZ::u8 flipMask)
+    {
+        AZStd::unique_lock lock(m_mutex);
+        m_flipMask = flipMask;
+    }
+
+    AZ::Vector3 TubeShape::GetFlipSigns() const
+    {
+        AZStd::shared_lock lock(m_mutex);
+        return FlipMaskToSigns(m_flipMask);
+    }
+
+    void TubeShape::GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
+    {
+        AZStd::shared_lock lock(m_mutex);
+        bounds = CalculateTubeBounds(*this, AZ::Transform::CreateIdentity());
+        transform = m_currentTransform;
+    }
+
+    AZ::Aabb TubeShape::Flip(const AZ::Aabb& localBounds) const
+    {
+        // A negative axis swaps the ends of the box: [min, max] becomes [-max, -min]. A null box has no ends to swap.
+        if (!m_flipMask || !localBounds.IsValid())
+        {
+            return localBounds;
+        }
+
+        const AZ::Vector3 signs = FlipMaskToSigns(m_flipMask);
+        const AZ::Vector3 mirroredMin = localBounds.GetMin() * signs;
+        const AZ::Vector3 mirroredMax = localBounds.GetMax() * signs;
+        return AZ::Aabb::CreateFromMinMax(mirroredMin.GetMin(mirroredMax), mirroredMin.GetMax(mirroredMax));
+    }
+
+    void MirrorRayAboutEntity(
+        const AZ::Transform& worldFromLocal, const AZ::Vector3& flipSigns, AZ::Vector3& rayOrigin, AZ::Vector3& rayDirection)
+    {
+        // A ray that is not flipped is left as it is, bit for bit.
+        if (flipSigns == AZ::Vector3::CreateOne())
+        {
+            return;
+        }
+
+        // The ray goes into the local axes of the entity, is mirrored there, and comes back. The uniform scale cancels for a direction.
+        const AZ::Transform localFromWorld = worldFromLocal.GetInverse();
+        rayOrigin = worldFromLocal.TransformPoint(localFromWorld.TransformPoint(rayOrigin) * flipSigns);
+        rayDirection = worldFromLocal.TransformVector(localFromWorld.TransformVector(rayDirection) * flipSigns);
     }
 
     /// Generates all vertex positions. Assumes the vertex pointer is valid
@@ -575,6 +675,25 @@ namespace LmbrCentral
         GenerateWireTubeMesh(
             spline, variableRadius, radius,
             capSegments, sides, lineBufferOut);
+    }
+
+    void MirrorTubeMeshPoints(const AZ::Vector3& flipSigns, ShapeMesh& tubeShapeMesh)
+    {
+        // A mesh that is not flipped is left alone, and a flipped one keeps its indices.
+        if (flipSigns == AZ::Vector3::CreateOne())
+        {
+            return;
+        }
+
+        for (AZ::Vector3& vertex : tubeShapeMesh.m_vertexBuffer)
+        {
+            vertex *= flipSigns;
+        }
+
+        for (AZ::Vector3& line : tubeShapeMesh.m_lineBuffer)
+        {
+            line *= flipSigns;
+        }
     }
 
     void TubeShapeMeshConfig::Reflect(AZ::ReflectContext* context)

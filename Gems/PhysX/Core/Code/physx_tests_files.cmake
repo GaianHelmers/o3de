@@ -34,6 +34,7 @@ set(FILES
     Tests/PhysXScriptTest.cpp
     Tests/CharacterControllerTests.cpp
     Tests/CharacterGameplayControllerTests.cpp
+    Tests/ColliderFlipTests.cpp
     Tests/RagdollConfiguration.h
     Tests/RagdollTestData.h
     Tests/RagdollTests.cpp

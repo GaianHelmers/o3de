@@ -119,11 +119,12 @@ namespace LmbrCentral
             },
             [this](AzFramework::DebugDisplayRequests& debugDisplay)
             {
+                // A matrix cannot carry a mirror, so the capsule is drawn at the offset the shape answers with.
                 DrawShape(
                     debugDisplay,
                     ShapeDrawParams{ m_capsuleShape.GetCapsuleConfiguration().GetDrawColor(), m_shapeWireColor, m_displayFilled },
                     m_capsuleShapeMesh,
-                    m_capsuleShape.GetTranslationOffset());
+                    m_capsuleShape.GetEffectiveTranslationOffset());
             },
             m_capsuleShape.GetCurrentTransform());
     }
@@ -210,14 +211,17 @@ namespace LmbrCentral
         GenerateVertices();
     }
 
+    // The handles sit on the capsule the wireframe draws, so they are given the mirrored offset and the mirrored offset they write is
+    // taken back as authored. A mirror is its own inverse, so the round trip is exact and a flip is never stored. This is the only
+    // place the handles mirror: the PhysX collider modes install the same shared handle functions on a component that mirrors itself.
     AZ::Vector3 EditorCapsuleShapeComponent::GetTranslationOffset() const
     {
-        return m_capsuleShape.GetTranslationOffset();
+        return m_capsuleShape.GetEffectiveTranslationOffset();
     }
 
     void EditorCapsuleShapeComponent::SetTranslationOffset(const AZ::Vector3& translationOffset)
     {
-        m_capsuleShape.SetTranslationOffset(translationOffset);
+        m_capsuleShape.SetTranslationOffset(translationOffset * m_capsuleShape.GetFlipSigns());
         GenerateVertices();
     }
 

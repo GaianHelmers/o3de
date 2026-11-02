@@ -48,6 +48,8 @@ namespace AZ::Render
         const RHI::DrawPacket* GetRHIDrawPacket() const;
 
         void SetStencilRef(uint8_t stencilRef) { m_stencilRef = stencilRef; }
+        // Transform 2: front face winding
+        void SetFrontFaceClockwise(bool frontFaceClockwise) { m_frontFaceClockwise = frontFaceClockwise; }
         void SetSortKey(RHI::DrawItemSortKey sortKey) { m_sortKey = sortKey; };
         bool SetShaderOption(const Name& shaderOptionName, RPI::ShaderOptionValue value);
 
@@ -90,6 +92,10 @@ namespace AZ::Render
 
         // Set the stencil value for this draw packet
         uint8_t m_stencilRef = 0;
+
+        // Transform 2: front face winding. A mirrored mesh winds the other way on screen, so it needs the same front face as its
+        // main draw packets.
+        bool m_frontFaceClockwise = false;
 
         //! A map matches the index of UV names of this material to the custom names from the model.
         RPI::MaterialModelUvOverrideMap m_materialModelUvMap;

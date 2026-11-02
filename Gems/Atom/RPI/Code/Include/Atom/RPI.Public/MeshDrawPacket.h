@@ -70,6 +70,9 @@ namespace AZ
             const RHI::ConstPtr<RHI::ConstantsLayout> GetRootConstantsLayout() const;
 
             void SetStencilRef(uint8_t stencilRef);
+            //! Transform 2: front face winding. Makes clockwise triangles the front faces instead of counter-clockwise ones in every
+            //! raster draw item of this packet. A mirrored mesh needs it, because its triangles wind the other way on screen.
+            void SetFrontFaceClockwise(bool frontFaceClockwise);
             void SetSortKey(RHI::DrawItemSortKey sortKey);
             bool SetShaderOption(const Name& shaderOptionName, RPI::ShaderOptionValue value);
             bool UnsetShaderOption(const Name& shaderOptionName);
@@ -137,6 +140,9 @@ namespace AZ
 
             // Set the stencil value for this draw packet
             uint8_t m_stencilRef = 0;
+
+            // Transform 2: front face winding of this draw packet. It sits in the padding after m_stencilRef.
+            bool m_frontFaceClockwise = false;
 
             //! A map matches the index of UV names of this material to the custom names from the model.
             MaterialModelUvOverrideMap m_materialModelUvMap;

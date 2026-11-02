@@ -10,6 +10,7 @@
 #include <Source/EditorShapeColliderComponent.h>
 #include <Source/EditorForceRegionComponent.h>
 #include <Source/ForceRegionComponent.h>
+#include <Source/Transform2ColliderSupport.h>
 #include <Source/Utils.h>
 
 #include <PhysX/ColliderShapeBus.h>
@@ -113,6 +114,19 @@ namespace PhysX
     {
         const BaseForce& force = GetCurrentBaseForce();
         return force.CalculateForce(entity, region);
+    }
+
+    AZ::Vector3 EditorForceRegionComponent::EditorForceProxy::CalculateForceFlipped(
+        const EntityParams& entity, const RegionParams& region, const AZ::Vector3& signs) const
+    {
+        // Only a local space force holds a direction in local terms. The copy is made from the values of the serialized force and
+        // is not connected to any bus, so nothing authored is written and nothing is connected during a draw.
+        if (m_type == ForceType::LocalSpace && Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            return m_forceLocalSpace.CreateFlippedCopy(signs).CalculateForce(entity, region);
+        }
+
+        return CalculateForce(entity, region);
     }
 
     bool EditorForceRegionComponent::EditorForceProxy::IsWorldSpaceForce() const
@@ -336,21 +350,25 @@ namespace PhysX
                     , editorColliderComponent->GetColliderConfiguration().m_rotation
                     , m_cachedNonUniformScale);
 
-                DrawForceArrows(randomPoints, debugDisplayRequests);
+                // Transform 2: the points and the AABB of this collider are on the authored side.
+                DrawForceArrows(randomPoints, debugDisplayRequests, true);
             }
             else if (azrtti_cast<EditorMeshColliderComponent*>(component))
             {
-                DrawForceArrows(shapeAabbPoints, debugDisplayRequests);
+                // The AABB of the Mesh Collider is built from its authored configuration, so it is on the authored side as well.
+                DrawForceArrows(shapeAabbPoints, debugDisplayRequests, true);
             }
             else if (auto* editorShapeColliderComponent = azrtti_cast<EditorShapeColliderComponent*>(component))
             {
-                DrawForceArrows(editorShapeColliderComponent->GetSamplePoints(), debugDisplayRequests);
+                // The sample points are authored, but the AABB comes from the Shape component, which answers on the drawn side.
+                DrawForceArrows(editorShapeColliderComponent->GetSamplePoints(), debugDisplayRequests, false);
             }
         }
     }
 
     void EditorForceRegionComponent::DrawForceArrows(const AZStd::vector<AZ::Vector3>& arrowPositions
-        , AzFramework::DebugDisplayRequests& debugDisplayRequests)
+        , AzFramework::DebugDisplayRequests& debugDisplayRequests
+        , bool colliderAabbIsAuthored)
     {
         const AZ::Color color = AZ::Color(0.f, 0.f, 1.f, 1.f);
         debugDisplayRequests.SetColor(color);
@@ -362,14 +380,40 @@ namespace PhysX
 
         const PhysX::RegionParams regionParams = ForceRegionUtil::CreateRegionParams(GetEntityId());
 
-        for (const auto& arrowPosition : arrowPositions)
+        // Transform 2: a flipped entity draws its field mirrored, as the game runs it. The lookup is editor only. The points,
+        // the AABB, the spline and the local space forces arrive authored, and are mirrored here once, on copies that are drawn
+        // and dropped. The forces and the spline of the Spline component are serialized, so none of them is written.
+        const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId());
+        const AZ::u32 flipMask = Transform2Mirror::GetSignMask(signs);
+
+        PhysX::RegionParams drawnRegionParams = regionParams;
+        AZStd::vector<AZ::Vector3> mirroredPositions;
+        if (flipMask != 0)
+        {
+            const AZ::Transform world = GetWorldTM();
+            drawnRegionParams.m_flipMask = static_cast<AZ::u8>(flipMask);
+            drawnRegionParams.m_spline = ForceRegionUtil::CreateFlippedSpline(regionParams.m_spline, signs);
+            if (colliderAabbIsAuthored)
+            {
+                drawnRegionParams.m_aabb = Transform2Mirror::MirrorWorldAabb(world, signs, regionParams.m_aabb);
+            }
+
+            mirroredPositions.reserve(arrowPositions.size());
+            for (const AZ::Vector3& arrowPosition : arrowPositions)
+            {
+                mirroredPositions.push_back(Transform2Mirror::MirrorWorldPoint(world, signs, arrowPosition));
+            }
+        }
+        const AZStd::vector<AZ::Vector3>& drawnPositions = flipMask != 0 ? mirroredPositions : arrowPositions;
+
+        for (const auto& arrowPosition : drawnPositions)
         {
             entityParams.m_position = arrowPosition;
 
             auto totalForce = AZ::Vector3::CreateZero();
             for (const auto& force : m_forces)
             {
-                totalForce += force.CalculateForce(entityParams, regionParams);
+                totalForce += force.CalculateForceFlipped(entityParams, drawnRegionParams, signs);
             }
 
             if (!totalForce.IsZero() && totalForce.IsFinite())

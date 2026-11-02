@@ -1718,6 +1718,151 @@ namespace AzToolsFramework
         scaleManipulators->InstallUniformLeftMouseUpCallback(uniformLeftMouseUpCallback);
         scaleManipulators->InstallUniformMouseMoveCallback(uniformLeftMouseMoveCallback);
 
+        //////////////////////////////////////////////////////////////////////////
+        // Per axis scale on an extended entity (D.36)
+        //
+        // A handle holds one callback of each kind, so installing the callbacks below replaces the uniform ones on the three
+        // axis handles (the centre handle keeps them). Each one runs the uniform callback first and adds the per axis part,
+        // so a Transform 1 and every other case run today's code.
+        //
+        // An entity that was already extended at mouse down scales only the axis of the dragged handle, while the gizmo is in
+        // the Local frame and that axis of the gizmo is the entity's own axis, and a drag past zero flips the sign.
+        // Everything else keeps the uniform drag. A Transform 1, because a first drag must not silently turn it into a
+        // Transform 2 (D.25). The World frame, the centre handle and an entity whose axes differ from the gizmo's (a selection
+        // of differently rotated entities), because a stretch along the world axes of a rotated entity is a shear that
+        // rotation, scale and translation cannot hold.
+        //
+        // Only the scale is written. The position is not spread around the pivot as the uniform drag does with Group
+        // influence, so Alt makes no difference here, and in a mixed selection the Transform 1 entities spread about the
+        // pivot while the extended ones scale in place. Undo needs nothing: the handle's own undo batch marks every selected
+        // entity dirty on each move.
+        //
+        // Known limits. A selected ancestor's scale already reaches an extended entity through the hierarchy, so selecting a
+        // parent together with its extended child compounds the child's scale. A product that lands on zero stays there,
+        // because every later drag multiplies it: undo or the inspector is the way back.
+
+        struct AxisScaleEntity
+        {
+            Components::EditorTransform m_editorTransform; //!< The transform at mouse down, or at the last change of modifiers.
+            float m_standIn = 1.0f; //!< World uniform scale at the same moment, the unit a drag distance is measured in.
+            bool m_extended = false; //!< Extended at mouse down. A drag back to a uniform scale does not end the per axis drag.
+        };
+
+        struct AxisScaleState
+        {
+            AZStd::unordered_map<AZ::EntityId, AxisScaleEntity> m_entities;
+            ViewportInteraction::KeyboardModifiers m_prevModifiers;
+            bool m_anyExtended = false; //!< Is any selected entity extended. When none is, every move is the uniform move.
+        };
+
+        auto axisScaleState = AZStd::make_shared<AxisScaleState>();
+
+        // where an entity's scale stands now, the start its per axis moves are measured from
+        auto captureAxisScaleStart = [](const AZ::EntityId entityId, AxisScaleEntity& entity)
+        {
+            Components::TransformComponentMessages::Bus::EventResult(
+                entity.m_editorTransform, entityId, &Components::TransformComponentMessages::Bus::Events::GetLocalEditorTransform);
+            entity.m_standIn = GetWorldTransform(entityId).GetUniformScale();
+        };
+
+        auto axisLeftMouseDownCallback = [sharedScaleState, axisScaleState, captureAxisScaleStart, uniformLeftMouseDownCallback](
+                                             const LinearManipulator::Action& action)
+        {
+            // the uniform code lists the entities and records where they start
+            uniformLeftMouseDownCallback(action);
+
+            axisScaleState->m_entities.clear();
+            axisScaleState->m_anyExtended = false;
+            axisScaleState->m_prevModifiers = action.m_modifiers;
+            for (const AZ::EntityId entityId : sharedScaleState->m_entityIds)
+            {
+                AxisScaleEntity& entity = axisScaleState->m_entities[entityId];
+                captureAxisScaleStart(entityId, entity);
+                entity.m_extended = entity.m_editorTransform.IsExtended();
+                axisScaleState->m_anyExtended = axisScaleState->m_anyExtended || entity.m_extended;
+            }
+        };
+
+        auto axisMouseMoveCallback = [this, sharedScaleState, axisScaleState, captureAxisScaleStart, uniformLeftMouseMoveCallback](
+                                         const LinearManipulator::Action& action) mutable
+        {
+            AxisScaleState& state = *axisScaleState;
+            if (!state.m_anyExtended)
+            {
+                uniformLeftMouseMoveCallback(action);
+                return;
+            }
+
+            // sort the entities into those that scale per axis in this move and those that keep the uniform drag
+            const AZ::Vector3 handleAxis = action.m_fixed.m_axis;
+            const ReferenceFrame referenceFrame = m_spaceCluster.m_spaceLock.value_or(ReferenceFrameFromModifiers(action.m_modifiers));
+            const bool perAxisAllowed = referenceFrame == ReferenceFrame::Local && !action.m_modifiers.Ctrl();
+            const AZ::Vector3 gizmoAxis =
+                TransformDirectionNoScaling(m_entityIdManipulators.m_manipulators->GetLocalTransform(), handleAxis);
+
+            AZStd::vector<AZStd::pair<AZ::EntityId, AxisScaleEntity*>> perAxisEntities;
+            EntityIdList uniformEntityIds;
+            for (const AZ::EntityId entityId : sharedScaleState->m_entityIds)
+            {
+                const auto entityIt = state.m_entities.find(entityId);
+                const auto lookupIt = m_entityIdManipulators.m_lookups.find(entityId);
+                const bool perAxis = perAxisAllowed && entityIt != state.m_entities.end() && entityIt->second.m_extended &&
+                    lookupIt != m_entityIdManipulators.m_lookups.end() &&
+                    gizmoAxis.IsClose(TransformDirectionNoScaling(lookupIt->second.m_initial, handleAxis));
+
+                if (perAxis)
+                {
+                    perAxisEntities.emplace_back(entityId, &entityIt->second);
+                }
+                else
+                {
+                    uniformEntityIds.push_back(entityId);
+                }
+            }
+
+            // The uniform code walks the entity ids it shares, so it is handed only the entities that keep the uniform drag.
+            // It sees every move, so its own record of the modifiers and of the pointer offset is current for the part below.
+            sharedScaleState->m_entityIds.swap(uniformEntityIds);
+            uniformLeftMouseMoveCallback(action);
+            sharedScaleState->m_entityIds.swap(uniformEntityIds);
+
+            // A change of modifiers starts the measure again, as it does in the uniform code, so nothing jumps when the frame,
+            // the influence or the manipulator size changes under the cursor.
+            if (state.m_prevModifiers != action.m_modifiers)
+            {
+                for (const auto& perAxisEntity : perAxisEntities)
+                {
+                    captureAxisScaleStart(perAxisEntity.first, *perAxisEntity.second);
+                }
+                state.m_prevModifiers = action.m_modifiers;
+            }
+
+            // The drag distance along the handle's axis, positive away from the pivot on the side that was picked.
+            const float scaleDistance =
+                action.m_start.m_sign * (action.LocalScaleOffset() - sharedScaleState->m_savedScaleOffset).Dot(handleAxis);
+
+            // note: the entity ids are in hierarchy order, as the uniform code needs
+            for (const auto& perAxisEntity : perAxisEntities)
+            {
+                const AxisScaleEntity& entity = *perAxisEntity.second;
+
+                // The handle's axis is stretched and the others keep their sign and ratio. The factor is not clamped, so a
+                // drag past zero flips the sign.
+                Components::EditorTransform editorTransform = entity.m_editorTransform;
+                editorTransform.m_authoredScale = entity.m_editorTransform.m_authoredScale *
+                    (AZ::Vector3::CreateOne() + handleAxis * (scaleDistance / entity.m_standIn));
+
+                // marked internal, as the Etcs setters are, so the selection does not rebuild the manipulator under the cursor
+                m_transformChangedInternally = true;
+                Components::TransformComponentMessages::Bus::Event(
+                    perAxisEntity.first, &Components::TransformComponentMessages::Bus::Events::SetLocalEditorTransform, editorTransform);
+                m_transformChangedInternally = false;
+            }
+        };
+
+        scaleManipulators->InstallAxisLeftMouseDownCallback(axisLeftMouseDownCallback);
+        scaleManipulators->InstallAxisMouseMoveCallback(axisMouseMoveCallback);
+
         // transfer ownership
         m_entityIdManipulators.m_manipulators = AZStd::move(scaleManipulators);
     }
@@ -4668,7 +4813,17 @@ namespace AzToolsFramework
         void SetEntityLocalScale(AZ::EntityId entityId, float localScale, bool& internal)
         {
             ScopeSwitch sw(internal);
-            AZ::TransformBus::Event(entityId, &AZ::TransformBus::Events::SetLocalUniformScale, localScale);
+
+            // This replaces the whole scale, and only the reset gesture does that. The ditto scale actions write the world
+            // transform instead, which keeps the signs and axis ratios of an extended transform. SetLocalUniformScale does the
+            // same, so it would never reset one. The authored scale is set through the editor transform instead, which makes
+            // the transform a plain uniform Transform 1 again.
+            Components::EditorTransform editorTransform;
+            Components::TransformComponentMessages::Bus::EventResult(
+                editorTransform, entityId, &Components::TransformComponentMessages::Bus::Events::GetLocalEditorTransform);
+            editorTransform.m_authoredScale = AZ::Vector3(localScale);
+            Components::TransformComponentMessages::Bus::Event(
+                entityId, &Components::TransformComponentMessages::Bus::Events::SetLocalEditorTransform, editorTransform);
         }
 
         void SetEntityLocalRotation(AZ::EntityId entityId, const AZ::Vector3& localRotation, bool& internal)

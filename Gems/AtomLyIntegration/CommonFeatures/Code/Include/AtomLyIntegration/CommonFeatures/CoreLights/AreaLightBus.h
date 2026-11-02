@@ -11,6 +11,7 @@
 #include <AzCore/Component/ComponentBus.h>
 
 #include <AzCore/Math/Color.h>
+#include <AzCore/Math/Transform.h>
 #include <AtomLyIntegration/CommonFeatures/CoreLights/AreaLightComponentConfig.h>
 
 namespace AZ
@@ -180,6 +181,11 @@ namespace AZ
 
             //! Returns the Aabb for the debug visualization of the light.
             virtual AZ::Aabb GetLocalVisualizationBounds() const = 0;
+
+            //! Gives the light the signed per-axis scale of its entity, and the Transform 1 world of the entity it applies to.
+            //! Only Transform 2 calls this, because a negative axis is not something the positive scale buses can carry.
+            //! A light that has no use for the sign leaves it alone.
+            virtual void SetRenderScale([[maybe_unused]] const AZ::Transform& world, [[maybe_unused]] const AZ::Vector3& renderScale) {}
         };
 
         //! The EBus for requests to for setting and getting light component properties.

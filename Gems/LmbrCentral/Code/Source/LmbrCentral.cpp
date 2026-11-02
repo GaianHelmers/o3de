@@ -365,10 +365,15 @@ namespace LmbrCentral
         auto entityIconAssetTypeInfo = aznew EntityIconAssetTypeInfo();
         entityIconAssetTypeInfo->Register();
         m_unhandledAssetInfo.emplace_back(entityIconAssetTypeInfo);
+
+        // Shapes on a Transform 2 entity follow its flip. Only Transform 2 entities raise what this listens to.
+        m_transform2ShapeSupport = AZStd::make_unique<Transform2ShapeSupport>();
     }
 
     void LmbrCentralSystemComponent::Deactivate()
     {
+        m_transform2ShapeSupport.reset();
+
         // AssetTypeInfo's destructor calls Unregister()
         m_unhandledAssetInfo.clear();
 

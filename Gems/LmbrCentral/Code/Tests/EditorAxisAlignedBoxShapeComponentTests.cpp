@@ -8,7 +8,9 @@
 
 #include "Shape/EditorAxisAlignedBoxShapeComponent.h"
 #include "Shape/EditorSphereShapeComponent.h"
+#include <AZTestShared/Math/MathTestHelpers.h>
 #include <AZTestShared/Utils/Utils.h>
+#include <AzFramework/UnitTest/TestDebugDisplayRequests.h>
 #include <AzToolsFramework/Viewport/ViewportSettings.h>
 #include <EditorShapeTestUtils.h>
 
@@ -243,6 +245,73 @@ namespace LmbrCentral
 
         EXPECT_EQ(handled, AzToolsFramework::ViewportInteraction::MouseInteractionResult::Viewport);
         ExpectSubMode(m_entityComponentIdPair, AzToolsFramework::ShapeComponentModeRequests::SubMode::Dimensions);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+    //
+    // The box is drawn and edited on the mirrored side, in its own rotation-free frame. The offset that is saved stays authored.
+
+    namespace
+    {
+        // The mask for an X and a Z flip, which an entity with a scale of (-1, 1, -1) pushes to its shapes.
+        constexpr AZ::u8 AxisAlignedBoxFlipMaskXZ = 5;
+
+        AZ::Aabb GetAxisAlignedBoxDrawnBounds(AZ::EntityId entityId)
+        {
+            UnitTest::TestDebugDisplayRequests testDebugDisplayRequests;
+            AzFramework::EntityDebugDisplayEventBus::Event(
+                entityId, &AzFramework::EntityDebugDisplayEvents::DisplayEntityViewport, AzFramework::ViewportInfo{ 0 },
+                testDebugDisplayRequests);
+            const AZStd::vector<AZ::Vector3>& points = testDebugDisplayRequests.GetPoints();
+            return points.empty() ? AZ::Aabb::CreateNull() : AZ::Aabb::CreatePoints(points.data(), points.size());
+        }
+    } // namespace
+
+    TEST_F(EditorAxisAlignedBoxShapeComponentFixture, HandlesSitOnTheFlippedBoxAndWriteTheAuthoredOffset)
+    {
+        const AZ::Vector3 authoredOffset(2.0f, 0.0f, 1.0f);
+        SetUpAxisAlignedBoxShapeComponent(
+            m_entityId, AZ::Transform::CreateIdentity(), authoredOffset, AZ::Vector3(1.0f, 2.0f, 1.0f));
+        ShapeComponentRequestsBus::Event(m_entityId, &ShapeComponentRequests::SetFlipMask, AxisAlignedBoxFlipMaskXZ);
+
+        AZ::Vector3 handleOffset = AZ::Vector3::CreateZero();
+        AzToolsFramework::ShapeManipulatorRequestBus::EventResult(
+            handleOffset, m_entityComponentIdPair, &AzToolsFramework::ShapeManipulatorRequestBus::Events::GetTranslationOffset);
+        EXPECT_THAT(handleOffset, UnitTest::IsClose(AZ::Vector3(-2.0f, 0.0f, -1.0f)));
+
+        AZ::Transform boxLocalTransform = AZ::Transform::CreateIdentity();
+        AzToolsFramework::BoxManipulatorRequestBus::EventResult(
+            boxLocalTransform, m_entityComponentIdPair, &AzToolsFramework::BoxManipulatorRequestBus::Events::GetCurrentLocalTransform);
+        EXPECT_THAT(boxLocalTransform.GetTranslation(), UnitTest::IsClose(AZ::Vector3(-2.0f, 0.0f, -1.0f)));
+
+        // Writing back what was read stores the authored offset.
+        AzToolsFramework::ShapeManipulatorRequestBus::Event(
+            m_entityComponentIdPair, &AzToolsFramework::ShapeManipulatorRequestBus::Events::SetTranslationOffset, handleOffset);
+        ExpectTranslationOffset(m_entityId, authoredOffset);
+
+        // A handle dragged one unit along X on the drawn box moves the authored offset one unit the other way.
+        AzToolsFramework::ShapeManipulatorRequestBus::Event(
+            m_entityComponentIdPair, &AzToolsFramework::ShapeManipulatorRequestBus::Events::SetTranslationOffset,
+            handleOffset + AZ::Vector3::CreateAxisX());
+        ExpectTranslationOffset(m_entityId, AZ::Vector3(1.0f, 0.0f, 1.0f));
+    }
+
+    TEST_F(EditorAxisAlignedBoxShapeComponentFixture, WireframeIsDrawnOnTheFlippedSideAndTheOffsetStaysAuthored)
+    {
+        SetUpAxisAlignedBoxShapeComponent(
+            m_entityId, AZ::Transform::CreateIdentity(), AZ::Vector3(3.0f, 0.0f, 0.0f), AZ::Vector3(2.0f, 2.0f, 2.0f));
+
+        EXPECT_THAT(
+            GetAxisAlignedBoxDrawnBounds(m_entityId),
+            UnitTest::IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(2.0f, -1.0f, -1.0f), AZ::Vector3(4.0f, 1.0f, 1.0f))));
+
+        ShapeComponentRequestsBus::Event(m_entityId, &ShapeComponentRequests::SetFlipMask, AxisAlignedBoxFlipMaskXZ);
+
+        EXPECT_THAT(
+            GetAxisAlignedBoxDrawnBounds(m_entityId),
+            UnitTest::IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(-4.0f, -1.0f, -1.0f), AZ::Vector3(-2.0f, 1.0f, 1.0f))));
+        ExpectTranslationOffset(m_entityId, AZ::Vector3(3.0f, 0.0f, 0.0f));
     }
 }
 

@@ -132,6 +132,15 @@ namespace Multiplayer
             }
 
             AzFramework::TransformComponent* transformComponent = GetTransformComponent();
+            if (!transformComponent)
+            {
+                // A Transform2Component derives from TransformComponent but has its own type id, so the generated lookup misses it.
+                transformComponent = azrtti_cast<AzFramework::TransformComponent*>(GetEntity()->GetTransform());
+                if (!transformComponent)
+                {
+                    return;
+                }
+            }
             if (GetParentEntityId() == InvalidNetEntityId)
             {
                 if (!transformComponent->GetWorldTM().IsClose(blendTransform))
@@ -159,6 +168,15 @@ namespace Multiplayer
 
         // Hard set the entities transform
         AzFramework::TransformComponent* transformComponent = GetTransformComponent();
+        if (!transformComponent)
+        {
+            // A Transform2Component derives from TransformComponent but has its own type id, so the generated lookup misses it.
+            transformComponent = azrtti_cast<AzFramework::TransformComponent*>(GetEntity()->GetTransform());
+            if (!transformComponent)
+            {
+                return;
+            }
+        }
         if (GetParentEntityId() == InvalidNetEntityId)
         {
             if (!transformComponent->GetWorldTM().IsClose(targetTransform))
@@ -216,6 +234,15 @@ namespace Multiplayer
 
             parentTransform->BindParentChangedEventHandler(m_parentIdChangedHandler);
             OnParentIdChangedEvent(AZ::EntityId(), parentTransform->GetParentId());
+        }
+        else if (AZ::TransformInterface* fallbackTransform = GetEntity()->GetTransform())
+        {
+            // A Transform2Component derives from TransformComponent but has its own type id, so the generated lookup misses it.
+            fallbackTransform->BindTransformChangedEventHandler(m_transformChangedHandler);
+            OnTransformChangedEvent(fallbackTransform->GetLocalTM(), fallbackTransform->GetWorldTM());
+
+            fallbackTransform->BindParentChangedEventHandler(m_parentIdChangedHandler);
+            OnParentIdChangedEvent(AZ::EntityId(), fallbackTransform->GetParentId());
         }
     }
 

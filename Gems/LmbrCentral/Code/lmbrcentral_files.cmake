@@ -90,6 +90,8 @@ set(FILES
     Source/Shape/ShapeComponentConverters.inl
     Source/Shape/ShapeGeometryUtil.h
     Source/Shape/ShapeGeometryUtil.cpp
+    Source/Shape/Transform2ShapeSupport.h
+    Source/Shape/Transform2ShapeSupport.cpp
     Source/Unhandled/Other/AudioAssetTypeInfo.cpp
     Source/Unhandled/Other/AudioAssetTypeInfo.h
     Source/Unhandled/Other/CharacterPhysicsAssetTypeInfo.cpp

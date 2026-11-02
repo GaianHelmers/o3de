@@ -115,9 +115,13 @@ namespace LmbrCentral
             debugDisplay, [this]() { return CanDraw(); },
             [this](AzFramework::DebugDisplayRequests& debugDisplay)
             {
+                // A matrix cannot carry a mirror, so the box is drawn at the offset the shape answers with. The copy is never stored.
+                BoxShapeConfig drawConfiguration = m_aaboxShape.GetBoxConfiguration();
+                drawConfiguration.m_translationOffset = m_aaboxShape.GetEffectiveTranslationOffset();
+
                 DrawBoxShape(
                     { m_aaboxShape.GetBoxConfiguration().GetDrawColor(), m_shapeWireColor, m_aaboxShape.GetBoxConfiguration().IsFilled() },
-                    m_aaboxShape.GetBoxConfiguration(), debugDisplay);
+                    drawConfiguration, debugDisplay);
             },
             m_aaboxShape.GetCurrentTransform());
     }
@@ -169,19 +173,21 @@ namespace LmbrCentral
         return m_aaboxShape.SetBoxDimensions(dimensions);
     }
 
+    // The handles sit on the box the wireframe draws, so they are given the mirrored offset and the mirrored offset they write is
+    // taken back as authored. See EditorBoxShapeComponent. The offset is in the rotation-free frame of the box, and so is the flip.
     AZ::Vector3 EditorAxisAlignedBoxShapeComponent::GetTranslationOffset() const
     {
-        return m_aaboxShape.GetTranslationOffset();
+        return m_aaboxShape.GetEffectiveTranslationOffset();
     }
 
     void EditorAxisAlignedBoxShapeComponent::SetTranslationOffset(const AZ::Vector3& translationOffset)
     {
-        m_aaboxShape.SetTranslationOffset(translationOffset);
+        m_aaboxShape.SetTranslationOffset(translationOffset * m_aaboxShape.GetFlipSigns());
     }
 
     AZ::Transform EditorAxisAlignedBoxShapeComponent::GetCurrentLocalTransform() const
     {
-        return AZ::Transform::CreateTranslation(m_aaboxShape.GetTranslationOffset());
+        return AZ::Transform::CreateTranslation(m_aaboxShape.GetEffectiveTranslationOffset());
     }
 
     AZ::Transform EditorAxisAlignedBoxShapeComponent::GetManipulatorSpace() const

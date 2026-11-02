@@ -124,7 +124,9 @@ namespace GradientSignal
 
     AZ::Vector3 GradientTransform::GetScale() const
     {
-        return m_transform.RetrieveScale();
+        // Transform 2: a flip makes the determinant negative, and RetrieveScale then gives all three axes a negative sign. The
+        // callers divide by this to get the size of a pixel, so they need the magnitude. Sampling does not read it.
+        return m_transform.RetrieveScale().GetAbs();
     }
 
     float GradientTransform::GetFrequencyZoom() const

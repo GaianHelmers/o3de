@@ -14,6 +14,7 @@
 #include <AzCore/Component/TransformBus.h>
 #include <AzCore/Serialization/SerializeContext.h>
 #include <AzFramework/Components/TransformComponent.h>
+#include <AzFramework/Components/Transform2Component.h>
 #include <AzCore/Component/ComponentApplicationBus.h>
 #include <Maestro/Bus/SequenceComponentBus.h>
 #include <Maestro/Types/AnimParamType.h>
@@ -121,6 +122,12 @@ namespace Maestro
         {
             // if not Editor transform, try run-time transform
             retTransformNode = GetComponentNodeForComponentWithTypeId(AzFramework::TransformComponent::TYPEINFO_Uuid());
+        }
+
+        if (!retTransformNode)
+        {
+            // A Transform2Component derives from TransformComponent but has its own type id.
+            retTransformNode = GetComponentNodeForComponentWithTypeId(AzFramework::Transform2Component::TYPEINFO_Uuid());
         }
         return retTransformNode;
     }

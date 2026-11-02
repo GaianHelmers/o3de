@@ -75,6 +75,9 @@ namespace LmbrCentral
         QuadShapeComponentRequestBus::Handler::BusDisconnect();
         ShapeComponentRequestsBus::Handler::BusDisconnect();
         AZ::TransformNotificationBus::Handler::BusDisconnect();
+
+        // A re-activated shape starts as authored. The Transform 2 shape support pushes the flip again.
+        m_intersectionDataCache.ResetFlipMask();
     }
 
     void QuadShape::InvalidateCache(InvalidateShapeCacheReason reason)
@@ -221,6 +224,35 @@ namespace LmbrCentral
         return hit;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+
+    void QuadShape::SetFlipMask(AZ::u8 flipMask)
+    {
+        bool shapeChanged = false;
+        {
+            AZStd::unique_lock lock(m_mutex);
+            const bool wasTurnedOver = m_intersectionDataCache.IsTurnedOver();
+            m_intersectionDataCache.SetFlipMask(flipMask);
+
+            // Only a Z flip turns the quad over. The region is the same on every side, so an X or Y flip tells no one.
+            shapeChanged = wasTurnedOver != m_intersectionDataCache.IsTurnedOver();
+        }
+
+        if (shapeChanged)
+        {
+            ShapeComponentNotificationsBus::Event(
+                m_entityId, &ShapeComponentNotificationsBus::Events::OnShapeChanged,
+                ShapeComponentNotifications::ShapeChangeReasons::ShapeChanged);
+        }
+    }
+
+    AZ::Vector3 QuadShape::GetFlipSigns() const
+    {
+        // One byte read with no lock, like the other shapes: a light asks for this on every move of its entity.
+        return m_intersectionDataCache.GetFlipSigns();
+    }
+
     void QuadShape::QuadIntersectionDataCache::UpdateIntersectionParamsImpl(
         const AZ::Transform& currentTransform, const QuadShapeConfig& configuration,
         [[maybe_unused]] const AZ::Vector3& currentNonUniformScale)
@@ -229,6 +261,13 @@ namespace LmbrCentral
         m_quaternion = currentTransform.GetRotation();
         m_scaledWidth = configuration.m_width * currentTransform.GetUniformScale() * currentNonUniformScale.GetX();
         m_scaledHeight = configuration.m_height * currentTransform.GetUniformScale() * currentNonUniformScale.GetY();
+
+        // Transform 2: a Z flip turns the quad over. A half turn about X keeps left, swaps up and swaps the normal, so the quad
+        // faces the other way. The rectangle covers the same region on both sides, and its corners are not touched.
+        if (IsTurnedOver())
+        {
+            m_quaternion = m_quaternion * AZ::Quaternion::CreateRotationX(AZ::Constants::Pi);
+        }
     }
 
     void QuadShape::SetQuadConfiguration(const QuadShapeConfig& QuadShapeConfig)
@@ -248,7 +287,7 @@ namespace LmbrCentral
 
     void DrawQuadShape(
         const ShapeDrawParams& shapeDrawParams, const QuadShapeConfig& quadConfig,
-        AzFramework::DebugDisplayRequests& debugDisplay, const AZ::Vector3& nonUniformScale)
+        AzFramework::DebugDisplayRequests& debugDisplay, const AZ::Vector3& nonUniformScale, float facing)
     {
         // By default, debugDisplay draws quads facing the y axis, but we need it facing z.
         debugDisplay.PushMatrix(AZ::Transform::CreateRotationX(AZ::Constants::HalfPi));
@@ -269,6 +308,7 @@ namespace LmbrCentral
 
         // Draw line from center indicating facing direction.
         float normalLength = sqrt(scaledWidth * scaledWidth + scaledHeight * scaledHeight) * 0.1f;
+        normalLength *= facing; // a quad turned over by a Transform 2 Z flip faces the other way
         debugDisplay.DrawLine(AZ::Vector3::CreateZero(), AZ::Vector3(0.0f, 0.0f, normalLength));
     }
 } // namespace LmbrCentral

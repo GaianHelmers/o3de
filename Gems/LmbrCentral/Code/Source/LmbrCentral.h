@@ -15,6 +15,8 @@
 #include <AzCore/std/smart_ptr/unique_ptr.h>
 #include <AzCore/std/functional.h>
 
+#include "Shape/Transform2ShapeSupport.h"
+
 /*!
  * \namespace LmbrCentral
  * LmbrCentral ties together systems from CryEngine and systems from the AZ framework.
@@ -71,5 +73,6 @@ namespace LmbrCentral
         AZStd::vector<AZStd::unique_ptr<AZ::Data::AssetHandler> > m_assetHandlers;
         AZStd::vector<AZStd::unique_ptr<AZ::AssetTypeInfoBus::Handler> > m_unhandledAssetInfo;
         AZStd::vector<AZStd::function<void()>> m_allocatorShutdowns;
+        AZStd::unique_ptr<Transform2ShapeSupport> m_transform2ShapeSupport; ///< Pushes the flip of Transform 2 entities to their shapes.
     };
 } // namespace LmbrCentral

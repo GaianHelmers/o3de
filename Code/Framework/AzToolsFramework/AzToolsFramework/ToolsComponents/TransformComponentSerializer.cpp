@@ -44,11 +44,27 @@ namespace AzToolsFramework
             }
 
             {
+                // The load may land on a live component (Python UpdateComponentForEntity), so which scale keys the JSON
+                // actually carries decides how the loaded values settle. A key that is absent must change nothing.
+                bool jsonHadUniformScale = false;
+                bool jsonHadAuthoredScale = false;
+                if (inputValue.IsObject())
+                {
+                    const auto transformData = inputValue.FindMember("Transform Data");
+                    if (transformData != inputValue.MemberEnd() && transformData->value.IsObject())
+                    {
+                        jsonHadUniformScale = transformData->value.HasMember("UniformScale");
+                        jsonHadAuthoredScale = transformData->value.HasMember("AuthoredScale");
+                    }
+                }
+
                 JSR::ResultCode transformDataLoadResult = ContinueLoadingFromJsonObjectField(
                     &transformComponentInstance->m_editorTransform, azrtti_typeid<decltype(transformComponentInstance->m_editorTransform)>(),
                     inputValue, "Transform Data", context);
 
                 result.Combine(transformDataLoadResult);
+
+                transformComponentInstance->m_editorTransform.ReconcileLoadedScale(jsonHadUniformScale, jsonHadAuthoredScale);
             }
 
             {
@@ -81,6 +97,16 @@ namespace AzToolsFramework
                     inputValue, "InterpolateRotation", context);
 
                 result.Combine(interpolateRotationLoadResult);
+            }
+
+            // Transform 2: a load onto a component that is active (a script updating it in place) skips Activate, which is where
+            // the memo and the world are read afresh. So the change is announced here, and only for a transform that serves, or
+            // has an extended scale after the load: any other load meets what it always met.
+            const AZ::Entity* entity = transformComponentInstance->GetEntity();
+            if (entity && entity->GetState() == AZ::Entity::State::Active &&
+                (transformComponentInstance->m_serves || transformComponentInstance->m_editorTransform.IsExtended()))
+            {
+                transformComponentInstance->TransformChanged();
             }
 
             return context.Report(
@@ -128,7 +154,17 @@ namespace AzToolsFramework
 
             {
                 AZ::ScopedContextPath subPathName(context, "m_editorTransform");
-                const EditorTransform* editorTransform = &transformComponentInstance->m_editorTransform;
+
+                // A Transform 1 saves the float alone, exactly as it always has. Only a Transform 2 saves its vector.
+                // Both come from the vector here, so what lands on disk does not depend on when ChangeNotify ran.
+                EditorTransform storedTransform = transformComponentInstance->m_editorTransform;
+                storedTransform.m_uniformScale = storedTransform.ResolveUniformScale();
+                if (storedTransform.IsTransform1Scale())
+                {
+                    storedTransform.m_authoredScale = AZ::Vector3::CreateOne();
+                }
+
+                const EditorTransform* editorTransform = &storedTransform;
                 const EditorTransform* defaultEditorTransform =
                     defaultTransformComponentInstance ? &defaultTransformComponentInstance->m_editorTransform : nullptr;
 

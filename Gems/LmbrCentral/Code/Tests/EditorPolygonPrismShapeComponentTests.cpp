@@ -18,6 +18,7 @@
 #include <AzManipulatorTestFramework/IndirectManipulatorViewportInteraction.h>
 #include <AzManipulatorTestFramework/ViewportInteraction.h>
 #include <AzToolsFramework/Entity/EditorEntityHelpers.h>
+#include <AzToolsFramework/ToolsComponents/EditorComponentBase.h>
 #include <AzToolsFramework/ToolsComponents/EditorNonUniformScaleComponent.h>
 #include <AzToolsFramework/UnitTest/AzToolsFrameworkTestHelpers.h>
 
@@ -210,5 +211,65 @@ namespace LmbrCentral
         polygonPrism->m_vertexContainer.GetVertex(0, vertex);
         expectedVertex = AZ::Vector2(-2.0f, -2.0f);
         EXPECT_THAT(vertex, UnitTest::IsCloseTolerance(expectedVertex, 1e-2f));
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+
+    TEST_F(EditorPolygonPrismShapeComponentFixture, BuildGameEntityKeepsTheLiveShapeFlipped)
+    {
+        const AZ::EntityId entityId = m_entity->GetId();
+        AZ::TransformBus::Event(entityId, &AZ::TransformBus::Events::SetWorldTM, AZ::Transform::CreateIdentity());
+
+        // Asymmetric, so a mirrored prism is told from the authored one. The point (2,0,1) is inside it, and (-2,0,1) is inside its
+        // mirror about the Y axis.
+        PolygonPrismShapeComponentRequestBus::Event(entityId, &PolygonPrismShapeComponentRequests::SetHeight, 2.0f);
+        PolygonPrismShapeComponentRequestBus::Event(
+            entityId, &PolygonPrismShapeComponentRequests::SetVertices,
+            AZStd::vector<AZ::Vector2>({ AZ::Vector2(1.0f, -1.0f), AZ::Vector2(5.0f, -1.0f), AZ::Vector2(1.0f, 3.0f) }));
+
+        const auto isInside = [entityId](const AZ::Vector3& point)
+        {
+            bool inside = false;
+            ShapeComponentRequestsBus::EventResult(inside, entityId, &ShapeComponentRequests::IsPointInside, point);
+            return inside;
+        };
+        const auto getFlipSigns = [entityId]()
+        {
+            AZ::Vector3 flipSigns = AZ::Vector3::CreateZero();
+            ShapeComponentRequestsBus::EventResult(flipSigns, entityId, &ShapeComponentRequests::GetFlipSigns);
+            return flipSigns;
+        };
+
+        const AZ::Vector3 authoredInterior(2.0f, 0.0f, 1.0f);
+        const AZ::Vector3 mirroredInterior(-2.0f, 0.0f, 1.0f);
+        const AZ::Vector3 flippedSigns(-1.0f, 1.0f, 1.0f);
+        const AZ::u8 flipX = 1;
+
+        ShapeComponentRequestsBus::Event(entityId, &ShapeComponentRequests::SetFlipMask, flipX);
+        ASSERT_THAT(getFlipSigns(), UnitTest::IsClose(flippedSigns));
+        ASSERT_TRUE(isInside(mirroredInterior));
+        ASSERT_FALSE(isInside(authoredInterior));
+
+        // Exporting deactivates and activates the live shape, which drops its flip. Nothing pushes it again afterwards.
+        auto* editorComponent = azrtti_cast<AzToolsFramework::Components::EditorComponentBase*>(
+            m_entity->FindComponent(EditorPolygonPrismShapeComponentTypeId));
+        ASSERT_NE(editorComponent, nullptr);
+
+        AZ::Entity gameEntity;
+        editorComponent->BuildGameEntity(&gameEntity);
+
+        EXPECT_THAT(getFlipSigns(), UnitTest::IsClose(flippedSigns));
+        EXPECT_TRUE(isInside(mirroredInterior));
+        EXPECT_FALSE(isInside(authoredInterior));
+
+        // The prism carries the sign in its own scale, and nothing authored changed.
+        AZ::PolygonPrismPtr polygonPrism = nullptr;
+        PolygonPrismShapeComponentRequestBus::EventResult(
+            polygonPrism, entityId, &PolygonPrismShapeComponentRequests::GetPolygonPrism);
+        ASSERT_TRUE(polygonPrism.get() != nullptr);
+        EXPECT_THAT(polygonPrism->GetNonUniformScale(), UnitTest::IsClose(flippedSigns));
+        EXPECT_FLOAT_EQ(polygonPrism->GetHeight(), 2.0f);
+        EXPECT_EQ(polygonPrism->m_vertexContainer.GetVertices().size(), 3u);
     }
 } // namespace LmbrCentral

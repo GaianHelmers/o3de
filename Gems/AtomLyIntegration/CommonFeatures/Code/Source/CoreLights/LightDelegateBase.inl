@@ -124,8 +124,25 @@ namespace AZ
         template <typename FeatureProcessorType>
         AZ::Transform LightDelegateBase<FeatureProcessorType>::ComputeOverallTransform(const Transform& world)
         {
-            const AZ::Vector3 translationOffset = m_shapeBus ? m_shapeBus->GetTranslationOffset() : AZ::Vector3::CreateZero();
+            const AZ::Vector3 translationOffset = m_shapeBus ? m_shapeBus->GetEffectiveTranslationOffset() : AZ::Vector3::CreateZero();
             return world * AZ::Transform::CreateTranslation(translationOffset);
+        }
+
+        template <typename FeatureProcessorType>
+        void LightDelegateBase<FeatureProcessorType>::SetFlippedTransform(const Transform& world, bool flipped)
+        {
+            Transform transform = ComputeOverallTransform(world);
+            if (flipped)
+            {
+                transform = transform * AZ::Transform::CreateRotationX(AZ::Constants::Pi);
+            }
+
+            // A light that is not flipped is rebuilt to what it already holds, and the feature processor is left alone.
+            if (!transform.IsClose(m_transform))
+            {
+                m_transform = transform;
+                HandleShapeChanged();
+            }
         }
 
         template <typename FeatureProcessorType>

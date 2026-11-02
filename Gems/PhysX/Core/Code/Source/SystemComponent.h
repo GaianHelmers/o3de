@@ -42,6 +42,7 @@ namespace PhysX
     class MaterialManager;
     class WindProvider;
     class PhysXSystem;
+    class Transform2ColliderSupport;
 
     /// System component for PhysX.
     /// The system component handles underlying tasks such as initialization and shutdown of PhysX, managing a
@@ -127,6 +128,7 @@ namespace PhysX
 
         AZStd::unique_ptr<MaterialManager> m_materialManager;
         AZStd::unique_ptr<WindProvider> m_windProvider;
+        AZStd::unique_ptr<Transform2ColliderSupport> m_transform2ColliderSupport; ///< Flips the colliders of Transform 2 entities.
         DefaultWorldComponent m_defaultWorldComponent;
         AZ::Interface<Physics::CollisionRequests> m_collisionRequests;
         AZ::Interface<Physics::System> m_physicsSystem;

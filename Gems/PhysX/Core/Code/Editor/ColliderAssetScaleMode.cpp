@@ -14,6 +14,7 @@
 #include <AzFramework/Viewport/ViewportConstants.h>
 #include <AzToolsFramework/Manipulators/AngularManipulator.h>
 #include <AzToolsFramework/ViewportSelection/EditorSelectionUtil.h>
+#include <Source/Transform2ColliderSupport.h>
 
 namespace PhysX
 {
@@ -23,6 +24,36 @@ namespace PhysX
     {
         const float MinAssetScale = 0.001f;
         const AZ::Vector3 ResetScale = AZ::Vector3::CreateOne();
+    }
+
+    namespace
+    {
+        // A flipped entity draws its collider mirrored, so the handles take the frame of the mirrored collider: the world
+        // transform of the entity with the offset and rotation of the collider mirrored. The asset scale is a size and needs no
+        // mirror. An entity that is not flipped keeps the transform it was given.
+        AZ::Transform GetMirroredColliderWorldTransform(
+            const AZ::EntityComponentIdPair& idPair, const AZ::Transform& colliderWorldTransform)
+        {
+            const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(idPair.GetEntityId());
+            if (Transform2Mirror::GetSignMask(signs) == 0)
+            {
+                return colliderWorldTransform;
+            }
+
+            AZ::Transform worldTransform = AZ::Transform::CreateIdentity();
+            AZ::TransformBus::EventResult(worldTransform, idPair.GetEntityId(), &AZ::TransformBus::Events::GetWorldTM);
+
+            AZ::Quaternion colliderRotation = AZ::Quaternion::CreateIdentity();
+            PhysX::EditorColliderComponentRequestBus::EventResult(
+                colliderRotation, idPair, &PhysX::EditorColliderComponentRequests::GetColliderRotation);
+
+            AZ::Vector3 colliderOffset = AZ::Vector3::CreateZero();
+            PhysX::EditorColliderComponentRequestBus::EventResult(
+                colliderOffset, idPair, &PhysX::EditorColliderComponentRequests::GetColliderOffset);
+
+            return worldTransform * AZ::Transform::CreateFromQuaternionAndTranslation(
+                Transform2Mirror::MirrorRotation(signs, colliderRotation), Transform2Mirror::MirrorPosition(signs, colliderOffset));
+        }
     }
 
     ColliderAssetScaleMode::ColliderAssetScaleMode()
@@ -35,6 +66,7 @@ namespace PhysX
     {
         AZ::Transform colliderWorldTransform = AZ::Transform::Identity();
         PhysX::EditorColliderComponentRequestBus::EventResult(colliderWorldTransform, idPair, &PhysX::EditorColliderComponentRequests::GetColliderWorldTransform);
+        colliderWorldTransform = GetMirroredColliderWorldTransform(idPair, colliderWorldTransform);
 
         m_dimensionsManipulators.SetSpace(colliderWorldTransform);
         m_dimensionsManipulators.AddEntityComponentIdPair(idPair);
@@ -82,6 +114,7 @@ namespace PhysX
     {
         AZ::Transform colliderWorldTransform = AZ::Transform::Identity();
         PhysX::EditorColliderComponentRequestBus::EventResult(colliderWorldTransform, idPair, &PhysX::EditorColliderComponentRequests::GetColliderWorldTransform);
+        colliderWorldTransform = GetMirroredColliderWorldTransform(idPair, colliderWorldTransform);
         m_dimensionsManipulators.SetSpace(colliderWorldTransform);
     }
 

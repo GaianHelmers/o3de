@@ -37,6 +37,14 @@ namespace WhiteBox
     {
     }
 
+    void WhiteBoxColliderComponent::GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType& dependent)
+    {
+        // Transform 2: the body made in Activate is flipped by a listener that learns of the entity when its Transform 2 activates,
+        // and the body is only seen by the listener if it is made after that. A dependent service is optional, so an entity with a
+        // Transform 1 only, which has no Transform2Service, is sorted exactly as it was.
+        dependent.push_back(AZ_CRC_CE("Transform2Service"));
+    }
+
     void WhiteBoxColliderComponent::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required)
     {
         required.push_back(AZ_CRC_CE("TransformService"));

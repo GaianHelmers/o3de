@@ -57,6 +57,13 @@ namespace LmbrCentral
         float GetQuadHeight() const override;
         const AZ::Quaternion& GetQuadOrientation() const override;
 
+        //! ShapeComponentRequestsBus overrides, Transform 2 flip. A rectangle covers the same region on every side, so only a Z flip is
+        //! told apart: it turns the quad over and GetQuadOrientation answers the drawn facing. The configuration stays authored.
+        void SetFlipMask(AZ::u8 flipMask) override;
+        AZ::Vector3 GetFlipSigns() const override;
+        //! A quad has no translation offset, so a flip has nothing to move. A light asks for this on every move of its entity.
+        AZ::Vector3 GetEffectiveTranslationOffset() const override { return AZ::Vector3::CreateZero(); }
+
         //! AZ::TransformNotificationBus overrides...
         void OnTransformChanged(const AZ::Transform& local, const AZ::Transform& world) override;
 
@@ -84,6 +91,9 @@ namespace LmbrCentral
 
             friend class QuadShape;
 
+            //! Transform 2: true when a Z flip has turned the quad over.
+            bool IsTurnedOver() const { return (GetFlipMask() & 4) != 0; }
+
             AZ::Vector3 m_position; //! Position of the center of the quad.
             AZ::Quaternion m_quaternion; //! quaternion of the quad.
             float m_scaledWidth = 1.0f; //! Width of the quad (including entity scale and non-uniform scale).
@@ -99,8 +109,10 @@ namespace LmbrCentral
         mutable AZStd::shared_mutex m_mutex; ///< Mutex to allow multiple readers but single writer for efficient thread safety
     };
 
+    //! @param facing 1 for the authored side, -1 for a quad a Transform 2 Z flip has turned over. It only turns the facing line.
     void DrawQuadShape(
         const ShapeDrawParams& shapeDrawParams, const QuadShapeConfig& quadShapeConfig,
-        AzFramework::DebugDisplayRequests& debugDisplay, const AZ::Vector3& nonUniformScale = AZ::Vector3::CreateOne());
+        AzFramework::DebugDisplayRequests& debugDisplay, const AZ::Vector3& nonUniformScale = AZ::Vector3::CreateOne(),
+        float facing = 1.0f);
 
 } // namespace LmbrCentral

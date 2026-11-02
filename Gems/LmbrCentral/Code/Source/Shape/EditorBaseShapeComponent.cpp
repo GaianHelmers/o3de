@@ -10,6 +10,7 @@
 
 #include <AzCore/Interface/Interface.h>
 #include <AzCore/Serialization/EditContext.h>
+#include <AzToolsFramework/ComponentMode/EditorComponentModeBus.h>
 #include <AzToolsFramework/Viewport/ViewportMessages.h>
 #include <AzToolsFramework/Viewport/ViewportSettings.h>
 #include <AzFramework/Translation/TranslationDef.h>
@@ -73,6 +74,7 @@ namespace LmbrCentral
     void EditorBaseShapeComponent::Activate()
     {
         EditorComponentBase::Activate();
+        m_lastFlipSigns = AZ::Vector3::CreateOne(); // a shape starts as authored, and the flip is pushed again
         AZ::TransformNotificationBus::Handler::BusConnect(GetEntityId());
         EditorShapeComponentRequestsBus::Handler::BusConnect(GetEntityId());
         AzToolsFramework::EditorComponentSelectionRequestsBus::Handler::BusConnect(GetEntityId());
@@ -243,6 +245,18 @@ namespace LmbrCentral
         if (changeReason == ShapeChangeReasons::ShapeChanged)
         {
             AZ::Interface<AzFramework::IEntityBoundsUnion>::Get()->RefreshEntityLocalBoundsUnion(GetEntityId());
+
+            // A flip moves the handles of a component mode but fires no transform event. Only a change of the signs refreshes them,
+            // so the edits of a drag, which raise this event too, never re-enter the manipulators.
+            AZ::Vector3 flipSigns = AZ::Vector3::CreateOne();
+            ShapeComponentRequestsBus::EventResult(flipSigns, GetEntityId(), &ShapeComponentRequests::GetFlipSigns);
+            if (flipSigns != m_lastFlipSigns)
+            {
+                m_lastFlipSigns = flipSigns;
+                AzToolsFramework::ComponentModeFramework::ComponentModeSystemRequestBus::Broadcast(
+                    &AzToolsFramework::ComponentModeFramework::ComponentModeSystemRequests::Refresh,
+                    AZ::EntityComponentIdPair(GetEntityId(), GetId()));
+            }
         }
     }
 } // namespace LmbrCentral

@@ -13,6 +13,7 @@
 #include <AzCore/Serialization/EditContext.h>
 #include <AzCore/Serialization/SerializeContext.h>
 #include <AzFramework/Components/TransformComponent.h>
+#include <AzFramework/Components/Transform2Component.h>
 
 #include <Maestro/Bus/EditorSequenceComponentBus.h>
 #include <Maestro/Bus/SequenceComponentBus.h>
@@ -401,6 +402,25 @@ namespace Maestro
         return rotTransform.GetRotation();
     }
 
+    // A Transform 2 keys its transform tracks the way a Transform 1 does (see SetPos, SetRotate and SetScale), from a value that
+    // is already in the local space of the parent.
+    template<typename ValueType>
+    void CAnimComponentNode::SetTransformTrackValue(float time, const CAnimParamType& paramType, const ValueType& localValue)
+    {
+        bool bDefault = !(m_movieSystem->IsRecording() && (GetParent()->GetFlags() & eAnimNodeFlags_EntitySelected)); // Only selected nodes can be recorded
+
+        IAnimTrack* track = GetTrackForParameter(paramType);
+        if (track)
+        {
+            track->SetValue(time, localValue, bDefault);
+        }
+
+        if (!bDefault)
+        {
+            GetCMovieSystem()->Callback(IMovieCallback::CBR_CHANGETRACK, this);
+        }
+    }
+
     void CAnimComponentNode::SetPos(float time, const AZ::Vector3& pos)
     {
         if (m_componentTypeId == AZ::Uuid(AZ::EditorTransformComponentTypeId) || m_componentTypeId == AzFramework::TransformComponent::TYPEINFO_Uuid())
@@ -421,6 +441,10 @@ namespace Maestro
             {
                 GetCMovieSystem()->Callback(IMovieCallback::CBR_CHANGETRACK, this);
             }
+        }
+        else if (m_componentTypeId == AzFramework::Transform2Component::TYPEINFO_Uuid())
+        {
+            SetTransformTrackValue(time, AnimParamType::Position, TransformFromWorldToLocalPosition(pos));
         }
     }
 
@@ -457,6 +481,10 @@ namespace Maestro
             {
                 GetCMovieSystem()->Callback(IMovieCallback::CBR_CHANGETRACK, this);
             }
+        }
+        else if (m_componentTypeId == AzFramework::Transform2Component::TYPEINFO_Uuid())
+        {
+            SetTransformTrackValue(time, AnimParamType::Rotation, TransformFromWorldToLocalRotation(rotation));
         }
     }
 
@@ -515,6 +543,10 @@ namespace Maestro
             {
                 GetCMovieSystem()->Callback(IMovieCallback::CBR_CHANGETRACK, this);
             }
+        }
+        else if (m_componentTypeId == AzFramework::Transform2Component::TYPEINFO_Uuid())
+        {
+            SetTransformTrackValue(time, AnimParamType::Scale, TransformFromWorldToLocalScale(scale));
         }
     }
 

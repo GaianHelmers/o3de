@@ -11,6 +11,9 @@
 #include <CoreLights/LightDelegateBase.h>
 
 #include <AzCore/Component/TransformBus.h>
+#include <AzCore/Math/Vector2.h>
+#include <AzCore/Math/Vector3.h>
+#include <AzCore/std/containers/vector.h>
 #include <AzFramework/Entity/EntityDebugDisplayBus.h>
 
 #include <LmbrCentral/Shape/PolygonPrismShapeComponentBus.h>
@@ -38,6 +41,11 @@ namespace AZ::Render
             AzFramework::DebugDisplayRequests& debugDisplay,
             bool isSelected) const override;
         Aabb GetLocalVisualizationBounds() const override;
+
+        //! Mirrors the ring of the polygon the way a prism that is flipped on some axes is drawn, in the order the shader needs.
+        //! @param vertices The ring as authored, which is never written back to the shape.
+        //! @param signs Minus one for every axis the entity is flipped on, otherwise one.
+        static void MirrorVertices(AZStd::vector<Vector2>& vertices, const Vector3& signs);
 
     private:
         // LightDelegateBase overrides...

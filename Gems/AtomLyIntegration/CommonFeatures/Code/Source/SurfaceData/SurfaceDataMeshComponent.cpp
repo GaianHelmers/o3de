@@ -208,6 +208,12 @@ namespace SurfaceData
         OnCompositionChanged();
     }
 
+    void SurfaceDataMeshComponent::OnRenderScaleChanged()
+    {
+        // Transform 2 flipped the mesh or put it back, which UpdateMeshData reads through GetRenderScale.
+        OnCompositionChanged();
+    }
+
     void SurfaceDataMeshComponent::OnTransformChanged(const AZ::Transform & local, const AZ::Transform & world)
     {
         (void)local;
@@ -249,6 +255,11 @@ namespace SurfaceData
 
             m_meshNonUniformScale = AZ::Vector3::CreateOne();
             AZ::NonUniformScaleRequestBus::EventResult(m_meshNonUniformScale, GetEntityId(), &AZ::NonUniformScaleRequests::GetScale);
+
+            // The mesh answers with the scale it is drawn with, which keeps the sign of a flipped axis that the scale above cannot
+            // carry. With no mesh handler the scale above stays as it is.
+            AZ::Render::MeshComponentRequestBus::EventResult(
+                m_meshNonUniformScale, GetEntityId(), &AZ::Render::MeshComponentRequestBus::Events::GetRenderScale);
 
             meshValidAfterUpdate = (m_meshAssetData.GetAs<AZ::RPI::ModelAsset>() != nullptr) && (m_meshBounds.IsValid());
         }

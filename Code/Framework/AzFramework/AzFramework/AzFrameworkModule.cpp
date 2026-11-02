@@ -13,6 +13,7 @@
 #include <AzFramework/Asset/AssetSystemComponent.h>
 #include <AzFramework/Components/TransformComponent.h>
 #include <AzFramework/Components/NonUniformScaleComponent.h>
+#include <AzFramework/Components/Transform2Component.h>
 #include <AzFramework/Components/AzFrameworkConfigurationSystemComponent.h>
 #include <AzFramework/Device/DeviceAttributesSystemComponent.h>
 #include <AzFramework/Entity/GameEntityContextComponent.h>
@@ -43,6 +44,7 @@ namespace AzFramework
             AzFramework::FileTag::ExcludeFileComponent::CreateDescriptor(),
             AzFramework::TransformComponent::CreateDescriptor(),
             AzFramework::NonUniformScaleComponent::CreateDescriptor(),
+            AzFramework::Transform2Component::CreateDescriptor(),
             AzFramework::GameEntityContextComponent::CreateDescriptor(),
             AzFramework::RenderGeometry::GameIntersectorComponent::CreateDescriptor(),
             AzFramework::CreateScriptDebugAgentFactory(),

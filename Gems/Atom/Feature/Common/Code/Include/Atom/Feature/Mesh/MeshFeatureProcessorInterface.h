@@ -20,6 +20,7 @@
 #include <Atom/RPI.Reflect/Model/ModelAsset.h>
 #include <Atom/Utils/StableDynamicArray.h>
 #include <AzCore/EBus/Event.h>
+#include <AzCore/Math/Matrix3x4.h>
 #include <AzCore/Outcome/Outcome.h>
 #include <AzCore/std/functional.h>
 
@@ -348,6 +349,41 @@ namespace AZ
             virtual void UpdateFallbackPBRMaterialEntry(
                 const MeshInfoHandle handle, AZStd::function<bool(FallbackPBR::MaterialEntry*)> updateFunction) = 0;
             virtual const Data::Instance<RPI::Buffer>& GetFallbackPBRMaterialBuffer() const = 0;
+
+            //////////////////////////////////////////////////////////////////////////
+            // Transform 2 mirror
+            //
+            // Declared after every other virtual of this class and kept there, so the vtable slots of an older build stay where they were.
+
+            //! Marks a mesh as mirrored, which is when its transform reverses handedness (an odd number of negative scale axes).
+            //! A mirrored mesh draws with the front face winding reversed, builds its culling bounds from the exact matrix
+            //! (see SetExactWorld) and is never instanced with other meshes. It may be called before the model has loaded.
+            //! Not pure, so only the MeshFeatureProcessor needs to implement it.
+            virtual void SetMirrored([[maybe_unused]] const MeshHandle& meshHandle, [[maybe_unused]] bool mirrored) {}
+            //! True when a mesh was marked as mirrored. Anything that draws the mesh with its own draw packets needs to know.
+            virtual bool IsMirrored([[maybe_unused]] const MeshHandle& meshHandle) const { return false; }
+
+            //////////////////////////////////////////////////////////////////////////
+            // Transform 2 exact world
+
+            //! Gives a mesh an exact object to world matrix, which may mirror an axis and may shear, in place of the rigid transform
+            //! and the per-axis scale that SetTransform builds one from. Call it after SetTransform, which has to run first: it keeps
+            //! the bookkeeping (culling bounds, object SRG, the moved flag for cached shadows, ray tracing) and the best fit
+            //! that ray tracing keeps. Only the transform service entry of the mesh is replaced, so SetTransform and SetExactWorld
+            //! have to be called again together for the next move.
+            //! The culling bounds, the reflection probe lookup and the normal matrix are then built from @objectToWorld.
+            //! A mesh that is mirrored (see SetMirrored) takes its bounds from the matrix too, whether or not it is active here.
+            //! With @active false the matrix is ignored, and the mesh is left with what SetTransform stored.
+            //! GetTransform and GetNonUniformScale read the matrix back as a rotation and a scale, which is wrong for a shear.
+            //! Not pure, so only the MeshFeatureProcessor needs to implement it.
+            virtual void SetExactWorld(
+                [[maybe_unused]] const MeshHandle& meshHandle, [[maybe_unused]] const Matrix3x4& objectToWorld, [[maybe_unused]] bool active)
+            {
+            }
+            //! Makes the previous frame matrix of a mesh equal to its current one, so the next frame draws no motion for it.
+            //! For a change that is not movement, such as a flip, and only for a mesh the caller knows to be a Transform 2 mesh.
+            //! Call it after the matrix of the mesh is final for the frame (after SetTransform and SetExactWorld).
+            virtual void ResetTransformHistory([[maybe_unused]] const MeshHandle& meshHandle) {}
         };
     } // namespace Render
 } // namespace AZ

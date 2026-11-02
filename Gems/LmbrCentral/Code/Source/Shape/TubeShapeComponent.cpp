@@ -134,5 +134,11 @@ namespace LmbrCentral
             m_spline, m_radiusAttribute, m_radius, endSegments,
             m_tubeShapeMeshConfig.m_sides, m_tubeShapeMesh.m_vertexBuffer,
             m_tubeShapeMesh.m_indexBuffer, m_tubeShapeMesh.m_lineBuffer);
+
+        // Game View draws the tube where it is. The mesh is built from the authored spline, and its points follow the flip of the
+        // shape. The flip raises a shape change, which builds the mesh again.
+        AZ::Vector3 flipSigns = AZ::Vector3::CreateOne();
+        ShapeComponentRequestsBus::EventResult(flipSigns, GetEntityId(), &ShapeComponentRequests::GetFlipSigns);
+        MirrorTubeMeshPoints(flipSigns, m_tubeShapeMesh);
     }
 } // namespace LmbrCentral

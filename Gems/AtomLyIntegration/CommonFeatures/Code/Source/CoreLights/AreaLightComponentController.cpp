@@ -17,6 +17,7 @@
 #include <Atom/Feature/CoreLights/PhotometricValue.h>
 #include <Atom/RPI.Public/Image/StreamingImage.h>
 
+#include <AzCore/Component/Transform2Bus.h>
 #include <AzCore/RTTI/BehaviorContext.h>
 #include <AzCore/Serialization/EditContext.h>
 #include <AzCore/Serialization/SerializeContext.h>
@@ -604,7 +605,18 @@ namespace AZ::Render
 
         AZ::Vector3 translationOffset = AZ::Vector3::CreateZero();
         LmbrCentral::ShapeComponentRequestsBus::EventResult(
-            translationOffset, m_entityId, &LmbrCentral::ShapeComponentRequests::GetTranslationOffset);
+            translationOffset, m_entityId, &LmbrCentral::ShapeComponentRequests::GetEffectiveTranslationOffset);
+
+        // Transform 2: a light that is flipped in Z faces the other way, so its drawing is turned half way round X about its center.
+        // This is an editor-only lookup, and a Transform 1 entity has no handler, which leaves the scale at one.
+        // The world scale, so a light on a child of an entity flipped in Z is drawn turned as well.
+        AZ::Vector3 worldScale = AZ::Vector3::CreateOne();
+        AZ::Transform2RequestBus::EventResult(worldScale, m_entityId, &AZ::Transform2Requests::GetWorldScale);
+        if (worldScale.GetZ() < 0.0f)
+        {
+            transform = transform * AZ::Transform::CreateTranslation(translationOffset) *
+                AZ::Transform::CreateRotationX(AZ::Constants::Pi) * AZ::Transform::CreateTranslation(-translationOffset);
+        }
 
         if (m_lightShapeDelegate)
         {
@@ -687,6 +699,15 @@ namespace AZ::Render
     {
         return m_lightShapeDelegate ? m_lightShapeDelegate->GetLocalVisualizationBounds()
                                     : AZ::Aabb::CreateFromPoint(AZ::Vector3::CreateZero());
+    }
+
+    void AreaLightComponentController::SetRenderScale(const AZ::Transform& world, const AZ::Vector3& renderScale)
+    {
+        // Only the lights that carry no shape need this, and the delegate decides which. The others take the flip from their shape.
+        if (m_lightShapeDelegate)
+        {
+            m_lightShapeDelegate->SetRenderScale(world, renderScale);
+        }
     }
 
     void AreaLightComponentController::CreateLightShapeDelegate()

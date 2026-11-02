@@ -457,6 +457,21 @@ namespace GradientSignal
         shapeTransformFinal.SetFromEulerDegrees(m_configuration.m_rotate);
         shapeTransformFinal.SetTranslation(m_configuration.m_translate);
         shapeTransformFinal.MultiplyByScale(m_configuration.m_scale);
+
+        // Transform 2: the pattern is authored in the local axes of the shape's entity, so it mirrors with them about that entity's
+        // origin, and the bounds land on the drawn side of the shape. Only this matrix changes. The configuration above is what
+        // gets saved, and it stays authored. The signs are those of the shape the bounds come from, which for a Reference shape
+        // are its target's. The origin transform type is a world term and does not flip.
+        // A flip makes the determinant negative, which the full inverse here and in GradientTransform handles. A fast orthogonal
+        // inverse would not.
+        if (m_configuration.m_transformType != TransformType::World_Origin)
+        {
+            AZ::Vector3 flipSigns = AZ::Vector3::CreateOne();
+            LmbrCentral::ShapeComponentRequestsBus::EventResult(
+                flipSigns, shapeReference, &LmbrCentral::ShapeComponentRequests::GetFlipSigns);
+            shapeTransformFinal.MultiplyByScale(flipSigns);
+        }
+
         shapeTransformInverse = shapeTransformFinal.GetInverseFull();
 
         // Set everything up on the Gradient Transform

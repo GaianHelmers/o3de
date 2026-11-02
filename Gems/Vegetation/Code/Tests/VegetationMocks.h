@@ -420,9 +420,14 @@ namespace UnitTest
             [[maybe_unused]] const AZ::Vector3& rayStart, [[maybe_unused]] const AZ::Vector3& dir, [[maybe_unused]] bool allowBruteForce,
             [[maybe_unused]] float& distance, [[maybe_unused]] AZ::Vector3& normal) const override
         {
+            s_lastRayStartLocal = rayStart;
             distance = 0.1f;
             return true;
         }
+
+        //! The start of the last ray, in the local space of the mesh, as the caller made it from the scale of the mesh.
+        //! Static because the allocator of ModelAsset checks that this mock has the size of a ModelAsset.
+        static inline AZ::Vector3 s_lastRayStartLocal = AZ::Vector3::CreateZero();
     };
 
     struct MockMeshRequestBus
@@ -438,6 +443,12 @@ namespace UnitTest
         AZ::Aabb GetLocalBounds() const override
         {
             return m_GetLocalBoundsOutput;
+        }
+
+        AZ::Vector3 m_GetRenderScaleOutput = AZ::Vector3::CreateOne();
+        AZ::Vector3 GetRenderScale() const override
+        {
+            return m_GetRenderScaleOutput;
         }
 
         void SetModelAsset([[maybe_unused]] AZ::Data::Asset<AZ::RPI::ModelAsset> modelAsset) override

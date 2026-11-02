@@ -94,6 +94,8 @@ namespace LmbrCentral
         ////////////////////////////////////////////////////////////////////////
         // ShapeComponentNotificationsBus
         void OnShapeChanged(ShapeComponentNotifications::ShapeChangeReasons reasons) override;
+        // Transform 2: the flip of a shape's entity, raised only by a Transform 2 entity. It is a change like any other here.
+        void OnShapeFlipChanged() override;
 
         //////////////////////////////////////////////////////////////////////////
         // AZ::Data::AssetBus::Handler

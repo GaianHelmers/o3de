@@ -11,6 +11,7 @@
 #include <QDesktopServices>
 
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QMenu>
 #include <QPushButton>
 
@@ -125,6 +126,31 @@ namespace AzToolsFramework
     bool ComponentEditorHeader::TitleMatchesFilter() const
     {
         return AzQtComponents::CardHeader::m_titleLabel->TextMatchesFilter();
+    }
+
+    void ComponentEditorHeader::SetTag(const QString& tag, const QString& toolTip)
+    {
+        // Created on first use, so the many headers that never show a tag do not pay for a widget.
+        if (!m_tagLabel)
+        {
+            if (tag.isEmpty())
+            {
+                return;
+            }
+
+            m_tagLabel = new QLabel(AzQtComponents::CardHeader::m_backgroundFrame);
+            m_tagLabel->setObjectName("Tag");
+            m_tagLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            m_tagLabel->setStyleSheet("QLabel { color: #FFFFFF; background-color: #1E70EB; border-radius: 3px; padding: 0px 5px; margin-right: 4px; }");
+
+            // Right side of the header: [title] ... [tag] [warning] [help] [menu]
+            QHBoxLayout* layout = AzQtComponents::CardHeader::m_backgroundLayout;
+            layout->insertWidget(layout->indexOf(AzQtComponents::CardHeader::m_warningLabel), m_tagLabel);
+        }
+
+        m_tagLabel->setText(tag);
+        m_tagLabel->setToolTip(toolTip);
+        m_tagLabel->setVisible(!tag.isEmpty());
     }
 }
 

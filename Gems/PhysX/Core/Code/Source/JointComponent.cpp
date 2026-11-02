@@ -7,6 +7,7 @@
  */
 #include <Source/JointComponent.h>
 
+#include <Source/Transform2ColliderSupport.h>
 #include <Source/Utils.h>
 #include <PhysX/MathConversion.h>
 #include <PhysX/NativeTypeIdentifiers.h>
@@ -297,7 +298,11 @@ namespace PhysX
         }
         info.m_followerActor = static_cast<physx::PxRigidActor*>(info.m_followerBody->GetNativePointer());
 
-        const AZ::Transform jointTransform = GetJointTransform(GetEntityId(), m_configuration);
+        // Transform 2: the follower frame as a flipped follower holds it. The lead frame below derives from the world frame of this
+        // one, so it needs no signs of its own.
+        const JointComponentConfiguration flippedConfiguration = GetFlippedConfiguration();
+
+        const AZ::Transform jointTransform = GetJointTransform(GetEntityId(), flippedConfiguration);
 
         if (info.m_leadActor)
         {
@@ -307,7 +312,21 @@ namespace PhysX
         {
             info.m_leadLocal = jointTransform; // lead is null, attaching follower to global position of joint.
         }
-        info.m_followerLocal = m_configuration.m_localTransformFromFollower;// joint position & orientation in follower actor's frame.
+        info.m_followerLocal = flippedConfiguration.m_localTransformFromFollower;// joint position & orientation in follower actor's frame.
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+
+    JointComponentConfiguration JointComponent::GetFlippedConfiguration() const
+    {
+        // A copy, so the serialized configuration is never written. For a follower that is not flipped the frame comes back as it
+        // was. The signs come from the listener of the PhysX system, which returns at once while no Transform 2 entity exists.
+        JointComponentConfiguration flipped = m_configuration;
+        const AZ::Vector3 signs = Transform2ColliderSupport::FindSigns(m_configuration.m_followerEntity);
+        flipped.m_localTransformFromFollower = Transform2Mirror::MirrorJointFrame(
+            signs, m_configuration.m_localTransformFromFollower, ReversesMotionAxis(signs));
+        return flipped;
     }
 
     void JointComponent::PrintJointSetupMessage(AZ::EntityId entityId, const AZStd::string& message)

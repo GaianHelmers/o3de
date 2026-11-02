@@ -111,6 +111,7 @@ namespace AZ
 
             // MeshHandleStateRequestBus overrides ...
             const MeshFeatureProcessorInterface::MeshHandle* GetMeshHandle() const override;
+            void SetRenderScale(const AZ::Vector3& scale) override;
 
             void SetSortKey(RHI::DrawItemSortKey sortKey) override;
             RHI::DrawItemSortKey GetSortKey() const override;
@@ -138,6 +139,10 @@ namespace AZ
 
             void SetExcludeFromReflectionCubeMaps(bool excludeFromReflectionCubeMaps) override;
             bool GetExcludeFromReflectionCubeMaps() const override;
+
+            //! The per-axis scale the mesh is drawn with on top of its transform. It is the positive non-uniform scale, or the
+            //! signed render scale while the entity has a Transform 2. Ray tests and bounds read it so they sit on the drawn side.
+            AZ::Vector3 GetRenderScale() const override;
 
             // AzFramework::BoundsRequestBus::Handler overrides ...
             AZ::Aabb GetWorldBounds() const override;

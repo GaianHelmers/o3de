@@ -19,6 +19,7 @@
 #include <AzToolsFramework/UnitTest/AzToolsFrameworkTestHelpers.h>
 
 #include <CoreLights/EditorAreaLightComponent.h>
+#include <CoreLights/PolygonLightDelegate.h>
 
 #include <LmbrCentral/Shape/CapsuleShapeComponentBus.h>
 #include <LmbrCentral/Shape/DiskShapeComponentBus.h>
@@ -388,6 +389,67 @@ namespace UnitTest
 
             const AZ::Aabb aabb = AzFramework::CalculateEntityLocalBoundsUnion(entity.get());
             EXPECT_THAT(aabb, IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(-50.0f, -50.0f, -15.0f), AZ::Vector3(50.0f, 50.0f, 15.0f))));
+        }
+    }
+
+    static void ExpectRing(const AZStd::vector<AZ::Vector2>& actual, const AZStd::vector<AZ::Vector2>& expected)
+    {
+        ASSERT_EQ(actual.size(), expected.size());
+        for (size_t i = 0; i < expected.size(); ++i)
+        {
+            EXPECT_TRUE(actual[i].IsClose(expected[i])) << "vertex " << i;
+        }
+    }
+
+    // The ring of a polygon light is mirrored on the axes the entity is flipped on, and reversed when an odd number of the three axes
+    // is flipped. The reversal follows from reading the shader, and the lit side is still to be seen in a run.
+    TEST_F(EditorAreaLightComponentFixture, CheckEditorAreaPolygonLightMirrorVertices)
+    {
+        const AZStd::vector<AZ::Vector2> authored{ AZ::Vector2(1.0f, 2.0f), AZ::Vector2(3.0f, 2.0f), AZ::Vector2(3.0f, 4.0f) };
+
+        // No flip leaves the ring as it was authored.
+        {
+            AZStd::vector<AZ::Vector2> vertices = authored;
+            AZ::Render::PolygonLightDelegate::MirrorVertices(vertices, AZ::Vector3(1.0f, 1.0f, 1.0f));
+            ExpectRing(vertices, authored);
+        }
+
+        // One flipped axis mirrors the ring and reverses it.
+        {
+            AZStd::vector<AZ::Vector2> vertices = authored;
+            AZ::Render::PolygonLightDelegate::MirrorVertices(vertices, AZ::Vector3(-1.0f, 1.0f, 1.0f));
+            ExpectRing(vertices, { AZ::Vector2(-3.0f, 4.0f), AZ::Vector2(-3.0f, 2.0f), AZ::Vector2(-1.0f, 2.0f) });
+        }
+        {
+            AZStd::vector<AZ::Vector2> vertices = authored;
+            AZ::Render::PolygonLightDelegate::MirrorVertices(vertices, AZ::Vector3(1.0f, -1.0f, 1.0f));
+            ExpectRing(vertices, { AZ::Vector2(3.0f, -4.0f), AZ::Vector2(3.0f, -2.0f), AZ::Vector2(1.0f, -2.0f) });
+        }
+
+        // A flip in Z alone leaves the ring where it is and reverses it, because the light faces the other way.
+        {
+            AZStd::vector<AZ::Vector2> vertices = authored;
+            AZ::Render::PolygonLightDelegate::MirrorVertices(vertices, AZ::Vector3(1.0f, 1.0f, -1.0f));
+            ExpectRing(vertices, { AZ::Vector2(3.0f, 4.0f), AZ::Vector2(3.0f, 2.0f), AZ::Vector2(1.0f, 2.0f) });
+        }
+
+        // Two flipped axes are a turn and keep the order.
+        {
+            AZStd::vector<AZ::Vector2> vertices = authored;
+            AZ::Render::PolygonLightDelegate::MirrorVertices(vertices, AZ::Vector3(-1.0f, -1.0f, 1.0f));
+            ExpectRing(vertices, { AZ::Vector2(-1.0f, -2.0f), AZ::Vector2(-3.0f, -2.0f), AZ::Vector2(-3.0f, -4.0f) });
+        }
+        {
+            AZStd::vector<AZ::Vector2> vertices = authored;
+            AZ::Render::PolygonLightDelegate::MirrorVertices(vertices, AZ::Vector3(-1.0f, 1.0f, -1.0f));
+            ExpectRing(vertices, { AZ::Vector2(-1.0f, 2.0f), AZ::Vector2(-3.0f, 2.0f), AZ::Vector2(-3.0f, 4.0f) });
+        }
+
+        // Three flipped axes reverse the order again.
+        {
+            AZStd::vector<AZ::Vector2> vertices = authored;
+            AZ::Render::PolygonLightDelegate::MirrorVertices(vertices, AZ::Vector3(-1.0f, -1.0f, -1.0f));
+            ExpectRing(vertices, { AZ::Vector2(-3.0f, -4.0f), AZ::Vector2(-3.0f, -2.0f), AZ::Vector2(-1.0f, -2.0f) });
         }
     }
 

@@ -103,6 +103,8 @@ namespace AZ
 
             AZ::Aabb GetLocalVisualizationBounds() const override;
 
+            void SetRenderScale(const AZ::Transform& world, const AZ::Vector3& renderScale) override;
+
             void HandleDisplayEntityViewport(
                 const AzFramework::ViewportInfo& viewportInfo,
                 AzFramework::DebugDisplayRequests& debugDisplay,

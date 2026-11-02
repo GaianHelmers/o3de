@@ -23,6 +23,7 @@
 #include <AzNetworking/PacketLayer/IPacket.h>
 
 #include <AzCore/Component/ComponentApplicationBus.h>
+#include <AzCore/Component/EntityUtils.h>
 #include <AzCore/Console/IConsole.h>
 #include <AzCore/Console/ILogger.h>
 
@@ -34,6 +35,11 @@ namespace Multiplayer
     {
         NetworkTransformComponent* netTransform = entity->FindComponent<NetworkTransformComponent>();
         AzFramework::TransformComponent* transformComponent = entity->FindComponent<AzFramework::TransformComponent>();
+        if (!transformComponent)
+        {
+            // A Transform2Component derives from TransformComponent but has its own type id.
+            transformComponent = AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(entity);
+        }
 
         if (netTransform && transformComponent)
         {

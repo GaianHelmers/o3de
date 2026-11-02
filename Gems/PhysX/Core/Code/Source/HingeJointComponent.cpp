@@ -18,6 +18,7 @@
 
 #include <PxPhysicsAPI.h>
 #include <PhysX/NativeTypeIdentifiers.h>
+#include <Source/Transform2ColliderSupport.h>
 
 namespace PhysX
 {
@@ -98,6 +99,11 @@ namespace PhysX
     {
         JointRequestBus::Handler::BusDisconnect();
         m_nativeJoint = nullptr;
+    }
+
+    bool HingeJointComponent::ReversesMotionAxis(const AZ::Vector3& signs) const
+    {
+        return Transform2Mirror::ReversesHingeAxis(signs);
     }
 
     void HingeJointComponent::CachePhysXNativeRevoluteJoint()

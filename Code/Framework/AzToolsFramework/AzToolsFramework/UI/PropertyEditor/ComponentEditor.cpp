@@ -319,6 +319,8 @@ namespace AzToolsFramework
         // If the Component is ReadOnly, set the mock disabled state on the Card
         mockDisabledState(isReadOnly);
 
+        UpdateHeaderTag();
+
         if (m_components.empty())
         {
             return;
@@ -380,6 +382,27 @@ namespace AzToolsFramework
                 forwardPendingComponentInfo.m_missingRequiredServices, 
                 forwardPendingComponentInfo.m_incompatibleServices);
         }
+    }
+
+    void ComponentEditor::UpdateHeaderTag()
+    {
+        if (m_preventDataAccess || !m_headerTagAttribute)
+        {
+            return;
+        }
+
+        // With several components selected, show the tag if any of them reports one.
+        AZStd::string tag;
+        for (AZ::Component* component : m_components)
+        {
+            AZ::AttributeReader tagReader(component, m_headerTagAttribute);
+            if (tagReader.Read<AZStd::string>(tag) && !tag.empty())
+            {
+                break;
+            }
+        }
+
+        GetHeader()->SetTag(tag.c_str(), m_headerTagToolTip);
     }
 
     void ComponentEditor::ClearNotifications()
@@ -689,6 +712,15 @@ namespace AzToolsFramework
         {
             if (auto editorData = classData->m_editData->FindElementData(AZ::Edit::ClassElements::EditorData))
             {
+                m_headerTagAttribute = editorData->FindAttribute(ComponentHeaderAttributes::Tag);
+                if (auto toolTipAttribute = editorData->FindAttribute(ComponentHeaderAttributes::TagToolTip))
+                {
+                    AZStd::string toolTip;
+                    AZ::AttributeReader toolTipReader(const_cast<AZ::Component*>(&componentInstance), toolTipAttribute);
+                    toolTipReader.Read<AZStd::string>(toolTip);
+                    m_headerTagToolTip = toolTip.c_str();
+                }
+
                 if (auto nameAttribute = editorData->FindAttribute(AZ::Edit::Attributes::HelpPageURL))
                 {
                     AZStd::string helpUrl;
@@ -714,6 +746,10 @@ namespace AzToolsFramework
 
         GetHeader()->SetTitle(ComponentEditorConstants::kUnknownComponentTitle);
         GetHeader()->SetIcon(QIcon());
+
+        m_headerTagAttribute = nullptr;
+        m_headerTagToolTip.clear();
+        GetHeader()->SetTag(QString(), QString());
     }
 
     QString ComponentEditor::BuildHeaderTooltip()

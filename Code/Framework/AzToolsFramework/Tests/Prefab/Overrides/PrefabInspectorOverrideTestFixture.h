@@ -28,6 +28,12 @@ namespace UnitTest
         void ValidateComponentEditorDomContents(
             const AzToolsFramework::ComponentEditor::VisitComponentAdapterContentsCallback& callback);
 
+        //! Builds the inspector of an entity with one component, and finds the label of the row with the given text.
+        //! @param entityId The id of the entity to show in the inspector.
+        //! @param labelText The text of the label of the row, such as Scale.
+        //! @return The prefab override label node of the row, or an empty value when the inspector has no such row.
+        AZ::Dom::Value FindRowLabel(AZ::EntityId entityId, AZStd::string_view labelText);
+
         AZStd::unique_ptr<AzToolsFramework::EntityPropertyEditor> m_testEntityPropertyEditor;
         bool m_ed_enableDPEInspector = false;
         bool m_ed_enableInspectorOverrideManagement = false;

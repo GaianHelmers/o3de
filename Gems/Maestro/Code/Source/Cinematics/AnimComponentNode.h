@@ -200,6 +200,10 @@ namespace Maestro
 
         void AddPropertyToParamInfoMap(const CAnimParamType& paramType);
 
+        // Keys a transform track of a Transform 2 with a value in the local space of the parent. Used by SetPos, SetRotate and SetScale.
+        template<typename ValueType>
+        void SetTransformTrackValue(float time, const CAnimParamType& paramType, const ValueType& localValue);
+
         AZ::Uuid m_componentTypeId;
         AZ::ComponentId m_componentId;
 

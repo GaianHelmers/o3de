@@ -6,10 +6,16 @@
  *
  */
 
+#include <AzCore/Interface/Interface.h>
 #include <AzCore/UnitTest/TestTypes.h>
+#include <AzFramework/Entity/EntityDebugDisplayBus.h>
+#include <AzFramework/Visibility/EntityBoundsUnionBus.h>
+#include <AzToolsFramework/API/ComponentEntitySelectionBus.h>
 #include <AzToolsFramework/ToolsComponents/EditorNonUniformScaleComponent.h>
 #include <AzToolsFramework/UnitTest/AzToolsFrameworkTestHelpers.h>
+#include <AzToolsFramework/ViewportSelection/EditorSelectionUtil.h>
 #include <AzToolsFramework/Manipulators/BoxManipulatorRequestBus.h>
+#include <AZTestShared/Math/MathTestHelpers.h>
 #include <EditorColliderComponent.h>
 #include <EditorMeshColliderComponent.h>
 #include <EditorShapeColliderComponent.h>
@@ -21,6 +27,7 @@
 #include <PhysX/MathConversion.h>
 #include <PhysX/PhysXLocks.h>
 #include <PhysX/SystemComponentBus.h>
+#include <BaseColliderComponent.h>
 #include <RigidBodyComponent.h>
 #include <RigidBodyStatic.h>
 #include <ShapeColliderComponent.h>
@@ -28,6 +35,7 @@
 #include <BoxColliderComponent.h>
 #include <CapsuleColliderComponent.h>
 #include <StaticRigidBodyComponent.h>
+#include <Source/Transform2ColliderSupport.h>
 #include <Tests/EditorTestUtilities.h>
 #include <Tests/PhysXTestCommon.h>
 
@@ -593,5 +601,378 @@ namespace PhysXEditorTests
         const AZ::Aabb aabb = rigidBody->GetAabb();
         EXPECT_THAT(aabb.GetMax(), UnitTest::IsClose(0.5f * boxDimensions * parentScale));
         EXPECT_THAT(aabb.GetMin(), UnitTest::IsClose(-0.5f * boxDimensions * parentScale));
+    }
+
+    // The flag a collider saves for a non-uniform scale is only refreshed when the collider activates, and a scale that crosses
+    // between uniform and non-uniform re-activates the entity on the next tick, after the prefab data was taken. The game entity
+    // must therefore follow the transform of the entity and not the saved flag.
+    TEST_F(PhysXEditorFixture, EditorColliderComponent_NonUniformTransformWithSavedFlagFalse_BuildsScaledPrimitive)
+    {
+        EntityPtr editorEntity = CreateInactiveEditorEntity("ColliderComponentEditorEntity");
+        auto* colliderComponent = editorEntity->CreateComponent<PhysX::EditorColliderComponent>();
+        editorEntity->CreateComponent<PhysX::EditorStaticRigidBodyComponent>();
+        editorEntity->Activate();
+
+        AZ::EntityComponentIdPair idPair(editorEntity->GetId(), colliderComponent->GetId());
+        PhysX::EditorPrimitiveColliderComponentRequestBus::Event(
+            idPair, &PhysX::EditorPrimitiveColliderComponentRequests::SetShapeType, Physics::ShapeType::Box);
+
+        // The scale crosses to non-uniform, and the collider has not heard of it, so its saved flag is still false.
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(2.0f, 1.0f, 1.0f));
+        ASSERT_FALSE(colliderComponent->GetShapeConfiguration().m_hasNonUniformScale);
+
+        EntityPtr gameEntity = CreateInactiveGameEntityFromEditorEntity(editorEntity.get());
+
+        // A box cannot take a non-uniform scale, so it becomes a convex mesh in a base collider and no box collider.
+        EXPECT_TRUE(gameEntity->FindComponent<PhysX::BoxColliderComponent>() == nullptr);
+        EXPECT_TRUE(gameEntity->FindComponent<PhysX::BaseColliderComponent>() != nullptr);
+        EXPECT_TRUE(colliderComponent->GetShapeConfiguration().m_hasNonUniformScale);
+    }
+
+    TEST_F(PhysXEditorFixture, EditorColliderComponent_UniformTransformWithSavedFlagTrue_BuildsBoxCollider)
+    {
+        EntityPtr editorEntity = CreateInactiveEditorEntity("ColliderComponentEditorEntity");
+        auto* colliderComponent = editorEntity->CreateComponent<PhysX::EditorColliderComponent>();
+        editorEntity->CreateComponent<PhysX::EditorStaticRigidBodyComponent>();
+        editorEntity->Activate();
+
+        AZ::EntityComponentIdPair idPair(editorEntity->GetId(), colliderComponent->GetId());
+        PhysX::EditorPrimitiveColliderComponentRequestBus::Event(
+            idPair, &PhysX::EditorPrimitiveColliderComponentRequests::SetShapeType, Physics::ShapeType::Box);
+
+        // Cycle the activation of the entity at a non-uniform scale, as the queued re-activation does, so the collider saves true.
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(2.0f, 1.0f, 1.0f));
+        editorEntity->Deactivate();
+        editorEntity->Activate();
+        ASSERT_TRUE(colliderComponent->GetShapeConfiguration().m_hasNonUniformScale);
+
+        // The scale crosses back to uniform, and the collider has not heard of it, so its saved flag is still true.
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(1.0f));
+        ASSERT_TRUE(colliderComponent->GetShapeConfiguration().m_hasNonUniformScale);
+
+        EntityPtr gameEntity = CreateInactiveGameEntityFromEditorEntity(editorEntity.get());
+
+        EXPECT_TRUE(gameEntity->FindComponent<PhysX::BoxColliderComponent>() != nullptr);
+        EXPECT_TRUE(gameEntity->FindComponent<PhysX::BaseColliderComponent>() == nullptr);
+        EXPECT_FALSE(colliderComponent->GetShapeConfiguration().m_hasNonUniformScale);
+    }
+
+    TEST_F(PhysXEditorFixture, EditorColliderComponent_NonUniformScaleComponent_BuildsScaledPrimitive)
+    {
+        // The old Non-uniform Scale component still counts, whatever its collider saved.
+        EntityPtr editorEntity = CreateBoxPrimitiveColliderEditorEntity(
+            AZ::Vector3(2.0f, 3.0f, 4.0f),
+            AZ::Transform::CreateIdentity(),
+            AZ::Vector3::CreateZero(),
+            AZ::Quaternion::CreateIdentity(),
+            AZ::Vector3(2.0f, 1.0f, 1.0f));
+
+        EntityPtr gameEntity = CreateInactiveGameEntityFromEditorEntity(editorEntity.get());
+
+        EXPECT_TRUE(gameEntity->FindComponent<PhysX::BoxColliderComponent>() == nullptr);
+        EXPECT_TRUE(gameEntity->FindComponent<PhysX::BaseColliderComponent>() != nullptr);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Picking and bounds of a flipped entity
+    //
+    // The editor body of a collider stays on the authored side of a flipped entity, and its wireframe draws mirrored. The pick
+    // and the selection bounds of the editor follow the wireframe, so the mirrored side selects and the authored side does not.
+
+    // Whether the editor pick of an entity hits it along a ray, and where. The pick runs the selection bounds first and then
+    // the ray test of every component of the entity, as a click in the viewport does.
+    static bool PickEntityAlongRay(AZ::EntityId entityId, const AZ::Vector3& origin, const AZ::Vector3& direction, float& distance)
+    {
+        return AzToolsFramework::PickEntity(entityId, origin, direction, distance, 0);
+    }
+
+    // A ray that runs along Y at the given X, from five units before the Y of the entity.
+    static bool PickEntityAlongY(AZ::EntityId entityId, float x, float& distance)
+    {
+        return PickEntityAlongRay(entityId, AZ::Vector3(x, -5.0f, 0.0f), AZ::Vector3::CreateAxisY(), distance);
+    }
+
+    static AZ::Vector3 GetSelectionBoundsCenter(AZ::EntityId entityId)
+    {
+        return AzToolsFramework::CalculateEditorEntitySelectionBounds(entityId, AzFramework::ViewportInfo{ 0 }).GetCenter();
+    }
+
+    TEST_F(PhysXEditorFixture, EditorColliderComponent_FlippedTransform_PickAndSelectionBoundsFollowTheMirroredSide)
+    {
+        // A box one unit wide with its centre offset to X = 1. Flipped in X, it is drawn with its centre at X = -1.
+        EntityPtr editorEntity = CreateBoxPrimitiveColliderEditorEntity(
+            AZ::Vector3(1.0f, 1.0f, 1.0f), AZ::Transform::CreateIdentity(), AZ::Vector3(1.0f, 0.0f, 0.0f));
+        const AZ::EntityId entityId = editorEntity->GetId();
+        float distance = 0.0f;
+
+        EXPECT_TRUE(PickEntityAlongY(entityId, 1.0f, distance));
+        EXPECT_NEAR(distance, 4.5f, 1e-3f);
+        EXPECT_FALSE(PickEntityAlongY(entityId, -1.0f, distance));
+        EXPECT_THAT(GetSelectionBoundsCenter(entityId), UnitTest::IsCloseTolerance(AZ::Vector3(1.0f, 0.0f, 0.0f), 1e-3f));
+
+        // The flip fires no transform event, so the body is not rebuilt. The pick maps onto it, and the distance is the one
+        // along the ray that came in.
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+
+        EXPECT_TRUE(PickEntityAlongY(entityId, -1.0f, distance));
+        EXPECT_NEAR(distance, 4.5f, 1e-3f);
+        EXPECT_FALSE(PickEntityAlongY(entityId, 1.0f, distance));
+        EXPECT_THAT(GetSelectionBoundsCenter(entityId), UnitTest::IsCloseTolerance(AZ::Vector3(-1.0f, 0.0f, 0.0f), 1e-3f));
+
+        // Back at one, the authored side picks again.
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(1.0f, 1.0f, 1.0f));
+
+        EXPECT_TRUE(PickEntityAlongY(entityId, 1.0f, distance));
+        EXPECT_FALSE(PickEntityAlongY(entityId, -1.0f, distance));
+        EXPECT_THAT(GetSelectionBoundsCenter(entityId), UnitTest::IsCloseTolerance(AZ::Vector3(1.0f, 0.0f, 0.0f), 1e-3f));
+    }
+
+    TEST_F(PhysXEditorFixture, EditorColliderComponent_FlippedTransformAndRotatedEntity_PickAndSelectionBoundsMirrorAboutTheLocalPlane)
+    {
+        // A quarter turn about Z puts local X on world Y, so the box offset to local X = 1 sits at world Y = 1.
+        // Flipping local X draws it at world Y = -1.
+        EntityPtr editorEntity = CreateBoxPrimitiveColliderEditorEntity(
+            AZ::Vector3(1.0f, 1.0f, 1.0f),
+            AZ::Transform::CreateFromQuaternionAndTranslation(AZ::Quaternion::CreateRotationZ(AZ::Constants::HalfPi), AZ::Vector3::CreateZero()),
+            AZ::Vector3(1.0f, 0.0f, 0.0f));
+        const AZ::EntityId entityId = editorEntity->GetId();
+        float distance = 0.0f;
+
+        EXPECT_TRUE(PickEntityAlongRay(entityId, AZ::Vector3(-5.0f, 1.0f, 0.0f), AZ::Vector3::CreateAxisX(), distance));
+
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+
+        EXPECT_TRUE(PickEntityAlongRay(entityId, AZ::Vector3(-5.0f, -1.0f, 0.0f), AZ::Vector3::CreateAxisX(), distance));
+        EXPECT_NEAR(distance, 4.5f, 1e-3f);
+        EXPECT_FALSE(PickEntityAlongRay(entityId, AZ::Vector3(-5.0f, 1.0f, 0.0f), AZ::Vector3::CreateAxisX(), distance));
+        EXPECT_THAT(GetSelectionBoundsCenter(entityId), UnitTest::IsCloseTolerance(AZ::Vector3(0.0f, -1.0f, 0.0f), 1e-3f));
+    }
+
+    TEST_F(PhysXEditorFixture, EditorRigidBodyComponent_FlippedTransform_PickAndSelectionBoundsFollowTheMirroredSide)
+    {
+        // The same with a dynamic rigid body, whose editor body is the one that answers.
+        EntityPtr editorEntity = CreateBoxPrimitiveColliderEditorEntity(
+            AZ::Vector3(1.0f, 1.0f, 1.0f),
+            AZ::Transform::CreateIdentity(),
+            AZ::Vector3(1.0f, 0.0f, 0.0f),
+            AZ::Quaternion::CreateIdentity(),
+            AZStd::nullopt,
+            RigidBodyType::Dynamic);
+        const AZ::EntityId entityId = editorEntity->GetId();
+        float distance = 0.0f;
+
+        EXPECT_TRUE(PickEntityAlongY(entityId, 1.0f, distance));
+        EXPECT_FALSE(PickEntityAlongY(entityId, -1.0f, distance));
+        EXPECT_THAT(GetSelectionBoundsCenter(entityId), UnitTest::IsCloseTolerance(AZ::Vector3(1.0f, 0.0f, 0.0f), 1e-3f));
+
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+
+        EXPECT_TRUE(PickEntityAlongY(entityId, -1.0f, distance));
+        EXPECT_NEAR(distance, 4.5f, 1e-3f);
+        EXPECT_FALSE(PickEntityAlongY(entityId, 1.0f, distance));
+        EXPECT_THAT(GetSelectionBoundsCenter(entityId), UnitTest::IsCloseTolerance(AZ::Vector3(-1.0f, 0.0f, 0.0f), 1e-3f));
+
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(1.0f, 1.0f, 1.0f));
+
+        EXPECT_TRUE(PickEntityAlongY(entityId, 1.0f, distance));
+        EXPECT_FALSE(PickEntityAlongY(entityId, -1.0f, distance));
+        EXPECT_THAT(GetSelectionBoundsCenter(entityId), UnitTest::IsCloseTolerance(AZ::Vector3(1.0f, 0.0f, 0.0f), 1e-3f));
+    }
+
+    // Stands in for the visibility bounds system of the test application while it lives, and counts the refreshes that are
+    // asked for one entity.
+    class CountingBoundsUnion
+        : public AzFramework::IEntityBoundsUnion
+    {
+    public:
+        explicit CountingBoundsUnion(AZ::EntityId entityId)
+            : m_entityId(entityId)
+            , m_runningSystem(AZ::Interface<AzFramework::IEntityBoundsUnion>::Get())
+        {
+            if (m_runningSystem)
+            {
+                AZ::Interface<AzFramework::IEntityBoundsUnion>::Unregister(m_runningSystem);
+            }
+            AZ::Interface<AzFramework::IEntityBoundsUnion>::Register(this);
+        }
+
+        virtual ~CountingBoundsUnion()
+        {
+            AZ::Interface<AzFramework::IEntityBoundsUnion>::Unregister(this);
+            if (m_runningSystem)
+            {
+                AZ::Interface<AzFramework::IEntityBoundsUnion>::Register(m_runningSystem);
+            }
+        }
+
+        // AzFramework::IEntityBoundsUnion overrides...
+        void RefreshEntityLocalBoundsUnion(AZ::EntityId entityId) override
+        {
+            if (entityId == m_entityId)
+            {
+                ++m_refreshCount;
+            }
+        }
+
+        AZ::Aabb GetEntityLocalBoundsUnion([[maybe_unused]] AZ::EntityId entityId) const override
+        {
+            return AZ::Aabb::CreateNull();
+        }
+
+        AZ::Aabb GetEntityWorldBoundsUnion([[maybe_unused]] AZ::EntityId entityId) const override
+        {
+            return AZ::Aabb::CreateNull();
+        }
+
+        void ProcessEntityBoundsUnionRequests() override
+        {
+        }
+
+        void OnTransformUpdated([[maybe_unused]] AZ::Entity* entity) override
+        {
+        }
+
+        AZ::EntityId m_entityId;
+        AzFramework::IEntityBoundsUnion* m_runningSystem = nullptr;
+        int m_refreshCount = 0;
+    };
+
+    TEST_F(PhysXEditorFixture, EditorColliderComponent_FlipSignsChange_RefreshesTheVisibilityBoundsOncePerChange)
+    {
+        EntityPtr editorEntity = CreateBoxPrimitiveColliderEditorEntity(AZ::Vector3(1.0f, 1.0f, 1.0f));
+        CountingBoundsUnion boundsUnion(editorEntity->GetId());
+
+        // A pure flip fires no transform event, so the collider bounds of the entity would stay on the authored side.
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        EXPECT_EQ(boundsUnion.m_refreshCount, 1);
+
+        // The same signs at another size are not a change of the flip.
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(-2.0f, 2.0f, 2.0f));
+        EXPECT_EQ(boundsUnion.m_refreshCount, 1);
+
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(1.0f, 1.0f, 1.0f));
+        EXPECT_EQ(boundsUnion.m_refreshCount, 2);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // The mirror helpers
+
+    namespace
+    {
+        AZ::Vector3 SignsFromMask(AZ::u32 mask)
+        {
+            return AZ::Vector3((mask & 1) ? -1.0f : 1.0f, (mask & 2) ? -1.0f : 1.0f, (mask & 4) ? -1.0f : 1.0f);
+        }
+    } // namespace
+
+    TEST(Transform2MirrorTest, MirrorWorldPoint_UnrotatedEntity_NegatesTheFlippedAxesAboutThePosition)
+    {
+        const AZ::Transform world = AZ::Transform::CreateTranslation(AZ::Vector3(10.0f, 20.0f, 30.0f));
+        const AZ::Vector3 point(11.0f, 22.0f, 33.0f);
+
+        EXPECT_THAT(
+            PhysX::Transform2Mirror::MirrorWorldPoint(world, SignsFromMask(1), point),
+            UnitTest::IsCloseTolerance(AZ::Vector3(9.0f, 22.0f, 33.0f), 1e-4f));
+        EXPECT_THAT(
+            PhysX::Transform2Mirror::MirrorWorldPoint(world, SignsFromMask(5), point),
+            UnitTest::IsCloseTolerance(AZ::Vector3(9.0f, 22.0f, 27.0f), 1e-4f));
+
+        // No flip returns the point as it is.
+        EXPECT_THAT(PhysX::Transform2Mirror::MirrorWorldPoint(world, SignsFromMask(0), point), UnitTest::IsCloseTolerance(point, 1e-6f));
+    }
+
+    TEST(Transform2MirrorTest, MirrorWorldPoint_RotatedAndScaledEntity_MirrorsAboutThePlaneOfTheFlippedLocalAxis)
+    {
+        // A quarter turn about Z puts local X on world Y, so flipping X mirrors world Y about the position. The uniform
+        // scale of the entity cancels out of the mirror.
+        AZ::Transform world = AZ::Transform::CreateFromQuaternionAndTranslation(
+            AZ::Quaternion::CreateRotationZ(AZ::Constants::HalfPi), AZ::Vector3(1.0f, 2.0f, 3.0f));
+        world.SetUniformScale(3.0f);
+
+        EXPECT_THAT(
+            PhysX::Transform2Mirror::MirrorWorldPoint(world, SignsFromMask(1), AZ::Vector3(5.0f, 7.0f, 9.0f)),
+            UnitTest::IsCloseTolerance(AZ::Vector3(5.0f, -3.0f, 9.0f), 1e-4f));
+        EXPECT_THAT(
+            PhysX::Transform2Mirror::MirrorWorldDirection(world, SignsFromMask(1), AZ::Vector3(0.0f, 1.0f, 0.0f)),
+            UnitTest::IsCloseTolerance(AZ::Vector3(0.0f, -1.0f, 0.0f), 1e-4f));
+    }
+
+    TEST(Transform2MirrorTest, MirrorWorld_EverySignPattern_IsTheEntityMirrorThatKeepsDistances)
+    {
+        AZ::Transform world = AZ::Transform::CreateFromQuaternionAndTranslation(
+            AZ::Quaternion::CreateRotationZ(0.7f) * AZ::Quaternion::CreateRotationY(0.5f) * AZ::Quaternion::CreateRotationX(0.3f),
+            AZ::Vector3(1.0f, -2.0f, 3.0f));
+        world.SetUniformScale(2.0f);
+
+        const AZ::Vector3 pointA(4.0f, 5.0f, -6.0f);
+        const AZ::Vector3 pointB(-2.0f, 0.5f, 7.0f);
+        const AZ::Vector3 direction = AZ::Vector3(0.3f, -0.5f, 0.8f).GetNormalized();
+
+        for (AZ::u32 mask = 1; mask < 8; ++mask)
+        {
+            const AZ::Vector3 signs = SignsFromMask(mask);
+            const AZ::Vector3 mirroredA = PhysX::Transform2Mirror::MirrorWorldPoint(world, signs, pointA);
+            const AZ::Vector3 mirroredB = PhysX::Transform2Mirror::MirrorWorldPoint(world, signs, pointB);
+
+            // W * diag(signs) * W^-1, written out.
+            EXPECT_THAT(mirroredA, UnitTest::IsCloseTolerance(world.TransformPoint(signs * world.GetInverse().TransformPoint(pointA)), 1e-3f));
+
+            // An isometry: distances between points and from the entity are kept, so a ray keeps its distances.
+            EXPECT_NEAR(mirroredA.GetDistance(mirroredB), pointA.GetDistance(pointB), 1e-3f);
+            EXPECT_NEAR(mirroredA.GetDistance(world.GetTranslation()), pointA.GetDistance(world.GetTranslation()), 1e-3f);
+
+            // Mirroring twice returns where it started.
+            EXPECT_THAT(PhysX::Transform2Mirror::MirrorWorldPoint(world, signs, mirroredA), UnitTest::IsCloseTolerance(pointA, 1e-3f));
+
+            const AZ::Vector3 mirroredDirection = PhysX::Transform2Mirror::MirrorWorldDirection(world, signs, direction);
+            EXPECT_NEAR(mirroredDirection.GetLength(), 1.0f, 1e-4f);
+            EXPECT_THAT(
+                PhysX::Transform2Mirror::MirrorWorldDirection(world, signs, mirroredDirection), UnitTest::IsCloseTolerance(direction, 1e-4f));
+        }
+    }
+
+    TEST(Transform2MirrorTest, MirrorWorldAabb_UnrotatedEntity_ReflectsTheBoxAboutThePosition)
+    {
+        const AZ::Transform world = AZ::Transform::CreateTranslation(AZ::Vector3(10.0f, 0.0f, 0.0f));
+        const AZ::Aabb box = AZ::Aabb::CreateFromMinMax(AZ::Vector3(11.0f, -1.0f, 2.0f), AZ::Vector3(13.0f, 1.0f, 3.0f));
+
+        // X runs from 1 to 3 away from the position, so it runs from -3 to -1 once mirrored.
+        const AZ::Aabb flippedX = PhysX::Transform2Mirror::MirrorWorldAabb(world, SignsFromMask(1), box);
+        EXPECT_THAT(flippedX.GetMin(), UnitTest::IsCloseTolerance(AZ::Vector3(7.0f, -1.0f, 2.0f), 1e-4f));
+        EXPECT_THAT(flippedX.GetMax(), UnitTest::IsCloseTolerance(AZ::Vector3(9.0f, 1.0f, 3.0f), 1e-4f));
+
+        const AZ::Aabb flippedXZ = PhysX::Transform2Mirror::MirrorWorldAabb(world, SignsFromMask(5), box);
+        EXPECT_THAT(flippedXZ.GetMin(), UnitTest::IsCloseTolerance(AZ::Vector3(7.0f, -1.0f, -3.0f), 1e-4f));
+        EXPECT_THAT(flippedXZ.GetMax(), UnitTest::IsCloseTolerance(AZ::Vector3(9.0f, 1.0f, -2.0f), 1e-4f));
+
+        // No flip returns the box as it is, and a null box stays null.
+        EXPECT_TRUE(PhysX::Transform2Mirror::MirrorWorldAabb(world, SignsFromMask(0), box).IsClose(box, 1e-6f));
+        EXPECT_FALSE(PhysX::Transform2Mirror::MirrorWorldAabb(world, SignsFromMask(1), AZ::Aabb::CreateNull()).IsValid());
+    }
+
+    TEST(Transform2MirrorTest, MirrorWorldAabb_RotatedEntity_ReflectsAQuarterTurnExactlyAndContainsTheMirroredCorners)
+    {
+        // A quarter turn about Z puts local X on world Y, so flipping X turns Y into -Y.
+        const AZ::Transform quarterTurn =
+            AZ::Transform::CreateFromQuaternionAndTranslation(AZ::Quaternion::CreateRotationZ(AZ::Constants::HalfPi), AZ::Vector3::CreateZero());
+        const AZ::Aabb box = AZ::Aabb::CreateFromMinMax(AZ::Vector3(1.0f, 4.0f, 0.0f), AZ::Vector3(3.0f, 6.0f, 1.0f));
+
+        const AZ::Aabb mirrored = PhysX::Transform2Mirror::MirrorWorldAabb(quarterTurn, SignsFromMask(1), box);
+        EXPECT_THAT(mirrored.GetMin(), UnitTest::IsCloseTolerance(AZ::Vector3(1.0f, -6.0f, 0.0f), 1e-4f));
+        EXPECT_THAT(mirrored.GetMax(), UnitTest::IsCloseTolerance(AZ::Vector3(3.0f, -4.0f, 1.0f), 1e-4f));
+
+        // At any other angle the box is the box of the mirrored corners, so it holds every one of them.
+        const AZ::Transform world = AZ::Transform::CreateFromQuaternionAndTranslation(
+            AZ::Quaternion::CreateRotationZ(0.7f) * AZ::Quaternion::CreateRotationY(0.5f), AZ::Vector3(1.0f, -2.0f, 3.0f));
+        const AZ::Vector3 signs = SignsFromMask(3);
+        const AZ::Aabb mirroredBox = PhysX::Transform2Mirror::MirrorWorldAabb(world, signs, box).GetExpanded(AZ::Vector3(1e-3f));
+        for (AZ::u32 corner = 0; corner < 8; ++corner)
+        {
+            const AZ::Vector3 point(
+                (corner & 1) ? box.GetMax().GetX() : box.GetMin().GetX(),
+                (corner & 2) ? box.GetMax().GetY() : box.GetMin().GetY(),
+                (corner & 4) ? box.GetMax().GetZ() : box.GetMin().GetZ());
+            EXPECT_TRUE(mirroredBox.Contains(PhysX::Transform2Mirror::MirrorWorldPoint(world, signs, point)));
+        }
     }
 } // namespace PhysXEditorTests

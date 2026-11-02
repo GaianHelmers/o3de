@@ -18,6 +18,7 @@
 #include <AzToolsFramework/Prefab/Spawnable/EditorInfoRemover.h>
 #include <AzToolsFramework/ToolsComponents/EditorComponentBase.h>
 #include <AzToolsFramework/ToolsComponents/EditorOnlyEntityComponentBus.h>
+#include <AzToolsFramework/ToolsComponents/TransformComponent.h>
 #include <AzToolsFramework/UI/PropertyEditor/PropertyEditorAPI_Internals.h>
 
 namespace AzToolsFramework::Prefab::PrefabConversionUtils
@@ -527,6 +528,30 @@ exportComponent, prefabProcessorContext);
 
         // find valid editor-only entity handler for removing editor-only entities later.
         SetEditorOnlyEntityHandlerFromCandidates(sourceEntities);
+
+        // Transform 2: a transform that is a child of an extended one deploys as a Transform 2 too, which is read from its
+        // parent through the entities that are initialized. The instance lists a child before its parent as often as not, so
+        // when any transform here is extended every entity is initialized before the first one is exported. A prefab with no
+        // extended transform takes the path it always took, and each entity is initialized as it is exported.
+        bool hasExtendedTransform = false;
+        for (const AZ::Entity* entity : sourceEntities)
+        {
+            if (AzToolsFramework::Components::TransformComponent::HasExtendedOwnScale(*entity))
+            {
+                hasExtendedTransform = true;
+                break;
+            }
+        }
+        if (hasExtendedTransform)
+        {
+            for (AZ::Entity* entity : sourceEntities)
+            {
+                if (entity->GetState() == AZ::Entity::State::Constructed)
+                {
+                    entity->Init();
+                }
+            }
+        }
 
         // export entities.
         for (AZ::Entity* entity : sourceEntities)

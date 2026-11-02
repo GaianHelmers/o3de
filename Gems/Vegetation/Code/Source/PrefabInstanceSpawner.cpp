@@ -10,6 +10,7 @@
 
 #include <AzCore/Asset/AssetManager.h>
 #include <AzCore/Asset/AssetSerializer.h>
+#include <AzCore/Component/EntityUtils.h>
 #include <AzCore/Math/Transform.h>
 #include <AzCore/RTTI/BehaviorContext.h>
 #include <AzCore/Serialization/EditContext.h>
@@ -333,6 +334,11 @@ namespace Vegetation
             AZ::Entity* rootEntity = *view.begin();
 
             AzFramework::TransformComponent* entityTransform = rootEntity->FindComponent<AzFramework::TransformComponent>();
+            if (!entityTransform)
+            {
+                // A Transform2Component derives from TransformComponent but has its own type id.
+                entityTransform = AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(rootEntity);
+            }
 
             if (entityTransform)
             {

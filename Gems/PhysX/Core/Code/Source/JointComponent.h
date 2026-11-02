@@ -110,6 +110,16 @@ namespace PhysX
         /// This allows sub-classes to instantiate specific native types. This base class does not need knowledge of any specific joint type.
         void ObtainLeadFollowerInfo(LeadFollowerInfo& leadFollowerInfo);
 
+        // Transform 2 flip (D.42). A joint frame is authored in the local space of the follower, so a flipped follower mirrors it.
+        // The configuration is serialized and is never written: ObtainLeadFollowerInfo works from a copy made here, and the copy
+        // is made once, when the native joint is made. A joint is correct at creation only. D6 reads no frame, so it is not flipped.
+        JointComponentConfiguration GetFlippedConfiguration() const;
+
+        /// True when the mirror of the signs reverses the axis this joint type moves along, the X axis of its frame. The mirrored
+        /// frame is then turned half a turn, so the limits, the position readback and the motor values stay as authored.
+        /// A hinge and a prismatic joint answer for themselves. A joint with no such axis, Fixed and Ball, keeps the default.
+        virtual bool ReversesMotionAxis([[maybe_unused]] const AZ::Vector3& signs) const { return false; }
+
         /// Issues warnings for invalid scenarios when initializing a joint from entity IDs.
         void WarnInvalidJointSetup(AZ::EntityId entityId, const AZStd::string& message);
 

@@ -19,8 +19,10 @@
 
 #include <AZTestShared/Math/MathTestHelpers.h>
 #include <AzCore/Asset/AssetManager.h>
+#include <AzCore/Component/Transform2Bus.h>
 #include <AzCore/IO/Path/Path.h>
 #include <AzCore/Math/Matrix3x3.h>
+#include <AzCore/std/limits.h>
 #include <AzFramework/Entity/EntityDebugDisplayBus.h>
 #include <AzFramework/UnitTest/TestDebugDisplayRequests.h>
 #include <AzFramework/Viewport/CameraState.h>
@@ -882,5 +884,204 @@ namespace UnitTest
 
         // now owned by EditorWhiteBoxComponent so ensure we do not attempt to delete it ourselves
         m_whiteBoxMeshAsset = nullptr;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2: a flipped White Box is drawn mirrored, so its bounds and its pick follow
+    //
+    // The unit cube is centered on the entity, which a mirror leaves where it is. The mesh is moved to the +X side, so a flip about X
+    // moves the box to the -X side.
+
+    //! Stands in for the Transform 2 of an entity: it answers the signed scale that the White Box asks for.
+    //! The entity may sit under a parent. The world scale is then the scale of the parent times its own, which holds for the
+    //! equal magnitudes and the signs these tests use.
+    class MockTransform2
+        : public AZ::Transform2RequestBus::Handler
+    {
+    public:
+        MockTransform2(AZ::EntityId entityId, const AZ::Vector3& scale, const AZ::Vector3& parentWorldScale = AZ::Vector3::CreateOne())
+            : m_scale(scale)
+            , m_parentWorldScale(parentWorldScale)
+        {
+            AZ::Transform2RequestBus::Handler::BusConnect(entityId);
+        }
+
+        ~MockTransform2() override
+        {
+            AZ::Transform2RequestBus::Handler::BusDisconnect();
+        }
+
+        // AZ::Transform2RequestBus overrides...
+        AZ::Vector3 GetLocalScale() const override
+        {
+            return m_scale;
+        }
+
+        void SetLocalScale(const AZ::Vector3& scale) override
+        {
+            m_scale = scale;
+        }
+
+        AZ::Vector3 GetWorldScale() const override
+        {
+            return m_parentWorldScale * m_scale;
+        }
+
+        AZ::Vector3 m_scale;
+        AZ::Vector3 m_parentWorldScale;
+    };
+
+    class EditorWhiteBoxFlipTestFixture
+        : public EditorWhiteBoxComponentTestFixture
+    {
+    public:
+        void SetUpEditorFixtureImpl() override
+        {
+            EditorWhiteBoxComponentTestFixture::SetUpEditorFixtureImpl();
+
+            // The cube spans 0.5 to 1.5 in X now, and -0.5 to 0.5 in Y and Z.
+            WhiteBox::WhiteBoxMesh* whiteBox = m_whiteBoxComponent->GetWhiteBoxMesh();
+            for (const WhiteBox::Api::VertexHandle vertexHandle : WhiteBox::Api::MeshVertexHandles(*whiteBox))
+            {
+                WhiteBox::Api::SetVertexPosition(
+                    *whiteBox, vertexHandle, WhiteBox::Api::VertexPosition(*whiteBox, vertexHandle) + AZ::Vector3(1.0f, 0.0f, 0.0f));
+            }
+            m_whiteBoxComponent->RebuildWhiteBox();
+        }
+
+    protected:
+        static constexpr float Tolerance = 1e-3f;
+
+        // Picks with a ray that starts at the origin and runs straight down. A miss leaves the distance at the largest float.
+        bool PickFrom(const AZ::Vector3& origin, float& distance) const
+        {
+            distance = AZStd::numeric_limits<float>::max();
+            return m_whiteBoxComponent->EditorSelectionIntersectRayViewport(
+                AzFramework::ViewportInfo{}, origin, -AZ::Vector3::CreateAxisZ(), distance);
+        }
+
+        void ExpectBounds(const AZ::Aabb& bounds, const AZ::Vector3& expectedMin, const AZ::Vector3& expectedMax) const
+        {
+            EXPECT_THAT(bounds.GetMin(), IsCloseTolerance(expectedMin, Tolerance));
+            EXPECT_THAT(bounds.GetMax(), IsCloseTolerance(expectedMax, Tolerance));
+        }
+    };
+
+    TEST_F(EditorWhiteBoxFlipTestFixture, NoTransform2_BoundsAndPickAreTheAuthoredOnes)
+    {
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(0.5f, -0.5f, -0.5f), AZ::Vector3(1.5f, 0.5f, 0.5f));
+        ExpectBounds(m_whiteBoxComponent->GetLocalBounds(), AZ::Vector3(0.5f, -0.5f, -0.5f), AZ::Vector3(1.5f, 0.5f, 0.5f));
+        ExpectBounds(
+            m_whiteBoxComponent->GetEditorSelectionBoundsViewport(AzFramework::ViewportInfo{}),
+            AZ::Vector3(0.5f, -0.5f, -0.5f),
+            AZ::Vector3(1.5f, 0.5f, 0.5f));
+
+        float distance = 0.0f;
+        EXPECT_TRUE(PickFrom(AZ::Vector3(1.0f, 0.0f, 10.0f), distance));
+        EXPECT_NEAR(distance, 9.5f, Tolerance);
+        EXPECT_FALSE(PickFrom(AZ::Vector3(-1.0f, 0.0f, 10.0f), distance));
+    }
+
+    TEST_F(EditorWhiteBoxFlipTestFixture, FlippedInX_BoundsAndPickAreMirroredAboutTheEntity)
+    {
+        MockTransform2 transform2(m_whiteBoxEntityId, AZ::Vector3(-1.0f, 1.0f, 1.0f));
+
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(-1.5f, -0.5f, -0.5f), AZ::Vector3(-0.5f, 0.5f, 0.5f));
+        ExpectBounds(m_whiteBoxComponent->GetLocalBounds(), AZ::Vector3(-1.5f, -0.5f, -0.5f), AZ::Vector3(-0.5f, 0.5f, 0.5f));
+        ExpectBounds(
+            m_whiteBoxComponent->GetEditorSelectionBoundsViewport(AzFramework::ViewportInfo{}),
+            AZ::Vector3(-1.5f, -0.5f, -0.5f),
+            AZ::Vector3(-0.5f, 0.5f, 0.5f));
+
+        // The box is drawn on the -X side now. The pick finds it there, at the distance along the ray, and not on the authored side.
+        float distance = 0.0f;
+        EXPECT_TRUE(PickFrom(AZ::Vector3(-1.0f, 0.0f, 10.0f), distance));
+        EXPECT_NEAR(distance, 9.5f, Tolerance);
+        EXPECT_FALSE(PickFrom(AZ::Vector3(1.0f, 0.0f, 10.0f), distance));
+    }
+
+    TEST_F(EditorWhiteBoxFlipTestFixture, FlippedInZ_BoundsAreMirroredAboutTheEntity)
+    {
+        MockTransform2 transform2(m_whiteBoxEntityId, AZ::Vector3(1.0f, 1.0f, -1.0f));
+
+        // The box is centered in Z, so a flip about Z leaves it where it was. The pick from above is the same.
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(0.5f, -0.5f, -0.5f), AZ::Vector3(1.5f, 0.5f, 0.5f));
+
+        float distance = 0.0f;
+        EXPECT_TRUE(PickFrom(AZ::Vector3(1.0f, 0.0f, 10.0f), distance));
+        EXPECT_NEAR(distance, 9.5f, Tolerance);
+    }
+
+    TEST_F(EditorWhiteBoxFlipTestFixture, FlippedAndFlippedBack_AnswerTheDrawnSideEachTime)
+    {
+        MockTransform2 transform2(m_whiteBoxEntityId, AZ::Vector3(1.0f, 1.0f, 1.0f));
+
+        // Reading the bounds fills the cache of the authored side. A flip fires no transform event that would drop it.
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(0.5f, -0.5f, -0.5f), AZ::Vector3(1.5f, 0.5f, 0.5f));
+
+        transform2.SetLocalScale(AZ::Vector3(-2.0f, 1.0f, 1.0f));
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(-1.5f, -0.5f, -0.5f), AZ::Vector3(-0.5f, 0.5f, 0.5f));
+
+        transform2.SetLocalScale(AZ::Vector3(3.0f, 1.0f, 1.0f));
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(0.5f, -0.5f, -0.5f), AZ::Vector3(1.5f, 0.5f, 0.5f));
+    }
+
+    TEST_F(EditorWhiteBoxFlipTestFixture, ChildOfAFlippedParent_BoundsAndPickAreMirroredAboutTheEntity)
+    {
+        // The White Box has a scale of one and its parent is flipped on X, so the world scale is (-1, 1, 1): the same as the X flip.
+        MockTransform2 transform2(m_whiteBoxEntityId, AZ::Vector3(1.0f, 1.0f, 1.0f), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(-1.5f, -0.5f, -0.5f), AZ::Vector3(-0.5f, 0.5f, 0.5f));
+        ExpectBounds(m_whiteBoxComponent->GetLocalBounds(), AZ::Vector3(-1.5f, -0.5f, -0.5f), AZ::Vector3(-0.5f, 0.5f, 0.5f));
+
+        float distance = 0.0f;
+        EXPECT_TRUE(PickFrom(AZ::Vector3(-1.0f, 0.0f, 10.0f), distance));
+        EXPECT_NEAR(distance, 9.5f, Tolerance);
+        EXPECT_FALSE(PickFrom(AZ::Vector3(1.0f, 0.0f, 10.0f), distance));
+    }
+
+    TEST_F(EditorWhiteBoxFlipTestFixture, ChildFlippedOnTheAxisOfItsParent_BoundsAndPickAreTheAuthoredOnes)
+    {
+        // The signs multiply: flipped on X by its own scale and by its parent, the world scale is (1, 1, 1).
+        MockTransform2 transform2(m_whiteBoxEntityId, AZ::Vector3(-1.0f, 1.0f, 1.0f), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(0.5f, -0.5f, -0.5f), AZ::Vector3(1.5f, 0.5f, 0.5f));
+
+        float distance = 0.0f;
+        EXPECT_TRUE(PickFrom(AZ::Vector3(1.0f, 0.0f, 10.0f), distance));
+        EXPECT_NEAR(distance, 9.5f, Tolerance);
+        EXPECT_FALSE(PickFrom(AZ::Vector3(-1.0f, 0.0f, 10.0f), distance));
+    }
+
+    TEST_F(EditorWhiteBoxFlipTestFixture, ScaleWithAZeroAxis_IsNotAFlip)
+    {
+        MockTransform2 transform2(m_whiteBoxEntityId, AZ::Vector3(0.0f, 1.0f, 1.0f));
+
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(0.5f, -0.5f, -0.5f), AZ::Vector3(1.5f, 0.5f, 0.5f));
+
+        float distance = 0.0f;
+        EXPECT_TRUE(PickFrom(AZ::Vector3(1.0f, 0.0f, 10.0f), distance));
+        EXPECT_FALSE(PickFrom(AZ::Vector3(-1.0f, 0.0f, 10.0f), distance));
+    }
+
+    TEST_F(EditorWhiteBoxFlipTestFixture, FlippedOnARotatedAndScaledEntity_MirrorsAboutThePlaneOfTheEntity)
+    {
+        // A quarter turn about Z puts the local X axis on the world Y axis, and the scale of two is a uniform one that the mirror
+        // must not be confused by. The box spans 1 to 3 along the entity X axis, which is the world Y axis, at 5 in world X.
+        AZ::Transform world = AZ::Transform::CreateFromQuaternionAndTranslation(
+            AZ::Quaternion::CreateRotationZ(AZ::Constants::HalfPi), AZ::Vector3(5.0f, 0.0f, 0.0f));
+        world.SetUniformScale(2.0f);
+        AZ::TransformBus::Event(m_whiteBoxEntityId, &AZ::TransformBus::Events::SetWorldTM, world);
+
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(4.0f, 1.0f, -1.0f), AZ::Vector3(6.0f, 3.0f, 1.0f));
+
+        // A flip about the local X axis puts the box on the other side of the plane of the entity, from 1 to 3 to -3 to -1.
+        MockTransform2 transform2(m_whiteBoxEntityId, AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        ExpectBounds(m_whiteBoxComponent->GetWorldBounds(), AZ::Vector3(4.0f, -3.0f, -1.0f), AZ::Vector3(6.0f, -1.0f, 1.0f));
+
+        float distance = 0.0f;
+        EXPECT_TRUE(PickFrom(AZ::Vector3(5.0f, -2.0f, 10.0f), distance));
+        EXPECT_NEAR(distance, 9.0f, Tolerance);
+        EXPECT_FALSE(PickFrom(AZ::Vector3(5.0f, 2.0f, 10.0f), distance));
     }
 } // namespace UnitTest

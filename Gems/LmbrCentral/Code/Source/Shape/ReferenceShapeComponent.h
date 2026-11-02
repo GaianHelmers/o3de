@@ -76,6 +76,9 @@ namespace LmbrCentral
         // LmbrCentral::ShapeComponentNotificationsBus
         void OnShapeChanged(LmbrCentral::ShapeComponentNotifications::ShapeChangeReasons reasons) override;
 
+        // Transform 2 flip of the target shape, passed on to whoever listens to this entity.
+        void OnShapeFlipChanged() override;
+
         //////////////////////////////////////////////////////////////////////////
         // ShapeComponentRequestsBus
         AZ::Crc32 GetShapeType() const override;
@@ -86,6 +89,12 @@ namespace LmbrCentral
         float DistanceSquaredFromPoint(const AZ::Vector3& point) const override;
         AZ::Vector3 GenerateRandomPointInside(AZ::RandomDistributionType randomDistribution) const override;
         bool IntersectRay(const AZ::Vector3& src, const AZ::Vector3& dir, float& distance) const override;
+
+        // Transform 2 flip. The shape lives on the referenced entity, so a flip of this entity changes nothing here. Saved data
+        // reads the authored bounds of the target. The signs are the target's, for whatever mirrors with the flip of the shape it
+        // reads (a gradient pattern), and OnShapeFlipChanged above passes the target's flip on.
+        void GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const override;
+        AZ::Vector3 GetFlipSigns() const override;
 
     protected:
         //////////////////////////////////////////////////////////////////////////

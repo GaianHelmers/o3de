@@ -6,6 +6,8 @@
  *
  */
 #include "BehaviorEntity.h"
+#include <AzCore/Component/EntityUtils.h>
+#include <AzCore/Component/TransformBus.h>
 #include <AzCore/RTTI/BehaviorContext.h>
 #include <AzCore/Serialization/EditContext.h>
 
@@ -376,6 +378,15 @@ namespace AzFramework
         {
             componentId = component->GetId();
         }
+
+        // A Transform2Component derives from TransformComponent but has its own type id.
+        if (!componentId.IsValid() && componentTypeId == AZ::TransformComponentTypeId)
+        {
+            if (const AZ::Component* component = AZ::EntityUtils::FindFirstDerivedComponent(entity, componentTypeId))
+            {
+                componentId = component->GetId();
+            }
+        }
         return componentId;
     }
 
@@ -393,6 +404,15 @@ namespace AzFramework
         for (const AZ::Component* component : entity->FindComponents(componentTypeId))
         {
             components.emplace_back(component->GetId());
+        }
+
+        // A Transform2Component derives from TransformComponent but has its own type id.
+        if (components.empty() && componentTypeId == AZ::TransformComponentTypeId)
+        {
+            for (const AZ::Component* component : AZ::EntityUtils::FindDerivedComponents(entity, componentTypeId))
+            {
+                components.emplace_back(component->GetId());
+            }
         }
         return components;
     }

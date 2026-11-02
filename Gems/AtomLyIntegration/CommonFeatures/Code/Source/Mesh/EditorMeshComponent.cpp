@@ -214,8 +214,8 @@ namespace AZ
             AZ::Transform transform = AZ::Transform::CreateIdentity();
             AZ::TransformBus::EventResult(transform, GetEntityId(), &AZ::TransformBus::Events::GetWorldTM);
 
-            AZ::Vector3 nonUniformScale = AZ::Vector3::CreateOne();
-            AZ::NonUniformScaleRequestBus::EventResult(nonUniformScale, GetEntityId(), &AZ::NonUniformScaleRequests::GetScale);
+            // The controller keeps the scale the mesh is drawn with, so a flip picks the drawn side and not the empty one.
+            const AZ::Vector3& nonUniformScale = m_controller.GetRenderScale();
 
             float t;
             AZ::Vector3 ignoreNormal;

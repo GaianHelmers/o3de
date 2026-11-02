@@ -68,6 +68,7 @@ namespace SurfaceData
         //////////////////////////////////////////////////////////////////////////
         // MeshComponentNotificationBus
         void OnModelReady(const AZ::Data::Asset<AZ::RPI::ModelAsset>& modelAsset, const AZ::Data::Instance<AZ::RPI::Model>& model) override;
+        void OnRenderScaleChanged() override;
 
         //////////////////////////////////////////////////////////////////////////
         // TransformNotificationBus

@@ -116,9 +116,13 @@ namespace LmbrCentral
             debugDisplay, [this]() { return CanDraw(); },
             [this](AzFramework::DebugDisplayRequests& debugDisplay)
             {
+                // A matrix cannot carry a mirror, so the box is drawn at the offset the shape answers with. The copy is never stored.
+                BoxShapeConfig drawConfiguration = m_boxShape.GetBoxConfiguration();
+                drawConfiguration.m_translationOffset = m_boxShape.GetEffectiveTranslationOffset();
+
                 DrawBoxShape(
                     { m_boxShape.GetBoxConfiguration().GetDrawColor(), m_shapeWireColor, m_boxShape.GetBoxConfiguration().IsFilled() },
-                    m_boxShape.GetBoxConfiguration(), debugDisplay, m_boxShape.GetCurrentNonUniformScale());
+                    drawConfiguration, debugDisplay, m_boxShape.GetCurrentNonUniformScale());
             },
             m_boxShape.GetCurrentTransform());
     }
@@ -170,19 +174,22 @@ namespace LmbrCentral
         return m_boxShape.SetBoxDimensions(dimensions);
     }
 
+    // The handles sit on the box the wireframe draws, so they are given the mirrored offset and the mirrored offset they write is
+    // taken back as authored. A mirror is its own inverse, so the round trip is exact and a flip is never stored. This is the only
+    // place the handles mirror: the PhysX collider modes install the same shared handle functions on a component that mirrors itself.
     AZ::Vector3 EditorBoxShapeComponent::GetTranslationOffset() const
     {
-        return m_boxShape.GetTranslationOffset();
+        return m_boxShape.GetEffectiveTranslationOffset();
     }
 
     void EditorBoxShapeComponent::SetTranslationOffset(const AZ::Vector3& translationOffset)
     {
-        m_boxShape.SetTranslationOffset(translationOffset);
+        m_boxShape.SetTranslationOffset(translationOffset * m_boxShape.GetFlipSigns());
     }
 
     AZ::Transform EditorBoxShapeComponent::GetCurrentLocalTransform() const
     {
-        return AZ::Transform::CreateTranslation(m_boxShape.GetTranslationOffset());
+        return AZ::Transform::CreateTranslation(m_boxShape.GetEffectiveTranslationOffset());
     }
 
     AZ::Transform EditorBoxShapeComponent::GetManipulatorSpace() const

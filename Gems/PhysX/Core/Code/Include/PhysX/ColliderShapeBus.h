@@ -23,6 +23,11 @@ namespace PhysX
 
         /// Checks if this collider shape is a trigger.
         virtual bool IsTrigger() = 0;
+
+        /// Drops the cached world space AABB, so the next GetColliderShapeAabb reads the shapes again.
+        /// A Transform 2 flip moves the shapes inside the entity and fires no transform event, so it calls this.
+        /// Handlers that keep no cache need not override it.
+        virtual void InvalidateShapeCache() {}
     };
     using ColliderShapeRequestBus = AZ::EBus<ColliderShapeRequests>;
 }

@@ -20,6 +20,49 @@
 
 namespace UnitTest
 {
+    namespace
+    {
+        // The stock mock never flips. This one answers with the signs a test gives it, as a shape on a flipped entity does.
+        class MockFlippedShape
+            : public MockShape
+        {
+        public:
+            AZ::Vector3 GetFlipSigns() const override
+            {
+                return m_flipSigns;
+            }
+
+            AZ::Vector3 m_flipSigns = AZ::Vector3::CreateOne();
+        };
+
+        // Counts the flip announcements that reach an entity.
+        class FlipChangedCounter
+            : public LmbrCentral::ShapeComponentNotificationsBus::Handler
+        {
+        public:
+            explicit FlipChangedCounter(AZ::EntityId entityId)
+            {
+                LmbrCentral::ShapeComponentNotificationsBus::Handler::BusConnect(entityId);
+            }
+
+            ~FlipChangedCounter()
+            {
+                LmbrCentral::ShapeComponentNotificationsBus::Handler::BusDisconnect();
+            }
+
+            void OnShapeChanged(LmbrCentral::ShapeComponentNotifications::ShapeChangeReasons) override
+            {
+            }
+
+            void OnShapeFlipChanged() override
+            {
+                ++m_count;
+            }
+
+            int m_count = 0;
+        };
+    } // namespace
+
     class ReferenceComponentTests
         : public LeakDetectionFixture
     {
@@ -156,6 +199,86 @@ namespace UnitTest
             resultIntersectRay, entity->GetId(), &LmbrCentral::ShapeComponentRequestsBus::Events::IntersectRay, AZ::Vector3::CreateZero(),
             AZ::Vector3::CreateZero(), 0.0f);
         EXPECT_TRUE(testShape.m_intersectRay == resultIntersectRay);
+    }
+
+    TEST_F(ReferenceComponentTests, ReferenceShapeComponent_ForwardsAuthoredLocalBoundsToTheReferencedShape)
+    {
+        UnitTest::MockShape testShape;
+        testShape.m_localBounds = AZ::Aabb::CreateFromMinMax(AZ::Vector3(-1.0f, -2.0f, -3.0f), AZ::Vector3(4.0f, 5.0f, 6.0f));
+        testShape.m_localTransform = AZ::Transform::CreateTranslation(AZ::Vector3(1.0f, 21.0f, 31.0f));
+
+        LmbrCentral::ReferenceShapeConfig config;
+        config.m_shapeEntityId = testShape.m_entity.GetId();
+
+        LmbrCentral::ReferenceShapeComponent* component;
+        auto entity = CreateEntity(config, &component);
+
+        // Saved data asks for the authored bounds, so a flip of the referenced shape has to be left out all the way through.
+        AZ::Transform resultTransform = AZ::Transform::CreateIdentity();
+        AZ::Aabb resultBounds = AZ::Aabb::CreateNull();
+        LmbrCentral::ShapeComponentRequestsBus::Event(
+            entity->GetId(), &LmbrCentral::ShapeComponentRequestsBus::Events::GetTransformAndAuthoredLocalBounds, resultTransform,
+            resultBounds);
+        EXPECT_EQ(testShape.m_localTransform, resultTransform);
+        EXPECT_EQ(testShape.m_localBounds, resultBounds);
+    }
+
+    TEST_F(ReferenceComponentTests, ReferenceShapeComponent_ForwardsFlipSignsOfTheReferencedShape)
+    {
+        MockFlippedShape testShape;
+        testShape.m_flipSigns = AZ::Vector3(-1.0f, 1.0f, -1.0f);
+
+        LmbrCentral::ReferenceShapeConfig config;
+        config.m_shapeEntityId = testShape.m_entity.GetId();
+
+        LmbrCentral::ReferenceShapeComponent* component;
+        auto entity = CreateEntity(config, &component);
+
+        AZ::Vector3 resultFlipSigns = AZ::Vector3::CreateZero();
+        LmbrCentral::ShapeComponentRequestsBus::EventResult(
+            resultFlipSigns, entity->GetId(), &LmbrCentral::ShapeComponentRequestsBus::Events::GetFlipSigns);
+        EXPECT_EQ(AZ::Vector3(-1.0f, 1.0f, -1.0f), resultFlipSigns);
+
+        // The signs are the target's at the time of the call, so a flip that comes later is seen.
+        testShape.m_flipSigns = AZ::Vector3::CreateOne();
+        LmbrCentral::ShapeComponentRequestsBus::EventResult(
+            resultFlipSigns, entity->GetId(), &LmbrCentral::ShapeComponentRequestsBus::Events::GetFlipSigns);
+        EXPECT_EQ(AZ::Vector3::CreateOne(), resultFlipSigns);
+    }
+
+    TEST_F(ReferenceComponentTests, ReferenceShapeComponent_PassesOnTheFlipOfTheReferencedShape)
+    {
+        UnitTest::MockShape testShape;
+
+        LmbrCentral::ReferenceShapeConfig config;
+        config.m_shapeEntityId = testShape.m_entity.GetId();
+
+        LmbrCentral::ReferenceShapeComponent* component;
+        auto entity = CreateEntity(config, &component);
+        FlipChangedCounter counter(entity->GetId());
+
+        // The target raises it, and whoever listens to the Reference hears it on the entity of the Reference.
+        LmbrCentral::ShapeComponentNotificationsBus::Event(
+            testShape.m_entity.GetId(), &LmbrCentral::ShapeComponentNotificationsBus::Events::OnShapeFlipChanged);
+        EXPECT_EQ(counter.m_count, 1);
+
+        LmbrCentral::ShapeComponentNotificationsBus::Event(
+            testShape.m_entity.GetId(), &LmbrCentral::ShapeComponentNotificationsBus::Events::OnShapeFlipChanged);
+        EXPECT_EQ(counter.m_count, 2);
+    }
+
+    TEST_F(ReferenceComponentTests, ReferenceShapeComponent_WithInvalidReferenceIsNotFlipped)
+    {
+        LmbrCentral::ReferenceShapeConfig config;
+        config.m_shapeEntityId = AZ::EntityId();
+
+        LmbrCentral::ReferenceShapeComponent* component;
+        auto entity = CreateEntity(config, &component);
+
+        AZ::Vector3 resultFlipSigns = AZ::Vector3::CreateZero();
+        LmbrCentral::ShapeComponentRequestsBus::EventResult(
+            resultFlipSigns, entity->GetId(), &LmbrCentral::ShapeComponentRequestsBus::Events::GetFlipSigns);
+        EXPECT_EQ(AZ::Vector3::CreateOne(), resultFlipSigns);
     }
 
     TEST_F(ReferenceComponentTests, ReferenceShapeComponent_WithInvalidReference)

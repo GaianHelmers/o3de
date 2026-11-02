@@ -51,6 +51,9 @@ namespace PhysX
             const AzFramework::ViewportInfo& viewportInfo,
             AzFramework::DebugDisplayRequests& debugDisplay) override;
 
+        // EditorJointComponent
+        bool ReversesMotionAxis(const AZ::Vector3& signs) const override;
+
         bool m_angularLimitFlag = false;
         EditorJointLimitPairConfig m_angularLimit;
         JointMotorProperties m_motorConfiguration;

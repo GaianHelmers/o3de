@@ -65,6 +65,13 @@ namespace LmbrCentral
         float DistanceSquaredFromPoint(const AZ::Vector3& point) const override;
         bool IntersectRay(const AZ::Vector3& src, const AZ::Vector3& dir, float& distance) const override;
 
+        // ShapeComponent::Handler, Transform 2 flip. The flip rides in the scale of the prism, see ApplyScale.
+        void SetFlipMask(AZ::u8 flipMask) override;
+        AZ::Vector3 GetFlipSigns() const override;
+        //! A prism has no translation offset, so a flip has nothing to move. A light asks for this on every move of its entity.
+        AZ::Vector3 GetEffectiveTranslationOffset() const override { return AZ::Vector3::CreateZero(); }
+        void GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const override;
+
         // PolygonShapeShapeComponentRequestBus::Handler
         AZ::PolygonPrismPtr GetPolygonPrism() override;
         void SetHeight(float height) override;
@@ -179,6 +186,10 @@ namespace LmbrCentral
             AZStd::shared_mutex& m_mutex;
             AZStd::thread::id& m_uniqueLockThreadId;
         };
+
+        /// Sets the scale of this shape and of the prism to the residual non-uniform scale of the entity with the flip signs in it.
+        /// The residual on the non-uniform scale bus stays positive, and the vertices and the height stay as authored.
+        void ApplyScale(const AZ::Vector3& residual);
 
         AZ::PolygonPrismPtr m_polygonPrism; ///< Reference to the underlying polygon prism data.
         mutable PolygonPrismIntersectionDataCache m_intersectionDataCache; ///< Caches transient intersection data.

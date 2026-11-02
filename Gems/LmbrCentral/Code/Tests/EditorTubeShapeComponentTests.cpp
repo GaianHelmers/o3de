@@ -6,9 +6,17 @@
  *
  */
 
+#include <AZTestShared/Math/MathTestHelpers.h>
 #include <AzCore/UnitTest/TestTypes.h>
 #include <AzTest/AzTest.h>
+#include <AzToolsFramework/Entity/EditorEntityContextBus.h>
+#include <AzToolsFramework/UnitTest/AzToolsFrameworkTestHelpers.h>
+#include <Source/Shape/EditorSphereShapeComponent.h>
+#include <Source/Shape/EditorSplineComponent.h>
+#include <Source/Shape/EditorTubeShapeComponent.h>
 #include <Source/Shape/EditorTubeShapeComponentMode.h>
+#include <Source/Shape/SplineComponent.h>
+#include <Source/Shape/TubeShapeComponent.h>
 
 namespace AZ
 {
@@ -113,5 +121,86 @@ namespace UnitTest
 
         EXPECT_THAT(tubeManipulatorStates[2].m_splineAddress, Eq(AZ::SplineAddress(1, 1.0f)));
         EXPECT_THAT(tubeManipulatorStates[2].m_vertIndex, Eq(2));
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+    //
+    // Building the game entity deactivates and activates the shape of a live editor tube, and a shape drops its flip when it
+    // deactivates. Nothing pushes the flip again to a shape its entity did not deactivate, so the build has to keep it.
+
+    namespace
+    {
+        // The mask for an X and a Z flip, which an entity with a scale of (-1, 1, -1) pushes to its shapes.
+        constexpr AZ::u8 TubeFlipMaskXZ = 5;
+    } // namespace
+
+    class EditorTubeShapeFlipFixture
+        : public ToolsApplicationFixture<>
+    {
+    public:
+        void SetUpEditorFixtureImpl() override
+        {
+            AZ::SerializeContext* serializeContext = nullptr;
+            AZ::ComponentApplicationBus::BroadcastResult(serializeContext, &AZ::ComponentApplicationBus::Events::GetSerializeContext);
+
+            // The sphere reflects EditorBaseShapeComponent, the spline reflects the data of a spline, and the tube component reflects
+            // the tube and its radius attribute.
+            m_descriptors.emplace_back(LmbrCentral::EditorSphereShapeComponent::CreateDescriptor());
+            m_descriptors.emplace_back(LmbrCentral::SplineComponent::CreateDescriptor());
+            m_descriptors.emplace_back(LmbrCentral::TubeShapeComponent::CreateDescriptor());
+            m_descriptors.emplace_back(LmbrCentral::EditorSplineComponent::CreateDescriptor());
+            m_descriptors.emplace_back(LmbrCentral::EditorTubeShapeComponent::CreateDescriptor());
+
+            LmbrCentral::ShapeComponentConfig::Reflect(serializeContext);
+            LmbrCentral::TubeShapeMeshConfig::Reflect(serializeContext);
+            for (auto& descriptor : m_descriptors)
+            {
+                descriptor->Reflect(serializeContext);
+            }
+
+            CreateDefaultEditorEntity("TubeShapeComponentEntity", &m_entity);
+            m_entityId = m_entity->GetId();
+            m_entity->Deactivate();
+            m_entity->CreateComponent(azrtti_typeid<LmbrCentral::EditorSplineComponent>());
+            m_entity->CreateComponent(LmbrCentral::EditorTubeShapeComponentTypeId);
+            m_entity->Activate();
+        }
+
+        void TearDownEditorFixtureImpl() override
+        {
+            AzToolsFramework::EditorEntityContextRequestBus::Broadcast(
+                &AzToolsFramework::EditorEntityContextRequestBus::Events::DestroyEditorEntity, m_entityId);
+            m_entity = nullptr;
+            m_entityId.SetInvalid();
+
+            m_descriptors.clear();
+        }
+
+        AZStd::vector<AZStd::unique_ptr<AZ::ComponentDescriptor>> m_descriptors;
+        AZ::Entity* m_entity = nullptr;
+        AZ::EntityId m_entityId;
+    };
+
+    TEST_F(EditorTubeShapeFlipFixture, BuildGameEntityKeepsTheFlipOfTheEditorTube)
+    {
+        LmbrCentral::ShapeComponentRequestsBus::Event(m_entityId, &LmbrCentral::ShapeComponentRequests::SetFlipMask, TubeFlipMaskXZ);
+
+        AZ::Vector3 flipSigns = AZ::Vector3::CreateZero();
+        LmbrCentral::ShapeComponentRequestsBus::EventResult(flipSigns, m_entityId, &LmbrCentral::ShapeComponentRequests::GetFlipSigns);
+        EXPECT_THAT(flipSigns, IsClose(AZ::Vector3(-1.0f, 1.0f, -1.0f)));
+
+        auto* editorTube = m_entity->FindComponent<LmbrCentral::EditorTubeShapeComponent>();
+        ASSERT_NE(editorTube, nullptr);
+
+        // The game entity gets the authored tube, and the Transform 2 of the game entity flips it again.
+        AZ::Entity gameEntity;
+        editorTube->BuildGameEntity(&gameEntity);
+        EXPECT_NE(gameEntity.FindComponent<LmbrCentral::TubeShapeComponent>(), nullptr);
+
+        // The editor tube was deactivated and activated by the build, and it is still where it is drawn.
+        flipSigns = AZ::Vector3::CreateZero();
+        LmbrCentral::ShapeComponentRequestsBus::EventResult(flipSigns, m_entityId, &LmbrCentral::ShapeComponentRequests::GetFlipSigns);
+        EXPECT_THAT(flipSigns, IsClose(AZ::Vector3(-1.0f, 1.0f, -1.0f)));
     }
 } // namespace UnitTest

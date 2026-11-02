@@ -69,6 +69,11 @@ namespace PhysX
             void Deactivate();
 
             AZ::Vector3 CalculateForce(const EntityParams& entity, const RegionParams& region) const;
+
+            /// Transform 2: CalculateForce on a region flipped across the axes named by the signs. A local space force is
+            /// evaluated from a copy with its direction mirrored, so the force that is serialized is never written.
+            AZ::Vector3 CalculateForceFlipped(const EntityParams& entity, const RegionParams& region, const AZ::Vector3& signs) const;
+
             bool IsWorldSpaceForce() const;
             bool IsLocalSpaceForce() const;
             bool IsPointForce() const;
@@ -88,8 +93,13 @@ namespace PhysX
             ForceLinearDamping m_forceLinearDamping;
         };
 
+        /// Draws the force arrows of the region at the given points. The points are the authored ones.
+        /// The colliderAabbIsAuthored flag says whether the AABB that the collider reports is on the authored side too. It is for
+        /// the PhysX Collider and Mesh Collider, while the Shape Collider reports the AABB of the Shape component, which is
+        /// on the drawn side already. A flipped entity draws its arrows mirrored, and the AABB must be mirrored only once.
         void DrawForceArrows(const AZStd::vector<AZ::Vector3>& arrowPositions
-            , AzFramework::DebugDisplayRequests& debugDisplayRequests);
+            , AzFramework::DebugDisplayRequests& debugDisplayRequests
+            , bool colliderAabbIsAuthored);
 
         /// Checks if this force region has a spline follow force.
         bool HasSplineFollowForce() const;

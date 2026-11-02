@@ -14,6 +14,7 @@
 #include <AzFramework/Viewport/ViewportColors.h>
 #include <AzToolsFramework/Manipulators/AngularManipulator.h>
 #include <AzToolsFramework/ViewportSelection/EditorSelectionUtil.h>
+#include <Source/Transform2ColliderSupport.h>
 
 namespace PhysX
 {
@@ -39,6 +40,12 @@ namespace PhysX
         AZ::Vector3 colliderOffset;
         PhysX::EditorColliderComponentRequestBus::EventResult(colliderOffset, idPair, &PhysX::EditorColliderComponentRequests::GetColliderOffset);
 
+        // A flipped entity draws its collider with the offset and rotation mirrored, so the rings take the mirrored values.
+        // The stored values stay as authored.
+        const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(idPair.GetEntityId());
+        colliderRotation = Transform2Mirror::MirrorRotation(signs, colliderRotation);
+        colliderOffset = Transform2Mirror::MirrorPosition(signs, colliderOffset);
+
         m_rotationManipulators.SetSpace(worldTransform);
         m_rotationManipulators.SetNonUniformScale(nonUniformScale);
         m_rotationManipulators.SetLocalPosition(nonUniformScale * colliderOffset);
@@ -61,7 +68,11 @@ namespace PhysX
         {
             // Update the manipulator's rotation and the rotation of the collider itself when the manipulator is dragged.
             m_rotationManipulators.SetLocalOrientation(action.LocalOrientation());
-            PhysX::EditorColliderComponentRequestBus::Event(idPair, &PhysX::EditorColliderComponentRequests::SetColliderRotation, action.LocalOrientation());
+
+            // The rings of a flipped entity hold the mirrored rotation, so the collider stores the mirror of it.
+            const AZ::Quaternion storedRotation =
+                Transform2Mirror::MirrorRotation(Transform2Mirror::GetEntitySigns(idPair.GetEntityId()), action.LocalOrientation());
+            PhysX::EditorColliderComponentRequestBus::Event(idPair, &PhysX::EditorColliderComponentRequests::SetColliderRotation, storedRotation);
         });
 
         AzFramework::EntityDebugDisplayEventBus::Handler::BusConnect(idPair.GetEntityId());
@@ -69,12 +80,16 @@ namespace PhysX
 
     void ColliderRotationMode::Refresh(const AZ::EntityComponentIdPair& idPair)
     {
+        const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(idPair.GetEntityId());
+
         AZ::Quaternion colliderRotation = AZ::Quaternion::CreateIdentity();
         PhysX::EditorColliderComponentRequestBus::EventResult(colliderRotation, idPair, &PhysX::EditorColliderComponentRequests::GetColliderRotation);
+        colliderRotation = Transform2Mirror::MirrorRotation(signs, colliderRotation);
         m_rotationManipulators.SetLocalOrientation(colliderRotation);
 
         AZ::Vector3 colliderOffset = AZ::Vector3::CreateZero();
         PhysX::EditorColliderComponentRequestBus::EventResult(colliderOffset, idPair, &PhysX::EditorColliderComponentRequests::GetColliderOffset);
+        colliderOffset = Transform2Mirror::MirrorPosition(signs, colliderOffset);
 
         AZ::Vector3 nonUniformScale = AZ::Vector3::CreateOne();
         AZ::NonUniformScaleRequestBus::EventResult(nonUniformScale, idPair.GetEntityId(), &AZ::NonUniformScaleRequests::GetScale);

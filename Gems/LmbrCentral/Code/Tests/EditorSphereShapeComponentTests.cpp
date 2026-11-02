@@ -6,6 +6,8 @@
  *
  */
 
+#include <AzCore/Component/TickBus.h>
+#include <AzToolsFramework/ToolsComponents/TransformComponentBus.h>
 #include <EditorShapeTestUtils.h>
 #include <LmbrCentralReflectionTest.h>
 #include <Shape/EditorSphereShapeComponent.h>
@@ -134,5 +136,39 @@ namespace LmbrCentral
         DragMouse(m_cameraState, m_actionDispatcher.get(), worldStart, worldEnd);
 
         ExpectSphereRadius(m_entity->GetId(), 4.0f);
+    }
+
+    TEST_F(EditorSphereShapeComponentManipulatorFixture, SphereShapeRadiusManipulatorStaysOnTheDrawnShapeAtANonUniformScale)
+    {
+        // An authored scale of (1,2,2) is a Transform 2. AZ::Transform carries the stand-in 2, and the residual (0.5,1,1) is served on
+        // the non-uniform scale bus. The sphere draws at the stand-in and ignores the residual, so its radius handle must sit on the
+        // drawn surface. The handle sits on the local X axis, which is why the test does not use (2,1,1): that residual leaves X alone.
+        AzToolsFramework::Components::EditorTransform editorTransform;
+        editorTransform.m_translate = AZ::Vector3(6.0f, -3.0f, 2.0f);
+        editorTransform.m_authoredScale = AZ::Vector3(1.0f, 2.0f, 2.0f);
+        editorTransform.m_uniformScale = editorTransform.ResolveUniformScale();
+        AzToolsFramework::Components::TransformComponentMessages::Bus::Event(
+            m_entityId,
+            &AzToolsFramework::Components::TransformComponentMessages::Bus::Events::SetLocalEditorTransform,
+            editorTransform);
+
+        // crossing from uniform to non-uniform re-activates the entity on the next tick
+        AZ::TickBus::ExecuteQueuedEvents();
+
+        SphereShapeComponentRequestsBus::Event(m_entityId, &SphereShapeComponentRequests::SetRadius, 3.0f);
+        EnterComponentMode(m_entityId, EditorSphereShapeComponentTypeId);
+
+        // position the camera so it is looking at the sphere
+        AzFramework::SetCameraTransform(m_cameraState, AZ::Transform::CreateTranslation(AZ::Vector3(9.0f, -15.0f, 2.0f)));
+
+        // the drawn surface on the local X axis is the center plus the radius at the stand-in scale: 3 * 2 = 6 along X
+        // a handle scaled by the residual would sit at 3 * 0.5 * 2 = 3 along X, and the drag would miss it
+        const AZ::Vector3 worldStart(12.0f, -3.0f, 2.0f);
+        const AZ::Vector3 worldEnd(13.0f, -3.0f, 2.0f);
+
+        DragMouse(m_cameraState, m_actionDispatcher.get(), worldStart, worldEnd);
+
+        // one world unit at the stand-in scale of 2 is half a unit of radius
+        ExpectSphereRadius(m_entityId, 3.5f);
     }
 } // namespace LmbrCentral

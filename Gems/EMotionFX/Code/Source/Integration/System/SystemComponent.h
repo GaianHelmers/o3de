@@ -46,6 +46,7 @@ namespace EMotionFX
     namespace Integration
     {
         class EMotionFXEventHandler;
+        class Transform2ActorSupport;
 
         class SystemComponent
             : public AZ::Component
@@ -146,6 +147,9 @@ namespace EMotionFX
             AZStd::vector<AZStd::unique_ptr<AZ::Data::AssetHandler> > m_assetHandlers;
             AZStd::unique_ptr<EMotionFXEventHandler> m_eventHandler;
             AZStd::unique_ptr<RenderBackendManager> m_renderBackendManager;
+
+            //! Corrects root motion for entities with a Transform 2 scale. Idle until such an entity has an actor.
+            AZStd::unique_ptr<Transform2ActorSupport> m_transform2ActorSupport;
 
 #if defined(EMOTIONFXANIMATION_EDITOR)
             AZStd::unique_ptr<EMStudio::EMStudioManager> m_emstudioManager;

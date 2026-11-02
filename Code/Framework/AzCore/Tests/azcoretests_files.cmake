@@ -160,6 +160,7 @@ set(FILES
     Math/LineSegmentTests.cpp
     Math/SplineTests.cpp
     Math/TransformPerformanceTests.cpp
+    Math/Transform2MathTests.cpp
     Math/TransformTests.cpp
     Math/Vector2PerformanceTests.cpp
     Math/Vector2Tests.cpp

@@ -143,7 +143,7 @@ namespace AZ::Render
 
     Aabb SphereLightDelegate::GetLocalVisualizationBounds() const
     {
-        const AZ::Vector3 translationOffset = m_shapeBus ? m_shapeBus->GetTranslationOffset() : AZ::Vector3::CreateZero();
+        const AZ::Vector3 translationOffset = m_shapeBus ? m_shapeBus->GetEffectiveTranslationOffset() : AZ::Vector3::CreateZero();
         return Aabb::CreateCenterRadius(translationOffset, GetConfig()->m_attenuationRadius);
     }
 } // namespace AZ::Render

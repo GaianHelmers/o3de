@@ -44,6 +44,8 @@ namespace AzToolsFramework
     {
         auto sphereViewportEdit = AZStd::make_unique<SphereViewportEdit>();
         InstallBaseShapeViewportEditFunctions(sphereViewportEdit.get(), m_entityComponentIdPair);
+        // The sphere draws at the uniform stand-in scale and ignores the non-uniform residual, so its handles must too.
+        sphereViewportEdit->InstallGetNonUniformScale([]() { return AZ::Vector3::CreateOne(); });
         InstallSphereViewportEditFunctions(sphereViewportEdit.get(), m_entityComponentIdPair);
         m_subModes[static_cast<AZ::u32>(ShapeComponentModeRequests::SubMode::Dimensions)] = AZStd::move(sphereViewportEdit);
 
@@ -51,6 +53,7 @@ namespace AzToolsFramework
         {
             auto shapeTranslationOffsetViewportEdit = AZStd::make_unique<ShapeTranslationOffsetViewportEdit>();
             InstallBaseShapeViewportEditFunctions(shapeTranslationOffsetViewportEdit.get(), m_entityComponentIdPair);
+            shapeTranslationOffsetViewportEdit->InstallGetNonUniformScale([]() { return AZ::Vector3::CreateOne(); });
             m_subModes[static_cast<AZ::u32>(ShapeComponentModeRequests::SubMode::TranslationOffset)] =
                 AZStd::move(shapeTranslationOffsetViewportEdit);
             SetupCluster();

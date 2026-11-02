@@ -95,6 +95,20 @@ namespace AZ
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2: front face winding
+        //
+        // Only a mirrored mesh sets this. DoUpdate applies it to every raster item after the material merge.
+
+        void MeshDrawPacket::SetFrontFaceClockwise(bool frontFaceClockwise)
+        {
+            if (m_frontFaceClockwise != frontFaceClockwise)
+            {
+                m_needUpdate = true;
+                m_frontFaceClockwise = frontFaceClockwise;
+            }
+        }
+
         void MeshDrawPacket::SetSortKey(RHI::DrawItemSortKey sortKey)
         {
             if (m_sortKey != sortKey)
@@ -412,6 +426,16 @@ namespace AZ
                     // This allows materials to customize the render states that the shader uses.
                     const RHI::RenderStates& renderStatesOverlay = *shaderItem.GetRenderStatesOverlay();
                     RHI::MergeStateInto(renderStatesOverlay, pipelineStateDescriptorDraw.m_renderStates);
+
+                    //////////////////////////////////////////////////////////////////////////
+                    // Transform 2: front face winding
+                    //
+                    // The winding belongs to this object, not to the material, so it is applied after the merge to reach every raster
+                    // item. Only a mirrored packet writes it, so a Transform 1 draw leaves the raster state untouched.
+                    if (m_frontFaceClockwise)
+                    {
+                        pipelineStateDescriptorDraw.m_renderStates.m_rasterState.SetFrontFaceClockwise(true);
+                    }
 
                     if (!m_modelLod->GetStreamsForMesh(
                             pipelineStateDescriptorDraw.m_inputStreamLayout,

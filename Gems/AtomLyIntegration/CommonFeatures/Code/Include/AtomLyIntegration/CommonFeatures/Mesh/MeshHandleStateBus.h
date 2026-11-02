@@ -10,6 +10,7 @@
 
 #include <AzCore/EBus/EBus.h>
 #include <AzCore/Component/EntityId.h>
+#include <AzCore/Math/Vector3.h>
 #include <Atom/Feature/Mesh/MeshFeatureProcessorInterface.h>
 
 namespace AZ
@@ -27,6 +28,11 @@ namespace AZ
 
             //! Returns the handle to the mesh.
             virtual const MeshFeatureProcessorInterface::MeshHandle* GetMeshHandle() const = 0;
+
+            //! Gives the handler the signed per-axis scale the mesh is drawn with on top of its transform.
+            //! Only Transform 2 calls this, because a negative axis is not something the positive scale buses can carry.
+            //! A handler that has no use for the sign leaves it alone.
+            virtual void SetRenderScale(const AZ::Vector3& /*scale*/) {}
         };
 
         using MeshHandleStateRequestBus = EBus<MeshHandleStateRequests>;

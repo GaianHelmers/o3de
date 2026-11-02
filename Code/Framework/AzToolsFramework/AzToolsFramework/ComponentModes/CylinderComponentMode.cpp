@@ -60,6 +60,8 @@ namespace AzToolsFramework
     {
         auto cylinderViewportEdit = AZStd::make_unique<CylinderViewportEdit>(m_allowAsymmetricalEditing);
         InstallBaseShapeViewportEditFunctions(cylinderViewportEdit.get(), m_entityComponentIdPair);
+        // The cylinder draws at the uniform stand-in scale and ignores the non-uniform residual, so its handles must too.
+        cylinderViewportEdit->InstallGetNonUniformScale([]() { return AZ::Vector3::CreateOne(); });
         InstallCylinderViewportEditFunctions(cylinderViewportEdit.get(), m_entityComponentIdPair);
         m_subModes[static_cast<AZ::u32>(ShapeComponentModeRequests::SubMode::Dimensions)] = AZStd::move(cylinderViewportEdit);
 
@@ -67,6 +69,7 @@ namespace AzToolsFramework
         {
             auto shapeTranslationOffsetViewportEdit = AZStd::make_unique<ShapeTranslationOffsetViewportEdit>();
             InstallBaseShapeViewportEditFunctions(shapeTranslationOffsetViewportEdit.get(), m_entityComponentIdPair);
+            shapeTranslationOffsetViewportEdit->InstallGetNonUniformScale([]() { return AZ::Vector3::CreateOne(); });
             m_subModes[static_cast<AZ::u32>(ShapeComponentModeRequests::SubMode::TranslationOffset)] = AZStd::move(shapeTranslationOffsetViewportEdit);
             SetupCluster();
             SetShapeSubMode(ShapeComponentModeRequests::SubMode::Dimensions);

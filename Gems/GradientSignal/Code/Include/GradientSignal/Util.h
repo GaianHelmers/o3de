@@ -25,7 +25,9 @@ namespace GradientSignal
         AZ::Transform transform = AZ::Transform::CreateIdentity();
         if (entity.IsValid())
         {
-            LmbrCentral::ShapeComponentRequestsBus::Event(entity, &LmbrCentral::ShapeComponentRequestsBus::Events::GetTransformAndLocalBounds, transform, bounds);
+            // The caller writes these bounds into its saved configuration, so they are the authored ones. A Transform 2 flip of the
+            // shape, or of a shape behind a reference or compound shape, must not change saved data.
+            LmbrCentral::ShapeComponentRequestsBus::Event(entity, &LmbrCentral::ShapeComponentRequestsBus::Events::GetTransformAndAuthoredLocalBounds, transform, bounds);
             worldToBoundsTransform = AZ::Matrix3x4::CreateFromTransform(transform.GetInverse());
         }
     }

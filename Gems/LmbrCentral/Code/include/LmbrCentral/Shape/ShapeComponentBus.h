@@ -31,6 +31,26 @@ namespace LmbrCentral
         ShapeChange ///< The cache is invalid because the shape configuration/properties changed.
     };
 
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip mask
+    //
+    // A shape on a Transform 2 entity with a negative scale axis sits on the mirrored side of its entity. The shape keeps its
+    // authored data and applies the flip once, where that data becomes an answer. The flip is a mask with X as 1, Y as 2 and
+    // Z as 4, the same as Transform2Mirror::GetSignMask in PhysX. A mask of zero is the authored shape, and a scale of zero
+    // is not a flip.
+
+    /// The flip mask of a signed scale: a bit for every negative axis.
+    inline AZ::u8 FlipMaskFromScale(const AZ::Vector3& scale)
+    {
+        return static_cast<AZ::u8>((scale.GetX() < 0.0f ? 1 : 0) | (scale.GetY() < 0.0f ? 2 : 0) | (scale.GetZ() < 0.0f ? 4 : 0));
+    }
+
+    /// The signs of a flip mask: -1 on every flipped axis and 1 elsewhere.
+    inline AZ::Vector3 FlipMaskToSigns(AZ::u8 flipMask)
+    {
+        return AZ::Vector3((flipMask & 1) ? -1.0f : 1.0f, (flipMask & 2) ? -1.0f : 1.0f, (flipMask & 4) ? -1.0f : 1.0f);
+    }
+
     /// Wrapper for cache of data used for intersection tests
     template <typename ShapeConfiguration>
     class IntersectionTestDataCache
@@ -89,6 +109,46 @@ namespace LmbrCentral
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2 flip
+        //
+        // The mask lives in the padding after the cache status, so no shape grows. A shape reads its authored offset through
+        // Flip() where it turns it into an answer, and the configuration itself is never written.
+
+        /// Sets the flip mask. Returns true when it changed, and then the cache is rebuilt on the next query.
+        bool SetFlipMask(AZ::u8 flipMask)
+        {
+            if (flipMask == m_flipMask)
+            {
+                return false;
+            }
+            m_flipMask = flipMask;
+            InvalidateCache(InvalidateShapeCacheReason::ShapeChange);
+            return true;
+        }
+
+        /// Puts the shape back to its authored state.
+        void ResetFlipMask()
+        {
+            SetFlipMask(0);
+        }
+
+        AZ::u8 GetFlipMask() const
+        {
+            return m_flipMask;
+        }
+
+        AZ::Vector3 GetFlipSigns() const
+        {
+            return FlipMaskToSigns(m_flipMask);
+        }
+
+        /// The vector as the flipped shape sees it: authored in the entity's local axes, with the flipped axes negated.
+        AZ::Vector3 Flip(const AZ::Vector3& vector) const
+        {
+            return m_flipMask ? vector * FlipMaskToSigns(m_flipMask) : vector;
+        }
+
     protected:
         /// Derived shape specific implementation of cache update (called from UpdateIntersectionParams).
         virtual void UpdateIntersectionParamsImpl(
@@ -112,6 +172,7 @@ namespace LmbrCentral
 
     private:
         ShapeCacheStatus m_cacheStatus = ShapeCacheStatus::Current; ///< The current state of the shape cache.
+        AZ::u8 m_flipMask = 0; ///< Transform 2 flip of the entity (X=1, Y=2, Z=4), zero for the authored shape.
     };
 
     struct ShapeComponentGeneric
@@ -187,6 +248,36 @@ namespace LmbrCentral
         }
 
         virtual ~ShapeComponentRequests() = default;
+
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2 flip
+        //
+        // A shape on an entity with a negative scale axis answers on the mirrored side, see FlipMaskFromScale. These have
+        // default bodies, so a shape that does not flip needs nothing. The raw getters above keep returning the authored data.
+
+        /// @brief Sets the flip mask of the entity (X=1, Y=2, Z=4). Only the Transform 2 shape support calls this.
+        /// A shape raises OnShapeChanged when the flip moved what it answers with.
+        virtual void SetFlipMask([[maybe_unused]] AZ::u8 flipMask)
+        {
+        }
+
+        /// @brief The signs the shape is answering with: -1 on a flipped axis, otherwise 1.
+        virtual AZ::Vector3 GetFlipSigns() const
+        {
+            return AZ::Vector3::CreateOne();
+        }
+
+        /// @brief The translation offset the shape answers with. GetTranslationOffset stays the authored offset.
+        virtual AZ::Vector3 GetEffectiveTranslationOffset() const
+        {
+            return GetTranslationOffset() * GetFlipSigns();
+        }
+
+        /// @brief GetTransformAndLocalBounds as authored, without the flip. For data that is saved, so a flip can never change it.
+        virtual void GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
+        {
+            GetTransformAndLocalBounds(transform, bounds);
+        }
     };
 
     // Bus to service the Shape component requests event group
@@ -208,6 +299,16 @@ namespace LmbrCentral
         /// @brief Informs listeners that the shape component has been updated (The shape was modified)
         /// @param changeReason Informs listeners of the reason for this shape change (transform change, the shape dimensions being altered)
         virtual void OnShapeChanged(ShapeChangeReasons changeReason) = 0;
+
+        /// @brief Informs listeners that the Transform 2 flip of the entity's shape changed (see SetFlipMask).
+        /// OnShapeChanged is raised only when the flip moved what the shape answers with, so the flip of a shape that sits on its
+        /// entity's origin raises nothing there. This is for data authored in the entity's local axes that mirrors with the flip
+        /// anyway, such as a gradient pattern. Only the Transform 2 shape support raises it, so a Transform 1 entity never does,
+        /// and a Reference shape passes it on from its target. A listener that does not mirror ignores it. The dependency monitor
+        /// takes it as a change of the shape, which is how a gradient transform hears of it without a handler of its own.
+        virtual void OnShapeFlipChanged()
+        {
+        }
     };
 
     // Bus to service Shape component notifications event group

@@ -1346,6 +1346,41 @@ namespace AZ
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2: front face winding
+
+        void MeshFeatureProcessor::SetMirrored(const MeshHandle& meshHandle, bool mirrored)
+        {
+            if (meshHandle.IsValid())
+            {
+                ToModelDataInstance(meshHandle).SetMirrored(this, mirrored);
+            }
+        }
+
+        bool MeshFeatureProcessor::IsMirrored(const MeshHandle& meshHandle) const
+        {
+            return meshHandle.IsValid() && ToModelDataInstance(meshHandle).m_flags.m_mirrored;
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2: exact world
+
+        void MeshFeatureProcessor::SetExactWorld(const MeshHandle& meshHandle, const Matrix3x4& objectToWorld, bool active)
+        {
+            if (meshHandle.IsValid())
+            {
+                ToModelDataInstance(meshHandle).SetExactWorld(this, objectToWorld, active);
+            }
+        }
+
+        void MeshFeatureProcessor::ResetTransformHistory(const MeshHandle& meshHandle)
+        {
+            if (meshHandle.IsValid())
+            {
+                m_transformService->ResetHistoryForId(ToModelDataInstance(meshHandle).m_objectId);
+            }
+        }
+
         void MeshFeatureProcessor::SetSortKey(const MeshHandle& meshHandle, RHI::DrawItemSortKey sortKey)
         {
             if (meshHandle.IsValid())
@@ -1598,6 +1633,19 @@ namespace AZ
                 if (meshInstance.m_descriptor.m_useForwardPassIblSpecular)
                 {
                     meshInstance.m_flags.m_objectSrgNeedsUpdate = true;
+                }
+
+                if (meshInstance.m_flags.m_exactWorld)
+                {
+                    // Transform 2: the exact matrix gives the world box. A mesh that has not loaded yet still has a null box,
+                    // which is left as it is.
+                    Aabb exactAabbWS = meshInstance.m_aabb;
+                    if (exactAabbWS.IsValid())
+                    {
+                        exactAabbWS = exactAabbWS.GetTransformedAabb(m_transformService->GetMatrixForId(meshInstance.GetObjectId()));
+                    }
+                    m_fallbackMaterialManager.UpdateReflectionProbes(meshInstance.GetObjectId(), exactAabbWS);
+                    continue;
                 }
 
                 AZ::Transform transform = m_transformService->GetTransformForId(meshInstance.GetObjectId());
@@ -1965,6 +2013,8 @@ namespace AZ
             m_flags.m_hasForwardPassIblSpecularMaterial = false;
             m_flags.m_needsSetRayTracingData = false;
             m_flags.m_hasRayTracingReflectionProbe = false;
+            m_flags.m_mirrored = false;
+            m_flags.m_exactWorld = false;
         }
 
         void ModelDataInstance::DeInit(MeshFeatureProcessor* meshFeatureProcessor)
@@ -2377,6 +2427,12 @@ namespace AZ
                         key.m_forceInstancingOff = Uuid::CreateRandom();
                     }
 
+                    // A mirrored mesh never shares an instance group, because its draw packet has its own front face winding
+                    if (m_flags.m_mirrored)
+                    {
+                        key.m_forceInstancingOff = Uuid::CreateRandom();
+                    }
+
                     instanceGroupInsertResult = meshInstanceManager.AddInstance(key);
                     PostCullingInstanceData postCullingData;
                     postCullingData.m_instanceGroupHandle = instanceGroupInsertResult.m_handle;
@@ -2426,6 +2482,8 @@ namespace AZ
                     stencilRef |= blockSilhouettes ? Render::StencilRefs::BlockSilhouettes : 0;
 
                     drawPacket.SetStencilRef(stencilRef);
+                    // Transform 2: front face winding. Only a mirrored mesh sets it, and it never shares this packet (see the key above).
+                    drawPacket.SetFrontFaceClockwise(m_flags.m_mirrored);
                     drawPacket.SetSortKey(m_sortKey);
                     drawPacket.SetEnableDraw(meshMotionDrawListTag, m_flags.m_isDrawMotion);
                     // Note: do not add drawPacket.Update() here. It's not needed.It may cause issue with m_shaderVariantHandler which captures 'this' pointer.
@@ -2543,6 +2601,12 @@ namespace AZ
             rayTracingMesh.m_assetId = m_model->GetModelAsset()->GetId();
             rayTracingMesh.m_transform = transformServiceFeatureProcessor->GetTransformForId(m_objectId);
             rayTracingMesh.m_nonUniformScale = transformServiceFeatureProcessor->GetNonUniformScaleForId(m_objectId);
+            if (m_flags.m_exactWorld)
+            {
+                // Transform 2: for a sheared world the entry holds the exact matrix, which those two reads cannot turn into a rotation
+                // and a scale. Ray tracing keeps the best fit that SetTransform gave it. Without one the entry is the best fit.
+                transformServiceFeatureProcessor->GetBestFitForId(m_objectId, rayTracingMesh.m_transform, rayTracingMesh.m_nonUniformScale);
+            }
             rayTracingMesh.m_isSkinnedMesh = m_descriptor.m_isSkinnedMesh;
             rayTracingMesh.m_instanceMask |= (rayTracingMesh.m_isSkinnedMesh)
                 ? static_cast<uint32_t>(AZ::RHI::RayTracingAccelerationStructureInstanceInclusionMask::SKINNED_MESH)
@@ -2591,6 +2655,86 @@ namespace AZ
                     }
                 }
             }
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2: front face winding
+        //
+        // Only a Transform 2 entity calls SetMirrored. It rewinds the draw packets of this instance.
+
+        void ModelDataInstance::SetMirrored(MeshFeatureProcessor* meshFeatureProcessor, bool mirrored)
+        {
+            if (m_flags.m_mirrored == mirrored)
+            {
+                return;
+            }
+
+            m_flags.m_mirrored = mirrored;
+
+            // A mirrored mesh builds its bounds from the exact matrix, which SetTransform wrote exactly for a mirror.
+            // This only raises the bit. SetExactWorld lowers it, because only it is told whether the mesh is sheared as well.
+            if (mirrored)
+            {
+                m_flags.m_exactWorld = true;
+            }
+
+            // The motion vector history is not reset here. A flip is not movement, but the flip that counts is any change of the
+            // sign of any axis, and the matrix is not final until SetExactWorld has run. The Transform 2 listener calls
+            // ResetTransformHistory when that happens.
+
+            // If the model is not loaded or not initialized yet, there is nothing to rebuild.
+            // Init reads the flag when it builds the draw packets, and UpdateCullBounds reads m_exactWorld when the bounds are built.
+            if (!m_model || m_flags.m_needsInit)
+            {
+                return;
+            }
+
+            if (!r_meshInstancingEnabled)
+            {
+                // This instance owns its draw packets: change the winding on each and the next UpdateDrawPackets rebuilds them
+                m_flags.m_cullBoundsNeedsUpdate = true;
+                for (auto& drawPacketList : m_meshDrawPacketListsByLod)
+                {
+                    for (auto& drawPacket : drawPacketList)
+                    {
+                        drawPacket.SetFrontFaceClockwise(mirrored);
+                    }
+                }
+            }
+            else
+            {
+                // A mirrored mesh needs an instance group of its own, and Init is where the instance group is chosen.
+                // Same approach as SetSortKey: DeInit/ReInit is overkill but a flip is infrequent.
+                // Init gives the new group the motion draw from m_isDrawMotion, and SetTransform raised the old group alone, once,
+                // when the mesh first moved. A mesh that has moved already keeps drawing motion, so the new group gets it too.
+                if (m_flags.m_dynamic)
+                {
+                    m_flags.m_isDrawMotion = true;
+                }
+                ReInit(meshFeatureProcessor);
+            }
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2: exact world
+        //
+        // The caller has run SetTransform, which marked the bounds and the object SRG for an update, and wrote the
+        // transform service entry that this replaces.
+
+        void ModelDataInstance::SetExactWorld(MeshFeatureProcessor* meshFeatureProcessor, const Matrix3x4& objectToWorld, bool active)
+        {
+            if (active)
+            {
+                meshFeatureProcessor->GetTransformServiceFeatureProcessor()->SetMatrixForId(m_objectId, objectToWorld);
+            }
+            else
+            {
+                // The entry holds the best fit again, which ray tracing reads from the entry itself.
+                meshFeatureProcessor->GetTransformServiceFeatureProcessor()->ClearBestFitForId(m_objectId);
+            }
+
+            // A mirror needs the exact path too, whether or not the matrix is sheared.
+            m_flags.m_exactWorld = active || m_flags.m_mirrored;
         }
 
         void ModelDataInstance::RemoveDeferredMaterialData(MeshFeatureProcessor* meshFeatureProcessor)
@@ -2767,6 +2911,12 @@ namespace AZ
             AZ_Assert(m_flags.m_cullBoundsNeedsUpdate, "This function only needs to be called if the culling bounds need to be rebuilt");
             AZ_Assert(m_model, "The model has not finished loading yet");
             const TransformServiceFeatureProcessor* transformService = meshFeatureProcessor->GetTransformServiceFeatureProcessor();
+            if (m_flags.m_exactWorld)
+            {
+                // Transform 2: a mirrored or sheared mesh does not read back as a rotation and a scale, so it leaves here.
+                UpdateExactCullBounds(transformService);
+                return;
+            }
             Transform localToWorld = transformService->GetTransformForId(m_objectId);
             Vector3 nonUniformScale = transformService->GetNonUniformScaleForId(m_objectId);
 
@@ -2782,6 +2932,37 @@ namespace AZ
             m_cullable.m_cullData.m_boundingSphere = Sphere(center, radius);
             m_cullable.m_cullData.m_boundingObb = localAabb.GetTransformedObb(localToWorld);
             m_cullable.m_cullData.m_visibilityEntry.m_boundingVolume = localAabb.GetTransformedAabb(localToWorld);
+            m_cullable.m_cullData.m_visibilityEntry.m_userData = &m_cullable;
+            m_cullable.m_cullData.m_entityId = m_descriptor.m_entityId;
+            if (!r_meshInstancingEnabled)
+            {
+                m_cullable.m_cullData.m_visibilityEntry.m_typeFlags = AzFramework::VisibilityEntry::TYPE_RPI_Cullable;
+            }
+            else
+            {
+                m_cullable.m_cullData.m_visibilityEntry.m_typeFlags = AzFramework::VisibilityEntry::TYPE_RPI_VisibleObjectList;
+            }
+            m_scene->GetCullingScene()->RegisterOrUpdateCullable(m_cullable);
+
+            m_flags.m_cullBoundsNeedsUpdate = false;
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2: the culling bounds of a mesh with an exact world
+        //
+        // The same cullable fields as UpdateCullBounds, from the exact matrix instead of a rotation and a scale. The lines
+        // after the bounds repeat the end of UpdateCullBounds, which is left as upstream wrote it.
+
+        void ModelDataInstance::UpdateExactCullBounds(const TransformServiceFeatureProcessor* transformService)
+        {
+            const MeshCommon::ExactCullBounds bounds =
+                MeshCommon::CalculateExactCullBounds(m_aabb, transformService->GetMatrixForId(m_objectId));
+
+            m_cullable.m_lodData.m_lodSelectionRadius = bounds.m_lodSelectionRadius;
+
+            m_cullable.m_cullData.m_boundingSphere = bounds.m_sphere;
+            m_cullable.m_cullData.m_boundingObb = bounds.m_obb;
+            m_cullable.m_cullData.m_visibilityEntry.m_boundingVolume = bounds.m_aabb;
             m_cullable.m_cullData.m_visibilityEntry.m_userData = &m_cullable;
             m_cullable.m_cullData.m_entityId = m_descriptor.m_entityId;
             if (!r_meshInstancingEnabled)
@@ -2836,6 +3017,16 @@ namespace AZ
                     Transform transform = transformServiceFeatureProcessor->GetTransformForId(m_objectId);
 
                     Aabb aabbWS = m_aabb;
+                    if (m_flags.m_exactWorld)
+                    {
+                        // Transform 2: the exact matrix gives the world box, so no transform is left to apply below.
+                        // A mesh that has not loaded yet still has a null box, which is left as it is.
+                        if (aabbWS.IsValid())
+                        {
+                            aabbWS = aabbWS.GetTransformedAabb(transformServiceFeatureProcessor->GetMatrixForId(m_objectId));
+                        }
+                        transform = Transform::CreateIdentity();
+                    }
                     aabbWS.ApplyTransform(transform);
 
                     ReflectionProbeHandleVector reflectionProbeHandles;

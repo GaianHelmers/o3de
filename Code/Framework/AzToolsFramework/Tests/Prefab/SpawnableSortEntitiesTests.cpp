@@ -8,6 +8,9 @@
 
 #include <Prefab/SpawnableSortEntitiesTestFixture.h>
 
+#include <AzCore/Component/TransformBus.h>
+#include <AzFramework/Components/Transform2Component.h>
+
 namespace UnitTest
 {
     using SpawnableSortEntitiesTests = SpawnableSortEntitiesTestFixture;
@@ -148,6 +151,54 @@ namespace UnitTest
         AddEntity(E2, E1);
         AddEntity(E1);
         AddEntity(AZ::EntityId(), AZ::EntityId(), false); // entity using invalid ID as its own ID
+
+        SortAndSanityCheck();
+
+        EXPECT_TRUE(IsChildAfterParent(E2, E1));
+    }
+
+    // A Transform 2 derives from the Transform 1 component and has a type id of its own, so a lookup of the exact Transform 1
+    // type does not find it. The sort asks for the transform interface instead.
+    static AZ::Entity* MakeTransform2Entity(AZ::EntityId id, AZ::EntityId parentId, const AZ::Vector3& scale)
+    {
+        auto* entity = aznew AZ::Entity(id);
+        AZ::TransformConfig config;
+        config.m_parentId = parentId;
+        entity->CreateComponent<AzFramework::Transform2Component>(scale)->SetConfiguration(config);
+        return entity;
+    }
+
+    TEST_F(SpawnableSortEntitiesTests, SpawnableSortEntities_Transform2Entities_SortAfterTheirParents)
+    {
+        // Hierarchy looks like:
+        // 1 (Transform 1)
+        // + 2 (Transform 2, flipped on X)
+        //   + 3 (Transform 2, as every child of a Transform 2 is)
+        //     + 4 (Transform 1, as one attached at runtime is)
+        // 5 (Transform 2, flipped on Y)
+        // + 6 (Transform 2)
+        // The entities are added children first on purpose.
+        AddEntity(E4, E3);
+        AddEntity(MakeTransform2Entity(E6, E5, AZ::Vector3(1.0f)));
+        AddEntity(MakeTransform2Entity(E3, E2, AZ::Vector3(1.0f)));
+        AddEntity(MakeTransform2Entity(E5, AZ::EntityId(), AZ::Vector3(1.0f, -1.0f, 1.0f)));
+        AddEntity(MakeTransform2Entity(E2, E1, AZ::Vector3(-1.0f, 1.0f, 1.0f)));
+        AddEntity(E1);
+
+        SortAndSanityCheck();
+
+        EXPECT_TRUE(IsChildAfterParent(E2, E1));
+        EXPECT_TRUE(IsChildAfterParent(E3, E2));
+        EXPECT_TRUE(IsChildAfterParent(E4, E3));
+        EXPECT_TRUE(IsChildAfterParent(E6, E5));
+    }
+
+    TEST_F(SpawnableSortEntitiesTests, SpawnableSortEntities_Transform2Parent_IsNotTreatedLikeAnEntityWithoutATransform)
+    {
+        // The child is listed before its Transform 2 parent. An entity without a transform has no parent, so the order of the
+        // two would be left to chance if the sort could not see the transform of the parent.
+        AddEntity(E2, E1);
+        AddEntity(MakeTransform2Entity(E1, AZ::EntityId(), AZ::Vector3(-1.0f, 1.0f, 1.0f)));
 
         SortAndSanityCheck();
 

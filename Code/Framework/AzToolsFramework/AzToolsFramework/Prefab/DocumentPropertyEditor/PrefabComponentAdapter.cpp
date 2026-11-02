@@ -6,7 +6,11 @@
  *
  */
 
+#include <AzCore/Component/ComponentApplicationBus.h>
 #include <AzCore/DOM/Backends/JSON/JsonSerializationUtils.h>
+#include <AzCore/RTTI/AttributeReader.h>
+#include <AzCore/Serialization/EditContext.h>
+#include <AzCore/Serialization/SerializeContext.h>
 #include <AzFramework/DocumentPropertyEditor/AdapterBuilder.h>
 #include <AzToolsFramework/Prefab/DocumentPropertyEditor/PrefabComponentAdapter.h>
 #include <AzToolsFramework/Prefab/DocumentPropertyEditor/PrefabOverrideLabelHandler.h>
@@ -33,6 +37,8 @@ namespace AzToolsFramework::Prefab
 
         m_prefabPublicInterface = AZ::Interface<PrefabPublicInterface>::Get();
         AZ_Assert(m_prefabPublicInterface, "Could not get PrefabPublicInterface on PrefabComponentAdapter construction.");
+
+        AZ::ComponentApplicationBus::BroadcastResult(m_serializeContext, &AZ::ComponentApplicationBus::Events::GetSerializeContext);
     }
 
     PrefabComponentAdapter::~PrefabComponentAdapter()
@@ -49,6 +55,10 @@ namespace AzToolsFramework::Prefab
             ClearValue();
             return;
         }
+
+        // The rows are about to be rebuilt for this component, and each one adds its additional override path again.
+        m_additionalOverridePaths.clear();
+
         auto owningInstance = AZ::Interface<InstanceEntityMapperInterface>::Get()->FindOwningInstance(
             componentInstance->GetEntityId());
         AZ_Assert(owningInstance.has_value(), "Entity owning the component doesn't have an owning prefab instance.");
@@ -102,6 +112,14 @@ namespace AzToolsFramework::Prefab
         else
         {
             bool isOverridden = m_prefabOverridePublicInterface->AreOverridesPresent(m_entityId, relativePathFromEntity.ToString());
+
+            // The row may be overridden under a second path as well, one the row does not show.
+            if (AZStd::string additionalPath = FindAdditionalOverridePath(AZ::Dom::Path(serializedPath)); !additionalPath.empty())
+            {
+                m_additionalOverridePaths[relativePathFromEntity.ToString()] = additionalPath;
+                isOverridden = isOverridden || m_prefabOverridePublicInterface->AreOverridesPresent(m_entityId, additionalPath);
+            }
+
             adapterBuilder->Attribute(PrefabOverrideLabel::IsOverridden, isOverridden);
         }
 
@@ -112,7 +130,24 @@ namespace AzToolsFramework::Prefab
     {
         auto handleRevertOverride = [this](AZStd::string_view relativePathFromEntity)
         {
-            m_prefabOverridePublicInterface->RevertOverrides(m_entityId, relativePathFromEntity);
+            // A row with a second override path (see FindAdditionalOverridePath) may hold overrides under only one of its two
+            // paths, so each path is reverted only if it has some. Reverting a path with none warns.
+            auto revertIfPresent = [this](AZStd::string_view path)
+            {
+                if (m_prefabOverridePublicInterface->AreOverridesPresent(m_entityId, path))
+                {
+                    m_prefabOverridePublicInterface->RevertOverrides(m_entityId, path);
+                }
+            };
+
+            // The outer batch makes both reverts one undo step.
+            ScopedUndoBatch undoBatch("Revert Prefab Overrides");
+            revertIfPresent(relativePathFromEntity);
+            if (auto additionalPath = m_additionalOverridePaths.find(AZStd::string(relativePathFromEntity));
+                additionalPath != m_additionalOverridePaths.end())
+            {
+                revertIfPresent(additionalPath->second);
+            }
         };
 
         message.Match(PrefabPropertyEditorNodes::PrefabOverrideLabel::RevertOverride, handleRevertOverride);
@@ -298,6 +333,60 @@ namespace AzToolsFramework::Prefab
         EditorPendingCompositionRequestBus::EventResult(
             result, component->GetEntityId(), &EditorPendingCompositionRequests::IsComponentPending, component);
         return result;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Rows with a second override path
+
+    AZStd::string PrefabComponentAdapter::FindAdditionalOverridePath(const AZ::Dom::Path& serializedPath) const
+    {
+        // CreateLabel is handed the serialized path of a row but not its attributes, so the row is found by following the
+        // reflected field names of the path, from the component down.
+        const AZ::SerializeContext::ClassData* classData =
+            m_serializeContext ? m_serializeContext->FindClassData(GetTypeId()) : nullptr;
+        const AZ::SerializeContext::ClassElement* row = nullptr;
+        for (const AZ::Dom::PathEntry& entry : serializedPath)
+        {
+            row = nullptr;
+            if (classData && entry.IsKey())
+            {
+                for (const AZ::SerializeContext::ClassElement& element : classData->m_elements)
+                {
+                    if (entry.GetKey().GetStringView() == AZStd::string_view(element.m_name))
+                    {
+                        row = &element;
+                        break;
+                    }
+                }
+            }
+            classData = row ? m_serializeContext->FindClassData(row->m_typeId) : nullptr;
+        }
+
+        AZ::Edit::Attribute* attribute =
+            (row && row->m_editData) ? row->m_editData->FindAttribute(PrefabOverrideAttributes::AdditionalOverrideField) : nullptr;
+        if (attribute == nullptr)
+        {
+            return {};
+        }
+
+        // The attribute is a literal, so it needs no instance to be read.
+        AZStd::string siblingName;
+        AZ::AttributeReader reader(nullptr, attribute);
+        if (!reader.Read<AZStd::string>(siblingName) || siblingName.empty())
+        {
+            return {};
+        }
+
+        // The field sits next to the row, so its path is the path of the row with the last entry replaced.
+        AZ::Dom::Path siblingPath = serializedPath;
+        siblingPath.Pop();
+        siblingPath /= AZStd::string_view(siblingName);
+
+        AZ::Dom::Path relativePathFromEntity;
+        relativePathFromEntity /= PrefabDomUtils::ComponentsName;
+        relativePathFromEntity /= m_componentAlias;
+        relativePathFromEntity /= siblingPath;
+        return relativePathFromEntity.ToString();
     }
 
 } // namespace AzToolsFramework::Prefab

@@ -214,8 +214,13 @@ namespace LmbrCentral
         if (auto component = gameEntity->CreateComponent<PolygonPrismShapeComponent>())
         {
             const bool isActive = GetEntity() ? (GetEntity()->GetState() == AZ::Entity::State::Active) : false;
+
+            // Deactivating the shape drops its Transform 2 flip, and the shape support only pushes it once, so this live shape
+            // would stay unflipped after every export. The flip is put back after the activation.
+            AZ::u8 flipMask = 0;
             if (isActive)
             {
+                flipMask = FlipMaskFromScale(m_polygonPrismShape.GetFlipSigns());
                 m_polygonPrismShape.Deactivate();
             }
 
@@ -224,6 +229,7 @@ namespace LmbrCentral
             if (isActive)
             {
                 m_polygonPrismShape.Activate(GetEntityId());
+                m_polygonPrismShape.SetFlipMask(flipMask);
             }
         }
 
@@ -234,10 +240,25 @@ namespace LmbrCentral
         }
     }
 
+    void EditorPolygonPrismShapeComponent::OnShapeChanged(const ShapeChangeReasons changeReason)
+    {
+        EditorBaseShapeComponent::OnShapeChanged(changeReason);
+
+        // The mesh is built from the scale of the shape, which carries the flip signs. Normally the prism callbacks build it again on
+        // a flip. BuildGameEntity drops them when it re-activates a live shape, so the mesh is built here when the signs it was built
+        // with are not the signs of the shape. The edits of a drag raise this event too, and change nothing here.
+        if (changeReason == ShapeChangeReasons::ShapeChanged && m_polygonPrismShape.GetFlipSigns() != m_meshFlipSigns)
+        {
+            GenerateVertices();
+        }
+    }
+
     void EditorPolygonPrismShapeComponent::GenerateVertices()
     {
         GeneratePolygonPrismMesh(
             m_polygonPrismShape.GetPolygonPrism()->m_vertexContainer.GetVertices(),
             m_polygonPrismShape.GetPolygonPrism()->GetHeight(), m_polygonPrismShape.GetCurrentNonUniformScale(), m_polygonPrismMesh);
+
+        m_meshFlipSigns = m_polygonPrismShape.GetFlipSigns();
     }
 } // namespace LmbrCentral

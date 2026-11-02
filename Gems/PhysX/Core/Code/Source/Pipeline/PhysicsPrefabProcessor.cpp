@@ -9,6 +9,7 @@
 
 #include <Pipeline/PhysicsPrefabProcessor.h>
 
+#include <AzCore/Component/EntityUtils.h>
 #include <AzCore/Serialization/Utils.h>
 #include <AzCore/std/smart_ptr/make_shared.h>
 #include <AzFramework/Components/TransformComponent.h>
@@ -30,6 +31,11 @@ namespace PhysX
         AZ::Entity* entity, ArticulationLinkData* linkData, ArticulationLinkData* parentLinkData)
     {
         auto* transformComponent = entity->FindComponent<AzFramework::TransformComponent>();
+        if (!transformComponent)
+        {
+            // A Transform2Component derives from TransformComponent but has its own type id.
+            transformComponent = AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(entity);
+        }
         linkData->m_localTransform = transformComponent->GetLocalTM();
 
         const auto& components = entity->GetComponents();
@@ -159,6 +165,11 @@ namespace PhysX
             articulationNode->m_articulationComponent = articulationComponent;
 
             auto* transformComponent = entity->FindComponent<AzFramework::TransformComponent>();
+            if (!transformComponent)
+            {
+                // A Transform2Component derives from TransformComponent but has its own type id.
+                transformComponent = AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(entity.get());
+            }
             articulationNode->m_transformComponent = transformComponent;
 
             // Here we detect if the current node is a root one

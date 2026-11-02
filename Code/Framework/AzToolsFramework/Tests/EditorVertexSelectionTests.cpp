@@ -123,6 +123,12 @@ namespace UnitTest
         {
             // noop
         }
+
+        // The non-uniform scale of the translation manipulator of the selected vertex. A vertex has to be selected.
+        const AZ::Vector3& GetTranslationManipulatorNonUniformScale() const
+        {
+            return m_translationManipulator->m_manipulator.GetNonUniformScale();
+        }
     };
 
     class EditorVertexSelectionFixture : public ToolsApplicationFixture<>
@@ -241,6 +247,31 @@ namespace UnitTest
         // Then
         EXPECT_TRUE(editorEntityComponentChangeDetector.ChangeDetected());
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    }
+
+    TEST_F(EditorVertexSelectionFixture, TranslationManipulatorCreatedAfterRefreshSpaceTakesTheScaleItWasGiven)
+    {
+        namespace aztf = AzToolsFramework;
+
+        const auto entityComponentIdPair = AZ::EntityComponentIdPair(m_entityId, TestComponentId);
+        aztf::InsertVertexAfter(entityComponentIdPair, 0, AZ::Vector3::CreateAxisY(5.0f));
+        aztf::InsertVertexAfter(entityComponentIdPair, 1, AZ::Vector3::CreateAxisY(6.0f));
+        RecreateVertexSelection();
+
+        // never given a scale, a manipulator takes the one of the entity, which has none
+        m_vertexSelection.CreateTranslationManipulator(
+            entityComponentIdPair, aztf::GetMainManipulatorManagerId(), AZ::Vector3::CreateAxisY(5.0f), 0);
+        EXPECT_TRUE(m_vertexSelection.GetTranslationManipulatorNonUniformScale().IsClose(AZ::Vector3::CreateOne()));
+
+        // a scale of signs, as the component modes of a flipped entity give it, reaches the manipulator that is there
+        const AZ::Vector3 flippedScale(-1.0f, 1.0f, -1.0f);
+        m_vertexSelection.RefreshSpace(AZ::Transform::CreateIdentity(), flippedScale);
+        EXPECT_TRUE(m_vertexSelection.GetTranslationManipulatorNonUniformScale().IsClose(flippedScale));
+
+        // and the manipulator of the next vertex that is clicked, which is made by the selection and not by the component mode
+        m_vertexSelection.CreateTranslationManipulator(
+            entityComponentIdPair, aztf::GetMainManipulatorManagerId(), AZ::Vector3::CreateAxisY(6.0f), 1);
+        EXPECT_TRUE(m_vertexSelection.GetTranslationManipulatorNonUniformScale().IsClose(flippedScale));
     }
 
     using EditorVertexSelectionManipulatorFixture = IndirectCallManipulatorViewportInteractionFixtureMixin<EditorVertexSelectionFixture>;

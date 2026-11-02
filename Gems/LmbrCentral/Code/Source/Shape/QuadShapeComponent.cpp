@@ -62,7 +62,12 @@ namespace LmbrCentral
 
     void QuadShapeDebugDisplayComponent::Draw(AzFramework::DebugDisplayRequests& debugDisplay)
     {
-        DrawQuadShape(m_quadShapeConfig.GetDrawParams(), m_quadShapeConfig, debugDisplay, m_nonUniformScale);
+        // A Transform 2 Z flip turns the quad over, so the side it faces is asked of the shape now and not stored. With no shape
+        // answering, the quad faces its authored side.
+        AZ::Vector3 flipSigns = AZ::Vector3::CreateOne();
+        ShapeComponentRequestsBus::EventResult(flipSigns, GetEntityId(), &ShapeComponentRequests::GetFlipSigns);
+
+        DrawQuadShape(m_quadShapeConfig.GetDrawParams(), m_quadShapeConfig, debugDisplay, m_nonUniformScale, flipSigns.GetZ());
     }
 
     bool QuadShapeDebugDisplayComponent::ReadInConfig(const AZ::ComponentConfig* baseConfig)

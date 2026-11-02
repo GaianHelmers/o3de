@@ -116,6 +116,11 @@ namespace AzToolsFramework::Prefab::SpawnableUtils
             auto transformComponent = aznew AzFramework::TransformComponent();
             placeholder->AddComponent(transformComponent);
             auto entityTransformComponent = entityData->get().FindComponent<AzFramework::TransformComponent>();
+            if (!entityTransformComponent)
+            {
+                // A Transform2Component derives from TransformComponent but has its own type id.
+                entityTransformComponent = AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(&entityData->get());
+            }
             transformComponent->SetParentRelative(entityTransformComponent->GetParentId());
             return instance->ReplaceEntity(AZStd::move(placeholder), alias);
         }

@@ -48,6 +48,12 @@ namespace LmbrCentral
         AZ::Vector3 GetTranslationOffset() const override;
         void SetTranslationOffset(const AZ::Vector3& translationOffset) override;
 
+        // ShapeComponentRequestsBus::Handler, Transform 2 flip. The offset above stays authored.
+        void SetFlipMask(AZ::u8 flipMask) override;
+        AZ::Vector3 GetFlipSigns() const override;
+        AZ::Vector3 GetEffectiveTranslationOffset() const override;
+        void GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const override;
+
         // SphereShapeComponentRequestsBus::Handler
         const SphereShapeConfig& GetSphereConfiguration() const override { return m_sphereShapeConfig; }
         void SetRadius(float radius) override;

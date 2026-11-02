@@ -9,6 +9,7 @@
 #include <CommonBenchmarkSetup.h>
 #include <CommonHierarchySetup.h>
 #include <MockInterfaces.h>
+#include <AzCore/Component/Transform2Bus.h>
 #include <AzCore/Jobs/JobManagerComponent.h>
 #include <AzCore/UnitTest/TestTypes.h>
 #include <AzCore/UnitTest/UnitTest.h>
@@ -598,5 +599,71 @@ namespace Multiplayer
         ServerToClientConnectionData connectionUserData(&connection, *m_mpComponent);
         connection.SetUserData(&connectionUserData);
         EXPECT_FALSE(m_mpComponent->IsHandshakeComplete(&connection));
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2: a network entity with one is reported, because its scale does not replicate
+
+    TEST_F(MultiplayerSystemTests, Transform2ActivatedOnNetEntityReportsOneError)
+    {
+        AZ::Entity netEntity("Transform2NetEntity");
+        netEntity.CreateComponent<NetBindComponent>();
+        netEntity.Init();
+
+        AZ_TEST_START_TRACE_SUPPRESSION;
+        AZ::Transform2NotificationBus::Broadcast(
+            &AZ::Transform2Notifications::OnTransform2Activated, netEntity.GetId(), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        AZ_TEST_STOP_TRACE_SUPPRESSION(1);
+    }
+
+    TEST_F(MultiplayerSystemTests, Transform2ActivatedOnNetEntityWithAUniformPositiveScaleReportsNothing)
+    {
+        // A child of an extended entity is a Transform 2 too, and with a uniform positive world scale it replicates as it
+        // always did.
+        AZ::Entity netEntity("Transform2NetEntity");
+        netEntity.CreateComponent<NetBindComponent>();
+        netEntity.Init();
+
+        AZ_TEST_START_TRACE_SUPPRESSION;
+        AZ::Transform2NotificationBus::Broadcast(
+            &AZ::Transform2Notifications::OnTransform2Activated, netEntity.GetId(), AZ::Vector3(2.0f, 2.0f, 2.0f));
+        AZ_TEST_STOP_TRACE_SUPPRESSION(0);
+    }
+
+    TEST_F(MultiplayerSystemTests, Transform2ActivatedOnEntityWithoutNetBindReportsNothing)
+    {
+        AZ::Entity plainEntity("Transform2PlainEntity");
+        plainEntity.CreateComponent<AzFramework::TransformComponent>();
+        plainEntity.Init();
+
+        AZ_TEST_START_TRACE_SUPPRESSION;
+        AZ::Transform2NotificationBus::Broadcast(
+            &AZ::Transform2Notifications::OnTransform2Activated, plainEntity.GetId(), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        AZ_TEST_STOP_TRACE_SUPPRESSION(0);
+    }
+
+    TEST_F(MultiplayerSystemTests, Transform2ActivatedOnUnknownEntityReportsNothing)
+    {
+        AZ_TEST_START_TRACE_SUPPRESSION;
+        AZ::Transform2NotificationBus::Broadcast(
+            &AZ::Transform2Notifications::OnTransform2Activated, AZ::EntityId(0x7e57), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        AZ_TEST_STOP_TRACE_SUPPRESSION(0);
+    }
+
+    TEST_F(MultiplayerSystemTests, Transform2OtherNotificationsOnNetEntityReportNothing)
+    {
+        // The report comes once, on activation. A flip at runtime must not repeat it every time.
+        AZ::Entity netEntity("Transform2NetEntity");
+        netEntity.CreateComponent<NetBindComponent>();
+        netEntity.Init();
+
+        AZ_TEST_START_TRACE_SUPPRESSION;
+        AZ::Transform2NotificationBus::Broadcast(
+            &AZ::Transform2Notifications::OnTransform2ScaleChanged, netEntity.GetId(), AZ::Vector3(1.0f, 1.0f, -1.0f));
+        AZ::Transform2NotificationBus::Broadcast(
+            &AZ::Transform2Notifications::OnTransform2WorldChanged, netEntity.GetId(), AZ::Transform::CreateIdentity(),
+            AZ::Vector3(1.0f, 1.0f, -1.0f));
+        AZ::Transform2NotificationBus::Broadcast(&AZ::Transform2Notifications::OnTransform2Deactivated, netEntity.GetId());
+        AZ_TEST_STOP_TRACE_SUPPRESSION(0);
     }
 } // namespace Multiplayer

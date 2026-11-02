@@ -15,6 +15,9 @@
 #include <AzToolsFramework/ToolsComponents/TransformComponent.h>
 #include <AzToolsFramework/UnitTest/AzToolsFrameworkTestHelpers.h>
 
+#include <AtomLyIntegration/CommonFeatures/Mesh/MeshComponentBus.h>
+#include <AtomLyIntegration/CommonFeatures/Mesh/MeshHandleStateBus.h>
+
 #include <Mesh/EditorMeshComponent.h>
 #include <Mesh/MeshComponentController.h>
 
@@ -84,6 +87,13 @@ namespace UnitTest
 
             m_intersectionNotificationDetector.Disconnect();
 
+            // The application outlives a test, so undo the reflection for the next test of this fixture to do it again.
+            AZ::SerializeContext* serializeContext = GetApplication()->GetSerializeContext();
+            serializeContext->EnableRemoveReflection();
+            m_editorMeshComponentDescriptor->Reflect(serializeContext);
+            m_meshComponentDescriptor->Reflect(serializeContext);
+            serializeContext->DisableRemoveReflection();
+
             m_meshComponentDescriptor.reset();
             m_editorMeshComponentDescriptor.reset();
         }
@@ -108,5 +118,35 @@ namespace UnitTest
 
         using ::testing::Eq;
         EXPECT_THAT(m_entity->GetId(), Eq(m_intersectionNotificationDetector.m_lastEntityIdChanged));
+    }
+
+    TEST_F(MeshComponentControllerFixture, RenderScaleIsOneUntilTransform2GivesTheMeshTheSign)
+    {
+        // suppress warning when feature process is not created in test environment
+        UnitTest::ErrorHandler featureProcessorNotFound("Unable to find a MeshFeatureProcessorInterface on the entityId.");
+
+        m_entity->Deactivate();
+        m_entity->CreateComponent<AZ::Render::EditorMeshComponent>();
+        m_entity->Activate();
+
+        // A mesh of a Transform 1 entity is drawn with the positive scale of the entity, which is one with no non-uniform scale
+        AZ::Vector3 renderScale = AZ::Vector3::CreateZero();
+        AZ::Render::MeshComponentRequestBus::EventResult(
+            renderScale, m_entity->GetId(), &AZ::Render::MeshComponentRequestBus::Events::GetRenderScale);
+        EXPECT_TRUE(renderScale.IsClose(AZ::Vector3::CreateOne()));
+
+        // Transform 2 gives the mesh its signed scale through the mesh handle state bus, and readers get it back from the mesh component
+        AZ::Render::MeshHandleStateRequestBus::Event(
+            m_entity->GetId(), &AZ::Render::MeshHandleStateRequestBus::Events::SetRenderScale, AZ::Vector3(-1.0f, 2.0f, 1.0f));
+        AZ::Render::MeshComponentRequestBus::EventResult(
+            renderScale, m_entity->GetId(), &AZ::Render::MeshComponentRequestBus::Events::GetRenderScale);
+        EXPECT_TRUE(renderScale.IsClose(AZ::Vector3(-1.0f, 2.0f, 1.0f)));
+
+        // And it goes back to the positive scale when the entity leaves Transform 2
+        AZ::Render::MeshHandleStateRequestBus::Event(
+            m_entity->GetId(), &AZ::Render::MeshHandleStateRequestBus::Events::SetRenderScale, AZ::Vector3::CreateOne());
+        AZ::Render::MeshComponentRequestBus::EventResult(
+            renderScale, m_entity->GetId(), &AZ::Render::MeshComponentRequestBus::Events::GetRenderScale);
+        EXPECT_TRUE(renderScale.IsClose(AZ::Vector3::CreateOne()));
     }
 } // namespace UnitTest

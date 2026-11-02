@@ -13,6 +13,7 @@
 #include <Atom/RPI.Reflect/Model/ModelKdTree.h>
 #include <Atom/RPI.Reflect/Model/ModelLodAsset.h>
 #include <Atom/RPI.Reflect/ResourcePoolAssetCreator.h>
+#include <Atom/RPI.Public/Model/Model.h>
 #include <Atom/RPI.Public/Model/UvStreamTangentBitmask.h>
 
 #include <AzCore/std/limits.h>
@@ -1429,5 +1430,110 @@ namespace UnitTest
             testing::IsTrue());
         EXPECT_THAT(t, testing::FloatEq(0.5f));
         EXPECT_THAT(normal, IsClose(AZ::Vector3::CreateAxisZ()));
+    }
+
+    /*
+       A quad that is authored on one side of its pivot, x from 0 to 1, and rises along x: it lies in the plane z = 0.5 x.
+       Its front face looks up and back towards -x, so the normal is (-0.5, 0, 1) normalized. With x flipped it is drawn at
+       x from -1 to 0, and the quad stays within the model bounds of -1 to 1 that TestMesh gives every mesh.
+    */
+    static constexpr AZStd::array SlopedQuadPositions = { 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.5f };
+
+    // Model::RayIntersection places the ray with a scale that may have negative axes, which a flip puts there.
+    class ModelRayIntersectionFixture
+        : public ModelTests
+    {
+    public:
+        void SetUp() override
+        {
+            ModelTests::SetUp();
+
+            m_mesh = AZStd::make_unique<TestMesh>(
+                SlopedQuadPositions.data(), SlopedQuadPositions.size(), QuadIndices.data(), QuadIndices.size());
+            m_model = AZ::RPI::Model::FindOrCreate(m_mesh->GetModel());
+            ASSERT_NE(m_model.get(), nullptr);
+        }
+
+        void TearDown() override
+        {
+            m_model = nullptr;
+            m_mesh.reset();
+
+            ModelTests::TearDown();
+        }
+
+        // Fires a ray of length 4 straight down from z = 2, or straight up from z = -2, at (x, 0.25). The quad is hit at
+        // t = 0.4375 where the ray is at z = 0.25 (z = -0.25 from below), and that is x = 0.5 on the authored side.
+        bool Fire(float x, bool fromAbove, const AZ::Vector3& scale, float& t, AZ::Vector3& normal) const
+        {
+            const float startZ = fromAbove ? 2.0f : -2.0f;
+            return m_model->RayIntersection(
+                AZ::Transform::CreateIdentity(), scale, AZ::Vector3(x, 0.25f, startZ), AZ::Vector3::CreateAxisZ(fromAbove ? -4.0f : 4.0f), t,
+                normal);
+        }
+
+        static constexpr float HitDistance = 0.4375f;
+        static constexpr float Tolerance = 1e-4f;
+
+        AZStd::unique_ptr<TestMesh> m_mesh;
+        AZ::Data::Instance<AZ::RPI::Model> m_model;
+    };
+
+    TEST_F(ModelRayIntersectionFixture, RayIntersectionWithUnitScaleHitsTheAuthoredSide)
+    {
+        float t = 0.0f;
+        AZ::Vector3 normal = AZ::Vector3::CreateZero();
+
+        EXPECT_TRUE(Fire(0.5f, true, AZ::Vector3::CreateOne(), t, normal));
+        EXPECT_NEAR(t, HitDistance, Tolerance);
+        EXPECT_THAT(normal, IsClose(AZ::Vector3(-0.5f, 0.0f, 1.0f).GetNormalized()));
+
+        EXPECT_FALSE(Fire(-0.5f, true, AZ::Vector3::CreateOne(), t, normal));
+    }
+
+    TEST_F(ModelRayIntersectionFixture, RayIntersectionWithMirroredXHitsTheDrawnSideOnly)
+    {
+        const AZ::Vector3 mirrorX(-1.0f, 1.0f, 1.0f);
+        float t = 0.0f;
+        AZ::Vector3 normal = AZ::Vector3::CreateZero();
+
+        // The quad is drawn at x from -1 to 0. A ray at x = -0.5 meets it at the same distance as the unflipped ray met it at x = 0.5,
+        // and the normal leans towards +x now, away from the drawn surface.
+        EXPECT_TRUE(Fire(-0.5f, true, mirrorX, t, normal));
+        EXPECT_NEAR(t, HitDistance, Tolerance);
+        EXPECT_THAT(normal, IsClose(AZ::Vector3(0.5f, 0.0f, 1.0f).GetNormalized()));
+
+        // Where the authored quad is there is nothing drawn.
+        EXPECT_FALSE(Fire(0.5f, true, mirrorX, t, normal));
+    }
+
+    TEST_F(ModelRayIntersectionFixture, RayIntersectionWithFlippedZHitsTheDrawnSideOnly)
+    {
+        const AZ::Vector3 flipZ(1.0f, 1.0f, -1.0f);
+        float t = 0.0f;
+        AZ::Vector3 normal = AZ::Vector3::CreateZero();
+
+        // Upside down the quad is drawn below the pivot and its front face looks down, so it is hit from below.
+        EXPECT_TRUE(Fire(0.5f, false, flipZ, t, normal));
+        EXPECT_NEAR(t, HitDistance, Tolerance);
+        EXPECT_THAT(normal, IsClose(AZ::Vector3(-0.5f, 0.0f, -1.0f).GetNormalized()));
+
+        EXPECT_FALSE(Fire(-0.5f, false, flipZ, t, normal));
+    }
+
+    TEST_F(ModelRayIntersectionFixture, RayIntersectionClampsTheMagnitudeAndKeepsTheSign)
+    {
+        float t = 0.0f;
+        AZ::Vector3 normal = AZ::Vector3::CreateZero();
+
+        // An axis below the minimum scale of 0.01 is held at it, so the quad is 0.01 wide. Negative it is drawn at x from -0.01 to 0,
+        // where the clamp used to turn it into a positive axis. Zero counts as positive.
+        EXPECT_TRUE(Fire(-0.005f, true, AZ::Vector3(-0.001f, 1.0f, 1.0f), t, normal));
+        EXPECT_NEAR(t, HitDistance, Tolerance);
+        EXPECT_FALSE(Fire(0.005f, true, AZ::Vector3(-0.001f, 1.0f, 1.0f), t, normal));
+
+        EXPECT_TRUE(Fire(0.005f, true, AZ::Vector3(0.0f, 1.0f, 1.0f), t, normal));
+        EXPECT_NEAR(t, HitDistance, Tolerance);
+        EXPECT_FALSE(Fire(-0.005f, true, AZ::Vector3(0.0f, 1.0f, 1.0f), t, normal));
     }
 } // namespace UnitTest

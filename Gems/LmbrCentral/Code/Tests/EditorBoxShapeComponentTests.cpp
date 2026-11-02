@@ -7,10 +7,13 @@
  */
 
 #include "LmbrCentralReflectionTest.h"
+#include "Shape/BoxShapeComponent.h"
 #include "Shape/EditorBoxShapeComponent.h"
 #include "Shape/EditorSphereShapeComponent.h"
+#include <AZTestShared/Math/MathTestHelpers.h>
 #include <AZTestShared/Utils/Utils.h>
 #include <AzCore/Component/NonUniformScaleBus.h>
+#include <AzFramework/UnitTest/TestDebugDisplayRequests.h>
 #include <AzToolsFramework/ComponentModes/ShapeComponentModeBus.h>
 #include <AzToolsFramework/ToolsComponents/EditorNonUniformScaleComponent.h>
 #include <AzToolsFramework/Viewport/ViewportSettings.h>
@@ -219,6 +222,141 @@ namespace LmbrCentral
         DragMouse(m_cameraState, m_actionDispatcher.get(), worldStart, worldEnd);
 
         ExpectTranslationOffset(m_entityId, translationOffset + AZ::Vector3::CreateAxisX());
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+    //
+    // The box answers, draws and is edited on the mirrored side. The offset that is saved is the authored one all the way.
+
+    namespace
+    {
+        // The mask for an X and a Z flip, which an entity with a scale of (-1, 1, -1) pushes to its shapes.
+        constexpr AZ::u8 BoxFlipMaskXZ = 5;
+
+        AZ::Aabb GetBoxDrawnBounds(AZ::EntityId entityId)
+        {
+            UnitTest::TestDebugDisplayRequests testDebugDisplayRequests;
+            AzFramework::EntityDebugDisplayEventBus::Event(
+                entityId, &AzFramework::EntityDebugDisplayEvents::DisplayEntityViewport, AzFramework::ViewportInfo{ 0 },
+                testDebugDisplayRequests);
+            const AZStd::vector<AZ::Vector3>& points = testDebugDisplayRequests.GetPoints();
+            return points.empty() ? AZ::Aabb::CreateNull() : AZ::Aabb::CreatePoints(points.data(), points.size());
+        }
+
+        // A ray that comes in from the side, so none of its components is zero, and passes through the target.
+        bool BoxSelectionRayHits(AZ::EntityId entityId, const AZ::Vector3& target)
+        {
+            const AZ::Vector3 src = target + AZ::Vector3(1.0f, 10.0f, 10.0f);
+            const AZ::Vector3 dir = (target - src).GetNormalized();
+            bool hit = false;
+            float distance = 0.0f;
+            AzToolsFramework::EditorComponentSelectionRequestsBus::EventResult(
+                hit, entityId, &AzToolsFramework::EditorComponentSelectionRequests::EditorSelectionIntersectRayViewport,
+                AzFramework::ViewportInfo{ 0 }, src, dir, distance);
+            return hit;
+        }
+    } // namespace
+
+    TEST_F(EditorBoxShapeComponentFixture, HandlesSitOnTheFlippedBoxAndWriteTheAuthoredOffset)
+    {
+        const AZ::Vector3 authoredOffset(2.0f, 0.0f, 1.0f);
+        SetUpBoxShapeComponent(
+            m_entityId, AZ::Transform::CreateIdentity(), AZ::Vector3::CreateOne(), authoredOffset, AZ::Vector3(1.0f, 2.0f, 1.0f));
+        ShapeComponentRequestsBus::Event(m_entityId, &ShapeComponentRequests::SetFlipMask, BoxFlipMaskXZ);
+
+        // The handles are given the offset of the box as drawn.
+        AZ::Vector3 handleOffset = AZ::Vector3::CreateZero();
+        AzToolsFramework::ShapeManipulatorRequestBus::EventResult(
+            handleOffset, m_entityComponentIdPair, &AzToolsFramework::ShapeManipulatorRequestBus::Events::GetTranslationOffset);
+        EXPECT_THAT(handleOffset, UnitTest::IsClose(AZ::Vector3(-2.0f, 0.0f, -1.0f)));
+
+        AZ::Transform boxLocalTransform = AZ::Transform::CreateIdentity();
+        AzToolsFramework::BoxManipulatorRequestBus::EventResult(
+            boxLocalTransform, m_entityComponentIdPair, &AzToolsFramework::BoxManipulatorRequestBus::Events::GetCurrentLocalTransform);
+        EXPECT_THAT(boxLocalTransform.GetTranslation(), UnitTest::IsClose(AZ::Vector3(-2.0f, 0.0f, -1.0f)));
+
+        // Writing back what was read stores the authored offset.
+        AzToolsFramework::ShapeManipulatorRequestBus::Event(
+            m_entityComponentIdPair, &AzToolsFramework::ShapeManipulatorRequestBus::Events::SetTranslationOffset, handleOffset);
+        ExpectTranslationOffset(m_entityId, authoredOffset);
+
+        // A handle dragged one unit along X on the drawn box moves the authored offset one unit the other way.
+        AzToolsFramework::ShapeManipulatorRequestBus::Event(
+            m_entityComponentIdPair, &AzToolsFramework::ShapeManipulatorRequestBus::Events::SetTranslationOffset,
+            handleOffset + AZ::Vector3::CreateAxisX());
+        ExpectTranslationOffset(m_entityId, AZ::Vector3(1.0f, 0.0f, 1.0f));
+    }
+
+    TEST_F(EditorBoxShapeComponentFixture, WireframeIsDrawnOnTheFlippedSideAndTheOffsetStaysAuthored)
+    {
+        SetUpBoxShapeComponent(
+            m_entityId, AZ::Transform::CreateIdentity(), AZ::Vector3::CreateOne(), AZ::Vector3(3.0f, 0.0f, 0.0f),
+            AZ::Vector3(2.0f, 2.0f, 2.0f));
+
+        EXPECT_THAT(
+            GetBoxDrawnBounds(m_entityId),
+            UnitTest::IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(2.0f, -1.0f, -1.0f), AZ::Vector3(4.0f, 1.0f, 1.0f))));
+
+        ShapeComponentRequestsBus::Event(m_entityId, &ShapeComponentRequests::SetFlipMask, BoxFlipMaskXZ);
+
+        EXPECT_THAT(
+            GetBoxDrawnBounds(m_entityId),
+            UnitTest::IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(-4.0f, -1.0f, -1.0f), AZ::Vector3(-2.0f, 1.0f, 1.0f))));
+        ExpectTranslationOffset(m_entityId, AZ::Vector3(3.0f, 0.0f, 0.0f));
+
+        ShapeComponentRequestsBus::Event(m_entityId, &ShapeComponentRequests::SetFlipMask, static_cast<AZ::u8>(0));
+
+        EXPECT_THAT(
+            GetBoxDrawnBounds(m_entityId),
+            UnitTest::IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(2.0f, -1.0f, -1.0f), AZ::Vector3(4.0f, 1.0f, 1.0f))));
+    }
+
+    TEST_F(EditorBoxShapeComponentFixture, SelectionAndBoundsFollowTheFlip)
+    {
+        SetUpBoxShapeComponent(
+            m_entityId, AZ::Transform::CreateIdentity(), AZ::Vector3::CreateOne(), AZ::Vector3(3.0f, 0.0f, 0.0f),
+            AZ::Vector3(2.0f, 2.0f, 2.0f));
+
+        EXPECT_TRUE(BoxSelectionRayHits(m_entityId, AZ::Vector3(3.0f, 0.0f, 0.0f)));
+        EXPECT_FALSE(BoxSelectionRayHits(m_entityId, AZ::Vector3(-3.0f, 0.0f, 0.0f)));
+
+        ShapeComponentRequestsBus::Event(m_entityId, &ShapeComponentRequests::SetFlipMask, BoxFlipMaskXZ);
+
+        // Click select goes to the drawn side, and not to where the box was.
+        EXPECT_TRUE(BoxSelectionRayHits(m_entityId, AZ::Vector3(-3.0f, 0.0f, 0.0f)));
+        EXPECT_FALSE(BoxSelectionRayHits(m_entityId, AZ::Vector3(3.0f, 0.0f, 0.0f)));
+
+        // The selection box, Focus and the visibility bounds all come from these.
+        AZ::Aabb worldBounds = AZ::Aabb::CreateNull();
+        AzFramework::BoundsRequestBus::EventResult(worldBounds, m_entityId, &AzFramework::BoundsRequestBus::Events::GetWorldBounds);
+        EXPECT_THAT(worldBounds.GetCenter(), UnitTest::IsClose(AZ::Vector3(-3.0f, 0.0f, 0.0f)));
+
+        AZ::Aabb localBounds = AZ::Aabb::CreateNull();
+        AzFramework::BoundsRequestBus::EventResult(localBounds, m_entityId, &AzFramework::BoundsRequestBus::Events::GetLocalBounds);
+        EXPECT_THAT(localBounds.GetCenter(), UnitTest::IsClose(AZ::Vector3(-3.0f, 0.0f, 0.0f)));
+    }
+
+    TEST_F(EditorBoxShapeComponentFixture, BuildGameEntityKeepsTheAuthoredConfigurationUnderAFlip)
+    {
+        const AZ::Vector3 authoredOffset(2.0f, 0.0f, 1.0f);
+        SetUpBoxShapeComponent(
+            m_entityId, AZ::Transform::CreateIdentity(), AZ::Vector3::CreateOne(), authoredOffset, AZ::Vector3(1.0f, 2.0f, 1.0f));
+        ShapeComponentRequestsBus::Event(m_entityId, &ShapeComponentRequests::SetFlipMask, BoxFlipMaskXZ);
+
+        auto* editorComponent = azrtti_cast<AzToolsFramework::Components::EditorComponentBase*>(
+            m_entity->FindComponent(m_entityComponentIdPair.GetComponentId()));
+        ASSERT_NE(editorComponent, nullptr);
+
+        // The game entity gets the authored shape, and the Transform 2 of the game entity flips it again.
+        AZ::Entity gameEntity;
+        editorComponent->BuildGameEntity(&gameEntity);
+
+        auto* gameBox = gameEntity.FindComponent<BoxShapeComponent>();
+        ASSERT_NE(gameBox, nullptr);
+        BoxShapeConfig gameConfiguration;
+        gameBox->GetConfiguration(gameConfiguration);
+        EXPECT_THAT(gameConfiguration.m_translationOffset, UnitTest::IsClose(authoredOffset));
     }
 } // namespace LmbrCentral
 

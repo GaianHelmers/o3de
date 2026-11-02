@@ -193,4 +193,14 @@ namespace AZ::Render
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2
+
+    void SimpleSpotLightDelegate::SetRenderScale(const Transform& world, const Vector3& renderScale)
+    {
+        // The cone aims along Z, so only a flip in Z turns it round, and a flip in X or Y leaves it as it is. The turn is a
+        // rotation and a gobo image needs a mirror, so a gobo is turned with the light and not mirrored.
+        SetFlippedTransform(world, renderScale.GetZ() < 0.0f);
+    }
+
 } // namespace AZ::Render

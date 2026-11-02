@@ -20,6 +20,7 @@ set(FILES
     EditorShapeTestUtils.cpp
     EditorShapeTestUtils.h
     EditorTubeShapeComponentTests.cpp
+    Transform2EditorSphereCapsuleTests.cpp
     Builders/CopyDependencyBuilderTest.cpp
     Builders/SliceBuilderTests.cpp
     Builders/LuaBuilderTests.cpp

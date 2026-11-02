@@ -13,9 +13,11 @@
 #include <AzCore/Math/VertexContainerInterface.h>
 #include <AzFramework/Components/TransformComponent.h>
 #include <AzFramework/Components/NonUniformScaleComponent.h>
+#include <AzFramework/UnitTest/TestDebugDisplayRequests.h>
 #include <Shape/PolygonPrismShapeComponent.h>
 #include <AzCore/UnitTest/TestTypes.h>
 #include <AZTestShared/Math/MathTestHelpers.h>
+#include <ShapeTestUtils.h>
 #include <ShapeThreadsafeTest.h>
 
 namespace UnitTest
@@ -946,5 +948,431 @@ namespace UnitTest
         // during the component activation.
         polygonPrism->SetHeight(ShapeHeight + 1.0f);
         EXPECT_EQ(numCalls, 0);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+    //
+    // A prism on an entity with a negative scale axis sits on the mirrored side. The flip is a mask that is pushed to the shape
+    // (X is 1, Y is 2, Z is 4) and rides in the scale of the prism, which the queries already divide and multiply by. The vertices
+    // and the height are never written.
+
+    namespace
+    {
+        constexpr AZ::u8 PrismFlipX = 1;
+        constexpr AZ::u8 PrismFlipY = 2;
+        constexpr AZ::u8 PrismFlipZ = 4;
+        constexpr AZ::u8 PrismFlipXZ = static_cast<AZ::u8>(PrismFlipX | PrismFlipZ);
+
+        void FlipPrism(AZ::EntityId entityId, AZ::u8 flipMask)
+        {
+            LmbrCentral::ShapeComponentRequestsBus::Event(entityId, &LmbrCentral::ShapeComponentRequests::SetFlipMask, flipMask);
+        }
+
+        // Counts the shape changes of an entity, which is how everything downstream of a flip hears of it.
+        class PrismShapeChangedCounter
+            : public LmbrCentral::ShapeComponentNotificationsBus::Handler
+        {
+        public:
+            explicit PrismShapeChangedCounter(AZ::EntityId entityId)
+            {
+                LmbrCentral::ShapeComponentNotificationsBus::Handler::BusConnect(entityId);
+            }
+
+            ~PrismShapeChangedCounter() override
+            {
+                LmbrCentral::ShapeComponentNotificationsBus::Handler::BusDisconnect();
+            }
+
+            void OnShapeChanged(LmbrCentral::ShapeComponentNotifications::ShapeChangeReasons changeReason) override
+            {
+                if (changeReason == LmbrCentral::ShapeComponentNotifications::ShapeChangeReasons::ShapeChanged)
+                {
+                    ++m_count;
+                }
+            }
+
+            int m_count = 0;
+        };
+    } // namespace
+
+    class PolygonPrismShapeFlipTest
+        : public PolygonPrismShapeTest
+    {
+    public:
+        void SetUp() override
+        {
+            PolygonPrismShapeTest::SetUp();
+            m_debugDisplayComponentDescriptor.reset(LmbrCentral::PolygonPrismShapeDebugDisplayComponent::CreateDescriptor());
+        }
+
+        void TearDown() override
+        {
+            m_debugDisplayComponentDescriptor.reset();
+            PolygonPrismShapeTest::TearDown();
+        }
+
+        // Asymmetric, so a mirrored prism is told from the authored one: a right triangle with its corner at (1,-1) and its long
+        // leg along X. The point (2,0,1) is inside it, and (-2,0,1) is inside its mirror about the Y axis.
+        static AZStd::vector<AZ::Vector2> GetTriangle()
+        {
+            return AZStd::vector<AZ::Vector2>({ AZ::Vector2(1.0f, -1.0f), AZ::Vector2(5.0f, -1.0f), AZ::Vector2(1.0f, 3.0f) });
+        }
+
+        static constexpr float TriangleHeight = 2.0f;
+
+        // Rotated, moved and scaled, so the mirror is checked in the local axes of the entity and not in the world's.
+        static AZ::Transform GetWorld()
+        {
+            return AZ::Transform(AZ::Vector3(10.0f, 20.0f, 30.0f), AZ::Quaternion::CreateRotationZ(0.6f), 1.5f);
+        }
+
+        static float GetDistanceSquared(AZ::EntityId entityId, const AZ::Vector3& point)
+        {
+            float distanceSquared = 0.0f;
+            LmbrCentral::ShapeComponentRequestsBus::EventResult(
+                distanceSquared, entityId, &LmbrCentral::ShapeComponentRequests::DistanceSquaredFromPoint, point);
+            return distanceSquared;
+        }
+
+        static AZ::Aabb GetEncompassingAabb(AZ::EntityId entityId)
+        {
+            AZ::Aabb aabb = AZ::Aabb::CreateNull();
+            LmbrCentral::ShapeComponentRequestsBus::EventResult(aabb, entityId, &LmbrCentral::ShapeComponentRequests::GetEncompassingAabb);
+            return aabb;
+        }
+
+        static AZ::Vector3 GetFlipSigns(AZ::EntityId entityId)
+        {
+            AZ::Vector3 flipSigns = AZ::Vector3::CreateZero();
+            LmbrCentral::ShapeComponentRequestsBus::EventResult(flipSigns, entityId, &LmbrCentral::ShapeComponentRequests::GetFlipSigns);
+            return flipSigns;
+        }
+
+        static AZ::PolygonPrismPtr GetPrism(AZ::EntityId entityId)
+        {
+            AZ::PolygonPrismPtr polygonPrism;
+            LmbrCentral::PolygonPrismShapeComponentRequestBus::EventResult(
+                polygonPrism, entityId, &LmbrCentral::PolygonPrismShapeComponentRequests::GetPolygonPrism);
+            return polygonPrism;
+        }
+
+        static bool CastRay(AZ::EntityId entityId, const AZ::Vector3& origin, const AZ::Vector3& direction, float& distance)
+        {
+            bool rayHit = false;
+            LmbrCentral::ShapeComponentRequestsBus::EventResult(
+                rayHit, entityId, &LmbrCentral::ShapeComponentRequests::IntersectRay, origin, direction, distance);
+            return rayHit;
+        }
+
+        // The box of the corners of the triangle prism, as it is drawn with the signs applied in the local axes of the entity.
+        static AZ::Aabb GetCornersAabb(const AZ::Transform& world, const AZ::Vector3& signs)
+        {
+            AZStd::vector<AZ::Vector3> corners;
+            for (const AZ::Vector2& vertex : GetTriangle())
+            {
+                corners.push_back(world.TransformPoint(signs * AZ::Vector3(vertex.GetX(), vertex.GetY(), 0.0f)));
+                corners.push_back(world.TransformPoint(signs * AZ::Vector3(vertex.GetX(), vertex.GetY(), TriangleHeight)));
+            }
+            return AZ::Aabb::CreatePoints(corners.data(), corners.size());
+        }
+
+        // Every query of the flipped prism at the mirror of a point has to answer what the authored prism answered at the point,
+        // and taking the flip off has to bring the authored answers back.
+        void ExpectPrismFollowsFlip(AZ::u8 flipMask)
+        {
+            const AZ::Transform world = GetWorld();
+            const AZ::Vector3 signs = LmbrCentral::FlipMaskToSigns(flipMask);
+
+            AZ::Entity entity;
+            CreatePolygonPrism(world, TriangleHeight, GetTriangle(), entity);
+            const AZ::EntityId entityId = entity.GetId();
+
+            // In the prism, beside it, above it, below it and far from it. All in the local space of the entity.
+            const AZStd::vector<AZ::Vector3> localPoints = {
+                AZ::Vector3(2.0f, 0.0f, 1.0f),  AZ::Vector3(0.0f, 0.0f, 1.0f), AZ::Vector3(2.0f, 0.0f, 3.0f),
+                AZ::Vector3(2.0f, 0.0f, -1.0f), AZ::Vector3(6.0f, 0.0f, 1.0f), AZ::Vector3(8.0f, 5.0f, 1.0f),
+                AZ::Vector3(-3.0f, 2.0f, 1.0f), AZ::Vector3(2.0f, 0.0f, -5.0f)
+            };
+
+            // Three rays that hit, through an end face, a wall and the other end face, and one that misses.
+            const AZStd::vector<AZ::Vector3> rayOrigins = {
+                AZ::Vector3(3.0f, 0.0f, -3.0f), AZ::Vector3(8.0f, 0.0f, 1.0f), AZ::Vector3(2.0f, 0.0f, 5.0f), AZ::Vector3(-3.0f, 5.0f, 1.0f)
+            };
+            const AZStd::vector<AZ::Vector3> rayDirections = {
+                AZ::Vector3(0.0f, 0.0f, 1.0f), AZ::Vector3(-1.0f, 0.0f, 0.0f), AZ::Vector3(0.0f, 0.0f, -1.0f), AZ::Vector3(0.0f, 1.0f, 0.0f)
+            };
+
+            // What the authored prism answers.
+            AZStd::vector<int> authoredInside;
+            AZStd::vector<float> authoredDistanceSquared;
+            for (const AZ::Vector3& point : localPoints)
+            {
+                authoredInside.push_back(IsPointInside(entity, world.TransformPoint(point)) ? 1 : 0);
+                authoredDistanceSquared.push_back(GetDistanceSquared(entityId, world.TransformPoint(point)));
+            }
+
+            AZStd::vector<int> authoredRayHit;
+            AZStd::vector<float> authoredRayDistance;
+            for (size_t i = 0; i < rayOrigins.size(); ++i)
+            {
+                float distance = 0.0f;
+                authoredRayHit.push_back(
+                    CastRay(entityId, world.TransformPoint(rayOrigins[i]), world.TransformVector(rayDirections[i]).GetNormalized(), distance)
+                        ? 1
+                        : 0);
+                authoredRayDistance.push_back(distance);
+            }
+            EXPECT_THAT(GetEncompassingAabb(entityId), IsCloseTolerance(GetCornersAabb(world, AZ::Vector3::CreateOne()), 1e-3f));
+
+            FlipPrism(entityId, flipMask);
+
+            EXPECT_THAT(GetFlipSigns(entityId), IsClose(signs));
+
+            // A prism has no offset for a flip to move, and a light asks for it on every move of its entity.
+            AZ::Vector3 effectiveOffset = AZ::Vector3::CreateOne();
+            LmbrCentral::ShapeComponentRequestsBus::EventResult(
+                effectiveOffset, entityId, &LmbrCentral::ShapeComponentRequests::GetEffectiveTranslationOffset);
+            EXPECT_THAT(effectiveOffset, IsClose(AZ::Vector3::CreateZero()));
+
+            for (size_t i = 0; i < localPoints.size(); ++i)
+            {
+                const AZ::Vector3 mirroredPoint = world.TransformPoint(signs * localPoints[i]);
+                EXPECT_EQ(IsPointInside(entity, mirroredPoint) ? 1 : 0, authoredInside[i]) << "point " << i;
+                EXPECT_NEAR(GetDistanceSquared(entityId, mirroredPoint), authoredDistanceSquared[i], 1e-2f) << "point " << i;
+            }
+
+            for (size_t i = 0; i < rayOrigins.size(); ++i)
+            {
+                float distance = 0.0f;
+                const bool rayHit = CastRay(
+                    entityId, world.TransformPoint(signs * rayOrigins[i]),
+                    world.TransformVector(signs * rayDirections[i]).GetNormalized(), distance);
+                EXPECT_EQ(rayHit ? 1 : 0, authoredRayHit[i]) << "ray " << i;
+                if (rayHit)
+                {
+                    EXPECT_NEAR(distance, authoredRayDistance[i], 1e-2f) << "ray " << i;
+                }
+            }
+
+            EXPECT_THAT(GetEncompassingAabb(entityId), IsCloseTolerance(GetCornersAabb(world, signs), 1e-3f));
+
+            // Taking the flip off brings the authored answers back.
+            FlipPrism(entityId, 0);
+
+            EXPECT_THAT(GetFlipSigns(entityId), IsClose(AZ::Vector3::CreateOne()));
+            for (size_t i = 0; i < localPoints.size(); ++i)
+            {
+                EXPECT_EQ(IsPointInside(entity, world.TransformPoint(localPoints[i])) ? 1 : 0, authoredInside[i]) << "point " << i;
+            }
+            EXPECT_THAT(GetEncompassingAabb(entityId), IsCloseTolerance(GetCornersAabb(world, AZ::Vector3::CreateOne()), 1e-3f));
+        }
+
+        AZStd::unique_ptr<AZ::ComponentDescriptor> m_debugDisplayComponentDescriptor;
+    };
+
+    TEST_F(PolygonPrismShapeFlipTest, PrismFollowsAnXFlip)
+    {
+        ExpectPrismFollowsFlip(PrismFlipX);
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, PrismFollowsAYFlip)
+    {
+        ExpectPrismFollowsFlip(PrismFlipY);
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, PrismFollowsAZFlip)
+    {
+        ExpectPrismFollowsFlip(PrismFlipZ);
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, PrismFollowsAnXZFlip)
+    {
+        ExpectPrismFollowsFlip(PrismFlipXZ);
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, XFlipMirrorsThePrismAboutTheYAxisOfTheEntity)
+    {
+        const AZ::Transform world = GetWorld();
+        AZ::Entity entity;
+        CreatePolygonPrism(world, TriangleHeight, GetTriangle(), entity);
+        FlipPrism(entity.GetId(), PrismFlipX);
+
+        EXPECT_TRUE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(-2.0f, 0.0f, 1.0f))));
+        EXPECT_FALSE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(2.0f, 0.0f, 1.0f))));
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, ZFlipExtrudesThePrismDownwardFromTheEntity)
+    {
+        const AZ::Transform world = GetWorld();
+        AZ::Entity entity;
+        CreatePolygonPrism(world, TriangleHeight, GetTriangle(), entity);
+        FlipPrism(entity.GetId(), PrismFlipZ);
+
+        // The prism occupies z in [-h, 0] and its polygon is where it was.
+        EXPECT_TRUE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(2.0f, 0.0f, -0.5f))));
+        EXPECT_TRUE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(2.0f, 0.0f, -1.5f))));
+        EXPECT_FALSE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(2.0f, 0.0f, 1.0f))));
+        EXPECT_FALSE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(2.0f, 0.0f, -2.5f))));
+        EXPECT_FALSE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(-2.0f, 0.0f, -1.0f))));
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, FlipMirrorsTheLocalBoundsAndTheAuthoredBoundsStay)
+    {
+        const AZ::Transform world = GetWorld();
+        AZ::Entity entity;
+        CreatePolygonPrismWithNonUniformScale(world, TriangleHeight, GetTriangle(), AZ::Vector3(2.0f, 1.0f, 3.0f), entity);
+        FlipPrism(entity.GetId(), PrismFlipXZ);
+
+        // The bounds are the mirrored min and max with positive extents, so the transform and the bounds are the prism as drawn.
+        AZ::Transform transform = AZ::Transform::CreateIdentity();
+        AZ::Aabb bounds = AZ::Aabb::CreateNull();
+        LmbrCentral::ShapeComponentRequestsBus::Event(
+            entity.GetId(), &LmbrCentral::ShapeComponentRequests::GetTransformAndLocalBounds, transform, bounds);
+        EXPECT_THAT(
+            bounds, IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(-10.0f, -1.0f, -6.0f), AZ::Vector3(-2.0f, 3.0f, 0.0f))));
+        EXPECT_THAT(transform, IsClose(world));
+
+        // The bounds that saved data is made from do not move with the flip.
+        LmbrCentral::ShapeComponentRequestsBus::Event(
+            entity.GetId(), &LmbrCentral::ShapeComponentRequests::GetTransformAndAuthoredLocalBounds, transform, bounds);
+        EXPECT_THAT(bounds, IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(2.0f, -1.0f, 0.0f), AZ::Vector3(10.0f, 3.0f, 6.0f))));
+        EXPECT_THAT(transform, IsClose(world));
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, FlipLeavesTheSavedPrismAlone)
+    {
+        const AZ::Vector3 residual(2.0f, 1.0f, 3.0f);
+        AZ::Entity entity;
+        CreatePolygonPrismWithNonUniformScale(GetWorld(), TriangleHeight, GetTriangle(), residual, entity);
+        FlipPrism(entity.GetId(), PrismFlipXZ);
+
+        // The height and the vertices are the only fields of the prism that are reflected, so this is what a save would write.
+        const AZ::PolygonPrismPtr polygonPrism = GetPrism(entity.GetId());
+        ASSERT_TRUE(polygonPrism.get() != nullptr);
+        EXPECT_EQ(polygonPrism->m_vertexContainer.GetVertices(), GetTriangle());
+        EXPECT_FLOAT_EQ(polygonPrism->GetHeight(), TriangleHeight);
+
+        // The sign is in the scale of the prism only. The residual on the bus stays positive, and PhysX reads that and the vertices.
+        EXPECT_THAT(polygonPrism->GetNonUniformScale(), IsClose(AZ::Vector3(-2.0f, 1.0f, -3.0f)));
+        AZ::Vector3 busScale = AZ::Vector3::CreateZero();
+        AZ::NonUniformScaleRequestBus::EventResult(busScale, entity.GetId(), &AZ::NonUniformScaleRequests::GetScale);
+        EXPECT_THAT(busScale, IsClose(residual));
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, ResidualChangeAfterTheFlipKeepsTheSign)
+    {
+        const AZ::Transform world = GetWorld();
+        AZ::Entity entity;
+        CreatePolygonPrismWithNonUniformScale(world, TriangleHeight, GetTriangle(), AZ::Vector3(2.0f, 1.0f, 3.0f), entity);
+        FlipPrism(entity.GetId(), PrismFlipX);
+
+        // The non-uniform scale event writes the scale of the prism again, and the new residual has to come out mirrored.
+        AZ::NonUniformScaleRequestBus::Event(entity.GetId(), &AZ::NonUniformScaleRequests::SetScale, AZ::Vector3(3.0f, 2.0f, 1.0f));
+
+        EXPECT_THAT(GetFlipSigns(entity.GetId()), IsClose(AZ::Vector3(-1.0f, 1.0f, 1.0f)));
+        EXPECT_THAT(GetPrism(entity.GetId())->GetNonUniformScale(), IsClose(AZ::Vector3(-3.0f, 2.0f, 1.0f)));
+
+        // The point (2,0,1) of the authored prism is at (6,0,1) with this residual, and at (-6,0,1) when mirrored.
+        EXPECT_TRUE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(-6.0f, 0.0f, 1.0f))));
+        EXPECT_FALSE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(6.0f, 0.0f, 1.0f))));
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, ReactivatingThePrismStartsItAsAuthored)
+    {
+        const AZ::Transform world = GetWorld();
+        AZ::Entity entity;
+        CreatePolygonPrism(world, TriangleHeight, GetTriangle(), entity);
+        FlipPrism(entity.GetId(), PrismFlipX);
+        ASSERT_TRUE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(-2.0f, 0.0f, 1.0f))));
+
+        // Nobody pushes anything after this activation, so a mirror that survived it would stay.
+        entity.Deactivate();
+        entity.Activate();
+        AZ::TransformBus::Event(entity.GetId(), &AZ::TransformBus::Events::SetWorldTM, world);
+
+        EXPECT_THAT(GetFlipSigns(entity.GetId()), IsClose(AZ::Vector3::CreateOne()));
+        EXPECT_THAT(GetPrism(entity.GetId())->GetNonUniformScale(), IsClose(AZ::Vector3::CreateOne()));
+        EXPECT_TRUE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(2.0f, 0.0f, 1.0f))));
+        EXPECT_FALSE(IsPointInside(entity, world.TransformPoint(AZ::Vector3(-2.0f, 0.0f, 1.0f))));
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, FlipRaisesOneShapeChangeAndTheSameMaskNone)
+    {
+        AZ::Entity entity;
+        CreatePolygonPrism(GetWorld(), TriangleHeight, GetTriangle(), entity);
+        PrismShapeChangedCounter counter(entity.GetId());
+
+        // The prism tells its callback when it takes the new scale, and the flip raises nothing of its own.
+        FlipPrism(entity.GetId(), PrismFlipX);
+        EXPECT_EQ(counter.m_count, 1);
+
+        FlipPrism(entity.GetId(), PrismFlipX);
+        EXPECT_EQ(counter.m_count, 1);
+
+        FlipPrism(entity.GetId(), 0);
+        EXPECT_EQ(counter.m_count, 2);
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, CopiesStartAsAuthored)
+    {
+        const AZ::EntityId testEntityId{ 42 };
+        LmbrCentral::PolygonPrismShape sourceShape;
+        sourceShape.Activate(testEntityId);
+        sourceShape.SetFlipMask(PrismFlipX);
+        ASSERT_THAT(sourceShape.GetFlipSigns(), IsClose(AZ::Vector3(-1.0f, 1.0f, 1.0f)));
+
+        // A copy is not on an entity, so it must not keep the mirror of the shape it was made from.
+        LmbrCentral::PolygonPrismShape copyShape(sourceShape);
+        EXPECT_THAT(copyShape.GetFlipSigns(), IsClose(AZ::Vector3::CreateOne()));
+
+        LmbrCentral::PolygonPrismShape assignedShape;
+        assignedShape = sourceShape;
+        EXPECT_THAT(assignedShape.GetFlipSigns(), IsClose(AZ::Vector3::CreateOne()));
+
+        // The source keeps its own.
+        EXPECT_THAT(sourceShape.GetFlipSigns(), IsClose(AZ::Vector3(-1.0f, 1.0f, 1.0f)));
+        sourceShape.Deactivate();
+    }
+
+    TEST_F(PolygonPrismShapeFlipTest, GameViewDebugDrawFollowsTheFlip)
+    {
+        AZ::Entity entity;
+        entity.CreateComponent<LmbrCentral::PolygonPrismShapeComponent>();
+        entity.CreateComponent<LmbrCentral::PolygonPrismShapeDebugDisplayComponent>();
+        entity.CreateComponent<AzFramework::TransformComponent>();
+        entity.Init();
+        entity.Activate();
+
+        // The debug draw copies the prism of the shape whenever the shape changes.
+        LmbrCentral::PolygonPrismShapeComponentRequestBus::Event(
+            entity.GetId(), &LmbrCentral::PolygonPrismShapeComponentRequests::SetHeight, TriangleHeight);
+        LmbrCentral::PolygonPrismShapeComponentRequestBus::Event(
+            entity.GetId(), &LmbrCentral::PolygonPrismShapeComponentRequests::SetVertices, GetTriangle());
+
+        auto getDrawnBounds = [&entity]()
+        {
+            UnitTest::TestDebugDisplayRequests testDebugDisplayRequests;
+            AzFramework::EntityDebugDisplayEventBus::Event(
+                entity.GetId(), &AzFramework::EntityDebugDisplayEvents::DisplayEntityViewport, AzFramework::ViewportInfo{ 0 },
+                testDebugDisplayRequests);
+            const AZStd::vector<AZ::Vector3>& points = testDebugDisplayRequests.GetPoints();
+            return points.empty() ? AZ::Aabb::CreateNull() : AZ::Aabb::CreatePoints(points.data(), points.size());
+        };
+
+        EXPECT_THAT(
+            getDrawnBounds(), IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(1.0f, -1.0f, 0.0f), AZ::Vector3(5.0f, 3.0f, 2.0f))));
+
+        FlipPrism(entity.GetId(), PrismFlipX);
+        EXPECT_THAT(
+            getDrawnBounds(), IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(-5.0f, -1.0f, 0.0f), AZ::Vector3(-1.0f, 3.0f, 2.0f))));
+
+        FlipPrism(entity.GetId(), PrismFlipZ);
+        EXPECT_THAT(
+            getDrawnBounds(), IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(1.0f, -1.0f, -2.0f), AZ::Vector3(5.0f, 3.0f, 0.0f))));
+
+        FlipPrism(entity.GetId(), 0);
+        EXPECT_THAT(
+            getDrawnBounds(), IsClose(AZ::Aabb::CreateFromMinMax(AZ::Vector3(1.0f, -1.0f, 0.0f), AZ::Vector3(5.0f, 3.0f, 2.0f))));
     }
 } // namespace UnitTest

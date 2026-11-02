@@ -10,6 +10,7 @@
 #include <Atom/RPI.Public/Culling.h>
 #include <Atom/RPI.Public/Model/Model.h>
 #include <AzCore/Component/ComponentBus.h>
+#include <AzCore/Math/Vector3.h>
 
 namespace AZ
 {
@@ -96,6 +97,15 @@ namespace AZ
 
             //! Returns the axis-aligned bounding box in model space.
             virtual AZ::Aabb GetLocalBounds() const = 0;
+
+            //! Returns the per-axis scale the mesh is drawn with on top of its transform. It keeps the sign of a flipped axis, which
+            //! the positive non-uniform scale bus cannot carry, so a reader that ray tests or copies the mesh reads it to sit on the
+            //! drawn side. A reader keeps the non-uniform scale it already reads, and lets this replace it when a mesh answers, so a
+            //! reader on an entity with no handler keeps its own. A mesh component answers the scale it draws with, which is the
+            //! positive non-uniform scale unless the entity has a Transform 2. An actor keeps only the signs of the scale it is drawn
+            //! with, so it answers the signs, and a positive non-uniform part is drawn but not seen here. A handler that draws with
+            //! no scale answers one.
+            virtual AZ::Vector3 GetRenderScale() const { return AZ::Vector3::CreateOne(); }
         };
         using MeshComponentRequestBus = EBus<MeshComponentRequests>;
 
@@ -119,6 +129,10 @@ namespace AZ
 
             //! Notifies listeners when a new ObjectSrg was created (this is where you'd like to update your custom ObjectSrg)
             virtual void OnObjectSrgCreated(const Data::Instance<RPI::ShaderResourceGroup>& /*objectSrg*/) {}
+
+            //! Notifies listeners when Transform 2 changed the flip the mesh is drawn with, which no transform or non-uniform scale
+            //! event reports. A listener that caches what it read through MeshComponentRequests::GetRenderScale reads it again.
+            virtual void OnRenderScaleChanged() {}
 
             /**
              * When connecting to this bus if the asset is ready you will immediately get an OnModelReady event

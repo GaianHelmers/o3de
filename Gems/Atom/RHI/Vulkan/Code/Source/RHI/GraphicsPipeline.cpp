@@ -325,6 +325,14 @@ namespace AZ
             }
 
             info.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+            //////////////////////////////////////////////////////////////////////////
+            // Transform 2: front face winding
+            //
+            // A mirrored draw winds clockwise. Vulkan never reads m_multisampleEnable, so the bit rides there unseen.
+            if (rasterState.IsFrontFaceClockwise())
+            {
+                info.frontFace = VK_FRONT_FACE_CLOCKWISE;
+            }
 
             if (!enabledFeatures.depthBiasClamp && rasterState.m_depthBiasClamp != 0.f)
             {

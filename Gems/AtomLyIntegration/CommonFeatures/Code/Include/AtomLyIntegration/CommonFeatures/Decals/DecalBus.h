@@ -8,6 +8,7 @@
 #pragma once
 
 #include <AzCore/Component/ComponentBus.h>
+#include <AzCore/Math/Transform.h>
 #include <AtomLyIntegration/CommonFeatures/Decals/DecalComponentConfig.h>
 
 namespace AZ
@@ -72,6 +73,11 @@ namespace AZ
 
             //! Gets the material assert Id for this decal
             virtual Data::AssetId GetMaterialAssetId() const = 0;
+
+            //! Gives the decal the signed per-axis scale of its entity, and the Transform 1 world of the entity it applies to.
+            //! Only Transform 2 calls this, because a negative axis is not something the positive scale buses can carry.
+            //! The decal keeps the sign, and sends it with every move of the entity.
+            virtual void SetRenderScale([[maybe_unused]] const AZ::Transform& world, [[maybe_unused]] const AZ::Vector3& renderScale) {}
         };
 
         /// The EBus for requests to for setting and getting decal component properties.

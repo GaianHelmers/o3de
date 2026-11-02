@@ -196,6 +196,16 @@ namespace AZ::Render
             const RHI::RenderStates& renderStatesOverlay = *shaderItem.GetRenderStatesOverlay();
             RHI::MergeStateInto(renderStatesOverlay, pipelineStateDescriptor.m_renderStates);
 
+            //////////////////////////////////////////////////////////////////////////
+            // Transform 2: front face winding
+            //
+            // The winding is applied after the merge and only for a mirrored packet, so a Transform 1 draw leaves the raster state
+            // untouched.
+            if (m_frontFaceClockwise)
+            {
+                pipelineStateDescriptor.m_renderStates.m_rasterState.SetFrontFaceClockwise(true);
+            }
+
             streamBufferViewsPerShader.emplace_back();
             RPI::UvStreamTangentBitmask uvStreamTangentBitmask;
             RHI::StreamBufferIndices streamIndices;

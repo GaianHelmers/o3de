@@ -264,6 +264,96 @@ namespace UnitTest
         DestroyMockMeshAsset(mockAsset);
     }
 
+    TEST_F(VegetationComponentOperationTests, MeshBlockerComponent_PositiveScaleRaysThroughTheAuthoredLocalSpace)
+    {
+        // Create a mock mesh blocker at (0, 0, 0) that extends from (-1, -1, -1) to (1, 1, 1), drawn with the scale of one
+        auto mockAsset = CreateMockMeshAsset();
+        auto entity = CreateMockMeshEntity(mockAsset, AZ::Vector3::CreateZero(),
+            AZ::Vector3(-1.0f), AZ::Vector3(1.0f), 0.0f, 1.0f);
+
+        const int numPointsBlocked = 1;
+        TestMeshBlockerPoint(entity, AZ::Vector3(0.5f, 0.25f, 0.0f), numPointsBlocked);
+
+        // The ray starts above the point, and the local space of the mesh is the world space
+        EXPECT_NEAR(MockMeshAsset::s_lastRayStartLocal.GetX(), 0.5f, 1e-4f);
+        EXPECT_NEAR(MockMeshAsset::s_lastRayStartLocal.GetY(), 0.25f, 1e-4f);
+
+        // Have to destroy the entity here before we destroy the mock mesh asset
+        DestroyEntity(entity.release());
+
+        DestroyMockMeshAsset(mockAsset);
+    }
+
+    TEST_F(VegetationComponentOperationTests, MeshBlockerComponent_FlippedScaleRaysThroughTheMirroredLocalSpace)
+    {
+        // Create a mock mesh blocker at (0, 0, 0) that extends from (-1, -1, -1) to (1, 1, 1)
+        auto mockAsset = CreateMockMeshAsset();
+        auto entity = CreateMockMeshEntity(mockAsset, AZ::Vector3::CreateZero(),
+            AZ::Vector3(-1.0f), AZ::Vector3(1.0f), 0.0f, 1.0f);
+
+        // The mesh is drawn mirrored in X. The mesh component answers with the signed scale, and the blocker keeps it, because the
+        // positive non-uniform scale it reads first cannot carry the sign.
+        m_mockMeshRequestBus.m_GetRenderScaleOutput = AZ::Vector3(-1.0f, 1.0f, 1.0f);
+
+        const int numPointsBlocked = 1;
+        TestMeshBlockerPoint(entity, AZ::Vector3(0.5f, 0.25f, 0.0f), numPointsBlocked);
+
+        // The ray is tested against the authored mesh in its mirrored local space, so the x of its start flips and the y stays
+        EXPECT_NEAR(MockMeshAsset::s_lastRayStartLocal.GetX(), -0.5f, 1e-4f);
+        EXPECT_NEAR(MockMeshAsset::s_lastRayStartLocal.GetY(), 0.25f, 1e-4f);
+
+        // Have to destroy the entity here before we destroy the mock mesh asset
+        DestroyEntity(entity.release());
+
+        DestroyMockMeshAsset(mockAsset);
+    }
+
+    TEST_F(VegetationComponentOperationTests, MeshBlockerComponent_ReadsTheRenderScaleAgainWhenTheMeshAnnouncesIt)
+    {
+        // Create a mock mesh blocker at (0, 0, 0) that extends from (-1, -1, -1) to (1, 1, 1), drawn with the scale of one
+        auto mockAsset = CreateMockMeshAsset();
+        auto entity = CreateMockMeshEntity(mockAsset, AZ::Vector3::CreateZero(),
+            AZ::Vector3(-1.0f), AZ::Vector3(1.0f), 0.0f, 1.0f);
+
+        {
+            // Putting this into scope so that the AreaBus disconnects before we do any destruction of entities/assets at the end
+            AreaBusScope scope(*this, *entity.get());
+
+            Vegetation::AreaNotificationBus::Event(entity->GetId(), &Vegetation::AreaNotificationBus::Events::OnAreaConnect);
+
+            bool prepared = false;
+            Vegetation::EntityIdStack idStack;
+            Vegetation::AreaRequestBus::EventResult(prepared, entity->GetId(), &Vegetation::AreaRequestBus::Events::PrepareToClaim, idStack);
+            EXPECT_TRUE(prepared);
+
+            // The mesh is not flipped, so the ray goes through the local space of the mesh as it is
+            const AZ::Vector3 claimPosition(0.5f, 0.25f, 0.0f);
+            Vegetation::ClaimContext context = CreateContext<1>({ claimPosition });
+            Vegetation::AreaRequestBus::Event(entity->GetId(), &Vegetation::AreaRequestBus::Events::ClaimPositions, idStack, context);
+            EXPECT_EQ(1, m_createdCallbackCount);
+            EXPECT_NEAR(MockMeshAsset::s_lastRayStartLocal.GetX(), 0.5f, 1e-4f);
+
+            // Transform 2 flips the mesh. No transform event and no non-uniform scale event says so, only this notification does.
+            // The blocker refreshes on the next tick. The point and so its claim handle is the same, so a result that was
+            // cached before the refresh would be answered without a new ray, and the start of the last ray would not move.
+            m_mockMeshRequestBus.m_GetRenderScaleOutput = AZ::Vector3(-1.0f, 1.0f, 1.0f);
+            AZ::Render::MeshComponentNotificationBus::Event(
+                entity->GetId(), &AZ::Render::MeshComponentNotificationBus::Events::OnRenderScaleChanged);
+            AZ::TickBus::Broadcast(&AZ::TickBus::Events::OnTick, 0.f, AZ::ScriptTimePoint{});
+
+            Vegetation::ClaimContext flippedContext = CreateContext<1>({ claimPosition });
+            Vegetation::AreaRequestBus::Event(entity->GetId(), &Vegetation::AreaRequestBus::Events::ClaimPositions, idStack, flippedContext);
+            EXPECT_NEAR(MockMeshAsset::s_lastRayStartLocal.GetX(), -0.5f, 1e-4f);
+
+            Vegetation::AreaNotificationBus::Event(entity->GetId(), &Vegetation::AreaNotificationBus::Events::OnAreaDisconnect);
+        }
+
+        // Have to destroy the entity here before we destroy the mock mesh asset
+        DestroyEntity(entity.release());
+
+        DestroyMockMeshAsset(mockAsset);
+    }
+
 #if AZ_TRAIT_DISABLE_FAILED_VEGETATION_TESTS
     TEST_F(VegetationComponentOperationTests, DISABLED_LY96068_MeshBlockerHandlesChangedClaimPoints)
 #else

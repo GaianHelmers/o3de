@@ -414,4 +414,51 @@ namespace PhysXEditorTests
         EXPECT_THAT(debugDrawAabb.GetMin(), UnitTest::IsCloseTolerance(AZ::Vector3(1.9f, -13.8f, -10.5f), 0.1f));
         EXPECT_THAT(debugDrawAabb.GetMax(), UnitTest::IsCloseTolerance(AZ::Vector3(11.3f, 0.8f, 3.9f), 0.1f));
     }
+
+    // A flip of the transform mirrors the collider offset, so the wireframe of a box offset to +X draws at -X.
+    TEST_F(PhysXEditorFixture, BoxCollider_FlippedTransform_DebugDrawMirrorsOffset)
+    {
+        EntityPtr boxEntity = CreateInactiveEditorEntity("Box");
+
+        Physics::ColliderConfiguration colliderConfig;
+        colliderConfig.m_position = AZ::Vector3(1.0f, 0.0f, 0.0f);
+        Physics::BoxShapeConfiguration boxShapeConfig(AZ::Vector3(1.0f, 1.0f, 1.0f));
+        boxEntity->CreateComponent<PhysX::EditorColliderComponent>(colliderConfig, boxShapeConfig);
+        boxEntity->CreateComponent<PhysX::EditorStaticRigidBodyComponent>();
+        boxEntity->Activate();
+
+        const AZ::EntityId boxId = boxEntity->GetId();
+        const AZ::Aabb unflippedAabb = GetDebugDrawAabb(boxId);
+        EXPECT_THAT(unflippedAabb.GetMin(), UnitTest::IsCloseTolerance(AZ::Vector3(0.5f, -0.5f, -0.5f), 1e-3f));
+        EXPECT_THAT(unflippedAabb.GetMax(), UnitTest::IsCloseTolerance(AZ::Vector3(1.5f, 0.5f, 0.5f), 1e-3f));
+
+        SetEditorTransformScale(boxEntity.get(), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+
+        const AZ::Aabb flippedAabb = GetDebugDrawAabb(boxId);
+        EXPECT_THAT(flippedAabb.GetMin(), UnitTest::IsCloseTolerance(AZ::Vector3(-1.5f, -0.5f, -0.5f), 1e-3f));
+        EXPECT_THAT(flippedAabb.GetMax(), UnitTest::IsCloseTolerance(AZ::Vector3(-0.5f, 0.5f, 0.5f), 1e-3f));
+    }
+
+    // The same for the convex mesh a primitive becomes under a non-uniform scale, which carries the sign in its scale.
+    TEST_F(PhysXEditorFixture, BoxCollider_FlippedNonUniformTransform_DebugDrawMirrorsOffset)
+    {
+        EntityPtr boxEntity = CreateInactiveEditorEntity("Box");
+
+        Physics::ColliderConfiguration colliderConfig;
+        colliderConfig.m_position = AZ::Vector3(1.0f, 0.0f, 0.0f);
+        Physics::BoxShapeConfiguration boxShapeConfig(AZ::Vector3(1.0f, 1.0f, 1.0f));
+        boxEntity->CreateComponent<PhysX::EditorColliderComponent>(colliderConfig, boxShapeConfig);
+        boxEntity->CreateComponent<PhysX::EditorStaticRigidBodyComponent>();
+        boxEntity->Activate();
+
+        // The collider learns that the scale is non-uniform when the entity re-activates, as it does on the next tick.
+        SetEditorTransformScale(boxEntity.get(), AZ::Vector3(-2.0f, 1.0f, 1.0f));
+        boxEntity->Deactivate();
+        boxEntity->Activate();
+
+        // The box covers X from 0.5 to 1.5 before the scale. Twice that, flipped, is -3 to -1, and Y and Z keep their size.
+        const AZ::Aabb flippedAabb = GetDebugDrawAabb(boxEntity->GetId());
+        EXPECT_THAT(flippedAabb.GetMin(), UnitTest::IsCloseTolerance(AZ::Vector3(-3.0f, -0.5f, -0.5f), 1e-3f));
+        EXPECT_THAT(flippedAabb.GetMax(), UnitTest::IsCloseTolerance(AZ::Vector3(-1.0f, 0.5f, 0.5f), 1e-3f));
+    }
 } // namespace PhysXEditorTests

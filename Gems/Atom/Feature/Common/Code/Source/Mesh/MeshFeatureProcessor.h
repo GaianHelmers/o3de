@@ -136,6 +136,8 @@ namespace AZ
             void SetRayTracingData(MeshFeatureProcessor* meshFeatureProcessor);
             void RemoveRayTracingData(RayTracingFeatureProcessor* rayTracingFeatureProcessor);
             void SetSortKey(MeshFeatureProcessor* meshFeatureProcessor, RHI::DrawItemSortKey sortKey);
+            void SetMirrored(MeshFeatureProcessor* meshFeatureProcessor, bool mirrored);
+            void SetExactWorld(MeshFeatureProcessor* meshFeatureProcessor, const Matrix3x4& objectToWorld, bool active);
             void SetDeferredMaterialData(MeshFeatureProcessor* meshFeatureProcessor);
             void RemoveDeferredMaterialData(MeshFeatureProcessor* meshFeatureProcessor);
             RHI::DrawItemSortKey GetSortKey() const;
@@ -145,6 +147,7 @@ namespace AZ
             void UpdateDrawPackets(bool forceUpdate = false);
             void BuildCullable();
             void UpdateCullBounds(const MeshFeatureProcessor* meshFeatureProcessor);
+            void UpdateExactCullBounds(const TransformServiceFeatureProcessor* transformService);
             void UpdateObjectSrg(MeshFeatureProcessor* meshFeatureProcessor);
             bool MaterialRequiresForwardPassIblSpecular(Data::Instance<RPI::Material> material) const;
             void SetVisible(bool isVisible);
@@ -207,7 +210,11 @@ namespace AZ
                 bool m_needsSetRayTracingData : 1;
                 bool m_hasRayTracingReflectionProbe : 1;
                 bool m_keepBufferAssetsInMemory : 1;            // If true, we need to keep BufferAssets referenced by ModelAsset stay in memory. This is needed when editor use RayIntersection
+                bool m_mirrored : 1;                            // True if the transform reverses handedness (see SetMirrored). Only a Transform 2 entity sets it.
+                bool m_exactWorld : 1;                          // True if the culling bounds and the reflection probe lookup read the exact matrix of the transform service (see SetExactWorld). Set for a mirrored or sheared mesh, only by Transform 2.
             } m_flags;
+            // The Transform 2 bits fit the two bytes the flags had. A 17th bit, or a member that is not a bit, makes every mesh bigger.
+            static_assert(sizeof(Flags) == 2, "ModelDataInstance::Flags grew: a new flag has to fit in the two bytes it had, or Transform 1 meshes pay for it");
         }; //class ModelDataInstance
 
         //! This feature processor handles static and dynamic non-skinned meshes.
@@ -266,6 +273,10 @@ namespace AZ
                 const AZ::Vector3& nonUniformScale = AZ::Vector3::CreateOne()) override;
             Transform GetTransform(const MeshHandle& meshHandle) override;
             Vector3 GetNonUniformScale(const MeshHandle& meshHandle) override;
+            void SetMirrored(const MeshHandle& meshHandle, bool mirrored) override;
+            bool IsMirrored(const MeshHandle& meshHandle) const override;
+            void SetExactWorld(const MeshHandle& meshHandle, const Matrix3x4& objectToWorld, bool active) override;
+            void ResetTransformHistory(const MeshHandle& meshHandle) override;
 
             void SetLocalAabb(const MeshHandle& meshHandle, const AZ::Aabb& localAabb) override;
             AZ::Aabb GetLocalAabb(const MeshHandle& meshHandle) const override;

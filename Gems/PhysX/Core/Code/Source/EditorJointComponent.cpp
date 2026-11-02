@@ -19,6 +19,7 @@
 #include <Editor/Source/ComponentModes/Joints/JointsComponentModeCommon.h>
 #include <Source/EditorJointComponent.h>
 #include <Source/EditorRigidBodyComponent.h>
+#include <Source/Transform2ColliderSupport.h>
 #include <Source/Utils.h>
 #include <System/PhysXSystem.h>
 
@@ -89,9 +90,40 @@ namespace PhysX
             m_config.m_localPosition = newLocalJoint.GetTranslation();
             m_config.m_localRotation = newLocalJoint.GetEulerDegrees();
 
+            // Transform 2: the frame read above is the one a flipped follower draws, so newLocalJoint is a drawn frame too. The two
+            // lines above stored it as it is. Store it again as the authored frame. For a follower that is not flipped it is the same.
+            SetFlippedFrame(GetFlipSigns(), newLocalJoint);
+
             InvalidatePropertyDisplay(AzToolsFramework::Refresh_Values);
         }
         m_cachedWorldTM = worldTM;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip: the frame as drawn
+
+    AZ::Vector3 EditorJointComponent::GetFlipSigns() const
+    {
+        // An editor path: one Transform 2 request per call. Only a Transform 2 entity has a handler.
+        return Transform2Mirror::GetEntitySigns(m_config.m_followerEntity);
+    }
+
+    AZ::Transform EditorJointComponent::GetAuthoredFrame() const
+    {
+        return AZ::Transform::CreateFromQuaternionAndTranslation(AZ::Quaternion::CreateFromEulerAnglesDegrees(m_config.m_localRotation),
+            m_config.m_localPosition);
+    }
+
+    AZ::Transform EditorJointComponent::GetFlippedFrame(const AZ::Vector3& signs, const AZ::Transform& authored) const
+    {
+        return Transform2Mirror::MirrorJointFrame(signs, authored, ReversesMotionAxis(signs));
+    }
+
+    void EditorJointComponent::SetFlippedFrame(const AZ::Vector3& signs, const AZ::Transform& flipped)
+    {
+        const AZ::Transform authored = Transform2Mirror::UnmirrorJointFrame(signs, flipped, ReversesMotionAxis(signs));
+        m_config.m_localPosition = authored.GetTranslation();
+        m_config.m_localRotation = authored.GetEulerDegrees();
     }
 
     AZ::Aabb EditorJointComponent::GetEditorSelectionBoundsViewport(
@@ -203,6 +235,13 @@ namespace PhysX
     {
         if (parameterName == JointsComponentModeCommon::ParameterNames::Transform)
         {
+            // Transform 2: the frame as a flipped follower draws it. A follower that is not flipped reads the configuration as it is.
+            const AZ::Vector3 signs = GetFlipSigns();
+            if (Transform2Mirror::GetSignMask(signs) != 0)
+            {
+                return GetFlippedFrame(signs, GetAuthoredFrame());
+            }
+
             return AZ::Transform::CreateFromQuaternionAndTranslation(AZ::Quaternion::CreateFromEulerAnglesDegrees(m_config.m_localRotation),
                 m_config.m_localPosition);
         }
@@ -212,6 +251,21 @@ namespace PhysX
 
     AZ::Vector3 EditorJointComponent::GetVector3Value(const AZStd::string& parameterName)
     {
+        // Transform 2: the frame as a flipped follower draws it. A follower that is not flipped reads the configuration as it is.
+        const AZ::Vector3 signs = GetFlipSigns();
+        if (Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            const AZ::Transform flipped = GetFlippedFrame(signs, GetAuthoredFrame());
+            if (parameterName == JointsComponentModeCommon::ParameterNames::Position)
+            {
+                return flipped.GetTranslation();
+            }
+            if (parameterName == JointsComponentModeCommon::ParameterNames::Rotation)
+            {
+                return flipped.GetEulerDegrees();
+            }
+        }
+
         if (parameterName == JointsComponentModeCommon::ParameterNames::Position)
         {
             return m_config.m_localPosition;
@@ -258,6 +312,28 @@ namespace PhysX
 
     void EditorJointComponent::SetVector3Value(const AZStd::string& parameterName, const AZ::Vector3& value)
     {
+        // Transform 2: a manipulator writes the frame as it is drawn, and the configuration stores the authored frame. Mirroring is
+        // an involution, so writing back what was read stores what was there. A follower that is not flipped stores the value as it is.
+        const AZ::Vector3 signs = GetFlipSigns();
+        if (Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            if (parameterName == JointsComponentModeCommon::ParameterNames::Position)
+            {
+                m_config.m_localPosition = Transform2Mirror::MirrorPosition(signs, value);
+                return;
+            }
+            if (parameterName == JointsComponentModeCommon::ParameterNames::Rotation)
+            {
+                // The same rotation has more than one Euler form, so a value that is what was read leaves the stored form alone.
+                if (value != GetVector3Value(parameterName))
+                {
+                    const AZ::Transform flipped = AZ::Transform::CreateFromQuaternion(AZ::Quaternion::CreateFromEulerAnglesDegrees(value));
+                    m_config.m_localRotation = Transform2Mirror::UnmirrorJointFrame(signs, flipped, ReversesMotionAxis(signs)).GetEulerDegrees();
+                }
+                return;
+            }
+        }
+
         if (parameterName == JointsComponentModeCommon::ParameterNames::Position)
         {
             m_config.m_localPosition = value;
@@ -309,7 +385,9 @@ namespace PhysX
 
             const AZ::Transform jointLocalTransform = AZ::Transform::CreateFromQuaternionAndTranslation(AZ::Quaternion::CreateFromEulerAnglesDegrees(m_config.m_localRotation),
                 m_config.m_localPosition);
-            const AZ::Vector3 jointWorldPosition = PhysX::Utils::ComputeJointWorldTransform(jointLocalTransform, followerWorldTransform).GetTranslation();
+            // Transform 2: the lines run from the joint where a flipped follower holds it.
+            const AZ::Transform flippedJointTransform = GetFlippedFrame(GetFlipSigns(), jointLocalTransform);
+            const AZ::Vector3 jointWorldPosition = PhysX::Utils::ComputeJointWorldTransform(flippedJointTransform, followerWorldTransform).GetTranslation();
 
             const float distance = followerWorldPosition.GetDistance(jointWorldPosition);
 

@@ -12,6 +12,7 @@
 
 #include <AzCore/Math/VertexContainer.h>
 #include <AzCore/Math/VertexContainerInterface.h>
+#include <AzCore/std/optional.h>
 #include <AzFramework/Entity/EntityDebugDisplayBus.h>
 #include <AzToolsFramework/Manipulators/EditorVertexSelectionBus.h>
 #include <AzToolsFramework/Manipulators/HoverSelection.h>
@@ -296,6 +297,8 @@ namespace AzToolsFramework
         AZStd::function<void()> m_onVertexPositionsUpdated = nullptr; //!< Callback for when vertex positions are changed.
         State m_state = State::Selecting; //!< Different states VertexSelection can be in.
         bool m_worldSpace = false; //!< Are the manipulators being used in local or world space.
+        AZStd::optional<AZ::Vector3> m_refreshedNonUniformScale; //!< The non-uniform scale last given to RefreshSpace. A translation manipulator
+                                                                 //!< made later (a vertex clicked) takes it, as the scale of the entity may differ.
         bool m_batchMovementInProgress = false; //!< If a batch movement operation is in progress we do not want to
                                                 //!< refresh the VertexSelection during it for performance reasons.
     };

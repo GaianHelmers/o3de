@@ -199,7 +199,17 @@ bool UiCanvasOnMeshComponent::CalculateUVFromRayIntersection(const AzFramework::
     AZ::Vector3 nonUniformScale = AZ::Vector3::CreateOne();
     AZ::NonUniformScaleRequestBus::EventResult(nonUniformScale, GetEntityId(), &AZ::NonUniformScaleRequests::GetScale);
 
-    const AZ::Vector3 clampedNonUniformScale = nonUniformScale.GetMax(AZ::Vector3(AZ::MinTransformScale));
+    // The mesh answers with the scale it is drawn with, which keeps the sign of a flipped axis that the scale above cannot carry.
+    // With no mesh handler the scale above stays as it is. The ray goes through the flipped local space of the mesh, and the
+    // triangle it hits gives the uv that is drawn there, so the canvas reads as a mirror image on a mirrored mesh.
+    AZ::Render::MeshComponentRequestBus::EventResult(
+        nonUniformScale, GetEntityId(), &AZ::Render::MeshComponentRequestBus::Events::GetRenderScale);
+
+    // Clamp the magnitude of each axis and keep its sign, zero counting as positive, as Model::RayIntersection does. A negative
+    // axis is a flip, and clamping it to a small positive scale would test the ray against the side the mesh is not drawn on.
+    const AZ::Vector3 clampedMagnitude = nonUniformScale.GetAbs().GetMax(AZ::Vector3(AZ::MinTransformScale));
+    const AZ::Vector3 clampedNonUniformScale =
+        AZ::Vector3::CreateSelectCmpGreaterEqual(nonUniformScale, AZ::Vector3::CreateZero(), clampedMagnitude, -clampedMagnitude);
     AZ::Vector3 rayOrigin = meshWorldTMInverse.TransformPoint(rayRequest.m_startWorldPosition) / clampedNonUniformScale;
     AZ::Vector3 rayEnd = meshWorldTMInverse.TransformPoint(rayRequest.m_endWorldPosition) / clampedNonUniformScale;
     AZ::Vector3 rayDirection = rayEnd - rayOrigin;

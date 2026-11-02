@@ -65,6 +65,9 @@ namespace LmbrCentral
         CapsuleShapeComponentRequestsBus::Handler::BusDisconnect();
         ShapeComponentRequestsBus::Handler::BusDisconnect();
         AZ::TransformNotificationBus::Handler::BusDisconnect();
+
+        // A re-activated shape starts as authored. The Transform 2 shape support pushes the flip again.
+        m_intersectionDataCache.ResetFlipMask();
     }
 
     void CapsuleShape::InvalidateCache(InvalidateShapeCacheReason reason)
@@ -147,7 +150,8 @@ namespace LmbrCentral
         float halfHeight = AZ::GetMax(m_capsuleShapeConfig.m_height * 0.5f, m_capsuleShapeConfig.m_radius);
         const AZ::Vector3 extent(m_capsuleShapeConfig.m_radius, m_capsuleShapeConfig.m_radius, halfHeight);
         bounds = AZ::Aabb::CreateFromMinMax(
-            m_capsuleShapeConfig.m_translationOffset - extent, m_capsuleShapeConfig.m_translationOffset + extent);
+            m_intersectionDataCache.Flip(m_capsuleShapeConfig.m_translationOffset) - extent,
+            m_intersectionDataCache.Flip(m_capsuleShapeConfig.m_translationOffset) + extent);
         transform = m_currentTransform;
     }
 
@@ -241,13 +245,59 @@ namespace LmbrCentral
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+    //
+    // The axis of a capsule is its local Z. A flip of Z swaps the names of the base and the top, and the two end points are
+    // the same set, so they are left as they are.
+
+    void CapsuleShape::SetFlipMask(AZ::u8 flipMask)
+    {
+        bool shapeChanged = false;
+        {
+            AZStd::unique_lock lock(m_mutex);
+            const AZ::Vector3 offsetBefore = m_intersectionDataCache.Flip(m_capsuleShapeConfig.m_translationOffset);
+            m_intersectionDataCache.SetFlipMask(flipMask);
+            const AZ::Vector3 offsetAfter = m_intersectionDataCache.Flip(m_capsuleShapeConfig.m_translationOffset);
+
+            // Only a capsule that moved tells anyone: a flip across an axis with no offset leaves the drawn capsule where it was.
+            shapeChanged = !offsetBefore.IsClose(offsetAfter);
+        }
+
+        if (shapeChanged)
+        {
+            ShapeComponentNotificationsBus::Event(
+                m_entityId, &ShapeComponentNotificationsBus::Events::OnShapeChanged,
+                ShapeComponentNotifications::ShapeChangeReasons::ShapeChanged);
+        }
+    }
+
+    AZ::Vector3 CapsuleShape::GetFlipSigns() const
+    {
+        return m_intersectionDataCache.GetFlipSigns();
+    }
+
+    AZ::Vector3 CapsuleShape::GetEffectiveTranslationOffset() const
+    {
+        return m_intersectionDataCache.Flip(m_capsuleShapeConfig.m_translationOffset);
+    }
+
+    void CapsuleShape::GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
+    {
+        const float halfHeight = AZ::GetMax(m_capsuleShapeConfig.m_height * 0.5f, m_capsuleShapeConfig.m_radius);
+        const AZ::Vector3 extent(m_capsuleShapeConfig.m_radius, m_capsuleShapeConfig.m_radius, halfHeight);
+        bounds = AZ::Aabb::CreateFromMinMax(
+            m_capsuleShapeConfig.m_translationOffset - extent, m_capsuleShapeConfig.m_translationOffset + extent);
+        transform = m_currentTransform;
+    }
+
     void CapsuleShape::CapsuleIntersectionDataCache::UpdateIntersectionParamsImpl(
         const AZ::Transform& currentTransform, const CapsuleShapeConfig& configuration,
         [[maybe_unused]] const AZ::Vector3& currentNonUniformScale)
     {
         const float entityScale = currentTransform.GetUniformScale();
         m_axisVector = currentTransform.GetBasisZ().GetNormalizedSafe() * entityScale;
-        const AZ::Vector3 offsetPosition = currentTransform.TransformPoint(configuration.m_translationOffset);
+        const AZ::Vector3 offsetPosition = currentTransform.TransformPoint(Flip(configuration.m_translationOffset));
 
         const float internalCylinderHeight = configuration.m_height - configuration.m_radius * 2.0f;
         if (internalCylinderHeight > std::numeric_limits<float>::epsilon())

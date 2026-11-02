@@ -99,7 +99,7 @@ namespace AZ::Render
     Aabb CapsuleLightDelegate::GetLocalVisualizationBounds() const
     {
         const auto [radius, height] = CalculateCapsuleVisualizationDimensions();
-        const AZ::Vector3 translationOffset = m_shapeBus ? m_shapeBus->GetTranslationOffset() : AZ::Vector3::CreateZero();
+        const AZ::Vector3 translationOffset = m_shapeBus ? m_shapeBus->GetEffectiveTranslationOffset() : AZ::Vector3::CreateZero();
         return Aabb::CreateFromMinMax(
             AZ::Vector3(-radius, -radius, AZ::GetMin(-radius, -height * 0.5f)) + translationOffset,
             AZ::Vector3(radius, radius, AZ::GetMax(radius, height * 0.5f)) + translationOffset);

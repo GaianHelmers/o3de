@@ -1330,6 +1330,17 @@ namespace AZ
             desc.MultisampleEnable = raster.m_multisampleEnable;
             desc.ConservativeRaster = raster.m_conservativeRasterEnable ? D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
             desc.ForcedSampleCount = raster.m_forcedSampleCount;
+
+            //////////////////////////////////////////////////////////////////////////
+            // Transform 2: front face winding
+            //
+            // A mirrored draw winds clockwise. The winding rides in bit 31 of m_multisampleEnable, which the MultisampleEnable
+            // line above copied raw, so the bit is masked off here to hand D3D12 the authored 0 or 1.
+            if (raster.IsFrontFaceClockwise())
+            {
+                desc.FrontCounterClockwise = false;
+                desc.MultisampleEnable = raster.m_multisampleEnable & ~RHI::RasterState::FrontFaceClockwiseBit;
+            }
             return desc;
         }
 

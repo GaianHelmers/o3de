@@ -8,6 +8,8 @@
 #pragma once
 
 #include <AzCore/Component/Component.h>
+#include <AzCore/std/smart_ptr/unique_ptr.h>
+#include <Mesh/Transform2MeshSupport.h>
 
 namespace AZ
 {
@@ -34,6 +36,9 @@ namespace AZ
             void Deactivate() override;
             ////////////////////////////////////////////////////////////////////////
 
+        private:
+            //! Gives the meshes of Transform 2 entities the sign of their scale, in the editor and in game
+            AZStd::unique_ptr<Transform2MeshSupport> m_transform2MeshSupport;
         };
     } // namespace Render
 } // namespace AZ

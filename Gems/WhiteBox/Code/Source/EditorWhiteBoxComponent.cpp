@@ -24,6 +24,7 @@
 #include <AzCore/std/containers/unordered_set.h>
 #include <AzCore/std/sort.h>
 #include <cmath>
+#include <AzCore/Component/Transform2Bus.h>
 #include <AzCore/Component/TransformBus.h>
 #include <AzCore/Console/Console.h>
 #include <AzCore/Math/IntersectSegment.h>
@@ -1414,6 +1415,46 @@ namespace WhiteBox
             AZStd::cbegin(vertexHandles), AZStd::cend(vertexHandles), AZ::Aabb::CreateNull(), transformFn);
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2: a flipped White Box is drawn mirrored
+    //
+    // The mesh listener draws the mesh of a flipped entity mirrored about the entity, while the mesh data stays as it was authored.
+    // So the bounds and the pick, which read the authored mesh, are mirrored the same way. In the local space of the entity the
+    // mirror is the signs of the scale, applied per axis, and a mirror keeps distances, so a hit needs no mapping back.
+    // The signs come from a Transform2RequestBus lookup on every bounds or pick query. That is an editor only path, which can
+    // afford it, and a Transform 1 entity has no handler and answers with all positive signs. Nothing is cached, because a pure
+    // flip fires no transform event that could drop a cache. The PhysX gem has the same mirror in Transform2Mirror, which is
+    // private to it, so the White Box keeps this small copy.
+    // Limit: the component mode, the handles and the debug draw read the authored mesh, and stay on the authored side.
+
+    //! The signs of the Transform 2 world scale of an entity: -1 on every negative axis, +1 elsewhere. Zero is not a flip.
+    //! The world scale carries the flips of the parents, so a White Box on a child of a flipped entity is mirrored too.
+    static AZ::Vector3 GetFlipSigns(AZ::EntityId entityId)
+    {
+        AZ::Vector3 scale = AZ::Vector3::CreateOne();
+        AZ::Transform2RequestBus::EventResult(scale, entityId, &AZ::Transform2Requests::GetWorldScale);
+        return AZ::Vector3(
+            scale.GetX() < 0.0f ? -1.0f : 1.0f, scale.GetY() < 0.0f ? -1.0f : 1.0f, scale.GetZ() < 0.0f ? -1.0f : 1.0f);
+    }
+
+    static bool IsFlipped(const AZ::Vector3& signs)
+    {
+        return signs.GetX() < 0.0f || signs.GetY() < 0.0f || signs.GetZ() < 0.0f;
+    }
+
+    //! The box of a box mirrored through the origin by the signs. A null box stays null.
+    static AZ::Aabb MirrorAabb(const AZ::Aabb& aabb, const AZ::Vector3& signs)
+    {
+        if (!aabb.IsValid())
+        {
+            return aabb;
+        }
+
+        const AZ::Vector3 mirroredMin = aabb.GetMin() * signs;
+        const AZ::Vector3 mirroredMax = aabb.GetMax() * signs;
+        return AZ::Aabb::CreateFromMinMax(mirroredMin.GetMin(mirroredMax), mirroredMin.GetMax(mirroredMax));
+    }
+
     AZ::Aabb EditorWhiteBoxComponent::GetEditorSelectionBoundsViewport(
         [[maybe_unused]] const AzFramework::ViewportInfo& viewportInfo)
     {
@@ -1423,6 +1464,14 @@ namespace WhiteBox
     AZ::Aabb EditorWhiteBoxComponent::GetWorldBounds() const
     {
         AZ_PROFILE_FUNCTION(AzToolsFramework);
+
+        // A flipped entity answers with the drawn side and keeps the cache for the authored side. GetLocalBounds is mirrored.
+        if (IsFlipped(GetFlipSigns(GetEntityId())))
+        {
+            AZ::Aabb flippedBounds = GetLocalBounds();
+            flippedBounds.ApplyTransform(m_worldFromLocal);
+            return flippedBounds;
+        }
 
         if (!m_worldAabb.has_value())
         {
@@ -1448,6 +1497,12 @@ namespace WhiteBox
                     aabb.AddPoint(Api::VertexPosition(whiteBox, vertexHandle));
                     return aabb;
                 });
+        }
+
+        // The cache holds the authored side. A flipped entity answers with the drawn side.
+        if (const AZ::Vector3 signs = GetFlipSigns(GetEntityId()); IsFlipped(signs))
+        {
+            return MirrorAabb(m_localAabb.value(), signs);
         }
 
         return m_localAabb.value();
@@ -1500,8 +1555,12 @@ namespace WhiteBox
         const AZ::Vector3 localRayDirection = localFromWorld.TransformVector(dir);
         const AZ::Vector3 localRayEnd = localRayOrigin + localRayDirection * rayLength;
 
+        // A flipped entity is drawn mirrored, so the segment is mirrored onto the authored mesh. The mirror is linear and keeps
+        // distances, so the hit distance stays the distance along the ray that came in.
+        const AZ::Vector3 signs = GetFlipSigns(GetEntityId());
+
         bool intersection = false;
-        AZ::Intersect::SegmentTriangleHitTester hitTester(localRayOrigin, localRayEnd);
+        AZ::Intersect::SegmentTriangleHitTester hitTester(localRayOrigin * signs, localRayEnd * signs);
         for (const auto& face : m_faces.value())
         {
             float t;

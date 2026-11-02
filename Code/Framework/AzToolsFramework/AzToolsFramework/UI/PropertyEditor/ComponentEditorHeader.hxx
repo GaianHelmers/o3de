@@ -10,6 +10,7 @@
 #include <AzToolsFramework/AzToolsFrameworkAPI.h>
 
 #include <QFrame>
+#include <AzCore/Math/Crc.h>
 #include <AzCore/std/string/string.h>
 
 #include <AzQtComponents/Components/Widgets/CardHeader.h>
@@ -21,6 +22,13 @@ class QVBoxLayout;
 
 namespace AzToolsFramework
 {
+    /// Edit context attributes a component reflects on its EditorData element to show a tag in its header.
+    namespace ComponentHeaderAttributes
+    {
+        inline constexpr AZ::Crc32 Tag = AZ_CRC_CE("ComponentHeaderTag"); ///< Text of the tag. Empty hides it.
+        inline constexpr AZ::Crc32 TagToolTip = AZ_CRC_CE("ComponentHeaderTagToolTip"); ///< What the tag means.
+    }
+
     /**
      * Header bar for component editor info and indicators.
      * The widgets are hidden by default and will show once they're configured
@@ -77,6 +85,9 @@ namespace AzToolsFramework
 
         void SetFilterString(const AZStd::string& str);
         bool TitleMatchesFilter() const;
+
+        /// Set a short tag shown in the top corner of the header. Passing an empty string hides it.
+        void SetTag(const QString& tag, const QString& toolTip);
     Q_SIGNALS:
         void OnContextMenuClicked(const QPoint& position);
         void OnExpanderChanged(bool expanded);
@@ -96,6 +107,7 @@ namespace AzToolsFramework
         QLabel* m_warningLabel = nullptr;
         QPushButton* m_contextMenuButton = nullptr;
         QPushButton* m_helpButton = nullptr;
+        QLabel* m_tagLabel = nullptr;
         QString m_title;
         QString m_currentFilterString;
         bool m_warning = false;

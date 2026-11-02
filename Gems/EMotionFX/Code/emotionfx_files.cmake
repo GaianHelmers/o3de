@@ -13,4 +13,6 @@ set(FILES
     Source/Integration/System/SystemComponent.h
     Source/Integration/System/PipelineComponent.cpp
     Source/Integration/System/PipelineComponent.h
+    Source/Integration/System/Transform2ActorSupport.cpp
+    Source/Integration/System/Transform2ActorSupport.h
 )

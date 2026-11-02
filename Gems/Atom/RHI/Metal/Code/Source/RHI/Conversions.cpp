@@ -1013,6 +1013,14 @@ namespace AZ
         {
             //todo::need support for MTLWindingClockwise
             rasterizerState.m_frontFaceWinding = MTLWindingCounterClockwise;
+            //////////////////////////////////////////////////////////////////////////
+            // Transform 2: front face winding
+            //
+            // A mirrored draw winds clockwise. UpdateHash below hashes the winding, so the two windings get two pipelines.
+            if (raster.IsFrontFaceClockwise())
+            {
+                rasterizerState.m_frontFaceWinding = MTLWindingClockwise;
+            }
             rasterizerState.m_cullMode = ConvertCullMode(raster.m_cullMode);
             rasterizerState.m_depthBias = raster.m_depthBias;
             rasterizerState.m_depthBiasClamp = raster.m_depthBiasClamp;

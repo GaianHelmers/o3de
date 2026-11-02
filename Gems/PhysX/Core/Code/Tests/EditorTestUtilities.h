@@ -33,6 +33,13 @@ namespace PhysXEditorTests
     //! Creates and activates a game entity from an editor entity.
     EntityPtr CreateActiveGameEntityFromEditorEntity(AZ::Entity* editorEntity);
 
+    //! Creates a game entity from an editor entity and leaves it inactive, so a test can read the components that
+    //! BuildGameEntity chose without running them.
+    EntityPtr CreateInactiveGameEntityFromEditorEntity(AZ::Entity* editorEntity);
+
+    //! Sets the authored scale of the editor transform of an active editor entity, the way the Scale row of the inspector does.
+    void SetEditorTransformScale(AZ::Entity* editorEntity, const AZ::Vector3& scale);
+
     enum class RigidBodyType : AZ::u8
     {
         Static,

@@ -39,6 +39,7 @@ namespace WhiteBox
 
     private:
         static void GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided);
+        static void GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType& dependent);
         static void GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required);
         static void GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType& incompatible);
 

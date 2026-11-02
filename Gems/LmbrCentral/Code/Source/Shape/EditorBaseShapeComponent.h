@@ -94,5 +94,9 @@ namespace LmbrCentral
 
         void OnShapeColorChanged();
         void OnDisplayFilledChanged();
+
+        /// The flip signs the component modes were last refreshed for. A flip raises no transform event, so a change of the signs is
+        /// what tells the handles to move. Editor only.
+        AZ::Vector3 m_lastFlipSigns = AZ::Vector3::CreateOne();
     };
 } // namespace LmbrCentral

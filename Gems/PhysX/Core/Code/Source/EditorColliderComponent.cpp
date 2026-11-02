@@ -11,6 +11,7 @@
 #include <AzFramework/Physics/Configuration/StaticRigidBodyConfiguration.h>
 #include <AzFramework/Translation/TranslationDef.h>
 
+#include <AzToolsFramework/ToolsComponents/TransformComponent.h>
 #include <AzToolsFramework/UI/PropertyEditor/PropertyEditorAPI.h>
 
 #include <Editor/ColliderComponentMode.h>
@@ -20,6 +21,7 @@
 #include <Source/CapsuleColliderComponent.h>
 #include <Source/SphereColliderComponent.h>
 #include <Source/EditorStaticRigidBodyComponent.h>
+#include <Source/Transform2ColliderSupport.h>
 #include <Source/Utils.h>
 #include <Source/EditorColliderComponent.h>
 
@@ -467,6 +469,11 @@ namespace PhysX
 
     void EditorColliderComponent::BuildGameEntity(AZ::Entity* gameEntity)
     {
+        // The saved flag is only refreshed at Activate, and this can run on an entity that was never activated, such as the
+        // data of a prefab, so the answer is read from the data of the entity.
+        m_hasNonUniformScale = AzToolsFramework::Components::TransformComponent::HasNonUniformScale(*GetEntity());
+        m_proxyShapeConfiguration.m_hasNonUniformScale = m_hasNonUniformScale;
+
         auto sharedColliderConfig = AZStd::make_shared<Physics::ColliderConfiguration>(m_configuration);
         BaseColliderComponent* colliderComponent = nullptr;
 
@@ -639,12 +646,15 @@ namespace PhysX
 
     void EditorColliderComponent::DisplayCylinderCollider(AzFramework::DebugDisplayRequests& debugDisplay) const
     {
+        // A flipped entity draws mirrored. The offset is baked into the cooked mesh, so the signs go into the scale.
+        const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId());
+
         const AZ::u32 shapeIndex = 0;
         m_colliderDebugDraw.DrawMesh(
             debugDisplay,
             GetColliderConfigurationNoOffset(),
             m_proxyShapeConfiguration.m_cylinder.m_configuration,
-            m_proxyShapeConfiguration.m_cylinder.m_configuration.m_scale,
+            m_proxyShapeConfiguration.m_cylinder.m_configuration.m_scale * signs,
             shapeIndex);
     }
 
@@ -652,27 +662,35 @@ namespace PhysX
     {
         if (m_scaledPrimitive.has_value())
         {
+            // A flipped entity draws mirrored. The offset is baked into the cooked mesh, so the signs go into the scale.
+            const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId());
+
             const AZ::u32 shapeIndex = 0;
             Physics::ColliderConfiguration colliderConfigNoOffset = m_configuration;
             colliderConfigNoOffset.m_rotation = AZ::Quaternion::CreateIdentity();
             colliderConfigNoOffset.m_position = AZ::Vector3::CreateZero();
             m_colliderDebugDraw.DrawMesh(debugDisplay, colliderConfigNoOffset, m_scaledPrimitive.value(),
-                GetWorldTM().GetUniformScale() * m_cachedNonUniformScale, shapeIndex);
+                GetWorldTM().GetUniformScale() * m_cachedNonUniformScale * signs, shapeIndex);
         }
     }
 
     void EditorColliderComponent::DisplayUnscaledPrimitiveCollider(AzFramework::DebugDisplayRequests& debugDisplay) const
     {
+        // A flipped entity draws with the offset and rotation of the collider mirrored. The primitives are symmetric.
+        const AZStd::optional<Physics::ColliderConfiguration> mirrored =
+            Transform2Mirror::MirrorConfiguration(Transform2Mirror::GetEntitySigns(GetEntityId()), m_configuration);
+        const Physics::ColliderConfiguration& colliderConfig = mirrored.has_value() ? mirrored.value() : m_configuration;
+
         switch (m_proxyShapeConfiguration.m_shapeType)
         {
         case Physics::ShapeType::Sphere:
-            m_colliderDebugDraw.DrawSphere(debugDisplay, m_configuration, m_proxyShapeConfiguration.m_sphere);
+            m_colliderDebugDraw.DrawSphere(debugDisplay, colliderConfig, m_proxyShapeConfiguration.m_sphere);
             break;
         case Physics::ShapeType::Box:
-            m_colliderDebugDraw.DrawBox(debugDisplay, m_configuration, m_proxyShapeConfiguration.m_box);
+            m_colliderDebugDraw.DrawBox(debugDisplay, colliderConfig, m_proxyShapeConfiguration.m_box);
             break;
         case Physics::ShapeType::Capsule:
-            m_colliderDebugDraw.DrawCapsule(debugDisplay, m_configuration, m_proxyShapeConfiguration.m_capsule);
+            m_colliderDebugDraw.DrawCapsule(debugDisplay, colliderConfig, m_proxyShapeConfiguration.m_capsule);
             break;
         }
     }
@@ -715,13 +733,27 @@ namespace PhysX
         SetBoxDimensions(dimensions);
     }
 
+    // The handles of the dimension modes sit on what the wireframe draws, so a flipped entity hands them the mirrored offset and
+    // rotation and takes the mirrored offset back. The editor collider bus keeps the stored values. Mirroring is its own
+    // inverse, so the round trip is exact. GetEntitySigns is a bus lookup, which the editor mode can afford.
     AZ::Vector3 EditorColliderComponent::GetTranslationOffset() const
     {
+        if (const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId()); Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            return Transform2Mirror::MirrorPosition(signs, m_configuration.m_position);
+        }
+
         return m_configuration.m_position;
     }
 
     void EditorColliderComponent::SetTranslationOffset(const AZ::Vector3& translationOffset)
     {
+        if (const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId()); Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            SetColliderOffset(Transform2Mirror::MirrorPosition(signs, translationOffset));
+            return;
+        }
+
         m_configuration.m_position = translationOffset;
         UpdateCollider();
     }
@@ -738,6 +770,11 @@ namespace PhysX
 
     AZ::Quaternion EditorColliderComponent::GetRotationOffset() const
     {
+        if (const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId()); Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            return Transform2Mirror::MirrorRotation(signs, m_configuration.m_rotation);
+        }
+
         return m_configuration.m_rotation;
     }
 
@@ -1048,6 +1085,13 @@ namespace PhysX
 
     AZ::Aabb EditorColliderComponent::GetWorldBounds() const
     {
+        // The editor body stays on the authored side, and a flipped entity draws mirrored. The bounds, and with them the
+        // selection bounds, follow what is drawn. GetEntitySigns is a bus lookup, which an editor query can afford.
+        if (const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId()); Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            return Transform2Mirror::MirrorWorldAabb(GetWorldTM(), signs, GetAabb());
+        }
+
         return GetAabb();
     }
 
@@ -1079,6 +1123,15 @@ namespace PhysX
         request.m_direction = dir;
         request.m_distance = distance;
         request.m_start = src;
+
+        // The editor body stays on the authored side, so the ray of a flipped entity is mirrored onto it. The mirror keeps
+        // distances, so the hit distance is the distance along the ray that came in.
+        if (const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId()); Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            const AZ::Transform world = GetWorldTM();
+            request.m_start = Transform2Mirror::MirrorWorldPoint(world, signs, src);
+            request.m_direction = Transform2Mirror::MirrorWorldDirection(world, signs, dir);
+        }
 
         if (auto hit = RayCast(request))
         {

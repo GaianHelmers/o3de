@@ -13,6 +13,7 @@
 #include <AzCore/Component/NonUniformScaleBus.h>
 #include <AzCore/Component/TransformBus.h>
 #include <AzCore/Component/ComponentBus.h>
+#include <Source/Transform2ColliderSupport.h>
 
 namespace PhysX
 {
@@ -34,6 +35,9 @@ namespace PhysX
 
         AZ::Vector3 colliderOffset;
         PhysX::EditorColliderComponentRequestBus::EventResult(colliderOffset, idPair, &PhysX::EditorColliderComponentRequests::GetColliderOffset);
+
+        // A flipped entity draws its collider at the mirrored offset, so the gizmo sits there. The stored offset stays as authored.
+        colliderOffset = Transform2Mirror::MirrorPosition(Transform2Mirror::GetEntitySigns(idPair.GetEntityId()), colliderOffset);
 
         m_translationManipulators.SetSpace(worldTransform);
         m_translationManipulators.SetNonUniformScale(nonUniformScale);
@@ -65,6 +69,7 @@ namespace PhysX
     {
         AZ::Vector3 colliderOffset = AZ::Vector3::CreateZero();
         PhysX::EditorColliderComponentRequestBus::EventResult(colliderOffset, idPair, &PhysX::EditorColliderComponentRequests::GetColliderOffset);
+        colliderOffset = Transform2Mirror::MirrorPosition(Transform2Mirror::GetEntitySigns(idPair.GetEntityId()), colliderOffset);
         m_translationManipulators.SetLocalPosition(colliderOffset);
     }
 
@@ -81,7 +86,10 @@ namespace PhysX
         const float scale = AZ::GetMax(AZ::MinTransformScale, worldTransform.GetUniformScale());
         const AZ::Vector3 newPosition = startPosition + offset / scale;
         m_translationManipulators.SetLocalPosition(newPosition);
-        PhysX::EditorColliderComponentRequestBus::Event(idPair, &PhysX::EditorColliderComponentRequests::SetColliderOffset, newPosition);
+
+        // The gizmo of a flipped entity holds the mirrored offset, so the collider stores the mirror of it.
+        const AZ::Vector3 storedOffset = Transform2Mirror::MirrorPosition(Transform2Mirror::GetEntitySigns(idPair.GetEntityId()), newPosition);
+        PhysX::EditorColliderComponentRequestBus::Event(idPair, &PhysX::EditorColliderComponentRequests::SetColliderOffset, storedOffset);
     }
 
     void ColliderOffsetMode::ResetValues(const AZ::EntityComponentIdPair& idPair)

@@ -14,6 +14,7 @@
 #include <Editor/MultiplayerEditorConnection.h>
 #include <NetworkTime/NetworkTime.h>
 #include <NetworkEntity/NetworkEntityManager.h>
+#include <Transform2NetReporter.h>
 #include <Source/AutoGen/Multiplayer.AutoPacketDispatcher.h>
 
 #include <AzCore/Component/Component.h>
@@ -261,6 +262,9 @@ namespace Multiplayer
         void UpdatedMetricsConnectionCount();
 
         void UpdateConnections();
+
+        //! Reports the network entities that have a Transform 2, whose scale does not replicate
+        AZStd::unique_ptr<Transform2NetReporter> m_transform2NetReporter;
 
         void OnPhysicsPreSimulate(float dt);
         AzPhysics::SystemEvents::OnPresimulateEvent::Handler m_preSimulateHandler{[this](float dt)

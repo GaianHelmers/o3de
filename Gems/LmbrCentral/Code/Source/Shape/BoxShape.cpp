@@ -80,6 +80,9 @@ namespace LmbrCentral
         BoxShapeComponentRequestsBus::Handler::BusDisconnect();
         ShapeComponentRequestsBus::Handler::BusDisconnect();
         AZ::TransformNotificationBus::Handler::BusDisconnect();
+
+        // A re-activated shape starts as authored. The Transform 2 shape support pushes the flip again.
+        m_intersectionDataCache.ResetFlipMask();
     }
 
     void BoxShape::InvalidateCache(InvalidateShapeCacheReason reason)
@@ -152,7 +155,7 @@ namespace LmbrCentral
     void BoxShape::GetTransformAndLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
     {
         const AZ::Vector3 extent(m_boxShapeConfig.m_dimensions * m_currentNonUniformScale * 0.5f);
-        const AZ::Vector3 scaledOffset(m_boxShapeConfig.m_translationOffset * m_currentNonUniformScale);
+        const AZ::Vector3 scaledOffset(m_intersectionDataCache.Flip(m_boxShapeConfig.m_translationOffset) * m_currentNonUniformScale);
         bounds = AZ::Aabb::CreateFromMinMax(scaledOffset - extent, scaledOffset + extent);
         transform = m_currentTransform;
     }
@@ -279,7 +282,8 @@ namespace LmbrCentral
         // transform to world space
         AZ::Transform worldTransformWithoutScale = m_currentTransform;
         const float entityScale = worldTransformWithoutScale.ExtractUniformScale();
-        const AZ::Vector3 scaledTranslationOffset = entityScale * m_currentNonUniformScale * m_boxShapeConfig.m_translationOffset;
+        const AZ::Vector3 scaledTranslationOffset =
+            entityScale * m_currentNonUniformScale * m_intersectionDataCache.Flip(m_boxShapeConfig.m_translationOffset);
 
         return worldTransformWithoutScale.TransformPoint(AZ::Vector3(x, y, z) + scaledTranslationOffset);
     }
@@ -310,12 +314,54 @@ namespace LmbrCentral
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+
+    void BoxShape::SetFlipMask(AZ::u8 flipMask)
+    {
+        bool shapeChanged = false;
+        {
+            AZStd::unique_lock lock(m_mutex);
+            const AZ::Vector3 offsetBefore = m_intersectionDataCache.Flip(m_boxShapeConfig.m_translationOffset);
+            m_intersectionDataCache.SetFlipMask(flipMask);
+            const AZ::Vector3 offsetAfter = m_intersectionDataCache.Flip(m_boxShapeConfig.m_translationOffset);
+
+            // Only a box that moved tells anyone: a flip across an axis with no offset leaves the drawn box where it was.
+            shapeChanged = !offsetBefore.IsClose(offsetAfter);
+        }
+
+        if (shapeChanged)
+        {
+            ShapeComponentNotificationsBus::Event(
+                m_entityId, &ShapeComponentNotificationsBus::Events::OnShapeChanged,
+                ShapeComponentNotifications::ShapeChangeReasons::ShapeChanged);
+        }
+    }
+
+    AZ::Vector3 BoxShape::GetFlipSigns() const
+    {
+        return m_intersectionDataCache.GetFlipSigns();
+    }
+
+    AZ::Vector3 BoxShape::GetEffectiveTranslationOffset() const
+    {
+        return m_intersectionDataCache.Flip(m_boxShapeConfig.m_translationOffset);
+    }
+
+    void BoxShape::GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
+    {
+        const AZ::Vector3 extent(m_boxShapeConfig.m_dimensions * m_currentNonUniformScale * 0.5f);
+        const AZ::Vector3 scaledOffset(m_boxShapeConfig.m_translationOffset * m_currentNonUniformScale);
+        bounds = AZ::Aabb::CreateFromMinMax(scaledOffset - extent, scaledOffset + extent);
+        transform = m_currentTransform;
+    }
+
     void BoxShape::BoxIntersectionDataCache::UpdateIntersectionParamsImpl(
         const AZ::Transform& currentTransform, const BoxShapeConfig& configuration, const AZ::Vector3& currentNonUniformScale)
     {
         AZ::Transform worldFromLocalNormalized = currentTransform;
         const float entityScale = worldFromLocalNormalized.ExtractUniformScale();
-        const AZ::Vector3 scaledTranslationOffset = entityScale * currentNonUniformScale * configuration.m_translationOffset;
+        const AZ::Vector3 scaledTranslationOffset = entityScale * currentNonUniformScale * Flip(configuration.m_translationOffset);
 
         m_currentPosition = worldFromLocalNormalized.TransformPoint(scaledTranslationOffset);
         m_scaledDimensions = configuration.m_dimensions * currentNonUniformScale * entityScale;

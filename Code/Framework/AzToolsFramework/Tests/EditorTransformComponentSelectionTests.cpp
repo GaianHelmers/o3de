@@ -6,7 +6,12 @@
  *
  */
 
+#include <AzCore/Component/ComponentApplicationBus.h>
+#include <AzCore/Component/NonUniformScaleBus.h>
+#include <AzCore/Component/TickBus.h>
 #include <AzCore/Math/IntersectSegment.h>
+#include <AzCore/RTTI/AttributeReader.h>
+#include <AzCore/Serialization/EditContext.h>
 #include <AzCore/Serialization/SerializeContext.h>
 #include <AzCore/UnitTest/TestTypes.h>
 #include <AzFramework/Components/TransformComponent.h>
@@ -26,6 +31,7 @@
 #include <AzToolsFramework/ToolsComponents/EditorLockComponent.h>
 #include <AzToolsFramework/ToolsComponents/EditorVisibilityComponent.h>
 #include <AzToolsFramework/ToolsComponents/TransformComponent.h>
+#include <AzToolsFramework/UI/PropertyEditor/ComponentEditorHeader.hxx>
 #include <AzToolsFramework/UnitTest/AzToolsFrameworkTestHelpers.h>
 #include <AzToolsFramework/Viewport/ActionBus.h>
 #include <AzToolsFramework/Viewport/ViewportSettings.h>
@@ -1866,6 +1872,273 @@ namespace UnitTest
         // verify a EditorTransformChangeNotificationBus::OnEntityTransformChanged occurred
         using ::testing::UnorderedElementsAreArray;
         EXPECT_THAT(editorEntityChangeDetector.m_entityIds, UnorderedElementsAreArray(m_entityIds));
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Per axis scale handles (I.1g, D.36)
+    //
+    // The camera is the default one, at the origin looking down +Y. An entity 10 units out makes one unit of the gizmo one
+    // world unit, and puts the X handle across the screen and the Z handle up it, so a point one unit from the entity along
+    // an axis is on the handle of that axis. The entity is left of and below the camera, so no axis of the gizmo is turned
+    // towards the camera by a rounding error. A drag is made in whole pixels, hence the tolerance.
+
+    static const AZ::Vector3 ScaleGizmoEntityPosition = AZ::Vector3(-0.5f, 10.0f, -0.5f);
+    static const float ScaleGizmoDragTolerance = 0.05f;
+
+    static AzToolsFramework::Components::EditorTransform GetEditorTransform(const AZ::EntityId entityId)
+    {
+        using AzToolsFramework::Components::TransformComponentMessages;
+
+        AzToolsFramework::Components::EditorTransform editorTransform;
+        TransformComponentMessages::Bus::EventResult(
+            editorTransform, entityId, &TransformComponentMessages::Bus::Events::GetLocalEditorTransform);
+        return editorTransform;
+    }
+
+    // authors the scale of an entity, the way the Scale row of the Transform card does
+    static void SetAuthoredScale(const AZ::EntityId entityId, const AZ::Vector3& authoredScale, const bool deployExtended = false)
+    {
+        using AzToolsFramework::Components::TransformComponentMessages;
+
+        AzToolsFramework::Components::EditorTransform editorTransform = GetEditorTransform(entityId);
+        editorTransform.m_authoredScale = authoredScale;
+        editorTransform.m_deployExtended = deployExtended;
+        TransformComponentMessages::Bus::Event(
+            entityId, &TransformComponentMessages::Bus::Events::SetLocalEditorTransform, editorTransform);
+
+        // a crossing between uniform and non-uniform queues a re-activation of the entity, which is over before the drag begins
+        AZ::TickBus::ExecuteQueuedEvents();
+    }
+
+    // the tag in the header of the Transform card, empty unless the transform or an ancestor is extended
+    static AZStd::string ReadTransformHeaderTag(const AZ::EntityId entityId)
+    {
+        using AzToolsFramework::Components::TransformComponent;
+
+        AZ::SerializeContext* serializeContext = nullptr;
+        AZ::ComponentApplicationBus::BroadcastResult(serializeContext, &AZ::ComponentApplicationRequests::GetSerializeContext);
+        const auto* editorData = serializeContext->FindClassData(azrtti_typeid<TransformComponent>())
+                                     ->m_editData->FindElementData(AZ::Edit::ClassElements::EditorData);
+
+        AZStd::string tag;
+        AZ::AttributeReader reader(
+            AzToolsFramework::GetEntity(entityId)->FindComponent<TransformComponent>(),
+            editorData->FindAttribute(AzToolsFramework::ComponentHeaderAttributes::Tag));
+        EXPECT_TRUE(reader.Read<AZStd::string>(tag));
+        return tag;
+    }
+
+    // selects the entities with the scale gizmo showing
+    static void ShowScaleGizmo(const AzToolsFramework::EntityIdList& entityIds)
+    {
+        using AzToolsFramework::EditorTransformComponentSelectionRequestBus;
+
+        // another test may have left the view base scale changed
+        AzToolsFramework::SetManipulatorViewBaseScale(1.0f);
+        SetTransformMode(EditorTransformComponentSelectionRequestBus::Events::Mode::Scale);
+        AzToolsFramework::SelectEntities(entityIds);
+        RefreshManipulators(EditorTransformComponentSelectionRequestBus::Events::RefreshType::All);
+    }
+
+    using ScaleGizmoModifier = AzToolsFramework::ViewportInteraction::KeyboardModifier;
+
+    // picks the gizmo at one world position and drags it to another, with a modifier held if one is given
+    static void DragScaleGizmo(
+        EditorTransformComponentSelectionManipulatorTestFixture& fixture,
+        const AZ::Vector3& from,
+        const AZ::Vector3& to,
+        const ScaleGizmoModifier modifier = ScaleGizmoModifier::None)
+    {
+        fixture.m_actionDispatcher->CameraState(fixture.m_cameraState)
+            ->MousePosition(AzFramework::WorldToScreen(from, fixture.m_cameraState))
+            ->KeyboardModifierDown(modifier)
+            ->MouseLButtonDown()
+            ->MousePosition(AzFramework::WorldToScreen(to, fixture.m_cameraState))
+            ->MouseLButtonUp();
+    }
+
+    TEST_F(
+        EditorTransformComponentSelectionManipulatorTestFixture, DraggingAnAxisScaleHandleOnATransform1ScalesAllAxesAndStaysATransform1)
+    {
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, ScaleGizmoEntityPosition);
+        ShowScaleGizmo({ m_entityId1 });
+
+        // the X handle is picked one unit out and dragged half a unit further
+        DragScaleGizmo(
+            *this, ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.0f), ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.5f));
+
+        const auto editorTransform = GetEditorTransform(m_entityId1);
+        EXPECT_THAT(editorTransform.m_authoredScale, IsCloseTolerance(AZ::Vector3(1.5f), ScaleGizmoDragTolerance));
+        EXPECT_TRUE(editorTransform.IsTransform1Scale());
+        EXPECT_FALSE(editorTransform.IsExtended());
+        EXPECT_TRUE(ReadTransformHeaderTag(m_entityId1).empty());
+    }
+
+    TEST_F(EditorTransformComponentSelectionManipulatorTestFixture, DraggingTheXScaleHandleOnAnEntityDeployedAsExtendedScalesOnlyX)
+    {
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, ScaleGizmoEntityPosition);
+        SetAuthoredScale(m_entityId1, AZ::Vector3::CreateOne(), true);
+        ShowScaleGizmo({ m_entityId1 });
+
+        DragScaleGizmo(
+            *this, ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.0f), ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.5f));
+
+        const auto editorTransform = GetEditorTransform(m_entityId1);
+        EXPECT_THAT(editorTransform.m_authoredScale, IsCloseTolerance(AZ::Vector3(1.5f, 1.0f, 1.0f), ScaleGizmoDragTolerance));
+        EXPECT_TRUE(editorTransform.IsExtended());
+        EXPECT_FALSE(ReadTransformHeaderTag(m_entityId1).empty());
+    }
+
+    TEST_F(EditorTransformComponentSelectionManipulatorTestFixture, DraggingTheZScaleHandleOnAnEntityDeployedAsExtendedScalesOnlyZ)
+    {
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, ScaleGizmoEntityPosition);
+        SetAuthoredScale(m_entityId1, AZ::Vector3::CreateOne(), true);
+        ShowScaleGizmo({ m_entityId1 });
+
+        DragScaleGizmo(
+            *this, ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisZ(1.0f), ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisZ(1.5f));
+
+        EXPECT_THAT(
+            GetEditorTransform(m_entityId1).m_authoredScale, IsCloseTolerance(AZ::Vector3(1.0f, 1.0f, 1.5f), ScaleGizmoDragTolerance));
+    }
+
+    TEST_F(EditorTransformComponentSelectionManipulatorTestFixture, DraggingTheXScaleHandleKeepsTheSignOfAFlippedEntity)
+    {
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, ScaleGizmoEntityPosition);
+        SetAuthoredScale(m_entityId1, AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        ShowScaleGizmo({ m_entityId1 });
+
+        DragScaleGizmo(
+            *this, ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.0f), ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.5f));
+
+        EXPECT_THAT(
+            GetEditorTransform(m_entityId1).m_authoredScale, IsCloseTolerance(AZ::Vector3(-1.5f, 1.0f, 1.0f), ScaleGizmoDragTolerance));
+    }
+
+    TEST_F(EditorTransformComponentSelectionManipulatorTestFixture, DraggingTheXScaleHandleOnANonUniformEntityKeepsItsOtherAxes)
+    {
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, ScaleGizmoEntityPosition);
+        SetAuthoredScale(m_entityId1, AZ::Vector3(2.0f, 1.0f, 1.0f));
+        ShowScaleGizmo({ m_entityId1 });
+
+        DragScaleGizmo(
+            *this, ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.0f), ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.5f));
+
+        // the drag is half a unit of the stand-in scale, which is 2, so X grows by a quarter
+        EXPECT_THAT(
+            GetEditorTransform(m_entityId1).m_authoredScale, IsCloseTolerance(AZ::Vector3(2.5f, 1.0f, 1.0f), ScaleGizmoDragTolerance));
+    }
+
+    TEST_F(EditorTransformComponentSelectionManipulatorTestFixture, DraggingTheXScaleHandlePastZeroFlipsTheSign)
+    {
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, ScaleGizmoEntityPosition);
+        SetAuthoredScale(m_entityId1, AZ::Vector3::CreateOne(), true);
+        ShowScaleGizmo({ m_entityId1 });
+
+        // the handle is picked one unit out and dragged to half a unit on the other side of the entity, which is a factor of -0.5
+        DragScaleGizmo(
+            *this, ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.0f), ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(-0.5f));
+
+        const auto editorTransform = GetEditorTransform(m_entityId1);
+        EXPECT_THAT(editorTransform.m_authoredScale, IsCloseTolerance(AZ::Vector3(-0.5f, 1.0f, 1.0f), ScaleGizmoDragTolerance));
+        EXPECT_LT(editorTransform.m_authoredScale.GetX(), 0.0f);
+    }
+
+    TEST_F(EditorTransformComponentSelectionManipulatorTestFixture, DraggingTheXScaleHandleInTheWorldFrameScalesAllAxes)
+    {
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, ScaleGizmoEntityPosition);
+        SetAuthoredScale(m_entityId1, AZ::Vector3(2.0f, 1.0f, 1.0f));
+        ShowScaleGizmo({ m_entityId1 });
+
+        // shift selects the World frame, where the drag is the uniform one that keeps the signs and ratios
+        DragScaleGizmo(
+            *this,
+            ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.0f),
+            ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.5f),
+            ScaleGizmoModifier::Shift);
+
+        EXPECT_THAT(
+            GetEditorTransform(m_entityId1).m_authoredScale, IsCloseTolerance(AZ::Vector3(2.5f, 1.25f, 1.25f), ScaleGizmoDragTolerance));
+    }
+
+    TEST_F(EditorTransformComponentSelectionManipulatorTestFixture, DraggingTheCentreScaleHandleOnAnExtendedEntityScalesAllAxes)
+    {
+        // The axes of the gizmo point away from the camera here, behind the centre box. Otherwise the picked point, a corner of the
+        // box that no axis reaches, would be crossed by the Y axis, which runs towards the camera and end on.
+        AzToolsFramework::SetFlipManipulatorAxesTowardsView(false);
+
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, ScaleGizmoEntityPosition);
+        SetAuthoredScale(m_entityId1, AZ::Vector3(-2.0f, 1.0f, 1.0f));
+        ShowScaleGizmo({ m_entityId1 });
+
+        // the centre box is picked at its front corner above and to the left, and dragged up by one unit
+        const AZ::Vector3 centreBoxCorner = ScaleGizmoEntityPosition + AZ::Vector3(-0.09f, -0.1f, 0.09f);
+        DragScaleGizmo(*this, centreBoxCorner, centreBoxCorner + AZ::Vector3::CreateAxisZ(1.0f));
+
+        // one unit of the stand-in scale, which is 2, so every axis grows by half and keeps its sign
+        EXPECT_THAT(
+            GetEditorTransform(m_entityId1).m_authoredScale, IsCloseTolerance(AZ::Vector3(-3.0f, 1.5f, 1.5f), ScaleGizmoDragTolerance));
+
+        AzToolsFramework::SetFlipManipulatorAxesTowardsView(true);
+    }
+
+    TEST_F(EditorTransformComponentSelectionManipulatorTestFixture, DraggingTheXScaleHandleDecidesPerEntityInAMixedSelection)
+    {
+        const AZ::EntityId extendedEntityId = CreateDefaultEditorEntity("Extended");
+        const AZ::Vector3 transform1Position = ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(-1.0f);
+        const AZ::Vector3 extendedPosition = ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.0f);
+
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, transform1Position);
+        AZ::TransformBus::Event(extendedEntityId, &AZ::TransformBus::Events::SetWorldTranslation, extendedPosition);
+        SetAuthoredScale(extendedEntityId, AZ::Vector3::CreateOne(), true);
+        ShowScaleGizmo({ m_entityId1, extendedEntityId });
+
+        // The gizmo sits between the two entities, and alt makes the uniform drag scale each entity about its own origin.
+        DragScaleGizmo(
+            *this,
+            ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.0f),
+            ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(1.5f),
+            ScaleGizmoModifier::Alt);
+
+        const auto transform1 = GetEditorTransform(m_entityId1);
+        EXPECT_THAT(transform1.m_authoredScale, IsCloseTolerance(AZ::Vector3(1.5f), ScaleGizmoDragTolerance));
+        EXPECT_TRUE(transform1.IsTransform1Scale());
+        EXPECT_THAT(AzToolsFramework::GetWorldTransform(m_entityId1).GetTranslation(), IsCloseTolerance(transform1Position, 0.01f));
+
+        EXPECT_THAT(
+            GetEditorTransform(extendedEntityId).m_authoredScale,
+            IsCloseTolerance(AZ::Vector3(1.5f, 1.0f, 1.0f), ScaleGizmoDragTolerance));
+    }
+
+    TEST_F(EditorTransformComponentSelectionManipulatorTestFixture, DraggingTheXScaleHandleAcrossAUniformScaleKeepsTheDragAlive)
+    {
+        AZ::TransformBus::Event(m_entityId1, &AZ::TransformBus::Events::SetWorldTranslation, ScaleGizmoEntityPosition);
+        SetAuthoredScale(m_entityId1, AZ::Vector3::CreateOne(), true);
+        ShowScaleGizmo({ m_entityId1 });
+
+        const auto screenPositionOnXHandle = [this](const float distance)
+        {
+            return AzFramework::WorldToScreen(ScaleGizmoEntityPosition + AZ::Vector3::CreateAxisX(distance), m_cameraState);
+        };
+
+        // The first move makes the scale non-uniform, which queues a re-activation of the entity for the next tick. It runs
+        // between the first and the second move here, as it would in an editor drag, and the drag goes on from there.
+        m_actionDispatcher->CameraState(m_cameraState)
+            ->MousePosition(screenPositionOnXHandle(1.0f))
+            ->MouseLButtonDown()
+            ->MousePosition(screenPositionOnXHandle(1.5f))
+            ->ExecuteBlock(
+                []()
+                {
+                    AZ::TickBus::ExecuteQueuedEvents();
+                })
+            ->MousePosition(screenPositionOnXHandle(2.0f))
+            ->MouseLButtonUp();
+
+        EXPECT_THAT(
+            GetEditorTransform(m_entityId1).m_authoredScale, IsCloseTolerance(AZ::Vector3(2.0f, 1.0f, 1.0f), ScaleGizmoDragTolerance));
+        EXPECT_EQ(AzToolsFramework::GetEntity(m_entityId1)->GetState(), AZ::Entity::State::Active);
+        EXPECT_TRUE(AZ::NonUniformScaleRequestBus::HasHandlers(m_entityId1));
     }
 
     // simple widget to listen for a mouse wheel event and then forward it on to the ViewportSelectionRequestBus

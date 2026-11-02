@@ -79,6 +79,13 @@ namespace AZ
             bool GetShadowsEnabled() { return m_shadowsEnabled; }
             virtual void HandleShapeChanged() = 0;
 
+            //! Aims the light the way its entity is drawn when the entity is flipped in Z: the transform becomes the world of the
+            //! entity turned half way round X, so the light faces -Z. For a light that has no shape to carry the flip.
+            //! The transform is rebuilt from the world on every call, so a repeated call changes nothing. The delegate keeps it,
+            //! so a hide and show sends it again. A move of the entity writes the unflipped world over it, and Transform 2 calls
+            //! this again right after. A turn is not a mirror, so a flip in X or Y is not reached, and a gobo is turned, not mirrored.
+            void SetFlippedTransform(const Transform& world, bool flipped);
+
             // ShapeComponentNotificationsBus::Handler overrides...
             void OnShapeChanged(ShapeChangeReasons changeReason) override;
             

@@ -60,7 +60,13 @@ namespace LmbrCentral
 
     void SphereShapeDebugDisplayComponent::Draw(AzFramework::DebugDisplayRequests& debugDisplay)
     {
-        DrawSphereShape(m_sphereShapeConfig.GetDrawParams(), m_sphereShapeConfig, debugDisplay);
+        // A matrix cannot carry a mirror, so the sphere is drawn at the offset the shape answers with. The shape is asked now, so this
+        // component holds no flip state. The copy is never stored, and with no shape answering the authored offset stays.
+        SphereShapeConfig drawConfiguration = m_sphereShapeConfig;
+        ShapeComponentRequestsBus::EventResult(
+            drawConfiguration.m_translationOffset, GetEntityId(), &ShapeComponentRequests::GetEffectiveTranslationOffset);
+
+        DrawSphereShape(m_sphereShapeConfig.GetDrawParams(), drawConfiguration, debugDisplay);
     }
 
     bool SphereShapeDebugDisplayComponent::ReadInConfig(const AZ::ComponentConfig* baseConfig)

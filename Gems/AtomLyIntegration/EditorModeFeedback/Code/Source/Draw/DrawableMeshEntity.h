@@ -62,6 +62,8 @@ namespace AZ::Render
         Data::Instance<RPI::Material> m_maskMaterial = nullptr;
         Name m_drawList;
         RPI::ModelLodIndex m_modelLodIndex = RPI::ModelLodIndex::Null;
+        // Transform 2: front face winding. Whether the mesh was mirrored when the draw packets were built.
+        bool m_mirrored = false;
         AZStd::vector<EditorStateMeshDrawPacket> m_meshDrawPackets;
     };
 } // namespace AZ::Render

@@ -165,6 +165,34 @@ namespace AZ
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////
+        // Transform 2
+
+        void DecalComponentController::SetRenderScale(const AZ::Transform& world, const AZ::Vector3& renderScale)
+        {
+            // The signed scale takes the place of the positive one, so every move of the entity sends the sign of X and Y with the
+            // transform. The shader divides by the half size, so a negative X mirrors U and a negative Y mirrors V.
+            m_cachedNonUniformScale = renderScale;
+
+            if (m_featureProcessor)
+            {
+                if (renderScale.GetZ() < 0.0f)
+                {
+                    // A flip in Z projects onto the surfaces that face -Z, and leaves the image as it was drawn. The decal is turned
+                    // half way round X, which turns the projection round and turns V over, and V is turned back with a negative Y.
+                    // Only this call sends the turn. A move sends the transform unturned, and Transform 2 sends this again right after,
+                    // so the Transform 1 senders need no test for it.
+                    AZ::Vector3 turnedScale = renderScale;
+                    turnedScale.SetY(-renderScale.GetY());
+                    m_featureProcessor->SetDecalTransform(m_handle, world * AZ::Transform::CreateRotationX(AZ::Constants::Pi), turnedScale);
+                }
+                else
+                {
+                    m_featureProcessor->SetDecalTransform(m_handle, world, renderScale);
+                }
+            }
+        }
+
         void DecalComponentController::ConfigurationChanged()
         {
             AttenuationAngleChanged();

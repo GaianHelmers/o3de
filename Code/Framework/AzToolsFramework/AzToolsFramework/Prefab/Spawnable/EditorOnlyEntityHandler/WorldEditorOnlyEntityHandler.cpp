@@ -9,6 +9,7 @@
 #include <AzToolsFramework/Prefab/Spawnable/EditorOnlyEntityHandler/WorldEditorOnlyEntityHandler.h>
 
 #include <AzCore/Component/TransformBus.h>
+#include <AzToolsFramework/ToolsComponents/TransformComponent.h>
 
 namespace AzToolsFramework::Prefab::PrefabConversionUtils
 {
@@ -27,6 +28,9 @@ namespace AzToolsFramework::Prefab::PrefabConversionUtils
     void WorldEditorOnlyEntityHandler::FixTransformRelationships(const AzToolsFramework::EntityList& entities, const AzToolsFramework::EntityIdSet& editorOnlyEntityIds)
     {
         AZStd::unordered_map<AZ::EntityId, AZStd::vector<AZ::Entity*>> parentToChildren;
+
+        // Transform 2: the shear of a removed parent cannot be kept, which is said once for the prefab.
+        bool warnedAboutShear = false;
 
         // Build a map of entity Ids to their parent Ids, for faster lookup during processing.
         for (AZ::Entity* entity : entities)
@@ -66,6 +70,15 @@ namespace AzToolsFramework::Prefab::PrefabConversionUtils
 
                     if (childTransformComponent && childTransformComponent->GetParentId() == entity->GetId())
                     {
+                        // Transform 2: when the removed parent or the child is one, the exact local is composed, so the flip
+                        // of the removed parent stays on the child. A Transform 1 pair takes the lines below.
+                        if (AzToolsFramework::Components::TransformComponent::ReparentChildOfRemovedEntity(
+                                *childEntity, *transformComponent, *childTransformComponent, warnedAboutShear))
+                        {
+                            parentToChildren[transformComponent->GetParentId()].push_back(childEntity);
+                            continue;
+                        }
+
                         const AZ::Transform localTm = childTransformComponent->GetLocalTM();
                         childTransformComponent->SetParent(transformComponent->GetParentId());
                         childTransformComponent->SetLocalTM(parentLocalTm * localTm);

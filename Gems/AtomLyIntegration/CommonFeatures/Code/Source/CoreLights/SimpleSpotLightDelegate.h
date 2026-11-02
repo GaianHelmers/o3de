@@ -45,6 +45,7 @@ namespace AZ::Render
         void SetNormalShadowBias(float bias) override;
         void SetShadowCachingMode(AreaLightComponentConfig::ShadowCachingMode cachingMode) override;
         void SetGoboTexture(AZ::Data::Instance<AZ::RPI::Image> goboTexture) override;
+        void SetRenderScale(const Transform& world, const Vector3& renderScale) override;
 
     private:
         void HandleShapeChanged() override;

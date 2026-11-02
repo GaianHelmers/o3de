@@ -14,6 +14,7 @@
 #include <AzCore/Serialization/EditContext.h>
 #include <AzCore/RTTI/BehaviorContext.h>
 #include <AzCore/Component/EntityActiveSystemBus.h>
+#include <AzCore/Component/EntityUtils.h>
 #include <AzFramework/API/ApplicationAPI.h>
 #include <AzFramework/Entity/EntityContext.h>
 #include <AzFramework/Components/TransformComponent.h>
@@ -200,6 +201,17 @@ namespace AzFramework
         // the first entity only
         if (entities.size() > 0)
         {
+            // A Transform2Component derives from TransformComponent but has its own type id. A TransformComponent
+            // answers on the first test, and only a miss goes on to look for a derived one.
+            if (entities[0]->FindComponent<AzFramework::TransformComponent>())
+            {
+                return true;
+            }
+            if (AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(entities[0]))
+            {
+                return true;
+            }
+
             return entities[0]->FindComponent<AzFramework::TransformComponent>() != nullptr;
         }
 

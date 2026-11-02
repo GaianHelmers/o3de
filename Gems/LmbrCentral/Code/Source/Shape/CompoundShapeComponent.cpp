@@ -121,6 +121,35 @@ namespace LmbrCentral
         }
     }
 
+    // The same as GetTransformAndLocalBounds, with the children asked for their authored bounds. Each child can flip with different
+    // signs, so only the children themselves can leave their flip out. Saved data reads this, so a flip never changes it.
+    void CompoundShapeComponent::GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
+    {
+        transform = AZ::Transform::CreateIdentity();
+        bounds = AZ::Aabb::CreateNull();
+
+        AZ::TransformBus::EventResult(transform, GetEntityId(), &AZ::TransformBus::Events::GetWorldTM);
+        const AZ::Transform inverseTransform = transform.GetInverse();
+
+        for (AZ::EntityId childEntity : m_configuration.GetChildEntities())
+        {
+            AZ::Transform childTransform = AZ::Transform::CreateIdentity();
+            AZ::Aabb childBounds = AZ::Aabb::CreateNull();
+
+            ShapeComponentRequestsBus::Event(
+                childEntity,
+                &ShapeComponentRequestsBus::Events::GetTransformAndAuthoredLocalBounds,
+                childTransform, childBounds);
+
+            if (childBounds.IsValid())
+            {
+                childBounds.ApplyTransform(childTransform);
+                childBounds.ApplyTransform(inverseTransform);
+                bounds.AddAabb(childBounds);
+            }
+        }
+    }
+
     bool CompoundShapeComponent::IsPointInside(const AZ::Vector3& point) const
     {
         bool result = false;

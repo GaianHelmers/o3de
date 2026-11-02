@@ -68,6 +68,10 @@ namespace LmbrCentral
 
         void OnNonUniformScaleChanged(const AZ::Vector3& scale);
 
+        /// The handles sit on the scale of the prism, which is the residual non-uniform scale with the Transform 2 flip signs in it.
+        /// The scale on the non-uniform scale bus stays positive. A flip changes the scale of the prism without a bus event.
+        void RefreshNonUniformScale();
+
         AZ::Transform m_currentTransform;
         AZ::Vector3 m_currentNonUniformScale;
         AzToolsFramework::EditorVertexSelectionVariable<AZ::Vector2> m_vertexSelection; ///< Handles all manipulator interactions with vertices (inserting and translating).

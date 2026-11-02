@@ -21,6 +21,7 @@
 #include <Editor/InertiaPropertyHandler.h>
 #include <Editor/KinematicDescriptionDialog.h>
 #include <Source/NameConstants.h>
+#include <Source/Transform2ColliderSupport.h>
 #include <Source/Utils.h>
 #include <System/PhysXSystem.h>
 #include <PhysX/PhysXLocks.h>
@@ -500,9 +501,17 @@ namespace PhysX
         {
             if (const AzPhysics::RigidBody* body = GetRigidBody())
             {
+                // The editor body stays on the authored side, and a flipped entity draws its collider mirrored, so the marker is
+                // moved to the drawn side. GetEntitySigns is a bus lookup, which an editor draw can afford.
+                AZ::Vector3 centerOfMass = body->GetCenterOfMassWorld();
+                if (const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId()); Transform2Mirror::GetSignMask(signs) != 0)
+                {
+                    centerOfMass = Transform2Mirror::MirrorWorldPoint(GetWorldTM(), signs, centerOfMass);
+                }
+
                 debugDisplay.DepthTestOff();
                 debugDisplay.SetColor(m_centerOfMassDebugColor);
-                debugDisplay.DrawBall(body->GetCenterOfMassWorld(), m_centerOfMassDebugSize);
+                debugDisplay.DrawBall(centerOfMass, m_centerOfMassDebugSize);
                 debugDisplay.DepthTestOn();
             }
         }
@@ -686,6 +695,13 @@ namespace PhysX
 
     AZ::Aabb EditorRigidBodyComponent::GetWorldBounds() const
     {
+        // The editor body stays on the authored side, and a flipped entity draws mirrored. The bounds, and with them the
+        // selection bounds, follow what is drawn. GetEntitySigns is a bus lookup, which an editor query can afford.
+        if (const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId()); Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            return Transform2Mirror::MirrorWorldAabb(GetWorldTM(), signs, GetAabb());
+        }
+
         return GetAabb();
     }
 
@@ -717,6 +733,15 @@ namespace PhysX
         request.m_direction = dir;
         request.m_distance = distance;
         request.m_start = src;
+
+        // The editor body stays on the authored side, so the ray of a flipped entity is mirrored onto it. The mirror keeps
+        // distances, so the hit distance is the distance along the ray that came in.
+        if (const AZ::Vector3 signs = Transform2Mirror::GetEntitySigns(GetEntityId()); Transform2Mirror::GetSignMask(signs) != 0)
+        {
+            const AZ::Transform world = GetWorldTM();
+            request.m_start = Transform2Mirror::MirrorWorldPoint(world, signs, src);
+            request.m_direction = Transform2Mirror::MirrorWorldDirection(world, signs, dir);
+        }
 
         if (auto hit = RayCast(request))
         {

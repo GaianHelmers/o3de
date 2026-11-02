@@ -63,6 +63,7 @@ namespace PhysX
         void AddForceSplineFollow(float dampingRatio, float frequency, float targetSpeed, float lookAhead) override;
         void AddForceSimpleDrag(float dragCoefficient, float volumeDensity) override;
         void AddForceLinearDamping(float damping) override;
+        void SetFlipMask(AZ::u8 flipMask) override;
 
         // SplineComponentNotificationBus
         void OnSplineChanged() override;
@@ -89,5 +90,12 @@ namespace PhysX
 
         //! Gets aggregated Aabb of all colliders assigned to entity.
         AZ::Aabb GetForceRegionAabb(AZ::EntityId entityId);
+
+        //! Transform 2: a clone of the spline with its vertices multiplied by the signs, of the same type as the spline.
+        //! The spline passed in is the one the Spline component holds and serializes, so it is never touched. A reflection keeps
+        //! distances and carries a tangent along with the points, so the clone answers the nearest point, position and tangent
+        //! of the mirrored spline for a Linear, Bezier or Catmull-Rom spline. A spline with fewer than two vertices answers
+        //! nothing, and a spline of an unknown type cannot be cloned, so both are returned as they are.
+        AZ::SplinePtr CreateFlippedSpline(const AZ::SplinePtr& spline, const AZ::Vector3& signs);
     }
 }

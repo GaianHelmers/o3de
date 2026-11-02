@@ -1590,6 +1590,7 @@ namespace PhysX
 
                 vertices.reserve(vertCount);
                 indices.reserve(triangleCount * 3);
+                const size_t firstNewIndex = indices.size();
 
                 for (AZ::u32 vertIndex = 0; vertIndex < vertCount; ++vertIndex)
                 {
@@ -1615,6 +1616,17 @@ namespace PhysX
                         indices.push_back(triangles[triangleIndex]);
                         indices.push_back(triangles[triangleIndex + 1]);
                         indices.push_back(triangles[triangleIndex + 2]);
+                    }
+                }
+
+                // A negative scale determinant (a Transform 2 mirror) reverses the winding of every triangle.
+                // Swap two indices of each triangle so the output keeps the winding of the unmirrored mesh.
+                const physx::PxVec3& meshScale = geometry.scale.scale;
+                if (meshScale.x * meshScale.y * meshScale.z < 0.0f)
+                {
+                    for (size_t index = firstNewIndex; index + 2 < indices.size(); index += 3)
+                    {
+                        AZStd::swap(indices[index + 1], indices[index + 2]);
                     }
                 }
             }

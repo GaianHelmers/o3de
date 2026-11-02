@@ -62,6 +62,9 @@ namespace LmbrCentral
             const AzFramework::ViewportInfo& viewportInfo,
             AzFramework::DebugDisplayRequests& debugDisplay) override;
 
+        // ShapeComponentNotificationsBus, through EditorBaseShapeComponent
+        void OnShapeChanged(ShapeChangeReasons changeReason) override;
+
         // SplineComponentNotificationBus
         void OnSplineChanged() override;
 
@@ -79,6 +82,9 @@ namespace LmbrCentral
         TubeShape m_tubeShape; ///< Underlying tube shape.
         TubeShapeMeshConfig m_tubeShapeMeshConfig; ///< Configuration to control how the TubeShape should look.
         ShapeMesh m_tubeShapeMesh; ///< Buffer to hold index and vertex data for TubeShape when drawing.
+        /// The flip signs the mesh above was built with. A flip changes the signs and not the spline, so the mesh is built again
+        /// when the two differ. Editor only.
+        AZ::Vector3 m_meshFlipSigns = AZ::Vector3::CreateOne();
 
         using ComponentModeDelegate = AzToolsFramework::ComponentModeFramework::ComponentModeDelegate;
         ComponentModeDelegate m_componentModeDelegate; ///< Responsible for detecting ComponentMode activation 

@@ -233,8 +233,13 @@ namespace UnitTest
             g_globalComponentDetails = EntityUtilityBus.Broadcast.FindMatchingComponents("Transform*")
             )LUA");
 
-        // There should be 2 transform components
-        EXPECT_EQ(g_globalComponentDetails.size(), 2);
+        // There should be 3 transform components, matched by the name of the class:
+        // - TransformComponent of AzToolsFramework, the one in the editor
+        // - TransformComponent of AzFramework, the runtime Transform 1
+        // - Transform2Component of AzFramework, the runtime Transform 2, which derives from the runtime Transform 1
+        // The scale holder that Transform2Component replaced is a deprecated class with no RTTI, so it is not enumerated as a
+        // component and not counted. A class with a name that starts with Transform would make this 4.
+        EXPECT_EQ(g_globalComponentDetails.size(), 3);
     }
 
     TEST_F(EntityUtilityComponentTests, SearchComponentsNotFound)

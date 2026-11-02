@@ -22,6 +22,7 @@
 
 #include <QFrame>
 #include <QIcon>
+#include <QString>
 
 class QVBoxLayout;
 
@@ -78,6 +79,9 @@ namespace AzToolsFramework
 
         void AddNotifications();
         void ClearNotifications();
+
+        /// Refresh the header tag from what the component currently reports.
+        void UpdateHeaderTag();
 
         bool HasContents();
         void SetFilterString(AZStd::string filterString);
@@ -179,6 +183,10 @@ namespace AzToolsFramework
 
         /// Type of component being shown
         AZ::Uuid m_componentType = AZ::Uuid::CreateNull();
+
+        /// Header tag reflected by the component type being shown, if any.
+        AZ::Attribute* m_headerTagAttribute = nullptr;
+        QString m_headerTagToolTip;
 
         AZ::Entity::ComponentArrayType m_components;
         AZ::Crc32 m_savedKeySeed;

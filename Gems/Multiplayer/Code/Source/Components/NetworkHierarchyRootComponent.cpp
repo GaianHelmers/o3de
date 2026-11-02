@@ -86,6 +86,12 @@ namespace Multiplayer
             transformComponent->BindChildChangedEventHandler(m_childChangedHandler);
             transformComponent->BindParentChangedEventHandler(m_parentChangedHandler);
         }
+        else if (AZ::TransformInterface* fallbackTransform = GetEntity()->GetTransform())
+        {
+            // A Transform2Component derives from TransformComponent but has its own type id.
+            fallbackTransform->BindChildChangedEventHandler(m_childChangedHandler);
+            fallbackTransform->BindParentChangedEventHandler(m_parentChangedHandler);
+        }
     }
 
     void NetworkHierarchyRootComponent::OnDeactivate([[maybe_unused]] Multiplayer::EntityIsMigrating entityIsMigrating)

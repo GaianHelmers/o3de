@@ -52,6 +52,13 @@ namespace LmbrCentral
         float GetRadius() const override;
         const AZ::Vector3& GetNormal() const override;
 
+        // ShapeComponentRequestsBus, Transform 2 flip. A disk is the same region on every side, so only a Z flip is told apart: it
+        // turns the disk over and GetNormal answers the drawn facing. The configuration stays authored.
+        void SetFlipMask(AZ::u8 flipMask) override;
+        AZ::Vector3 GetFlipSigns() const override;
+        //! A disk has no translation offset, so a flip has nothing to move. A light asks for this on every move of its entity.
+        AZ::Vector3 GetEffectiveTranslationOffset() const override { return AZ::Vector3::CreateZero(); }
+
         // AZ::TransformNotificationBus
         void OnTransformChanged(const AZ::Transform& local, const AZ::Transform& world) override;
 
@@ -73,6 +80,9 @@ namespace LmbrCentral
                 const AZ::Vector3& currentNonUniformScale = AZ::Vector3::CreateOne()) override;
 
             friend class DiskShape;
+
+            /// Transform 2: true when a Z flip has turned the disk over.
+            bool IsTurnedOver() const { return (GetFlipMask() & 4) != 0; }
 
             AZ::Vector3 m_position; ///< Position of the center of the disk.
             AZ::Vector3 m_normal; ///< normal of the disk.

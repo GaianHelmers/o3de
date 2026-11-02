@@ -6,6 +6,7 @@
  *
  */
 
+#include <AzCore/Component/EntityUtils.h>
 #include <AzFramework/Components/TransformComponent.h>
 #include <AzFramework/Entity/SliceGameEntityOwnershipService.h>
 
@@ -205,6 +206,11 @@ namespace AzFramework
             for (AZ::Entity* entity : entities)
             {
                 auto* transformComponent = entity->FindComponent<AzFramework::TransformComponent>();
+                if (!transformComponent)
+                {
+                    // A Transform2Component derives from TransformComponent but has its own type id.
+                    transformComponent = AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(entity);
+                }
                 if (transformComponent)
                 {
                     // Non-root entities will be positioned relative to their parents.

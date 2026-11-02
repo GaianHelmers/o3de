@@ -8,6 +8,7 @@
 
 #include <Source/NetworkEntity/NetworkEntityManager.h>
 #include <AzCore/Asset/AssetManager.h>
+#include <AzCore/Component/EntityUtils.h>
 #include <AzCore/Console/IConsole.h>
 #include <AzCore/Console/ILogger.h>
 #include <AzCore/Interface/Interface.h>
@@ -470,6 +471,11 @@ namespace Multiplayer
             // Update TransformComponent parent Id. It is guaranteed for the entities array to be sorted from parent->child here.
             auto cloneNetBindComponent = clone->FindComponent<NetBindComponent>();
             auto cloneTransformComponent = clone->FindComponent<AzFramework::TransformComponent>();
+            if (!cloneTransformComponent)
+            {
+                // A Transform2Component derives from TransformComponent but has its own type id.
+                cloneTransformComponent = AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(clone);
+            }
             AZ::EntityId parentId = cloneTransformComponent->GetParentId();
             bool removeParent = false;
             if (parentId.IsValid())
@@ -591,6 +597,11 @@ namespace Multiplayer
             netBindComponent->PreInit(clone, prefabEntryId, netEntityId, netEntityRole);
 
             auto* transformComponent = clone->FindComponent<AzFramework::TransformComponent>();
+            if (!transformComponent)
+            {
+                // A Transform2Component derives from TransformComponent but has its own type id.
+                transformComponent = AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(clone);
+            }
             if (transformComponent)
             {
                 transformComponent->SetWorldTM(transform);
@@ -648,6 +659,11 @@ namespace Multiplayer
                 {
                     AzFramework::TransformComponent* netEntityTransform =
                         netEntity->FindComponent<AzFramework::TransformComponent>();
+                    if (!netEntityTransform)
+                    {
+                        // A Transform2Component derives from TransformComponent but has its own type id.
+                        netEntityTransform = AZ::EntityUtils::FindFirstDerivedComponent<AzFramework::TransformComponent>(netEntity);
+                    }
 
                     AZ::Transform worldTm = netEntityTransform->GetWorldTM();
                     worldTm = rootTransform * worldTm;

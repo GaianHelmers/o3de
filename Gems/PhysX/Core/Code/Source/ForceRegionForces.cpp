@@ -142,6 +142,20 @@ namespace PhysX
         return region.m_rotation.TransformVector(m_direction.GetNormalized()) * m_magnitude * entity.m_mass;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2
+
+    void ForceLocalSpace::Mirror(const AZ::Vector3& signs)
+    {
+        // The direction is held as drawn. GetDirection reports it so, and SetDirection takes it so.
+        m_direction = m_direction * signs;
+    }
+
+    ForceLocalSpace ForceLocalSpace::CreateFlippedCopy(const AZ::Vector3& signs) const
+    {
+        return ForceLocalSpace(m_direction * signs, m_magnitude);
+    }
+
     void ForceLocalSpace::SetDirection(const AZ::Vector3& direction)
     {
         m_direction = direction;

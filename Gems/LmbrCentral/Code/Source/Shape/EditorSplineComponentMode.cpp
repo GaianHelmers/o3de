@@ -7,6 +7,7 @@
  */
 
 #include "EditorSplineComponentMode.h"
+#include "EditorSplineComponent.h" // for GetEditorSplineFlipSigns
 
 #include <AzToolsFramework/ActionManager/Action/ActionManagerInterface.h>
 #include <AzToolsFramework/Manipulators/SplineHoverSelection.h>
@@ -14,6 +15,22 @@
 
 namespace LmbrCentral
 {
+    namespace
+    {
+        // The spline draws at the uniform stand-in scale and ignores the non-uniform residual, so its translation manipulator
+        // must too. The vertex selection builds that manipulator with the residual from the bus, and then calls this.
+        //
+        // The flip signs of a Transform 2 entity are given to the manipulators through RefreshSpace below, as their non-uniform
+        // scale. This is a plain function pointer that is told nothing of the entity, so it cannot read the signs. The vertex
+        // selection remembers what RefreshSpace gave it, and puts that on a translation manipulator it creates itself when a vertex
+        // is clicked, after this has run.
+        void ConfigureSplineTranslationManipulator(AzToolsFramework::TranslationManipulators* translationManipulators)
+        {
+            AzToolsFramework::ConfigureTranslationManipulatorAppearance3d(translationManipulators);
+            translationManipulators->SetNonUniformScale(AZ::Vector3::CreateOne());
+        }
+    } // namespace
+
     AZ_CLASS_ALLOCATOR_IMPL(EditorSplineComponentMode, AZ::SystemAllocator)
 
     EditorSplineComponentMode::EditorSplineComponentMode(
@@ -116,7 +133,13 @@ namespace LmbrCentral
             GetEntityComponentIdPair(), GetMainManipulatorManagerId(),
             AZStd::make_unique<SplineHoverSelection>(
                 GetEntityComponentIdPair(), GetMainManipulatorManagerId(), spline),
-            TranslationManipulators::Dimensions::Three, ConfigureTranslationManipulatorAppearance3d);
+            TranslationManipulators::Dimensions::Three, ConfigureSplineTranslationManipulator);
+
+        // The selection dots and the hover selection are built with the residual from the bus as well, so the space is
+        // refreshed here with a scale of one. The translation manipulator is covered by the configurator above.
+        // On a flipped entity the scale is the flip signs, which puts every manipulator on the mirrored side of its authored vertex
+        // while the vertex it edits stays the authored one. Editor only: the signs are read from the Transform 2 of the entity.
+        m_vertexSelection.RefreshSpace(WorldFromLocalWithUniformScale(GetEntityId()), GetEditorSplineFlipSigns(GetEntityId()));
     }
 
     void EditorSplineComponentMode::ContainerChanged()
@@ -168,7 +191,7 @@ namespace LmbrCentral
         const AZ::Transform& /*local*/, const AZ::Transform& world)
     {
         // update the space manipulators are in after the entity has moved
-        m_vertexSelection.RefreshSpace(world);
+        m_vertexSelection.RefreshSpace(world, GetEditorSplineFlipSigns(GetEntityId()));
     }
 
     void EditorSplineComponentMode::OnSplineTypeChanged()

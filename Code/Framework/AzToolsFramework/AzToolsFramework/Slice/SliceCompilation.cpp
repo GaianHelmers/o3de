@@ -570,6 +570,9 @@ namespace AzToolsFramework
     {
         AZStd::unordered_map<AZ::EntityId, AZStd::vector<AZ::Entity*>> parentToChildren;
 
+        // Transform 2: the shear of a removed parent cannot be kept, which is said once for the slice.
+        bool warnedAboutShear = false;
+
         // Build a map of entity Ids to their parent Ids, for faster lookup during processing.
         for (AZ::Entity* entity : entities)
         {
@@ -608,6 +611,15 @@ namespace AzToolsFramework
 
                     if (childTransformComponent && childTransformComponent->GetParentId() == entity->GetId())
                     {
+                        // Transform 2: when the removed parent or the child is one, the exact local is composed, so the flip
+                        // of the removed parent stays on the child. A Transform 1 pair takes the lines below.
+                        if (Components::TransformComponent::ReparentChildOfRemovedEntity(
+                                *childEntity, *transformComponent, *childTransformComponent, warnedAboutShear))
+                        {
+                            parentToChildren[transformComponent->GetParentId()].push_back(childEntity);
+                            continue;
+                        }
+
                         const AZ::Transform localTm = childTransformComponent->GetLocalTM();
                         childTransformComponent->SetParent(transformComponent->GetParentId());
                         childTransformComponent->SetLocalTM(parentLocalTm * localTm);

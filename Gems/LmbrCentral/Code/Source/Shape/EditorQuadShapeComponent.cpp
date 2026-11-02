@@ -89,7 +89,8 @@ namespace LmbrCentral
             {
                 DrawQuadShape(
                     { m_quadShape.GetQuadConfiguration().GetDrawColor(), m_shapeWireColor, m_displayFilled },
-                    m_quadShape.GetQuadConfiguration(), debugDisplay, m_quadShape.GetCurrentNonUniformScale());
+                    m_quadShape.GetQuadConfiguration(), debugDisplay, m_quadShape.GetCurrentNonUniformScale(),
+                    m_quadShape.GetFlipSigns().GetZ()); // the facing line follows a Transform 2 Z flip
             },
             m_quadShape.GetCurrentTransform());
     }

@@ -165,12 +165,15 @@ namespace LmbrCentral
         , m_currentTransform(other.m_currentTransform)
         , m_entityId(other.m_entityId)
     {
+        // The cache copy carries the flip mask of the source. A copy is not on an entity yet, so it starts as authored.
+        m_intersectionDataCache.ResetFlipMask();
     }
 
     PolygonPrismShape& PolygonPrismShape::operator=(const PolygonPrismShape& other)
     {
         m_polygonPrism = other.m_polygonPrism;
         m_intersectionDataCache = other.m_intersectionDataCache;
+        m_intersectionDataCache.ResetFlipMask();
         m_currentTransform = other.m_currentTransform;
         m_entityId = other.m_entityId;
         return *this;
@@ -224,7 +227,7 @@ namespace LmbrCentral
         // This will trigger an OnChangeNonUniformScale callback if one is set, which is why we clear out the callbacks at the
         // start of activation. Those callbacks might try to query back to this shape, which isn't fully initialized or activated yet
         // (see for example EditorPolygonPrismShapeComponent), so they would end up retrieving invalid data.
-        m_polygonPrism->SetNonUniformScale(m_currentNonUniformScale);
+        ApplyScale(m_currentNonUniformScale);
         m_intersectionDataCache.InvalidateCache(InvalidateShapeCacheReason::ShapeChange);
 
         AZ::NonUniformScaleRequestBus::Event(m_entityId, &AZ::NonUniformScaleRequests::RegisterScaleChangedEvent,
@@ -260,6 +263,10 @@ namespace LmbrCentral
 
         // Clear out callbacks to ensure that they don't get called while the component is deactivated.
         m_polygonPrism->SetCallbacks({}, {}, {}, {});
+
+        // A re-activated shape starts as authored, and Activate applies the scale without the flip. The Transform 2 shape support
+        // pushes the flip again, and a caller that re-activates a live shape puts it back, see EditorPolygonPrismShapeComponent.
+        m_intersectionDataCache.ResetFlipMask();
     }
 
     void PolygonPrismShape::InvalidateCache(InvalidateShapeCacheReason reason)
@@ -284,8 +291,7 @@ namespace LmbrCentral
     {
         {
             PolygonPrismUniqueLockGuard lock(m_mutex, m_uniqueLockThreadId);
-            m_currentNonUniformScale = scale;
-            m_polygonPrism->SetNonUniformScale(scale);
+            ApplyScale(scale);
             m_intersectionDataCache.InvalidateCache(InvalidateShapeCacheReason::ShapeChange);
         }
         ShapeComponentNotificationsBus::Event(
@@ -419,6 +425,51 @@ namespace LmbrCentral
             m_currentTransform, *m_polygonPrism, lock.GetMutexForIntersectionDataCache(), m_currentNonUniformScale);
 
         return PolygonPrismUtil::IntersectRay(m_intersectionDataCache.m_triangles, m_currentTransform, src, dir, distance);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+    //
+    // The sign of a flipped axis rides in the two scales that are not saved: the one of this shape and the one of the prism.
+    // The queries and the drawing already multiply by them and take a negative axis, so nothing else in the shape changes.
+    // The vertices and the height are never touched, and PhysX and the polygon light keep reading them as authored.
+
+    void PolygonPrismShape::ApplyScale(const AZ::Vector3& residual)
+    {
+        m_currentNonUniformScale = residual.GetAbs() * m_intersectionDataCache.GetFlipSigns();
+        m_polygonPrism->SetNonUniformScale(m_currentNonUniformScale);
+    }
+
+    void PolygonPrismShape::SetFlipMask(AZ::u8 flipMask)
+    {
+        PolygonPrismUniqueLockGuard lock(m_mutex, m_uniqueLockThreadId);
+        if (m_intersectionDataCache.SetFlipMask(flipMask))
+        {
+            // Setting the scale of the prism always calls its callback, which is wired to ShapeChanged, so nobody is told here.
+            ApplyScale(m_currentNonUniformScale);
+        }
+    }
+
+    AZ::Vector3 PolygonPrismShape::GetFlipSigns() const
+    {
+        // One byte read with no lock, like the other shapes: a light asks for this on every move of its entity.
+        return m_intersectionDataCache.GetFlipSigns();
+    }
+
+    void PolygonPrismShape::GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
+    {
+        PolygonPrismSharedLockGuard lock(m_mutex, m_uniqueLockThreadId);
+        bounds = PolygonPrismUtil::CalculateAabb(*m_polygonPrism, AZ::Transform::Identity());
+        transform = m_currentTransform;
+
+        // A flip mirrors every flipped axis about the origin of the entity, so the authored bounds are the mirror of these.
+        if (m_intersectionDataCache.GetFlipMask() != 0 && bounds.IsValid())
+        {
+            const AZ::Vector3 signs = m_intersectionDataCache.GetFlipSigns();
+            const AZ::Vector3 mirroredMin = bounds.GetMin() * signs;
+            const AZ::Vector3 mirroredMax = bounds.GetMax() * signs;
+            bounds = AZ::Aabb::CreateFromMinMax(mirroredMin.GetMin(mirroredMax), mirroredMin.GetMax(mirroredMax));
+        }
     }
 
     void PolygonPrismShape::PolygonPrismIntersectionDataCache::UpdateIntersectionParamsImpl(

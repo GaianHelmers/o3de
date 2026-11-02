@@ -68,7 +68,14 @@ namespace LmbrCentral
         transform.SetRotation(AZ::Quaternion::CreateIdentity());
         saveMatrix = debugDisplay.PopPremultipliedMatrix();
         debugDisplay.PushMatrix(transform);
-        DrawBoxShape(drawParams, m_boxShapeConfig, debugDisplay);
+
+        // A matrix cannot carry a mirror, so the box is drawn at the offset the shape answers with. The shape is asked now, so this
+        // component holds no flip state. The copy is never stored, and with no shape answering the authored offset stays.
+        BoxShapeConfig drawConfiguration = m_boxShapeConfig;
+        ShapeComponentRequestsBus::EventResult(
+            drawConfiguration.m_translationOffset, GetEntityId(), &ShapeComponentRequests::GetEffectiveTranslationOffset);
+
+        DrawBoxShape(drawParams, drawConfiguration, debugDisplay);
         debugDisplay.PopMatrix();
         debugDisplay.PushPremultipliedMatrix(saveMatrix);
     }

@@ -45,4 +45,7 @@ set(FILES
     PaintBrush/PaintBrushSmoothLocationTests.cpp
     QualitySystemComponentTests.cpp
     DeviceAttributeSystemComponentTests.cpp
+    Transform2Tests.cpp
+    Transform2HierarchyTests.cpp
+    T1MemoryFootprintTests.cpp
 )

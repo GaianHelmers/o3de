@@ -48,6 +48,7 @@ namespace PhysX
         // PhysX::ColliderShapeBus
         AZ::Aabb GetColliderShapeAabb() override;
         bool IsTrigger() override;
+        void InvalidateShapeCache() override;
 
         // CollisionFilteringRequestBus
         void SetCollisionLayer(const AZStd::string& layerName, AZ::Crc32 filterTag) override;

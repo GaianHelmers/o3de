@@ -22,6 +22,7 @@
 #include <Source/PhysXCharacters/API/CharacterUtils.h>
 #include <Source/PhysXCharacters/API/CharacterController.h>
 #include <Source/WindProvider.h>
+#include <Source/Transform2ColliderSupport.h>
 
 #include <PhysX/MeshAsset.h>
 #include <PhysX/HeightFieldAsset.h>
@@ -206,10 +207,15 @@ namespace PhysX
         Physics::CollisionRequestBus::Handler::BusConnect();
 
         ActivatePhysXSystem();
+
+        m_transform2ColliderSupport = AZStd::make_unique<Transform2ColliderSupport>();
     }
 
     void SystemComponent::Deactivate()
     {
+        // Must go before PhysX shuts down, because it holds PhysX meshes it releases itself.
+        m_transform2ColliderSupport.reset();
+
         AZ::TickBus::Handler::BusDisconnect();
         Physics::CollisionRequestBus::Handler::BusDisconnect();
         PhysX::SystemRequestsBus::Handler::BusDisconnect();

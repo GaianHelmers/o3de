@@ -12,6 +12,7 @@
 #include <AzCore/RTTI/BehaviorContext.h>
 #include <AzFramework/Components/NonUniformScaleComponent.h>
 #include <AzToolsFramework/ToolsComponents/EditorNonUniformScaleComponent.h>
+#include <AzToolsFramework/ToolsComponents/TransformComponent.h>
 
 #include <AzFramework/Translation/TranslationDef.h>
 
@@ -22,6 +23,20 @@ namespace AzToolsFramework
         void EditorNonUniformScaleComponent::OnScaleChanged()
         {
             m_scaleChangedEvent.Signal(m_scale);
+        }
+
+        AZ::Crc32 EditorNonUniformScaleComponent::OnConvertButtonPressed()
+        {
+            // This component is deleted by the conversion, so it only gets queued here.
+            TransformComponent::QueueLegacyScaleConversion(GetEntityId());
+            return AZ::Edit::PropertyRefreshLevels::None;
+        }
+
+        bool EditorNonUniformScaleComponent::IsConvertButtonReadOnly() const
+        {
+            bool locked = false;
+            TransformComponentMessages::Bus::EventResult(locked, GetEntityId(), &TransformComponentMessages::IsTransformLocked);
+            return locked;
         }
 
         void EditorNonUniformScaleComponent::Reflect(AZ::ReflectContext* context)
@@ -54,6 +69,16 @@ namespace AzToolsFramework
                         ->Attribute(AZ::Edit::Attributes::Max, AZ::MaxTransformScale)
                         ->Attribute(AZ::Edit::Attributes::Step, 0.1f)
                         ->Attribute(AZ::Edit::Attributes::ChangeNotify, &EditorNonUniformScaleComponent::OnScaleChanged)
+                        ->UIElement(
+                            AZ::Edit::UIHandlers::Button, QT_TRANSLATE_NOOP("AzToolsFramework", "Convert to Transform Scale"),
+                            QT_TRANSLATE_NOOP(
+                                "AzToolsFramework",
+                                "Multiplies the Scale of the Transform component by this scale and removes this component. "
+                                "Children of this entity then follow the largest axis of the new scale."))
+                        ->Attribute(AZ::Edit::Attributes::NameLabelOverride, "")
+                        ->Attribute(AZ::Edit::Attributes::ButtonText, QT_TRANSLATE_NOOP("AzToolsFramework", "Convert to Transform Scale"))
+                        ->Attribute(AZ::Edit::Attributes::ReadOnly, &EditorNonUniformScaleComponent::IsConvertButtonReadOnly)
+                        ->Attribute(AZ::Edit::Attributes::ChangeNotify, &EditorNonUniformScaleComponent::OnConvertButtonPressed)
                         ->DataElement(
                             AZ::Edit::UIHandlers::Default, &EditorNonUniformScaleComponent::m_componentModeDelegate,
                             QT_TRANSLATE_NOOP("AzToolsFramework", "Component Mode"),

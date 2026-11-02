@@ -16,6 +16,7 @@
 
 #include <Source/EditorPrismaticJointComponent.h>
 #include <Source/PrismaticJointComponent.h>
+#include <Source/Transform2ColliderSupport.h>
 #include <Source/Utils.h>
 
 namespace PhysX
@@ -89,6 +90,11 @@ namespace PhysX
         m_config.m_followerEntity = GetEntityId(); // joint is always in the same entity as the follower body.
         gameEntity->CreateComponent<PrismaticJointComponent>(
             m_config.ToGameTimeConfig(), m_config.ToGenericProperties(), m_linearLimit.ToGameTimeConfig(), m_motorConfiguration);
+    }
+
+    bool EditorPrismaticJointComponent::ReversesMotionAxis(const AZ::Vector3& signs) const
+    {
+        return Transform2Mirror::ReversesSlideAxis(signs);
     }
 
     float EditorPrismaticJointComponent::GetLinearValue(const AZStd::string& parameterName)

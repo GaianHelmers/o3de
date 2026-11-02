@@ -62,7 +62,12 @@ namespace LmbrCentral
 
     void CapsuleShapeDebugDisplayComponent::Draw(AzFramework::DebugDisplayRequests& debugDisplay)
     {
-        DrawShape(debugDisplay, m_capsuleShapeConfig.GetDrawParams(), m_capsuleShapeMesh, m_capsuleShapeConfig.m_translationOffset);
+        // A matrix cannot carry a mirror, so the capsule is drawn at the offset the shape answers with. The shape is asked now, so
+        // this component holds no flip state, and with no shape answering the authored offset stays.
+        AZ::Vector3 translationOffset = m_capsuleShapeConfig.m_translationOffset;
+        ShapeComponentRequestsBus::EventResult(translationOffset, GetEntityId(), &ShapeComponentRequests::GetEffectiveTranslationOffset);
+
+        DrawShape(debugDisplay, m_capsuleShapeConfig.GetDrawParams(), m_capsuleShapeMesh, translationOffset);
     }
 
     bool CapsuleShapeDebugDisplayComponent::ReadInConfig(const AZ::ComponentConfig* baseConfig)

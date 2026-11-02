@@ -64,6 +64,7 @@ namespace AZ
             void SetSortKey(uint8_t sortKeys) override;
             void SetMaterialAssetId(Data::AssetId) override;
             Data::AssetId GetMaterialAssetId() const override;
+            void SetRenderScale(const AZ::Transform& world, const AZ::Vector3& renderScale) override;
 
             void ConfigurationChanged();
             void AttenuationAngleChanged();

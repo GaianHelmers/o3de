@@ -44,6 +44,10 @@ namespace LmbrCentral
 
         AZ::Aabb GetEncompassingAabb() const override;
         void GetTransformAndLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const override;
+        // Transform 2 flip. The children can flip with different signs, so a compound shape has no signs of its own: it keeps the
+        // default GetFlipSigns of one, and does not pass on OnShapeFlipChanged. A gradient pattern on a compound shape stays
+        // authored, whatever its children do. Saved data reads the authored bounds of the children.
+        void GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const override;
         bool IsPointInside(const AZ::Vector3& point) const override;
         float DistanceSquaredFromPoint(const AZ::Vector3& point) const override;
         bool IntersectRay(const AZ::Vector3& src, const AZ::Vector3& dir, float& distance) const override;

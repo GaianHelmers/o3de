@@ -27,6 +27,9 @@ set(FILES
     ShapeThreadsafeTest.h
     ShapeTestUtils.cpp
     ShapeTestUtils.h
+    T1CostBenchmarks.cpp
+    Transform2ShapeTests.cpp
+    Transform2SphereCapsuleTests.cpp
     ../Source/LmbrCentral.cpp
     ../Source/Shape/TubeShape.cpp
 )

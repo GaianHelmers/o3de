@@ -11,7 +11,10 @@ set(FILES
     Tests/CommonTest.cpp
     Tests/CoreLights/ShadowmapAtlasTest.cpp
     Tests/IndexedDataVectorTests.cpp
+    Tests/Mesh/ExactWorldTests.cpp
+    Tests/Mesh/MeshCommonTests.cpp
     Tests/Mesh/MeshInstanceManagerTests.cpp
+    Tests/Mesh/T1CostBenchmarks.cpp
     Tests/MultiIndexedDataVectorTests.cpp
     Tests/IndexableListTests.cpp
     Tests/SparseVectorTests.cpp

@@ -37,6 +37,7 @@ namespace PhysX
         // JointComponent overrides ...
         void InitNativeJoint() override;
         void DeinitNativeJoint() override;
+        bool ReversesMotionAxis(const AZ::Vector3& signs) const override;
 
         // JointRequestBus::Handler overrides ...
         float GetPosition() const override;

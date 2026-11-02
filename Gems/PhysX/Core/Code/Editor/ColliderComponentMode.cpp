@@ -210,10 +210,12 @@ namespace PhysX
         CreateSubModeSelectionCluster();
         ColliderComponentModeRequestBus::Handler::BusConnect(entityComponentIdPair);
         ColliderComponentModeUiRequestBus::Handler::BusConnect(entityComponentIdPair);
+        AZ::Transform2NotificationBus::Handler::BusConnect();
     }
 
     ColliderComponentMode::~ColliderComponentMode()
     {
+        AZ::Transform2NotificationBus::Handler::BusDisconnect();
         ColliderComponentModeUiRequestBus::Handler::BusDisconnect();
         ColliderComponentModeRequestBus::Handler::BusDisconnect();
 
@@ -224,6 +226,22 @@ namespace PhysX
     void ColliderComponentMode::Refresh()
     {
         m_subModes[m_subMode]->Refresh(GetEntityComponentIdPair());
+    }
+
+    void ColliderComponentMode::OnTransform2Activated(AZ::EntityId entityId, [[maybe_unused]] const AZ::Vector3& scale)
+    {
+        if (entityId == GetEntityId())
+        {
+            Refresh();
+        }
+    }
+
+    void ColliderComponentMode::OnTransform2ScaleChanged(AZ::EntityId entityId, [[maybe_unused]] const AZ::Vector3& scale)
+    {
+        if (entityId == GetEntityId())
+        {
+            Refresh();
+        }
     }
 
     AZStd::vector<AzToolsFramework::ActionOverride> ColliderComponentMode::PopulateActionsImpl()

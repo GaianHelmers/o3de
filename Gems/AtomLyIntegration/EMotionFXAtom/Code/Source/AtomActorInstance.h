@@ -162,6 +162,7 @@ namespace AZ
             bool GetRayTracingEnabled() const override;
             void SetExcludeFromReflectionCubeMaps(bool excludeFromReflectionCubeMaps) override;
             bool GetExcludeFromReflectionCubeMaps() const override;
+            AZ::Vector3 GetRenderScale() const override;
             // GetWorldBounds/GetLocalBounds already overridden by BoundsRequestBus::Handler
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,6 +190,10 @@ namespace AZ
         private:
             // MeshHandleStateRequestBus overrides ...
             const MeshFeatureProcessorInterface::MeshHandle* GetMeshHandle() const override;
+
+            //! Keeps the sign of each axis of the scale a Transform 2 entity is drawn with, and nothing else of it.
+            //! The joint queries and the bounds read it so they answer for the drawn actor. Only Transform 2 calls this.
+            void SetRenderScale(const AZ::Vector3& scale) override;
 
             void CreateSkinnedMeshInstance();
 
@@ -240,6 +245,10 @@ namespace AZ
             };
 
             bool m_rayTracingEnabled = true;
+
+            //! Bit 0 is X, bit 1 is Y and bit 2 is Z, set when a Transform 2 draws the actor with that axis flipped. Zero on a
+            //! Transform 1 entity, which is every actor that is not flipped. This byte sits in the padding after the bool above.
+            AZ::u8 m_renderSignMask = 0;
         };
 
     } // namespace Render

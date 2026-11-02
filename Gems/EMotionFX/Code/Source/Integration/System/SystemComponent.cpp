@@ -57,6 +57,7 @@
 
 #include <Integration/System/SystemComponent.h>
 #include <Integration/System/CVars.h>
+#include <Integration/System/Transform2ActorSupport.h>
 
 #include <AzFramework/Physics/PhysicsScene.h>
 #include <AzFramework/Physics/Common/PhysicsSceneQueries.h>
@@ -366,6 +367,7 @@ namespace EMotionFX
         void SystemComponent::Reflect(AZ::ReflectContext* context)
         {
             ReflectEMotionFX(context);
+            Transform2ActorSupport::Reflect(context);
 
             // Reflect component for serialization.
             AZ::SerializeContext* serializeContext = azrtti_cast<AZ::SerializeContext*>(context);
@@ -506,6 +508,7 @@ namespace EMotionFX
 
 
             m_renderBackendManager = AZStd::make_unique<RenderBackendManager>();
+            m_transform2ActorSupport = AZStd::make_unique<Transform2ActorSupport>();
 #if defined (EMOTIONFXANIMATION_EDITOR)
             AzToolsFramework::EditorEvents::Bus::Handler::BusConnect();
             AzToolsFramework::EditorAnimationSystemRequestsBus::Handler::BusConnect();
@@ -542,6 +545,7 @@ namespace EMotionFX
             AzToolsFramework::EditorEvents::Bus::Handler::BusDisconnect();
 #endif // EMOTIONFXANIMATION_EDITOR
 
+            m_transform2ActorSupport.reset();
             m_renderBackendManager.reset();
 
             EMotionFX::GetEventManager().RemoveEventHandler(m_eventHandler.get());

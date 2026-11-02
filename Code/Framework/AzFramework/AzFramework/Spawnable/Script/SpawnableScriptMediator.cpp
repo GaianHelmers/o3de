@@ -6,6 +6,7 @@
  *
  */
 
+#include <AzCore/Component/EntityUtils.h>
 #include <AzCore/std/smart_ptr/make_shared.h>
 #include <AzFramework/Components/TransformComponent.h>
 #include <AzFramework/Spawnable/Script/SpawnableScriptBus.h>
@@ -115,6 +116,11 @@ namespace AzFramework::Scripts
             }
             AZ::Entity* containerEntity = *view.begin();
             TransformComponent* entityTransform = containerEntity->FindComponent<TransformComponent>();
+            if (!entityTransform)
+            {
+                // A Transform2Component derives from TransformComponent but has its own type id.
+                entityTransform = AZ::EntityUtils::FindFirstDerivedComponent<TransformComponent>(containerEntity);
+            }
 
             if (entityTransform)
             {

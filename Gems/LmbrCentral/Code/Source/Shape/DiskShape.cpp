@@ -64,6 +64,9 @@ namespace LmbrCentral
         DiskShapeComponentRequestBus::Handler::BusDisconnect();
         ShapeComponentRequestsBus::Handler::BusDisconnect();
         AZ::TransformNotificationBus::Handler::BusDisconnect();
+
+        // A re-activated shape starts as authored. The Transform 2 shape support pushes the flip again.
+        m_intersectionDataCache.ResetFlipMask();
     }
 
     void DiskShape::InvalidateCache(InvalidateShapeCacheReason reason)
@@ -176,6 +179,35 @@ namespace LmbrCentral
             src, dir, m_intersectionDataCache.m_position, m_intersectionDataCache.m_radius, m_intersectionDataCache.m_normal, distance);
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+
+    void DiskShape::SetFlipMask(AZ::u8 flipMask)
+    {
+        bool shapeChanged = false;
+        {
+            AZStd::unique_lock lock(m_mutex);
+            const bool wasTurnedOver = m_intersectionDataCache.IsTurnedOver();
+            m_intersectionDataCache.SetFlipMask(flipMask);
+
+            // Only a Z flip turns the disk over. The region is the same on every side, so an X or Y flip tells no one.
+            shapeChanged = wasTurnedOver != m_intersectionDataCache.IsTurnedOver();
+        }
+
+        if (shapeChanged)
+        {
+            ShapeComponentNotificationsBus::Event(
+                m_entityId, &ShapeComponentNotificationsBus::Events::OnShapeChanged,
+                ShapeComponentNotifications::ShapeChangeReasons::ShapeChanged);
+        }
+    }
+
+    AZ::Vector3 DiskShape::GetFlipSigns() const
+    {
+        // One byte read with no lock, like the other shapes: a light asks for this on every move of its entity.
+        return m_intersectionDataCache.GetFlipSigns();
+    }
+
     void DiskShape::DiskIntersectionDataCache::UpdateIntersectionParamsImpl(
         const AZ::Transform& currentTransform, const DiskShapeConfig& configuration,
         [[maybe_unused]] const AZ::Vector3& currentNonUniformScale)
@@ -183,6 +215,13 @@ namespace LmbrCentral
         m_position = currentTransform.GetTranslation();
         m_normal = currentTransform.GetBasisZ().GetNormalized();
         m_radius = configuration.m_radius * currentTransform.GetUniformScale();
+
+        // Transform 2: a Z flip turns the disk over, so it faces the other way. Nothing else about it changes: the plane, the radius
+        // and the box around it are the same on both sides.
+        if (IsTurnedOver())
+        {
+            m_normal = -m_normal;
+        }
     }
 
     void DiskShape::SetDiskConfiguration(const DiskShapeConfig& diskShapeConfig)

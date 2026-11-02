@@ -141,6 +141,10 @@ namespace LmbrCentral
             m_tubeShape.GetSpline(), m_tubeShape.GetRadiusAttribute(), m_tubeShape.GetRadius(),
             endSegments, m_tubeShapeMeshConfig.m_sides, m_tubeShapeMesh.m_vertexBuffer,
             m_tubeShapeMesh.m_indexBuffer, m_tubeShapeMesh.m_lineBuffer);
+
+        // The mesh is built from the authored spline and its authored normals, and its points follow the flip of the tube.
+        m_meshFlipSigns = m_tubeShape.GetFlipSigns();
+        MirrorTubeMeshPoints(m_meshFlipSigns, m_tubeShapeMesh);
     }
 
     void EditorTubeShapeComponent::DisplayEntityViewport(
@@ -165,6 +169,18 @@ namespace LmbrCentral
 
         // refresh the UI for this component, too
         InvalidatePropertyDisplay(AzToolsFramework::PropertyModificationRefreshLevel::Refresh_Values);
+    }
+
+    void EditorTubeShapeComponent::OnShapeChanged(const ShapeChangeReasons changeReason)
+    {
+        EditorBaseShapeComponent::OnShapeChanged(changeReason);
+
+        // A flip moves the tube and leaves the spline alone, so no spline event builds the mesh again. The mesh is built when the
+        // signs it was built with are not the signs of the tube. The edits of a drag raise this event too, and change nothing here.
+        if (changeReason == ShapeChangeReasons::ShapeChanged && m_tubeShape.GetFlipSigns() != m_meshFlipSigns)
+        {
+            GenerateVertices();
+        }
     }
 
     void EditorTubeShapeComponent::OnSplineChanged()
@@ -195,6 +211,10 @@ namespace LmbrCentral
     void EditorTubeShapeComponent::BuildGameEntity(AZ::Entity* gameEntity)
     {
         const bool isActive = GetEntity() ? (GetEntity()->GetState() == AZ::Entity::State::Active) : false;
+
+        // Deactivating the shape drops its flip, and nothing pushes it again to a shape that was never deactivated by its entity.
+        // The flip is kept across the pair, or the editor tube would sit unflipped after every export and every game mode entry.
+        const AZ::u8 flipMask = m_tubeShape.GetFlipMask();
         if (isActive)
         {
             m_tubeShape.Deactivate();
@@ -210,6 +230,7 @@ namespace LmbrCentral
         if (isActive)
         {
             m_tubeShape.Activate(GetEntityId());
+            m_tubeShape.RestoreFlipMask(flipMask);
         }
     }
 } // namespace LmbrCentral

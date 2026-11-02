@@ -159,6 +159,8 @@ set(FILES
     Components/AzFrameworkConfigurationSystemComponent.cpp
     Components/NonUniformScaleComponent.h
     Components/NonUniformScaleComponent.cpp
+    Components/Transform2Component.h
+    Components/Transform2Component.cpp
     DocumentPropertyEditor/AdapterBuilder.cpp
     DocumentPropertyEditor/AdapterBuilder.h
     DocumentPropertyEditor/AggregateAdapter.cpp

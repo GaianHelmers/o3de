@@ -10,6 +10,7 @@
 
 #include <AzFramework/Physics/Collision/CollisionEvents.h>
 #include <AzToolsFramework/ToolsComponents/EditorNonUniformScaleComponent.h>
+#include <AzToolsFramework/ToolsComponents/TransformComponent.h>
 #include <EditorColliderComponent.h>
 #include <EditorMeshColliderComponent.h>
 #include <EditorRigidBodyComponent.h>
@@ -57,6 +58,22 @@ namespace PhysXEditorTests
         gameEntity->Init();
         gameEntity->Activate();
         return gameEntity;
+    }
+
+    EntityPtr CreateInactiveGameEntityFromEditorEntity(AZ::Entity* editorEntity)
+    {
+        EntityPtr gameEntity = AZStd::make_unique<AZ::Entity>();
+        AzToolsFramework::ToolsApplicationRequestBus::Broadcast(
+            &AzToolsFramework::ToolsApplicationRequests::PreExportEntity, *editorEntity, *gameEntity);
+        return gameEntity;
+    }
+
+    void SetEditorTransformScale(AZ::Entity* editorEntity, const AZ::Vector3& scale)
+    {
+        auto* transform = editorEntity->FindComponent<AzToolsFramework::Components::TransformComponent>();
+        AzToolsFramework::Components::EditorTransform editorTransform = transform->GetLocalEditorTransform();
+        editorTransform.m_authoredScale = scale;
+        transform->SetLocalEditorTransform(editorTransform);
     }
 
     EntityPtr CreateBoxShapeColliderEditorEntity(

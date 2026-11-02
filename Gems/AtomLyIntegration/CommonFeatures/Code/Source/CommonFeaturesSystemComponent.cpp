@@ -69,10 +69,13 @@ namespace AZ
         {
             auto modelAssetHandler = azrtti_cast<RPI::ModelAssetHandler*>(Data::AssetManager::Instance().GetHandler(azrtti_typeid<RPI::ModelAsset>()));
             modelAssetHandler->m_componentTypeId = EditorMeshComponentTypeId;
+
+            m_transform2MeshSupport = AZStd::make_unique<Transform2MeshSupport>();
         }
 
         void AtomLyIntegrationCommonFeaturesSystemComponent::Deactivate()
         {
+            m_transform2MeshSupport.reset();
         }
     } // namespace Render
 } // namespace AZ

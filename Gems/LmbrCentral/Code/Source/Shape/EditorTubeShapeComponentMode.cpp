@@ -33,6 +33,15 @@ namespace LmbrCentral
     static const char* const s_resetRadiiTitle = "Reset Radii";
     static const char* const s_resetRadiiDesc = "Reset all variable radius values to the default";
 
+    // The signs the tube answers with, which is where a flip draws it. The spline and the normals stay authored, so a handle sits at
+    // the mirror of its authored place and drags along the mirror of its authored normal. A tube that is not flipped reads as ones.
+    static AZ::Vector3 GetTubeFlipSigns(AZ::EntityId entityId)
+    {
+        AZ::Vector3 flipSigns = AZ::Vector3::CreateOne();
+        ShapeComponentRequestsBus::EventResult(flipSigns, entityId, &ShapeComponentRequests::GetFlipSigns);
+        return flipSigns;
+    }
+
     EditorTubeShapeComponentMode::EditorTubeShapeComponentMode(
         const AZ::EntityComponentIdPair& entityComponentIdPair, const AZ::Uuid componentType)
         : EditorBaseComponentMode(entityComponentIdPair, componentType)
@@ -180,6 +189,7 @@ namespace LmbrCentral
             spline, entityId, &SplineComponentRequests::GetSpline);
 
         const auto tubeManipulatorStates = GenerateTubeManipulatorStates(*spline);
+        const AZ::Vector3 flipSigns = GetTubeFlipSigns(entityId);
 
         for (size_t manipulatorIndex = 0; manipulatorIndex < tubeManipulatorStates.size(); ++manipulatorIndex)
         {
@@ -194,8 +204,8 @@ namespace LmbrCentral
 
             auto linearManipulator = AzToolsFramework::LinearManipulator::MakeShared(m_currentTransform);
             linearManipulator->AddEntityComponentIdPair(GetEntityComponentIdPair());
-            linearManipulator->SetLocalTransform(AZ::Transform::CreateTranslation(position + normal * radius));
-            linearManipulator->SetAxis(normal);
+            linearManipulator->SetLocalTransform(AZ::Transform::CreateTranslation((position + normal * radius) * flipSigns));
+            linearManipulator->SetAxis(normal * flipSigns);
 
             AzToolsFramework::ManipulatorViews views;
             views.emplace_back(AzToolsFramework::CreateManipulatorViewQuadBillboard(
@@ -248,7 +258,11 @@ namespace LmbrCentral
                 SplineComponentRequestBus::EventResult(
                     found, entityId, &SplineComponentRequests::GetVertex, tubeManipulatorState.m_vertIndex, localVertexPosition);
 
-                const AZ::Vector3 localNormal = spline->GetNormal(tubeManipulatorState.m_splineAddress);
+                // the handle and its axis are on the mirrored side, so the vertex and the normal it is compared with are too
+                const AZ::Vector3 mouseMoveFlipSigns = GetTubeFlipSigns(entityId);
+                localVertexPosition *= mouseMoveFlipSigns;
+
+                const AZ::Vector3 localNormal = spline->GetNormal(tubeManipulatorState.m_splineAddress) * mouseMoveFlipSigns;
                 const AZ::Vector3 manipulatorVector = action.LocalPosition() - localVertexPosition;
                 const float manipulatorDot = manipulatorVector.Dot(localNormal);
 
@@ -370,6 +384,8 @@ namespace LmbrCentral
             "tubeManipulatorStates.size() (%zu) does not equal m_radiusManipulators.size() (%zu), it's likely CreateManipulators has not been called",
             tubeManipulatorStates.size(), m_radiusManipulators.size());
 
+        const AZ::Vector3 flipSigns = GetTubeFlipSigns(entityId);
+
         for (size_t manipulatorIndex = 0; manipulatorIndex < tubeManipulatorStates.size(); ++manipulatorIndex)
         {
             const TubeManipulatorState& tubeManipulatorState = tubeManipulatorStates[manipulatorIndex];
@@ -382,8 +398,8 @@ namespace LmbrCentral
                 radius, entityId, &TubeShapeComponentRequests::GetTotalRadius, tubeManipulatorState.m_splineAddress);
 
             m_radiusManipulators[manipulatorIndex]->SetLocalTransform(
-                AZ::Transform::CreateTranslation(position + normal * radius));
-            m_radiusManipulators[manipulatorIndex]->SetAxis(normal);
+                AZ::Transform::CreateTranslation((position + normal * radius) * flipSigns));
+            m_radiusManipulators[manipulatorIndex]->SetAxis(normal * flipSigns);
             m_radiusManipulators[manipulatorIndex]->SetBoundsDirty();
         }
     }

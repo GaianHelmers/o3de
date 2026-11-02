@@ -7,6 +7,7 @@
  */
 
 #include <AzCore/Component/Entity.h>
+#include <AzCore/Component/Transform2Bus.h>
 #include <AzCore/Asset/AssetSerializer.h>
 #include <AzCore/Serialization/SerializeContext.h>
 #include <AzCore/Serialization/EditContext.h>
@@ -26,6 +27,7 @@
 #include <Integration/Editor/Components/EditorActorComponent.h>
 #include <Integration/AnimGraphComponentBus.h>
 #include <Integration/Rendering/RenderBackendManager.h>
+#include <Integration/System/Transform2ActorSupport.h>
 
 #include <EMotionFX/Tools/EMotionStudio/EMStudioSDK/Source/EMStudioManager.h>
 #include <EMotionFX/Tools/EMotionStudio/EMStudioSDK/Source/MainWindow.h>
@@ -749,9 +751,40 @@ namespace EMotionFX
             return m_attachmentTarget;
         }
 
+        //////////////////////////////////////////////////////////////////////////
+        // Selection and bounds of a Transform 2 actor
+
+        namespace
+        {
+            // The actor instance is posed at the stand-in scale of the entity, and the renderer draws the pose with the signed
+            // render scale of a Transform 2 on top. Selection and bounds have to be around what is drawn, so they need both.
+            // This asks the Transform2 request bus once per call. That is allowed here because this class is Editor only and
+            // ships nowhere. An entity without a Transform 2 has no handler, so a Transform 1 actor gets nothing and false.
+            // @param world Receives the Transform 1 world of the entity, which holds only the stand-in.
+            // @param renderScale Receives AZ::Transform2::RenderScale of the world scale of the entity, with its parents applied.
+            // @return True when the actor is drawn differently from its pose. False when selection can use the pose as it is.
+            bool GetPoseRenderScale(AZ::EntityId entityId, AZ::Transform& world, AZ::Vector3& renderScale)
+            {
+                AZ::Vector3 scale = AZ::Vector3::CreateOne();
+                AZ::Transform2RequestBus::EventResult(scale, entityId, &AZ::Transform2Requests::GetWorldScale);
+
+                renderScale = AZ::Transform2::RenderScale(scale);
+                if (renderScale.IsClose(AZ::Vector3::CreateOne()))
+                {
+                    return false;
+                }
+
+                world = AZ::Transform::CreateIdentity();
+                AZ::TransformBus::EventResult(world, entityId, &AZ::TransformBus::Events::GetWorldTM);
+                return true;
+            }
+        } // namespace
+
         AZ::Aabb EditorActorComponent::GetEditorSelectionBoundsViewport(
             const AzFramework::ViewportInfo& /*viewportInfo*/)
         {
+            // The selection box and the coarse first test of a pick are around what is drawn. GetWorldBounds is mapped
+            // already, so this must not map it again.
             return GetWorldBounds();
         }
 
@@ -759,6 +792,18 @@ namespace EMotionFX
         {
             if (m_renderActorInstance)
             {
+                // The bounds bus unions this answer with the one of AtomActorInstance on the same entity, so both are around
+                // what is drawn or Focus would cover both sides. GetWorldAABB is the box of the pose, not the answer of the
+                // other handler, so nothing is mapped twice. The runtime handler only knows the sign of each axis, which is
+                // the same box for a flip. For a non-uniform scale the union is the larger of the two boxes.
+                // This asks the Transform2 request bus on every bounds read. That is allowed here because the class is Editor only.
+                AZ::Transform world = AZ::Transform::CreateIdentity();
+                AZ::Vector3 renderScale = AZ::Vector3::CreateOne();
+                if (GetPoseRenderScale(GetEntityId(), world, renderScale))
+                {
+                    return MapAabbFromPoseFrame(world, renderScale, m_renderActorInstance->GetWorldAABB());
+                }
+
                 return m_renderActorInstance->GetWorldAABB();
             }
 
@@ -769,6 +814,15 @@ namespace EMotionFX
         {
             if (m_renderActorInstance)
             {
+                // The local box is in the frame of the entity, so an identity world maps it about the entity origin.
+                // The world that the lookup hands back is not needed.
+                AZ::Transform world = AZ::Transform::CreateIdentity();
+                AZ::Vector3 renderScale = AZ::Vector3::CreateOne();
+                if (GetPoseRenderScale(GetEntityId(), world, renderScale))
+                {
+                    return MapAabbFromPoseFrame(AZ::Transform::CreateIdentity(), renderScale, m_renderActorInstance->GetLocalAABB());
+                }
+
                 return m_renderActorInstance->GetLocalAABB();
             }
 
@@ -791,7 +845,15 @@ namespace EMotionFX
             const AzFramework::CameraState cameraState = AzToolsFramework::GetCameraState(viewportInfo.m_viewportId);
             const float frustumDepth = cameraState.m_farClip - cameraState.m_nearClip;
             const AZ::Vector3 dest = src + dir * frustumDepth;
-            const MCore::Ray ray(src, dest);
+
+            // The pose is not what is drawn on a Transform 2 entity, so the ray is moved into the pose frame instead.
+            // Mapping both end points keeps it a straight segment, and the triangles of the pose are the preimage of the drawn ones.
+            AZ::Transform world = AZ::Transform::CreateIdentity();
+            AZ::Vector3 renderScale = AZ::Vector3::CreateOne();
+            const bool isDrawnApart = GetPoseRenderScale(GetEntityId(), world, renderScale);
+            const AZ::Vector3 poseSrc = isDrawnApart ? MapPointIntoPoseFrame(world, renderScale, src) : src;
+            const AZ::Vector3 poseDest = isDrawnApart ? MapPointIntoPoseFrame(world, renderScale, dest) : dest;
+            const MCore::Ray ray(poseSrc, poseDest);
 
             // Update the mesh deformers (apply software skinning and morphing) so the intersection test will hit the actor
             // if it is being animated by a motion component that is previewing the animation in the editor.
@@ -820,6 +882,13 @@ namespace EMotionFX
                 if (mesh->Intersects(meshTransform, ray, &hitPoint))
                 {
                     isHit = true;
+
+                    // Back to where it is drawn before measuring. The mapping is not an isometry for a non-uniform scale.
+                    if (isDrawnApart)
+                    {
+                        hitPoint = MapPointFromPoseFrame(world, renderScale, hitPoint);
+                    }
+
                     float hitDistance = (src - hitPoint).GetLength();
                     if (hitDistance < distance)
                     {

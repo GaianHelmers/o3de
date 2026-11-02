@@ -22,6 +22,7 @@ namespace AZ
 {
     class Color;
     class Transform;
+    class Vector3;
     class Aabb;
 
     namespace RPI
@@ -110,6 +111,11 @@ namespace AZ
 
             //! Returns the Aabb for the debug visualization of the light.
             virtual Aabb GetLocalVisualizationBounds() const = 0;
+
+            // Transform 2
+
+            //! Gives the light the signed per-axis scale of its entity and the Transform 1 world it applies to. Only Transform 2 calls this.
+            virtual void SetRenderScale([[maybe_unused]] const Transform& world, [[maybe_unused]] const Vector3& renderScale) {}
         };
     } //  namespace Render
 } // namespace AZ

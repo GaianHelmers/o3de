@@ -257,6 +257,7 @@ namespace Multiplayer
         AZ::TickBus::Handler::BusConnect();
         SessionNotificationBus::Handler::BusConnect();
         AzFramework::LevelLoadBlockerBus::Handler::BusConnect();
+        m_transform2NetReporter = AZStd::make_unique<Transform2NetReporter>();
         const AZ::Name interfaceName = AZ::Name(MpNetworkInterfaceName);
         m_networkInterface = AZ::Interface<INetworking>::Get()->CreateNetworkInterface(interfaceName, sv_protocol, TrustZone::ExternalClientToServer, *this);
 
@@ -376,6 +377,7 @@ namespace Multiplayer
         SessionNotificationBus::Handler::BusDisconnect();
         AZ::TickBus::Handler::BusDisconnect();
         AzFramework::RootSpawnableNotificationBus::Handler::BusDisconnect();
+        m_transform2NetReporter.reset();
 
         m_networkEntityManager.Reset();
 

@@ -9,6 +9,8 @@
 set(FILES
     Source/SystemComponent.cpp
     Source/SystemComponent.h
+    Source/Transform2ColliderSupport.cpp
+    Source/Transform2ColliderSupport.h
     Include/PhysX/SystemComponentBus.h
     Include/PhysX/ColliderComponentBus.h
     Include/PhysX/NativeTypeIdentifiers.h

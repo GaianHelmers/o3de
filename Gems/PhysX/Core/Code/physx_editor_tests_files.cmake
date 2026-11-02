@@ -22,6 +22,7 @@ set(FILES
     Tests/EditorMeshColliderComponentTests.cpp
     Tests/EditorShapeColliderComponentTests.cpp
     Tests/EditorHeightfieldColliderComponentTests.cpp
+    Tests/EditorJointComponentTests.cpp
     Tests/TestColliderComponent.h
     Tests/TestMeshColliderComponent.h
     Tests/SystemComponentTest.cpp

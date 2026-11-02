@@ -20,7 +20,11 @@ namespace SurfaceData
     {
         SURFACE_DATA_PROFILE_FUNCTION_VERBOSE
 
-        const AZ::Vector3 clampedScale = nonUniformScale.GetMax(AZ::Vector3(AZ::MinTransformScale));
+        // Clamp the magnitude of each axis and keep its sign, zero counting as positive, as Model::RayIntersection does. A negative
+        // axis is a flip, and clamping it to a small positive scale would test the ray against the side the mesh is not drawn on.
+        const AZ::Vector3 clampedMagnitude = nonUniformScale.GetAbs().GetMax(AZ::Vector3(AZ::MinTransformScale));
+        const AZ::Vector3 clampedScale =
+            AZ::Vector3::CreateSelectCmpGreaterEqual(nonUniformScale, AZ::Vector3::CreateZero(), clampedMagnitude, -clampedMagnitude);
 
         // Transform everything into model space
         const AZ::Vector3 rayStartLocal = meshTransformInverse.TransformPoint(rayStart) / clampedScale;
@@ -41,6 +45,11 @@ namespace SurfaceData
             // The distance that's returned is normalized from 0-1, so multiplying with the rayDirectionLocal gives the
             // actual collision point.
             outPosition = meshTransform.TransformPoint((rayStartLocal + (rayDirectionLocal * normalizedDistance)) * clampedScale);
+
+            // The world transform has no flip, so a mirrored surface would get the normal it was authored with. The local normal is
+            // mirrored by the signs of the scale first. On a positive scale the signs are one, which leaves it as it was.
+            normalLocal *= AZ::Vector3::CreateSelectCmpGreaterEqual(
+                nonUniformScale, AZ::Vector3::CreateZero(), AZ::Vector3::CreateOne(), -AZ::Vector3::CreateOne());
             outNormal = meshTransform.TransformVector(normalLocal).GetNormalized();
             return true;
         }

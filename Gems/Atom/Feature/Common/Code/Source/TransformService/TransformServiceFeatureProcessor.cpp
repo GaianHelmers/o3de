@@ -8,6 +8,7 @@
 
 #include <TransformService/TransformServiceFeatureProcessor.h>
 
+#include <Atom/Feature/Mesh/MeshCommon.h>
 #include <Atom/RHI/Factory.h>
 
 #include <Atom/RHI/RHISystemInterface.h>
@@ -15,6 +16,7 @@
 #include <Atom/Utils/Utils.h>
 
 #include <cinttypes>
+#include <cstring>
 
 namespace AZ
 {
@@ -50,6 +52,7 @@ namespace AZ
         {
             m_objectToWorldTransforms = {};
             m_objectToWorldInverseTransposeTransforms = {};
+            m_bestFitByIndex.clear();
 
             m_objectToWorldBuffer = nullptr;
             m_objectToWorldInverseTransposeBuffer = nullptr;
@@ -201,6 +204,12 @@ namespace AZ
             AZ_Error("TransformServiceFeatureProcessor", id.IsValid(), "Attempting to release an invalid handle.");
             if (id.IsValid())
             {
+                // Transform 2: the best fit of an exact object. The map is empty unless a Transform 2 mesh has an exact matrix.
+                if (!m_bestFitByIndex.empty())
+                {
+                    m_bestFitByIndex.erase(id.GetIndex());
+                }
+
                 m_objectToWorldTransforms.at(id.GetIndex()).m_nextFreeSlot = m_firstAvailableTransformIndex;
                 m_firstAvailableTransformIndex = id.GetIndex();
                 id.Reset();
@@ -237,6 +246,91 @@ namespace AZ
             AZ_Error("TransformServiceFeatureProcessor", id.IsValid(), "Attempting to get the non-uniform scale for an invalid handle.");
             AZ::Matrix3x4 matrix3x4 = AZ::Matrix3x4::CreateFromRowMajorFloat12(m_objectToWorldTransforms.at(id.GetIndex()).m_transform);
             return matrix3x4.RetrieveScale();
+        }
+
+        // Transform 2 support, concrete class only
+
+        void TransformServiceFeatureProcessor::ResetHistoryForId(ObjectId id)
+        {
+            AZ_Error("TransformServiceFeatureProcessor", m_isWriteable, "Transform data cannot be written to during this phase");
+            AZ_Error("TransformServiceFeatureProcessor", id.IsValid(), "Attempting to reset the history for an invalid handle.");
+            if (id.IsValid())
+            {
+                // OnBeginPrepareRender uploads the history before it snapshots the current matrices into it, so an entry set here
+                // is what the shaders read as the previous matrix on the very next frame.
+                m_objectToWorldHistoryTransforms.at(id.GetIndex()) = m_objectToWorldTransforms.at(id.GetIndex());
+                m_historyBufferNeedsUpdate = true;
+            }
+        }
+
+        void TransformServiceFeatureProcessor::SetMatrixForId(ObjectId id, const AZ::Matrix3x4& objectToWorld)
+        {
+            AZ_Error("TransformServiceFeatureProcessor", m_isWriteable, "Transform data cannot be written to during this phase");
+            AZ_Error("TransformServiceFeatureProcessor", id.IsValid(), "Attempting to set the matrix for an invalid handle.");
+            if (id.IsValid())
+            {
+                Float4x3& entry = m_objectToWorldTransforms.at(id.GetIndex());
+
+                // The entry holds the matrix of the best fit that SetTransformForId wrote just before this call, and this call is
+                // about to replace it. Ray tracing keeps that pair, which GetTransformForId cannot read back from a shear.
+                // An entry that still holds the exact matrix written by the last call here means no SetTransformForId came in
+                // between, and then the best fit taken then is still the current one.
+                auto bestFit = m_bestFitByIndex.find(id.GetIndex());
+                if (bestFit == m_bestFitByIndex.end())
+                {
+                    bestFit = m_bestFitByIndex.emplace(id.GetIndex(), BestFit{}).first;
+                    bestFit->second.m_bestFitMatrix = entry;
+                }
+                else if (memcmp(entry.m_transform, bestFit->second.m_exactMatrix.m_transform, sizeof(entry.m_transform)) != 0)
+                {
+                    bestFit->second.m_bestFitMatrix = entry;
+                }
+
+                objectToWorld.StoreToRowMajorFloat12(entry.m_transform);
+                bestFit->second.m_exactMatrix = entry;
+
+                // Not GetInverseFull: it returns the identity and warns when the determinant is tiny, which a collapsed axis gives.
+                MeshCommon::CreateNormalMatrix(objectToWorld).StoreToRowMajorFloat12(
+                    m_objectToWorldInverseTransposeTransforms.at(id.GetIndex()).m_transform);
+                m_deviceBufferNeedsUpdate = true;
+            }
+        }
+
+        bool TransformServiceFeatureProcessor::GetBestFitForId(ObjectId id, AZ::Transform& transform, AZ::Vector3& nonUniformScale) const
+        {
+            AZ_Error("TransformServiceFeatureProcessor", id.IsValid(), "Attempting to get the best fit for an invalid handle.");
+            if (!id.IsValid())
+            {
+                return false;
+            }
+
+            const auto bestFit = m_bestFitByIndex.find(id.GetIndex());
+            if (bestFit == m_bestFitByIndex.end())
+            {
+                return false;
+            }
+
+            // The same reads as GetTransformForId and GetNonUniformScaleForId, on the matrix of the pair: they are exact for it.
+            const AZ::Matrix3x4 matrix3x4 = AZ::Matrix3x4::CreateFromRowMajorFloat12(bestFit->second.m_bestFitMatrix.m_transform);
+            transform = AZ::Transform::CreateFromMatrix3x4(matrix3x4);
+            transform.ExtractUniformScale();
+            nonUniformScale = matrix3x4.RetrieveScale();
+            return true;
+        }
+
+        void TransformServiceFeatureProcessor::ClearBestFitForId(ObjectId id)
+        {
+            AZ_Error("TransformServiceFeatureProcessor", id.IsValid(), "Attempting to clear the best fit for an invalid handle.");
+            if (id.IsValid() && !m_bestFitByIndex.empty())
+            {
+                m_bestFitByIndex.erase(id.GetIndex());
+            }
+        }
+
+        AZ::Matrix3x4 TransformServiceFeatureProcessor::GetMatrixForId(ObjectId id) const
+        {
+            AZ_Error("TransformServiceFeatureProcessor", id.IsValid(), "Attempting to get the matrix for an invalid handle.");
+            return AZ::Matrix3x4::CreateFromRowMajorFloat12(m_objectToWorldTransforms.at(id.GetIndex()).m_transform);
         }
     }
 }

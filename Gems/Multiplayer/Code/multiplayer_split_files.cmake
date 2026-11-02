@@ -50,6 +50,8 @@ set(FILES
     Source/Editor/MultiplayerEditorConnection.h
     Source/MultiplayerSystemComponent.cpp
     Source/MultiplayerSystemComponent.h
+    Source/Transform2NetReporter.cpp
+    Source/Transform2NetReporter.h
     Source/NetworkEntity/NetworkEntityAuthorityTracker.cpp
     Source/NetworkEntity/NetworkEntityAuthorityTracker.h
     Source/NetworkEntity/NetworkEntityManager.cpp

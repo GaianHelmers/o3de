@@ -57,6 +57,8 @@ namespace AzToolsFramework
     {
         auto capsuleViewportEdit = AZStd::make_unique<CapsuleViewportEdit>(m_allowAsymmetricalEditing);
         InstallBaseShapeViewportEditFunctions(capsuleViewportEdit.get(), m_entityComponentIdPair);
+        // The capsule draws at the uniform stand-in scale and ignores the non-uniform residual, so its handles must too.
+        capsuleViewportEdit->InstallGetNonUniformScale([]() { return AZ::Vector3::CreateOne(); });
         InstallCapsuleViewportEditFunctions(capsuleViewportEdit.get(), m_entityComponentIdPair);
         m_subModes[static_cast<AZ::u32>(ShapeComponentModeRequests::SubMode::Dimensions)] = AZStd::move(capsuleViewportEdit);
 
@@ -64,6 +66,7 @@ namespace AzToolsFramework
         {
             auto shapeTranslationOffsetViewportEdit = AZStd::make_unique<ShapeTranslationOffsetViewportEdit>();
             InstallBaseShapeViewportEditFunctions(shapeTranslationOffsetViewportEdit.get(), m_entityComponentIdPair);
+            shapeTranslationOffsetViewportEdit->InstallGetNonUniformScale([]() { return AZ::Vector3::CreateOne(); });
             m_subModes[static_cast<AZ::u32>(ShapeComponentModeRequests::SubMode::TranslationOffset)] =
                 AZStd::move(shapeTranslationOffsetViewportEdit);
             SetupCluster();

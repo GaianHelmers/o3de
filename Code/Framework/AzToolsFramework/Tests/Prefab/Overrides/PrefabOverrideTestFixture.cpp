@@ -6,6 +6,10 @@
  *
  */
 
+#include <AzToolsFramework/API/ToolsApplicationAPI.h>
+#include <AzToolsFramework/Entity/EditorEntityHelpers.h>
+#include <AzToolsFramework/Prefab/PrefabDomUtils.h>
+#include <AzToolsFramework/ToolsComponents/TransformComponent.h>
 #include <Prefab/Overrides/PrefabOverrideTestFixture.h>
 
 namespace UnitTest
@@ -81,6 +85,52 @@ namespace UnitTest
 
         // Validate that overrides are still not present on the entity since the edit went to the template DOM directly.
         EXPECT_FALSE(m_prefabOverridePublicInterface->AreOverridesPresent(entityId));
+    }
+
+    AzToolsFramework::Components::EditorTransform PrefabOverrideTestFixture::GetEditorTransform(AZ::EntityId entityId)
+    {
+        AzToolsFramework::Components::EditorTransform editorTransform;
+        AzToolsFramework::Components::TransformComponentMessages::Bus::EventResult(
+            editorTransform, entityId, &AzToolsFramework::Components::TransformComponentMessages::Bus::Events::GetLocalEditorTransform);
+        return editorTransform;
+    }
+
+    void PrefabOverrideTestFixture::EditEditorTransform(
+        AZ::EntityId entityId, const AzToolsFramework::Components::EditorTransform& editorTransform)
+    {
+        {
+            // The undo batch is posted to the undo stack when the scope ends, so the edit is one undo step.
+            AzToolsFramework::ScopedUndoBatch undoBatch("Edit entity transform");
+            AzToolsFramework::Components::TransformComponentMessages::Bus::Event(
+                entityId, &AzToolsFramework::Components::TransformComponentMessages::Bus::Events::SetLocalEditorTransform, editorTransform);
+            m_prefabPublicInterface->GenerateUndoNodesForEntityChangeAndUpdateCache(entityId, undoBatch.GetUndoBatch());
+        }
+
+        PropagateAllTemplateChanges();
+    }
+
+    void PrefabOverrideTestFixture::EditAuthoredScale(AZ::EntityId entityId, const AZ::Vector3& scale)
+    {
+        AzToolsFramework::Components::EditorTransform editorTransform = GetEditorTransform(entityId);
+        editorTransform.m_authoredScale = scale;
+        EditEditorTransform(entityId, editorTransform);
+    }
+
+    AZStd::string PrefabOverrideTestFixture::GetTransformFieldPath(AZ::EntityId entityId, AZStd::string_view field)
+    {
+        AZ::Entity* entity = AzToolsFramework::GetEntityById(entityId);
+        EXPECT_TRUE(entity != nullptr);
+        auto* transform = entity ? entity->FindComponent<AzToolsFramework::Components::TransformComponent>() : nullptr;
+        EXPECT_TRUE(transform != nullptr);
+
+        // The same path the inspector builds for the label of a row.
+        const AZStd::string componentAlias = transform ? transform->GetSerializedIdentifier() : AZStd::string();
+        AZ::Dom::Path path;
+        path /= PrefabDomUtils::ComponentsName;
+        path /= componentAlias;
+        path /= "Transform Data";
+        path /= field;
+        return path.ToString();
     }
 
 } // namespace UnitTest

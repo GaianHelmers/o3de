@@ -118,9 +118,13 @@ namespace LmbrCentral
             debugDisplay, [this]() { return CanDraw(); },
             [this](AzFramework::DebugDisplayRequests& debugDisplay)
             {
+                // A matrix cannot carry a mirror, so the sphere is drawn at the offset the shape answers with. The copy is never stored.
+                SphereShapeConfig drawConfiguration = m_sphereShape.GetSphereConfiguration();
+                drawConfiguration.m_translationOffset = m_sphereShape.GetEffectiveTranslationOffset();
+
                 DrawSphereShape(
                     { m_sphereShape.GetSphereConfiguration().GetDrawColor(), m_shapeWireColor, m_displayFilled },
-                    m_sphereShape.GetSphereConfiguration(), debugDisplay);
+                    drawConfiguration, debugDisplay);
             },
             m_sphereShape.GetCurrentTransform());
     }
@@ -170,14 +174,17 @@ namespace LmbrCentral
         m_sphereShape.SetRadius(radius);
     }
 
+    // The handles sit on the sphere the wireframe draws, so they are given the mirrored offset and the mirrored offset they write is
+    // taken back as authored. A mirror is its own inverse, so the round trip is exact and a flip is never stored. This is the only
+    // place the handles mirror: the PhysX collider modes install the same shared handle functions on a component that mirrors itself.
     AZ::Vector3 EditorSphereShapeComponent::GetTranslationOffset() const
     {
-        return m_sphereShape.GetTranslationOffset();
+        return m_sphereShape.GetEffectiveTranslationOffset();
     }
 
     void EditorSphereShapeComponent::SetTranslationOffset(const AZ::Vector3& translationOffset)
     {
-        m_sphereShape.SetTranslationOffset(translationOffset);
+        m_sphereShape.SetTranslationOffset(translationOffset * m_sphereShape.GetFlipSigns());
     }
 
     AZ::Transform EditorSphereShapeComponent::GetManipulatorSpace() const

@@ -7,6 +7,7 @@
  */
 
 #include <TestColliderComponent.h>
+#include <TestMeshColliderComponent.h>
 
 #include <AzManipulatorTestFramework/IndirectManipulatorViewportInteraction.h>
 #include <AzManipulatorTestFramework/AzManipulatorTestFrameworkTestHelpers.h>
@@ -23,6 +24,8 @@
 #include <EditorColliderComponent.h>
 #include <EditorRigidBodyComponent.h>
 #include <EditorStaticRigidBodyComponent.h>
+#include <Source/Transform2ColliderSupport.h>
+#include <Tests/EditorTestUtilities.h>
 
 namespace UnitTest
 {
@@ -791,6 +794,273 @@ namespace UnitTest
             newColliderRotation, m_idPair, &PhysX::EditorColliderComponentRequests::GetColliderRotation);
 
         EXPECT_THAT(newColliderRotation, testing::Not(IsCloseTolerance(capsuleRotation, ManipulatorTolerance)));
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Flipped entity
+    //
+    // A flip never moves or turns the entity, and the wireframe of a flipped collider is drawn with its offset and rotation
+    // mirrored. The handles of the component mode sit on the wireframe, with their axes still oriented to the entity. The editor
+    // collider bus keeps the stored values, and every handle mirrors at its edge: on read when it takes its place, and on write
+    // when it stores what it did.
+
+    TEST_F(PhysXEditorColliderComponentFixture, ShapeManipulatorRequests_FlippedEntity_ReturnAndTakeMirroredValuesAndTheStoredValuesStayRaw)
+    {
+        const AZ::Quaternion colliderRotation = AZ::Quaternion::CreateFromEulerAnglesDegrees(AZ::Vector3(20.0f, 30.0f, 60.0f));
+        const AZ::Vector3 colliderOffset(1.0f, 2.0f, 3.0f);
+        SetupCollider(Physics::BoxShapeConfiguration(AZ::Vector3(2.0f, 3.0f, 1.5f)), colliderRotation, colliderOffset);
+
+        const auto getHandleOffset = [this]()
+        {
+            AZ::Vector3 handleOffset = AZ::Vector3::CreateZero();
+            AzToolsFramework::ShapeManipulatorRequestBus::EventResult(
+                handleOffset, m_idPair, &AzToolsFramework::ShapeManipulatorRequests::GetTranslationOffset);
+            return handleOffset;
+        };
+        const auto getHandleRotation = [this]()
+        {
+            AZ::Quaternion handleRotation = AZ::Quaternion::CreateIdentity();
+            AzToolsFramework::ShapeManipulatorRequestBus::EventResult(
+                handleRotation, m_idPair, &AzToolsFramework::ShapeManipulatorRequests::GetRotationOffset);
+            return handleRotation;
+        };
+        const auto getStoredOffset = [this]()
+        {
+            AZ::Vector3 storedOffset = AZ::Vector3::CreateZero();
+            PhysX::EditorColliderComponentRequestBus::EventResult(
+                storedOffset, m_idPair, &PhysX::EditorColliderComponentRequests::GetColliderOffset);
+            return storedOffset;
+        };
+
+        // not flipped: the handles take the stored values, as they always did
+        EXPECT_THAT(getHandleOffset(), IsCloseTolerance(colliderOffset, 1e-5f));
+        EXPECT_THAT(getHandleRotation(), IsCloseTolerance(colliderRotation, 1e-5f));
+
+        // flipped in X: the offset and the rotation mirror, and a rotation keeps its x component and negates y and z
+        PhysXEditorTests::SetEditorTransformScale(m_entity, AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        EXPECT_THAT(getHandleOffset(), IsCloseTolerance(AZ::Vector3(-1.0f, 2.0f, 3.0f), 1e-5f));
+        EXPECT_THAT(
+            getHandleRotation(),
+            IsCloseTolerance(
+                AZ::Quaternion(colliderRotation.GetX(), -colliderRotation.GetY(), -colliderRotation.GetZ(), colliderRotation.GetW()),
+                1e-5f));
+
+        // what a handle sets is mirrored back before it is stored, and the stored rotation is left alone
+        AzToolsFramework::ShapeManipulatorRequestBus::Event(
+            m_idPair, &AzToolsFramework::ShapeManipulatorRequests::SetTranslationOffset, AZ::Vector3(-0.5f, 2.0f, 3.0f));
+        EXPECT_THAT(getStoredOffset(), IsCloseTolerance(AZ::Vector3(0.5f, 2.0f, 3.0f), 1e-5f));
+        AZ::Quaternion storedRotation = AZ::Quaternion::CreateIdentity();
+        PhysX::EditorColliderComponentRequestBus::EventResult(
+            storedRotation, m_idPair, &PhysX::EditorColliderComponentRequests::GetColliderRotation);
+        EXPECT_THAT(storedRotation, IsCloseTolerance(colliderRotation, 1e-5f));
+
+        // flipped in Z: a rotation keeps its z component and negates x and y
+        PhysXEditorTests::SetEditorTransformScale(m_entity, AZ::Vector3(1.0f, 1.0f, -1.0f));
+        EXPECT_THAT(getHandleOffset(), IsCloseTolerance(AZ::Vector3(0.5f, 2.0f, -3.0f), 1e-5f));
+        EXPECT_THAT(
+            getHandleRotation(),
+            IsCloseTolerance(
+                AZ::Quaternion(-colliderRotation.GetX(), -colliderRotation.GetY(), colliderRotation.GetZ(), colliderRotation.GetW()),
+                1e-5f));
+
+        // back to unflipped: the handles take the stored values again
+        PhysXEditorTests::SetEditorTransformScale(m_entity, AZ::Vector3::CreateOne());
+        EXPECT_THAT(getHandleOffset(), IsCloseTolerance(AZ::Vector3(0.5f, 2.0f, 3.0f), 1e-5f));
+        EXPECT_THAT(getHandleRotation(), IsCloseTolerance(colliderRotation, 1e-5f));
+    }
+
+    TEST_F(PhysXEditorColliderComponentManipulatorFixture, OffsetManipulatorOnAFlippedEntitySitsOnTheMirroredColliderAndStoresTheUnmirroredOffset)
+    {
+        SetupCollider(
+            Physics::BoxShapeConfiguration(AZ::Vector3(2.0f, 3.0f, 1.5f)), AZ::Quaternion::CreateIdentity(), AZ::Vector3(1.0f, 0.0f, 0.0f));
+        const AZ::Quaternion entityRotation = AZ::Quaternion::CreateRotationZ(AZ::DegToRad(30.0f));
+        const AZ::Vector3 entityTranslation(2.0f, -3.0f, 0.5f);
+        SetupTransform(entityRotation, entityTranslation, 1.0f);
+        PhysXEditorTests::SetEditorTransformScale(m_entity, AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        EnterColliderSubMode(PhysX::ColliderComponentModeRequests::SubMode::Offset);
+
+        // the stored offset is +1 in x, and the collider is drawn at -1: world * (-1, 0, 0)
+        AZ::Transform world = AZ::Transform::CreateIdentity();
+        AZ::TransformBus::EventResult(world, m_entity->GetId(), &AZ::TransformBus::Events::GetWorldTM);
+        const AZ::Vector3 expectedColliderPosition = world.TransformPoint(AZ::Vector3(-1.0f, 0.0f, 0.0f));
+
+        // the axes of the gizmo stay oriented to the entity
+        const AZ::Vector3 xAxis = entityRotation.TransformVector(AZ::Vector3::CreateAxisX());
+
+        // position the camera to look down at the collider from above
+        AzFramework::SetCameraTransform(
+            m_cameraState,
+            AZ::Transform::CreateFromQuaternionAndTranslation(
+                AZ::Quaternion::CreateRotationX(-AZ::Constants::HalfPi), expectedColliderPosition + AZ::Vector3::CreateAxisZ(10.0f)));
+
+        // grab the x translation manipulator of the mirrored collider, which only exists there, and move it along the mouse
+        const AZ::Vector3 worldStart = expectedColliderPosition + 0.5f * xAxis;
+        const AZ::Vector3 worldEnd = worldStart + 0.5f * xAxis;
+        DragMouse(m_cameraState, m_actionDispatcher.get(), worldStart, worldEnd);
+
+        // the mirrored offset went from -1 to -0.5, so the stored offset went from +1 to +0.5
+        AZ::Vector3 storedOffset = AZ::Vector3::CreateZero();
+        PhysX::EditorColliderComponentRequestBus::EventResult(
+            storedOffset, m_idPair, &PhysX::EditorColliderComponentRequests::GetColliderOffset);
+        EXPECT_THAT(storedOffset, IsCloseTolerance(AZ::Vector3(0.5f, 0.0f, 0.0f), 2.0f * ManipulatorTolerance));
+    }
+
+    TEST_F(PhysXEditorColliderComponentManipulatorFixture, OffsetManipulatorFollowsAFlipMadeWhileTheModeIsOpen)
+    {
+        SetupCollider(
+            Physics::BoxShapeConfiguration(AZ::Vector3(2.0f, 3.0f, 1.5f)), AZ::Quaternion::CreateIdentity(), AZ::Vector3(1.0f, 0.0f, 0.0f));
+        const AZ::Quaternion entityRotation = AZ::Quaternion::CreateRotationZ(AZ::DegToRad(30.0f));
+        const AZ::Vector3 entityTranslation(2.0f, -3.0f, 0.5f);
+        SetupTransform(entityRotation, entityTranslation, 1.0f);
+
+        // the mode opens on an entity that is not flipped, then the entity is flipped. A pure flip fires no transform event, so
+        // the handles only move because the mode listens for the flip.
+        EnterColliderSubMode(PhysX::ColliderComponentModeRequests::SubMode::Offset);
+        PhysXEditorTests::SetEditorTransformScale(m_entity, AZ::Vector3(-1.0f, 1.0f, 1.0f));
+
+        // the collider is drawn at -1, and the gizmo is there
+        AZ::Transform world = AZ::Transform::CreateIdentity();
+        AZ::TransformBus::EventResult(world, m_entity->GetId(), &AZ::TransformBus::Events::GetWorldTM);
+        const AZ::Vector3 expectedColliderPosition = world.TransformPoint(AZ::Vector3(-1.0f, 0.0f, 0.0f));
+        const AZ::Vector3 xAxis = entityRotation.TransformVector(AZ::Vector3::CreateAxisX());
+
+        AzFramework::SetCameraTransform(
+            m_cameraState,
+            AZ::Transform::CreateFromQuaternionAndTranslation(
+                AZ::Quaternion::CreateRotationX(-AZ::Constants::HalfPi), expectedColliderPosition + AZ::Vector3::CreateAxisZ(10.0f)));
+
+        const AZ::Vector3 worldStart = expectedColliderPosition + 0.5f * xAxis;
+        const AZ::Vector3 worldEnd = worldStart + 0.5f * xAxis;
+        DragMouse(m_cameraState, m_actionDispatcher.get(), worldStart, worldEnd);
+
+        // the mirrored offset went from -1 to -0.5, so the stored offset went from +1 to +0.5, and did not jump to the handle
+        AZ::Vector3 storedOffset = AZ::Vector3::CreateZero();
+        PhysX::EditorColliderComponentRequestBus::EventResult(
+            storedOffset, m_idPair, &PhysX::EditorColliderComponentRequests::GetColliderOffset);
+        EXPECT_THAT(storedOffset, IsCloseTolerance(AZ::Vector3(0.5f, 0.0f, 0.0f), 2.0f * ManipulatorTolerance));
+    }
+
+    TEST_F(PhysXEditorColliderComponentManipulatorFixture, RotationManipulatorOnAFlippedEntityMatchesTheMirroredTwin)
+    {
+        const AZ::Quaternion colliderRotation = AZ::Quaternion::CreateRotationZ(AZ::DegToRad(60.0f));
+        const AZ::Vector3 colliderOffset(1.0f, 0.0f, 0.0f);
+        SetupCollider(Physics::BoxShapeConfiguration(AZ::Vector3(2.0f, 3.0f, 1.5f)), colliderRotation, colliderOffset);
+        const AZ::Quaternion entityRotation = AZ::Quaternion::CreateRotationZ(AZ::DegToRad(30.0f));
+        const AZ::Vector3 entityTranslation(2.0f, -3.0f, 0.5f);
+        SetupTransform(entityRotation, entityTranslation, 1.0f);
+        PhysXEditorTests::SetEditorTransformScale(m_entity, AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        EnterColliderSubMode(PhysX::ColliderComponentModeRequests::SubMode::Rotation);
+
+        // the collider is drawn at -1 in x, and turned the other way about z
+        AZ::Transform world = AZ::Transform::CreateIdentity();
+        AZ::TransformBus::EventResult(world, m_entity->GetId(), &AZ::TransformBus::Events::GetWorldTM);
+        const AZ::Vector3 mirroredOffset(-1.0f, 0.0f, 0.0f);
+        const AZ::Quaternion mirroredRotation = AZ::Quaternion::CreateRotationZ(AZ::DegToRad(-60.0f));
+        const AZ::Vector3 ringCentre = world.TransformPoint(mirroredOffset);
+        const AZ::Quaternion ringFrame = world.GetRotation() * mirroredRotation;
+
+        // position the camera to look down at the collider from above, so the ring about z faces it
+        AzFramework::SetCameraTransform(
+            m_cameraState,
+            AZ::Transform::CreateFromQuaternionAndTranslation(
+                AZ::Quaternion::CreateRotationX(-AZ::Constants::HalfPi), ringCentre + AZ::Vector3::CreateAxisZ(10.0f)));
+
+        // two points on that ring, away from where the other rings cross it
+        const float screenToWorldMultiplier = AzToolsFramework::CalculateScreenToWorldMultiplier(ringCentre, m_cameraState);
+        const float manipulatorViewRadius = 2.0f;
+        const float ringRadius = screenToWorldMultiplier * manipulatorViewRadius;
+        const AZ::Vector3 worldStart = ringCentre + ringRadius * ringFrame.TransformVector(AZ::Vector3(0.7071f, 0.7071f, 0.0f));
+        const AZ::Vector3 worldEnd = ringCentre + ringRadius * ringFrame.TransformVector(AZ::Vector3(-0.7071f, 0.7071f, 0.0f));
+
+        const auto getStoredRotation = [this]()
+        {
+            AZ::Quaternion storedRotation = AZ::Quaternion::CreateIdentity();
+            PhysX::EditorColliderComponentRequestBus::EventResult(
+                storedRotation, m_idPair, &PhysX::EditorColliderComponentRequests::GetColliderRotation);
+            return storedRotation;
+        };
+
+        // drag the ring of the flipped entity
+        DragMouse(m_cameraState, m_actionDispatcher.get(), worldStart, worldEnd);
+        const AZ::Quaternion flippedResult = getStoredRotation();
+
+        // the twin: the same collider on an entity that is not flipped, stored where the flipped one is drawn. The rings are
+        // in the same place, so the same drag turns them the same way.
+        PhysXEditorTests::SetEditorTransformScale(m_entity, AZ::Vector3::CreateOne());
+        PhysX::EditorColliderComponentRequestBus::Event(
+            m_idPair, &PhysX::EditorColliderComponentRequests::SetColliderOffset, mirroredOffset);
+        PhysX::EditorColliderComponentRequestBus::Event(
+            m_idPair, &PhysX::EditorColliderComponentRequests::SetColliderRotation, mirroredRotation);
+        AzToolsFramework::ComponentModeFramework::ComponentModeSystemRequestBus::Broadcast(
+            &AzToolsFramework::ComponentModeFramework::ComponentModeSystemRequests::Refresh, m_idPair);
+        DragMouse(m_cameraState, m_actionDispatcher.get(), worldStart, worldEnd);
+        const AZ::Quaternion twinResult = getStoredRotation();
+
+        // the drag took hold on the flipped entity, which fails if its rings are not where the collider is drawn
+        EXPECT_THAT(flippedResult, testing::Not(IsCloseTolerance(colliderRotation, ManipulatorTolerance)));
+
+        // what the flipped entity stored is the mirror of what its twin stored
+        const AZ::Vector3 flippedX(-1.0f, 1.0f, 1.0f);
+        EXPECT_THAT(flippedResult, IsCloseTolerance(PhysX::Transform2Mirror::MirrorRotation(flippedX, twinResult), ManipulatorTolerance));
+    }
+
+    class PhysXFlippedMeshColliderComponentModeTest
+        : public PhysXColliderComponentModeTest
+    {
+    protected:
+        AZ::Entity* CreateEntityWithTestMeshColliderComponent()
+        {
+            AZ::Entity* entity = nullptr;
+            AZ::EntityId entityId = CreateDefaultEditorEntity("ComponentModeEntity", &entity);
+
+            entity->Deactivate();
+            entity->CreateComponent<TestMeshColliderComponent>();
+            entity->Activate();
+
+            AzToolsFramework::SelectEntity(entityId);
+
+            return entity;
+        }
+    };
+
+    using PhysXFlippedMeshColliderComponentModeManipulatorTest =
+        UnitTest::IndirectCallManipulatorViewportInteractionFixtureMixin<PhysXFlippedMeshColliderComponentModeTest>;
+
+    TEST_F(PhysXFlippedMeshColliderComponentModeManipulatorTest, AssetScaleManipulatorsOnAFlippedEntitySitOnTheMirroredCollider)
+    {
+        auto colliderEntity = CreateEntityWithTestMeshColliderComponent();
+        auto* meshCollider = colliderEntity->FindComponent<TestMeshColliderComponent>();
+        meshCollider->SetAssetScale(AZ::Vector3::CreateOne());
+        meshCollider->SetColliderOffset(AZ::Vector3(1.0f, 0.0f, 0.0f));
+        PhysXEditorTests::SetEditorTransformScale(colliderEntity, AZ::Vector3(-1.0f, 1.0f, 1.0f));
+        EnterComponentMode<TestMeshColliderComponent>();
+        PhysX::ColliderComponentModeRequestBus::Broadcast(
+            &PhysX::ColliderComponentModeRequests::SetCurrentMode, PhysX::ColliderComponentModeRequests::SubMode::Dimensions);
+
+        // the collider is drawn at -1 in x, so that is where the handles are. The view is the one of
+        // AssetScaleManipulatorsScaleInCorrectDirection, moved with the collider.
+        const AZ::Vector3 colliderPosition(-1.0f, 0.0f, 0.0f);
+        AzFramework::SetCameraTransform(
+            m_cameraState,
+            AZ::Transform::CreateFromQuaternionAndTranslation(
+                AZ::Quaternion::CreateRotationZ(-AZ::Constants::QuarterPi), colliderPosition + AZ::Vector3(-5.0f, -5.0f, 0.0f)));
+
+        // select a point in world space slightly displaced from the mirrored collider in the negative x direction
+        // in order to grab the X manipulator
+        const float x = 0.1f;
+        const float xDelta = 0.1f;
+        const AZ::Vector3 worldStart = colliderPosition + AZ::Vector3(-x, 0.0f, 0.0f);
+        const AZ::Vector3 worldEnd = colliderPosition + AZ::Vector3(-(x + xDelta), 0.0f, 0.0f);
+
+        DragMouse(m_cameraState, m_actionDispatcher.get(), worldStart, worldEnd);
+
+        const auto worldToScreenMultiplier = 1.0f / AzToolsFramework::CalculateScreenToWorldMultiplier(worldStart, m_cameraState);
+        const AZ::Vector3 assetScale = meshCollider->GetAssetScale();
+        // need quite a large tolerance because using screen co-ordinates limits precision
+        const float tolerance = 0.01f;
+        EXPECT_THAT(assetScale.GetX(), ::testing::FloatNear(1.0f + xDelta * worldToScreenMultiplier, tolerance));
+        EXPECT_THAT(assetScale.GetY(), ::testing::FloatNear(1.0f, tolerance));
+        EXPECT_THAT(assetScale.GetZ(), ::testing::FloatNear(1.0f, tolerance));
     }
 
     class ColliderPickingFixture : public PhysXEditorColliderComponentManipulatorFixture

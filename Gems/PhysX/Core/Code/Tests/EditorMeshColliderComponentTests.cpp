@@ -7,9 +7,13 @@
  */
 
 #include <AzCore/UnitTest/TestTypes.h>
+#include <AzFramework/Entity/EntityDebugDisplayBus.h>
+#include <AzToolsFramework/API/ComponentEntitySelectionBus.h>
 #include <AzToolsFramework/ToolsComponents/EditorNonUniformScaleComponent.h>
 #include <AzToolsFramework/UnitTest/AzToolsFrameworkTestHelpers.h>
+#include <AzToolsFramework/ViewportSelection/EditorSelectionUtil.h>
 #include <AzToolsFramework/Manipulators/BoxManipulatorRequestBus.h>
+#include <AZTestShared/Math/MathTestHelpers.h>
 #include <EditorColliderComponent.h>
 #include <EditorMeshColliderComponent.h>
 #include <EditorShapeColliderComponent.h>
@@ -495,6 +499,73 @@ namespace PhysXEditorTests
         // The error appears twice because the CreateMeshColliderEditorEntity helper activates
         // the entity twice when using dynamic rigid bodies.
         EXPECT_EQ(errorHandler.GetExpectedErrorCount(), 2);
+
+        delete meshAssetData;
+    }
+
+    // The flag a collider saves for a non-uniform scale is only refreshed when the collider activates or its transform moves.
+    // This scale keeps the largest magnitude at one, so the transform of the entity does not move and the collider is told nothing,
+    // which leaves the saved flag false. Building the game entity must follow the transform of the entity instead.
+    TEST_F(PhysXEditorFixture, EditorMeshColliderComponent_NonUniformTransformWithSavedFlagFalse_BuildRefreshesFlag)
+    {
+        EntityPtr editorEntity = CreateInactiveEditorEntity("MeshColliderComponentEditorEntity");
+        auto* colliderComponent = editorEntity->CreateComponent<PhysX::EditorMeshColliderComponent>();
+        editorEntity->CreateComponent<PhysX::EditorStaticRigidBodyComponent>();
+        editorEntity->Activate();
+
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(1.0f, 0.5f, 0.5f));
+        ASSERT_FALSE(colliderComponent->GetShapeConfiguration().m_hasNonUniformScale);
+
+        EntityPtr gameEntity = CreateInactiveGameEntityFromEditorEntity(editorEntity.get());
+
+        EXPECT_TRUE(gameEntity->FindComponent<PhysX::MeshColliderComponent>() != nullptr);
+        EXPECT_TRUE(colliderComponent->GetShapeConfiguration().m_hasNonUniformScale);
+    }
+
+    // The editor body of a mesh collider stays on the authored side of a flipped entity, and its wireframe draws mirrored. The pick
+    // and the selection bounds of the editor follow the wireframe. The sphere of the asset is half a unit in radius, and its
+    // centre is offset to X = 1, which a flip in X draws at X = -1.
+    TEST_F(PhysXEditorFixture, EditorMeshColliderComponent_FlippedTransform_PickAndSelectionBoundsFollowTheMirroredSide)
+    {
+        auto* meshAssetData = AZ::Utils::LoadObjectFromBuffer<PhysX::Pipeline::MeshAssetData>(
+            PhysXMeshTestData::SpherePrimitive.data(), PhysXMeshTestData::SpherePrimitive.size());
+        ASSERT_TRUE(meshAssetData != nullptr);
+
+        EntityPtr editorEntity = CreateMeshColliderEditorEntity(
+            meshAssetData->CreateMeshAsset(), AZ::Transform::CreateIdentity(), AZ::Vector3(1.0f, 0.0f, 0.0f));
+        const AZ::EntityId entityId = editorEntity->GetId();
+
+        // A ray along Y at the given X, from five units before the entity.
+        auto pickAlongY = [entityId](float x, float& distance)
+        {
+            return AzToolsFramework::PickEntity(entityId, AZ::Vector3(x, -5.0f, 0.0f), AZ::Vector3::CreateAxisY(), distance, 0);
+        };
+        auto getSelectionBoundsCenter = [entityId]()
+        {
+            return AzToolsFramework::CalculateEditorEntitySelectionBounds(entityId, AzFramework::ViewportInfo{ 0 }).GetCenter();
+        };
+        float distance = 0.0f;
+
+        EXPECT_TRUE(pickAlongY(1.0f, distance));
+        EXPECT_NEAR(distance, 4.5f, 1e-3f);
+        EXPECT_FALSE(pickAlongY(-1.0f, distance));
+        EXPECT_THAT(getSelectionBoundsCenter(), UnitTest::IsCloseTolerance(AZ::Vector3(1.0f, 0.0f, 0.0f), 1e-3f));
+
+        // The flip fires no transform event, so the body is not rebuilt. The pick maps onto it, and the distance is the one
+        // along the ray that came in.
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(-1.0f, 1.0f, 1.0f));
+
+        EXPECT_TRUE(pickAlongY(-1.0f, distance));
+        EXPECT_NEAR(distance, 4.5f, 1e-3f);
+        EXPECT_FALSE(pickAlongY(1.0f, distance));
+        EXPECT_THAT(getSelectionBoundsCenter(), UnitTest::IsCloseTolerance(AZ::Vector3(-1.0f, 0.0f, 0.0f), 1e-3f));
+
+        // Back at one, the authored side picks again.
+        SetEditorTransformScale(editorEntity.get(), AZ::Vector3(1.0f, 1.0f, 1.0f));
+
+        EXPECT_TRUE(pickAlongY(1.0f, distance));
+        EXPECT_FALSE(pickAlongY(-1.0f, distance));
+        EXPECT_THAT(getSelectionBoundsCenter(), UnitTest::IsCloseTolerance(AZ::Vector3(1.0f, 0.0f, 0.0f), 1e-3f));
 
         delete meshAssetData;
     }

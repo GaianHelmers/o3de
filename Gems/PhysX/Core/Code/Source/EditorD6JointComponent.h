@@ -50,6 +50,12 @@ namespace PhysX
         // AzFramework::EntityDebugDisplayEventBus
         void DisplayEntityViewport(const AzFramework::ViewportInfo& viewportInfo, AzFramework::DebugDisplayRequests& debugDisplay) override;
 
+        // Transform 2: the game D6 joint uses no frame and stays unflipped (D.42), so the editor draws the authored frame.
+        AZ::Vector3 GetFlipSigns() const override
+        {
+            return AZ::Vector3::CreateOne();
+        }
+
     private:
         D6JointComponentConfiguration m_d6Config;
         using ComponentModeDelegate = AzToolsFramework::ComponentModeFramework::ComponentModeDelegate;

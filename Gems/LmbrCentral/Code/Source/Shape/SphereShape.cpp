@@ -63,6 +63,9 @@ namespace LmbrCentral
         SphereShapeComponentRequestsBus::Handler::BusDisconnect();
         ShapeComponentRequestsBus::Handler::BusDisconnect();
         AZ::TransformNotificationBus::Handler::BusDisconnect();
+
+        // A re-activated shape starts as authored. The Transform 2 shape support pushes the flip again.
+        m_intersectionDataCache.ResetFlipMask();
     }
 
     void SphereShape::InvalidateCache(InvalidateShapeCacheReason reason)
@@ -106,13 +109,14 @@ namespace LmbrCentral
         AZStd::shared_lock lock(m_mutex);
         m_intersectionDataCache.UpdateIntersectionParams(m_currentTransform, m_sphereShapeConfig, &m_mutex);
         return AZ::Aabb::CreateCenterRadius(
-            m_currentTransform.TransformPoint(m_sphereShapeConfig.m_translationOffset), m_intersectionDataCache.m_radius);
+            m_currentTransform.TransformPoint(m_intersectionDataCache.Flip(m_sphereShapeConfig.m_translationOffset)),
+            m_intersectionDataCache.m_radius);
     }
 
     void SphereShape::GetTransformAndLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
     {
         AZStd::shared_lock lock(m_mutex);
-        bounds = AZ::Aabb::CreateCenterRadius(m_sphereShapeConfig.m_translationOffset, m_sphereShapeConfig.m_radius);
+        bounds = AZ::Aabb::CreateCenterRadius(m_intersectionDataCache.Flip(m_sphereShapeConfig.m_translationOffset), m_sphereShapeConfig.m_radius);
         transform = m_currentTransform;
     }
 
@@ -171,11 +175,52 @@ namespace LmbrCentral
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip
+
+    void SphereShape::SetFlipMask(AZ::u8 flipMask)
+    {
+        bool shapeChanged = false;
+        {
+            AZStd::unique_lock lock(m_mutex);
+            const AZ::Vector3 offsetBefore = m_intersectionDataCache.Flip(m_sphereShapeConfig.m_translationOffset);
+            m_intersectionDataCache.SetFlipMask(flipMask);
+            const AZ::Vector3 offsetAfter = m_intersectionDataCache.Flip(m_sphereShapeConfig.m_translationOffset);
+
+            // Only a sphere that moved tells anyone: a flip across an axis with no offset leaves the drawn sphere where it was.
+            shapeChanged = !offsetBefore.IsClose(offsetAfter);
+        }
+
+        if (shapeChanged)
+        {
+            ShapeComponentNotificationsBus::Event(
+                m_entityId, &ShapeComponentNotificationsBus::Events::OnShapeChanged,
+                ShapeComponentNotifications::ShapeChangeReasons::ShapeChanged);
+        }
+    }
+
+    AZ::Vector3 SphereShape::GetFlipSigns() const
+    {
+        return m_intersectionDataCache.GetFlipSigns();
+    }
+
+    AZ::Vector3 SphereShape::GetEffectiveTranslationOffset() const
+    {
+        return m_intersectionDataCache.Flip(m_sphereShapeConfig.m_translationOffset);
+    }
+
+    void SphereShape::GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const
+    {
+        AZStd::shared_lock lock(m_mutex);
+        bounds = AZ::Aabb::CreateCenterRadius(m_sphereShapeConfig.m_translationOffset, m_sphereShapeConfig.m_radius);
+        transform = m_currentTransform;
+    }
+
     void SphereShape::SphereIntersectionDataCache::UpdateIntersectionParamsImpl(
         const AZ::Transform& currentTransform, const SphereShapeConfig& configuration,
         [[maybe_unused]] const AZ::Vector3& currentNonUniformScale)
     {
-        m_position = currentTransform.TransformPoint(configuration.m_translationOffset);
+        m_position = currentTransform.TransformPoint(Flip(configuration.m_translationOffset));
         m_radius = configuration.m_radius * currentTransform.GetUniformScale();
     }
 

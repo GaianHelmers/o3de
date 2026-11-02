@@ -242,7 +242,7 @@ namespace AZ
             }
 
             const AZ::Vector3 translationOffset =
-                m_controller.m_shapeBus ? m_controller.m_shapeBus->GetTranslationOffset() : AZ::Vector3::CreateZero();
+                m_controller.m_shapeBus ? m_controller.m_shapeBus->GetEffectiveTranslationOffset() : AZ::Vector3::CreateZero();
 
             AZ::Transform worldTransform = AZ::Transform::CreateIdentity();
             AZ::TransformBus::EventResult(worldTransform, GetEntityId(), &AZ::TransformBus::Events::GetWorldTM);

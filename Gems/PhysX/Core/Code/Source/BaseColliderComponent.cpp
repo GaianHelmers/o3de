@@ -165,6 +165,11 @@ namespace PhysX
         return false;
     }
 
+    void BaseColliderComponent::InvalidateShapeCache()
+    {
+        m_shapeInfoCache.InvalidateCache();
+    }
+
     void BaseColliderComponent::SetCollisionLayer(const AZStd::string& layerName, AZ::Crc32 colliderTag)
     {
         for(auto& shape : m_shapes)

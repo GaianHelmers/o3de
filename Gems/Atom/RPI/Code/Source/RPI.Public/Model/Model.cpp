@@ -195,7 +195,11 @@ namespace AZ
             AZ::Vector3& normal) const
         {
             AZ_PROFILE_SCOPE(RPI, "Model: RayIntersection");
-            const AZ::Vector3 clampedScale = nonUniformScale.GetMax(AZ::Vector3(AZ::MinTransformScale));
+            // Clamp the magnitude of each axis and keep its sign, zero counting as positive. A negative axis is a flip, and
+            // clamping it to a small positive scale would test the ray against the side the mesh is not drawn on.
+            const AZ::Vector3 clampedMagnitude = nonUniformScale.GetAbs().GetMax(AZ::Vector3(AZ::MinTransformScale));
+            const AZ::Vector3 clampedScale =
+                AZ::Vector3::CreateSelectCmpGreaterEqual(nonUniformScale, AZ::Vector3::CreateZero(), clampedMagnitude, -clampedMagnitude);
 
             const AZ::Transform inverseTM = modelTransform.GetInverse();
             const AZ::Vector3 raySrcLocal = inverseTM.TransformPoint(rayStart) / clampedScale;

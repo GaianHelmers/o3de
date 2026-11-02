@@ -64,6 +64,10 @@ set(FILES
     Component/NonUniformScaleBus.h
     Component/TickBus.cpp
     Component/TickBus.h
+    Component/Transform2Bus.cpp
+    Component/Transform2Bus.h
+    Component/Transform2Math.cpp
+    Component/Transform2Math.h
     Component/TransformBus.cpp
     Component/TransformBus.h
     Compression/compression.cpp

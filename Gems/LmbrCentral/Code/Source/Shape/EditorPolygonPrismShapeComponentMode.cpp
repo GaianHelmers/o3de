@@ -43,7 +43,7 @@ namespace LmbrCentral
     EditorPolygonPrismShapeComponentMode::EditorPolygonPrismShapeComponentMode(
         const AZ::EntityComponentIdPair& entityComponentIdPair, const AZ::Uuid componentType)
         : EditorBaseComponentMode(entityComponentIdPair, componentType)
-        , m_nonUniformScaleChangedHandler([this](const AZ::Vector3& scale){OnNonUniformScaleChanged(scale);})
+        , m_nonUniformScaleChangedHandler([this](const AZ::Vector3&){RefreshNonUniformScale();})
         , m_vertexSelection(entityComponentIdPair)
     {
         m_currentTransform = AZ::Transform::CreateIdentity();
@@ -107,6 +107,10 @@ namespace LmbrCentral
         PolygonPrismShapeComponentRequestBus::EventResult(
             polygonPrism, GetEntityId(), &PolygonPrismShapeComponentRequests::GetPolygonPrism);
 
+        // The handles sit on the scale of the prism, which has the Transform 2 flip signs in it. A flip refreshes the component mode
+        // through here, and the scale on the non-uniform scale bus (read in the constructor) is positive.
+        m_currentNonUniformScale = polygonPrism->GetNonUniformScale();
+
         // if we have no vertices, do not attempt to create any manipulators
         if (polygonPrism->m_vertexContainer.Empty())
         {
@@ -119,6 +123,9 @@ namespace LmbrCentral
                 GetEntityComponentIdPair(), GetMainManipulatorManagerId()),
             TranslationManipulators::Dimensions::Two,
             ConfigureTranslationManipulatorAppearance2d);
+
+        // Create gives its handles the positive scale of the non-uniform scale bus, so a flipped prism puts its own on them.
+        m_vertexSelection.RefreshSpace(m_currentTransform, m_currentNonUniformScale);
 
         // callback after vertices in the selection have moved
         m_vertexSelection.SetVertexPositionsUpdatedCallback([this, polygonPrism]()
@@ -224,8 +231,22 @@ namespace LmbrCentral
         }
     }
 
+    void EditorPolygonPrismShapeComponentMode::RefreshNonUniformScale()
+    {
+        AZ::PolygonPrismPtr polygonPrism = nullptr;
+        PolygonPrismShapeComponentRequestBus::EventResult(
+            polygonPrism, GetEntityId(), &PolygonPrismShapeComponentRequests::GetPolygonPrism);
+
+        if (polygonPrism && polygonPrism->GetNonUniformScale() != m_currentNonUniformScale)
+        {
+            OnNonUniformScaleChanged(polygonPrism->GetNonUniformScale());
+        }
+    }
+
     void EditorPolygonPrismShapeComponentMode::OnShapeChanged(ShapeChangeReasons /*changeReason*/)
     {
+        // The prism raises this after it takes a new scale, which is also how a flip arrives.
+        RefreshNonUniformScale();
         RefreshManipulators();
     }
 

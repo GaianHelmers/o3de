@@ -70,7 +70,13 @@ namespace LmbrCentral
         drawParams.m_shapeColor = m_boxShapeConfig.GetDrawColor();
         drawParams.m_filled = m_boxShapeConfig.IsFilled();
 
-        DrawBoxShape(drawParams, m_boxShapeConfig, debugDisplay, m_nonUniformScale);
+        // A matrix cannot carry a mirror, so the box is drawn at the offset the shape answers with. The shape is asked now, so this
+        // component holds no flip state. The copy is never stored, and with no shape answering the authored offset stays.
+        BoxShapeConfig drawConfiguration = m_boxShapeConfig;
+        ShapeComponentRequestsBus::EventResult(
+            drawConfiguration.m_translationOffset, GetEntityId(), &ShapeComponentRequests::GetEffectiveTranslationOffset);
+
+        DrawBoxShape(drawParams, drawConfiguration, debugDisplay, m_nonUniformScale);
     }
 
     bool BoxShapeDebugDisplayComponent::ReadInConfig(const AZ::ComponentConfig* baseConfig)

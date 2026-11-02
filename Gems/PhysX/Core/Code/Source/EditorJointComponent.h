@@ -74,6 +74,19 @@ namespace PhysX
             const AzFramework::ViewportInfo& viewportInfo,
             AzFramework::DebugDisplayRequests& debugDisplay) override;
 
+        // Transform 2 flip (D.42). The configuration holds the authored frame and is never written by a flip. The editor joint bus
+        // below hands out the frame as a flipped follower draws it and takes back what the manipulators write, so the handles sit
+        // on the drawn frame and a write stores the authored one. These look up the Transform 2 of the follower on each call, which
+        // is acceptable in the editor and must not appear in a runtime path. A joint type that is not flipped, D6, answers no flip.
+        virtual AZ::Vector3 GetFlipSigns() const;
+        AZ::Transform GetAuthoredFrame() const;
+        AZ::Transform GetFlippedFrame(const AZ::Vector3& signs, const AZ::Transform& authored) const;
+        void SetFlippedFrame(const AZ::Vector3& signs, const AZ::Transform& flipped);
+
+        /// True when the mirror of the signs reverses the axis this joint type moves along, the X axis of its frame.
+        /// The same answer as the game component of the joint gives, so the editor draws the frame the game uses.
+        virtual bool ReversesMotionAxis([[maybe_unused]] const AZ::Vector3& signs) const { return false; }
+
         EditorJointConfig m_config;
 
         AZ::Transform m_cachedWorldTM;

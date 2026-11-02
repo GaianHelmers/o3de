@@ -47,6 +47,13 @@ namespace AzToolsFramework
 
             void OnScaleChanged();
 
+            //! The "Convert to Transform Scale" button. Folds this component into the Scale of the Transform, which removes
+            //! this component, so the conversion is queued for the next tick instead of running inside the press.
+            AZ::Crc32 OnConvertButtonPressed();
+
+            //! The button is read only while the Transform is locked, because the conversion writes its Scale.
+            bool IsConvertButtonReadOnly() const;
+
             // EditorComponentBase ...
             void BuildGameEntity(AZ::Entity* gameEntity) override;
 

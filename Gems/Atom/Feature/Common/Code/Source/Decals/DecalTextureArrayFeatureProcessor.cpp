@@ -651,7 +651,7 @@ namespace AZ
                 AZ::Obb obb = AZ::Obb::CreateFromPositionRotationAndHalfLengths(
                     AZ::Vector3::CreateFromFloat3(decalData.m_position.data()),
                     AZ::Quaternion::CreateFromFloat4(decalData.m_quaternion.data()),
-                    AZ::Vector3::CreateFromFloat3(decalData.m_halfSize.data()));
+                    AZ::Vector3::CreateFromFloat3(decalData.m_halfSize.data()).GetAbs());
                 // Do the actual culling per decal and only add the indices for the visible ones.
                 if (AZ::ShapeIntersection::Overlaps(viewFrustum, obb))
                 {
@@ -753,7 +753,7 @@ namespace AZ
             const DecalData& data = m_decalData.GetData<0>(handle.GetIndex());
             m_decalData.GetData<1>(handle.GetIndex()) = Aabb::CreateCenterHalfExtents(
                 AZ::Vector3(data.m_position[0], data.m_position[1], data.m_position[2]),
-                AZ::Vector3(data.m_halfSize[0], data.m_halfSize[1], data.m_halfSize[2]));
+                AZ::Vector3(data.m_halfSize[0], data.m_halfSize[1], data.m_halfSize[2]).GetAbs());
         }
 
     } // namespace Render

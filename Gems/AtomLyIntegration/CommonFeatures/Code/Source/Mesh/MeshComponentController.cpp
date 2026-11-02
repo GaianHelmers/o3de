@@ -11,6 +11,7 @@
 #include <AtomLyIntegration/CommonFeatures/Mesh/MeshComponentConstants.h>
 #include <AtomLyIntegration/CommonFeatures/Mesh/MeshHandleStateBus.h>
 
+#include <Atom/Feature/Mesh/MeshCommon.h>
 #include <Atom/RHI/RHISystemInterface.h>
 #include <Atom/RHI/RHIUtils.h>
 #include <Atom/RPI.Public/Model/Model.h>
@@ -20,6 +21,7 @@
 #include <AzCore/Asset/AssetManager.h>
 #include <AzCore/Asset/AssetManagerBus.h>
 #include <AzCore/Asset/AssetSerializer.h>
+#include <AzCore/Component/Transform2Bus.h>
 #include <AzCore/Name/NameDictionary.h>
 #include <AzCore/Serialization/SerializeContext.h>
 
@@ -339,6 +341,18 @@ namespace AZ
             {
                 m_meshFeatureProcessor->SetTransform(m_meshHandle, m_transformInterface->GetWorldTM(), m_cachedNonUniformScale);
             }
+        }
+
+        void MeshComponentController::SetRenderScale(const AZ::Vector3& scale)
+        {
+            // The signed scale takes the place of the positive one. The next move sends it to the mesh, and the bounds and
+            // the ray tests read it. Transform 2 sends the positive scale back when the entity leaves it.
+            m_cachedNonUniformScale = scale;
+        }
+
+        AZ::Vector3 MeshComponentController::GetRenderScale() const
+        {
+            return m_cachedNonUniformScale;
         }
 
         void MeshComponentController::LightingChannelMaskChanged()
@@ -718,7 +732,8 @@ namespace AZ
             {
                 if (Aabb aabb = m_meshFeatureProcessor->GetLocalAabb(m_meshHandle); aabb.IsValid())
                 {
-                    aabb.MultiplyByScale(m_cachedNonUniformScale);
+                    // A negative axis turns the box inside out, so the corners are put back in order.
+                    aabb = MeshCommon::MultiplyAabbBySignedScale(aabb, m_cachedNonUniformScale);
                     return aabb;
                 }
             }
@@ -821,6 +836,16 @@ namespace AZ
                     "Index buffer size exceeds memory allocated for visible geometry indices.");
 
                 memcpy(&visibleGeometry.m_indices[0], indexPtr, indexBufferViewDesc.m_elementCount * indexBufferViewDesc.m_elementSize);
+
+                // The transform above carries the sign of a flipped axis. A mirrored mesh is drawn with its triangles in the other order,
+                // so the copy lists them that way too, or the readers of it would take the surface for facing inward.
+                if (AZ::Transform2::IsMirrored(m_cachedNonUniformScale))
+                {
+                    for (size_t index = 0; index + 2 < visibleGeometry.m_indices.size(); index += 3)
+                    {
+                        AZStd::swap(visibleGeometry.m_indices[index + 1], visibleGeometry.m_indices[index + 2]);
+                    }
+                }
 
                 // Reserve space for vertices and copy data, assuming stride between elements is 0.
                 visibleGeometry.m_vertices.resize_no_construct(positionBufferViewDesc.m_elementCount * ElementsPerVertex);

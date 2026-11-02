@@ -53,6 +53,12 @@ namespace LmbrCentral
         AZ::Vector3 GetTranslationOffset() const override;
         void SetTranslationOffset(const AZ::Vector3& translationOffset) override;
 
+        // ShapeComponentRequestsBus::Handler, Transform 2 flip. The offset above stays authored.
+        void SetFlipMask(AZ::u8 flipMask) override;
+        AZ::Vector3 GetFlipSigns() const override;
+        AZ::Vector3 GetEffectiveTranslationOffset() const override;
+        void GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const override;
+
         // BoxShapeComponentRequestBus::Handler
        const BoxShapeConfig& GetBoxConfiguration() const override { return m_boxShapeConfig; }
         AZ::Vector3 GetBoxDimensions() const override { return m_boxShapeConfig.m_dimensions; }

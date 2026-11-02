@@ -15,6 +15,7 @@
 #include <AtomLyIntegration/CommonFeatures/SkinnedMesh/SkinnedMeshOverrideBus.h>
 #include <Integration/System/SystemCommon.h>
 #include <Integration/System/SystemComponent.h>
+#include <Integration/System/Transform2ActorSupport.h>
 #include <EMotionFX/Source/ActorInstance.h>
 #include <EMotionFX/Source/DebugDraw.h>
 #include <EMotionFX/Source/MorphSetup.h>
@@ -109,11 +110,27 @@ namespace AZ::Render
 
     AZ::Aabb AtomActorInstance::GetWorldBounds() const
     {
+        // A flipped actor is drawn on the other side of its entity than the pose, so what the bus answers is the box mirrored.
+        // m_worldAABB stays the box of the pose. It is the base class box that the Editor maps itself, and UpdateBounds
+        // hands the local one to the mesh, which mirrors it for culling when the mesh is marked mirrored.
+        if (m_renderSignMask)
+        {
+            return EMotionFX::Integration::MapAabbFromPoseFrame(
+                m_transformInterface->GetWorldTM(), EMotionFX::Integration::CalcRenderSignScale(m_renderSignMask), m_worldAABB);
+        }
+
         return m_worldAABB;
     }
 
     AZ::Aabb AtomActorInstance::GetLocalBounds() const
     {
+        // The local box is in the frame of the entity, so an identity world mirrors it about the entity origin.
+        if (m_renderSignMask)
+        {
+            return EMotionFX::Integration::MapAabbFromPoseFrame(
+                AZ::Transform::CreateIdentity(), EMotionFX::Integration::CalcRenderSignScale(m_renderSignMask), m_localAABB);
+        }
+
         return m_localAABB;
     }
 
@@ -453,6 +470,19 @@ namespace AZ::Render
         const EMotionFX::TransformData* transforms = m_actorInstance->GetTransformData();
         if (transforms && jointIndex < transforms->GetNumTransforms())
         {
+            // The readers place this joint with the entity transform, which has no sign, so a flipped actor hands out the joint
+            // where it is drawn: BoneFollower and AnimAudioComponent land on the drawn bone with no change of their own.
+            // Limits: a BoneFollower applies its offset unmapped, so only a zero offset lands on the drawn bone, until the held
+            // item mirrors with it (I.4). A reader keeps the joint it cached until its next tick or model change, so a flip
+            // reaches it up to a frame late.
+            // A scale that is only non-uniform, with no sign, is not applied: the joint stays at the uniform stand-in.
+            if (m_renderSignMask)
+            {
+                return EMotionFX::Integration::MapModelSpaceJointFromPoseFrame(
+                    transforms->GetCurrentPose()->GetModelSpaceTransform(jointIndex).ToAZTransform(),
+                    EMotionFX::Integration::CalcRenderSignScale(m_renderSignMask));
+            }
+
             return transforms->GetCurrentPose()->GetModelSpaceTransform(jointIndex).ToAZTransform();
         }
 
@@ -872,6 +902,21 @@ namespace AZ::Render
     const MeshFeatureProcessorInterface::MeshHandle* AtomActorInstance::GetMeshHandle() const
     {
         return m_meshHandle.get();
+    }
+
+    void AtomActorInstance::SetRenderScale(const AZ::Vector3& scale)
+    {
+        // Only the sign is kept. The refresh of the entity bounds after a flip is done by whoever pushed the scale.
+        m_renderSignMask = EMotionFX::Integration::CalcRenderSignMask(scale);
+    }
+
+    AZ::Vector3 AtomActorInstance::GetRenderScale() const
+    {
+        // An actor keeps only the signs of the scale it is drawn with, as its joints and bounds do. A positive non-uniform part of
+        // a Transform 2 scale is drawn by the mesh, which Transform2MeshSupport gives the full render scale, but it is not kept
+        // here. So the readers that ray test the actor get the signs here, in place of the non-uniform scale they read first.
+        // A Transform 1 actor has no signs and answers one, which is what the bus answers for a handler that keeps no scale.
+        return EMotionFX::Integration::CalcRenderSignScale(m_renderSignMask);
     }
 
 } // namespace AZ::Render

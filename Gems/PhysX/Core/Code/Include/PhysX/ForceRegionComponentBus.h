@@ -172,6 +172,15 @@ namespace PhysX
 
         /// Adds a linear damping force to the force region.
         virtual void AddForceLinearDamping(float damping) = 0;
+
+        // Transform 2
+        //
+        /// Flips the force region across the local axes named by the bits of the mask: X is 1, Y is 2 and Z is 4.
+        /// The local space forces and the spline of a spline follow force are mirrored. Zero restores them as authored.
+        /// A force region that is not flipped never receives this, because only a Transform 2 entity pushes it.
+        /// A flip is how the region is drawn, never an edit to it. After it, GetDirection of a local space force reports the
+        /// direction as drawn, and SetDirection takes a direction as drawn.
+        virtual void SetFlipMask([[maybe_unused]] AZ::u8 flipMask) {}
     };
     using ForceRegionRequestBus = AZ::EBus<ForceRegionRequests>;
 }

@@ -8,11 +8,13 @@
 
 #include "EditorSplineComponent.h"
 #include "EditorSplineComponentMode.h"
+#include "TubeShape.h" // for MirrorRayAboutEntity
 
 #include <AzCore/Serialization/EditContext.h>
 #include <AzCore/Serialization/SerializeContext.h>
 #include <AzFramework/Viewport/CameraState.h>
 #include <AzFramework/Viewport/ViewportColors.h>
+#include <AzToolsFramework/ComponentMode/EditorComponentModeBus.h>
 #include <AzToolsFramework/Entity/EditorEntityInfoBus.h>
 #include <AzToolsFramework/Viewport/VertexContainerDisplay.h>
 #include <AzToolsFramework/Viewport/ViewportSettings.h>
@@ -104,6 +106,11 @@ namespace LmbrCentral
         m_cachedUniformScaleTransform = AZ::Transform::CreateIdentity();
         AZ::TransformBus::EventResult(m_cachedUniformScaleTransform, entityId, &AZ::TransformBus::Events::GetWorldTM);
 
+        // Editor only. The Transform 2 of the entity activated before this component, so its signs can be read now, and a change of
+        // them is announced on the bus from here on.
+        m_lastFlipSigns = GetEditorSplineFlipSigns(entityId);
+        AZ::Transform2NotificationBus::Handler::BusConnect();
+
         // placeholder - create initial spline if empty
         AZ::VertexContainer<AZ::Vector3>& vertexContainer = m_splineCommon.m_spline->m_vertexContainer;
         if (vertexContainer.Empty())
@@ -187,6 +194,7 @@ namespace LmbrCentral
 
         m_componentModeDelegate.Disconnect();
 
+        AZ::Transform2NotificationBus::Handler::BusDisconnect();
         AzFramework::BoundsRequestBus::Handler::BusDisconnect();
         AZ::TransformNotificationBus::Handler::BusDisconnect();
         AZ::FixedVerticesRequestBus<AZ::Vector3>::Handler::BusDisconnect();
@@ -205,19 +213,21 @@ namespace LmbrCentral
         }
     }
 
+    // The spline is drawn on the mirrored side of a flipped entity: every authored point is multiplied by the flip signs. A Transform 2
+    // flip is the only reason they are not ones.
     static void DrawSpline(
         const AZ::Spline& spline, const size_t begin, const size_t end,
-        const AZ::Transform& worldFromLocal, AzFramework::DebugDisplayRequests& debugDisplay)
+        const AZ::Transform& worldFromLocal, const AZ::Vector3& flipSigns, AzFramework::DebugDisplayRequests& debugDisplay)
     {
         const size_t granularity = spline.GetSegmentGranularity();
 
         for (size_t vertIndex = begin; vertIndex < end; ++vertIndex)
         {
-            AZ::Vector3 p1 = worldFromLocal.TransformPoint(spline.GetVertex(vertIndex - 1));
+            AZ::Vector3 p1 = worldFromLocal.TransformPoint(spline.GetVertex(vertIndex - 1) * flipSigns);
             for (size_t granularityStep = 1; granularityStep <= granularity; ++granularityStep)
             {
                 const AZ::Vector3 p2 = worldFromLocal.TransformPoint(spline.GetPosition(
-                    AZ::SplineAddress(vertIndex - 1, granularityStep / static_cast<float>(granularity))));
+                    AZ::SplineAddress(vertIndex - 1, granularityStep / static_cast<float>(granularity))) * flipSigns);
                 debugDisplay.DrawLine(p1, p2);
                 p1 = p2;
             }
@@ -225,13 +235,13 @@ namespace LmbrCentral
     }
 
     static void DrawVertices(
-        const AZ::Spline& spline, const AZ::Transform& worldFromLocal,
+        const AZ::Spline& spline, const AZ::Transform& worldFromLocal, const AZ::Vector3& flipSigns,
         const AzFramework::CameraState& cameraState,
         const size_t begin, const size_t end, AzFramework::DebugDisplayRequests& debugDisplay)
     {
         for (size_t vertIndex = begin; vertIndex < end; ++vertIndex)
         {
-            const AZ::Vector3& worldPosition = worldFromLocal.TransformPoint(spline.GetVertex(vertIndex));
+            const AZ::Vector3& worldPosition = worldFromLocal.TransformPoint(spline.GetVertex(vertIndex) * flipSigns);
             debugDisplay.DrawBall(
                 worldPosition, 0.075f * AzToolsFramework::CalculateScreenToWorldMultiplier(worldPosition, cameraState));
         }
@@ -275,16 +285,19 @@ namespace LmbrCentral
 
         const bool inComponentMode = m_componentModeDelegate.AddedToComponentMode();
 
+        // Editor only: read from the Transform 2 of the entity each time it draws, because a flip raises no transform event.
+        const AZ::Vector3 flipSigns = GetEditorSplineFlipSigns(GetEntityId());
+
         // render spline
         if (spline->RTTI_IsTypeOf(AZ::LinearSpline::RTTI_Type()) || spline->RTTI_IsTypeOf(AZ::BezierSpline::RTTI_Type()))
         {
             DrawSpline(
                 *spline, 1, spline->IsClosed() ? vertexCount + 1 : vertexCount,
-                m_cachedUniformScaleTransform, debugDisplay);
+                m_cachedUniformScaleTransform, flipSigns, debugDisplay);
 
             if (!inComponentMode)
             {
-                DrawVertices(*spline, m_cachedUniformScaleTransform, cameraState, 0, vertexCount, debugDisplay);
+                DrawVertices(*spline, m_cachedUniformScaleTransform, flipSigns, cameraState, 0, vertexCount, debugDisplay);
             }
         }
         else if (spline->RTTI_IsTypeOf(AZ::CatmullRomSpline::RTTI_Type()))
@@ -296,12 +309,12 @@ namespace LmbrCentral
                 // a Catmull-Rom spline uses the first and last points as control points only, omit them from display
                 DrawSpline(
                     *spline, spline->IsClosed() ? 1 : 2, spline->IsClosed() ? vertexCount + 1 : vertexCount - 1,
-                    m_cachedUniformScaleTransform, debugDisplay);
+                    m_cachedUniformScaleTransform, flipSigns, debugDisplay);
             }
 
             if (!inComponentMode)
             {
-                DrawVertices(*spline, m_cachedUniformScaleTransform, cameraState, 1, vertexCount - 1, debugDisplay);
+                DrawVertices(*spline, m_cachedUniformScaleTransform, flipSigns, cameraState, 1, vertexCount - 1, debugDisplay);
             }
         }
 
@@ -309,7 +322,7 @@ namespace LmbrCentral
         {
             AzToolsFramework::VertexContainerDisplay::DisplayVertexContainerIndices(
                 debugDisplay, AzToolsFramework::VariableVerticesVertexContainer<AZ::Vector3>(
-                    m_splineCommon.m_spline->m_vertexContainer), m_cachedUniformScaleTransform, AZ::Vector3::CreateOne(), IsSelected());
+                    m_splineCommon.m_spline->m_vertexContainer), m_cachedUniformScaleTransform, flipSigns, IsSelected());
         }
     }
 
@@ -353,7 +366,14 @@ namespace LmbrCentral
         const AzFramework::ViewportInfo& viewportInfo,
         const AZ::Vector3& src, const AZ::Vector3& dir, float& distance)
     {
-        const auto rayIntersectData = IntersectSpline(m_cachedUniformScaleTransform, src, dir, *m_splineCommon.m_spline);
+        // Editor only: a flipped spline is picked where it is drawn. The ray is mirrored about the entity and meets the authored
+        // spline, which gives the same distances as the mirrored spline meeting the ray.
+        AZ::Vector3 pickOrigin = src;
+        AZ::Vector3 pickDirection = dir;
+        MirrorRayAboutEntity(
+            m_cachedUniformScaleTransform, GetEditorSplineFlipSigns(GetEntityId()), pickOrigin, pickDirection);
+
+        const auto rayIntersectData = IntersectSpline(m_cachedUniformScaleTransform, pickOrigin, pickDirection, *m_splineCommon.m_spline);
         distance = rayIntersectData.m_rayDistance * m_cachedUniformScaleTransform.GetUniformScale();
 
         AzFramework::CameraState cameraState;
@@ -384,6 +404,39 @@ namespace LmbrCentral
     void EditorSplineComponent::OnTransformChanged(const AZ::Transform& /*local*/, const AZ::Transform& world)
     {
         m_cachedUniformScaleTransform = world;
+    }
+
+    void EditorSplineComponent::OnTransform2Activated(AZ::EntityId entityId, const AZ::Vector3& scale)
+    {
+        UpdateFlip(entityId, scale);
+    }
+
+    void EditorSplineComponent::OnTransform2ScaleChanged(AZ::EntityId entityId, const AZ::Vector3& scale)
+    {
+        UpdateFlip(entityId, scale);
+    }
+
+    void EditorSplineComponent::UpdateFlip(AZ::EntityId entityId, const AZ::Vector3& scale)
+    {
+        // Every Transform 2 entity announces on this bus. Only a change of the signs of this entity moves the spline.
+        if (entityId != GetEntityId())
+        {
+            return;
+        }
+
+        const AZ::Vector3 flipSigns = FlipMaskToSigns(FlipMaskFromScale(scale));
+        if (flipSigns == m_lastFlipSigns)
+        {
+            return;
+        }
+        m_lastFlipSigns = flipSigns;
+
+        // The spline did not change, so no spline event comes. What is derived from it is asked again: the bounds of the entity,
+        // and the handles of the component mode, which are built again on the mirrored side.
+        AZ::Interface<AzFramework::IEntityBoundsUnion>::Get()->RefreshEntityLocalBoundsUnion(GetEntityId());
+        AzToolsFramework::ComponentModeFramework::ComponentModeSystemRequestBus::Broadcast(
+            &AzToolsFramework::ComponentModeFramework::ComponentModeSystemRequests::Refresh,
+            AZ::EntityComponentIdPair(GetEntityId(), GetId()));
     }
 
     void EditorSplineComponent::OnChangeSplineType()
@@ -485,6 +538,19 @@ namespace LmbrCentral
 
     AZ::Aabb EditorSplineComponent::GetWorldBounds() const
     {
+        // Editor only: a flipped spline is bounded where it is drawn, by its mirrored local bounds put in the world. On a rotated
+        // entity that box is conservative.
+        if (GetEditorSplineFlipSigns(GetEntityId()) != AZ::Vector3::CreateOne())
+        {
+            // A spline with no vertices has null bounds, and moving a null box would make it the whole world.
+            AZ::Aabb flippedBounds = GetLocalBounds();
+            if (flippedBounds.IsValid())
+            {
+                flippedBounds.ApplyTransform(m_cachedUniformScaleTransform);
+            }
+            return flippedBounds;
+        }
+
         AZ::Aabb aabb = AZ::Aabb::CreateNull();
         m_splineCommon.m_spline->GetAabb(aabb, m_cachedUniformScaleTransform);
         return aabb;
@@ -494,6 +560,15 @@ namespace LmbrCentral
     {
         AZ::Aabb aabb = AZ::Aabb::CreateNull();
         m_splineCommon.m_spline->GetAabb(aabb, AZ::Transform::CreateIdentity());
+
+        // Editor only: a negative axis swaps the ends of the box, so [min, max] becomes [-max, -min]. A null box has no ends to swap.
+        const AZ::Vector3 flipSigns = GetEditorSplineFlipSigns(GetEntityId());
+        if (aabb.IsValid() && flipSigns != AZ::Vector3::CreateOne())
+        {
+            const AZ::Vector3 mirroredMin = aabb.GetMin() * flipSigns;
+            const AZ::Vector3 mirroredMax = aabb.GetMax() * flipSigns;
+            aabb = AZ::Aabb::CreateFromMinMax(mirroredMin.GetMin(mirroredMax), mirroredMin.GetMax(mirroredMax));
+        }
         return aabb;
     }
 } // namespace LmbrCentral

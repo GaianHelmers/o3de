@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <AzCore/Component/Transform2Bus.h>
 #include <AzToolsFramework/ComponentMode/EditorBaseComponentMode.h>
 #include <AzToolsFramework/Viewport/ViewportMessages.h>
 #include <AzToolsFramework/ViewportUi/ViewportUiRequestBus.h>
@@ -23,6 +24,7 @@ namespace PhysX
         : public AzToolsFramework::ComponentModeFramework::EditorBaseComponentMode
         , public ColliderComponentModeRequestBus::Handler
         , public ColliderComponentModeUiRequestBus::Handler
+        , private AZ::Transform2NotificationBus::Handler
     {
     public:
         AZ_CLASS_ALLOCATOR_DECL;
@@ -58,6 +60,11 @@ namespace PhysX
         AZ::Uuid GetComponentModeType() const override;
     private:
         
+        // AZ::Transform2NotificationBus overrides ...
+        // A flip changes the side the handles sit on without moving the entity, so no transform event refreshes them.
+        void OnTransform2Activated(AZ::EntityId entityId, const AZ::Vector3& scale) override;
+        void OnTransform2ScaleChanged(AZ::EntityId entityId, const AZ::Vector3& scale) override;
+
         // AzToolsFramework::ViewportInteraction::ViewportSelectionRequests ...
         bool HandleMouseInteraction(const AzToolsFramework::ViewportInteraction::MouseInteractionEvent& mouseInteraction) override;
         void CreateSubModes();

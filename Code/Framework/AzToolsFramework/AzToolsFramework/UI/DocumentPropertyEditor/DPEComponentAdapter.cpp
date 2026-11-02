@@ -9,6 +9,7 @@
 #include <AzCore/DOM/Backends/JSON/JsonSerializationUtils.h>
 #include <AzFramework/DocumentPropertyEditor/AdapterBuilder.h>
 #include <AzToolsFramework/Entity/EditorEntityHelpers.h>
+#include <AzToolsFramework/ToolsComponents/TransformComponent.h>
 #include <AzToolsFramework/UI/DocumentPropertyEditor/DPEComponentAdapter.h>
 #include <AzToolsFramework/Prefab/DocumentPropertyEditor/PrefabAdapterInterface.h>
 #include <AzToolsFramework/Prefab/PrefabDomUtils.h>
@@ -224,6 +225,13 @@ namespace AZ::DocumentPropertyEditor
 
     void ComponentAdapter::OnEntityDeactivated(const AZ::EntityId& entityId)
     {
+        // A transform cycling the activation of its entity leaves the components as they are, so the adapter keeps its buses,
+        // its component and its document. Letting go here would hard reset the document and destroy the field being edited.
+        if (AzToolsFramework::Components::TransformComponent::IsReactivatingForTransform2(entityId))
+        {
+            return;
+        }
+
         // There is no "Component is destroyed" event, so we have to listen for the entity deactivation
         // and make no assumptions from that point until we get our entity back.
         if (entityId == m_entityId)
@@ -239,6 +247,13 @@ namespace AZ::DocumentPropertyEditor
 
     void ComponentAdapter::OnEntityActivated(const AZ::EntityId& entityId)
     {
+        // The other half of the transform's own re-activation: nothing was let go of, so there is nothing to restore. The
+        // transform broadcasts a refresh of values and attributes once the cycle is done, which updates the document in place.
+        if (AzToolsFramework::Components::TransformComponent::IsReactivatingForTransform2(entityId))
+        {
+            return;
+        }
+
         if (entityId == m_entityId)
         {
             // reconnect to the various busses as our entity has been restored.

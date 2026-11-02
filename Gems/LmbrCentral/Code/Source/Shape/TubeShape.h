@@ -47,6 +47,12 @@ namespace LmbrCentral
         float DistanceSquaredFromPoint(const AZ::Vector3& point) const override;
         bool IntersectRay(const AZ::Vector3& src, const AZ::Vector3& dir, float& distance) const override;
 
+        // ShapeComponentRequestsBus, Transform 2 flip. The spline is the one SplineComponent saves, so it stays authored and
+        // the queries are mirrored instead.
+        void SetFlipMask(AZ::u8 flipMask) override;
+        AZ::Vector3 GetFlipSigns() const override;
+        void GetTransformAndAuthoredLocalBounds(AZ::Transform& transform, AZ::Aabb& bounds) const override;
+
         // TubeShapeComponentRequestsBus
         void SetRadius(float radius) override;
         float GetRadius() const override;
@@ -59,6 +65,11 @@ namespace LmbrCentral
         AZ::SplinePtr GetSpline();
         AZ::ConstSplinePtr GetConstSpline() const;
         const AZ::Transform& GetCurrentTransform() const { return m_currentTransform; }
+
+        /// The flip mask of the entity. Deactivate drops it, so a Deactivate and Activate pair keeps it with this and RestoreFlipMask.
+        AZ::u8 GetFlipMask() const { return m_flipMask; }
+        /// Puts a flip back after a Deactivate and Activate pair. Nobody saw the flip go, so this raises no shape change.
+        void RestoreFlipMask(AZ::u8 flipMask);
 
     private:
         // TransformNotificationBus
@@ -73,8 +84,17 @@ namespace LmbrCentral
         void ValidateAllVariableRadii();
         void ValidateVariableRadius(size_t vertIndex);
 
+        // Transform 2 flip: a local vector or local bounds as the flipped tube sees them. The caller holds the lock. A tube that is
+        // not flipped pays this one byte test.
+        AZ::Vector3 Flip(const AZ::Vector3& localVector) const
+        {
+            return m_flipMask ? localVector * FlipMaskToSigns(m_flipMask) : localVector;
+        }
+        AZ::Aabb Flip(const AZ::Aabb& localBounds) const;
+
         mutable AZ::SplinePtr m_spline; ///< Spline pointer.
         SplineAttribute<float> m_variableRadius; ///< Variable radius defined at each spline point.
+        AZ::u8 m_flipMask = 0; ///< Transform 2 flip of the entity (X=1, Y=2, Z=4). Declared here to sit in padding, so the size is unchanged.
         AZ::Transform m_currentTransform; ///< Caches the current World transform.
         AZ::EntityId m_entityId; ///< The Id of the entity the shape is attached to.
         float m_radius = 1.f; ///< Radius of the tube.
@@ -86,6 +106,18 @@ namespace LmbrCentral
         const AZ::SplinePtr& spline, const SplineAttribute<float>& variableRadius,
         float radius, AZ::u32 capSegments, AZ::u32 sides, AZStd::vector<AZ::Vector3>& vertexBufferOut,
         AZStd::vector<AZ::u32>& indexBufferOut, AZStd::vector<AZ::Vector3>& lineBufferOut);
+
+    //////////////////////////////////////////////////////////////////////////
+    // Transform 2 flip helpers
+
+    /// Mirrors the points of a generated tube mesh: the vertices and the lines. The indices stay, only the points follow a flip.
+    /// The mesh is built from the authored spline and its authored normals, so the mirrored points are the mirrored authored tube.
+    void MirrorTubeMeshPoints(const AZ::Vector3& flipSigns, ShapeMesh& tubeShapeMesh);
+
+    /// Mirrors a world space ray about an entity with W * diag(flipSigns) * W^-1. That map is an isometry and its own inverse, so
+    /// a distance along the ray is unchanged, and the mirrored ray against the authored spline is the ray against the mirrored one.
+    void MirrorRayAboutEntity(
+        const AZ::Transform& worldFromLocal, const AZ::Vector3& flipSigns, AZ::Vector3& rayOrigin, AZ::Vector3& rayDirection);
 
     /// Configuration for how TubeShape debug drawing should appear (tesselation parameters etc).
     struct TubeShapeMeshConfig
