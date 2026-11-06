@@ -78,7 +78,7 @@ namespace AzQtComponents
         const QColor SegmentHoverFill = Foundations::Mid;           // SegmentControl.qss:76 $fill.button.hover+unchecked
         const QColor SegmentPressedFill = Foundations::Mid;         // SegmentControl.qss:76 $fill.button.pressed+unchecked
         const QColor SegmentCheckedFill = Foundations::Highest;     // SegmentControl.qss:70 $fill.button.checked
-        const QColor SegmentLine = Foundations::BG;                 // SegmentControl.qss:17 $line.button.idle.color.BG
+        const QColor SegmentLine = Foundations::Line::Segment;      // SegmentControl.qss:17 $line.button.idle.color.BG
         constexpr int SegmentLineWidth = 1;                         // SegmentControl.qss:19 $line.button.idle.width.Alt2
         // SegmentControl.qss:31-32 $space.button.idle.padding-left $space.button.idle.padding-right
         constexpr QMargins SegmentPadding(16, 0, 16, 0);
@@ -94,7 +94,7 @@ namespace AzQtComponents
 
         // ---- The frame of a floating dock, and of breadcrumbs whose path can be typed
         // StyledDockWidget.qss:17 $line.surface.floating.width $line.surface.floating.color
-        const BoxElement::Edge FloatingDockLine{ 1, QColor(0x00, 0x00, 0x00) };
+        const BoxElement::Edge FloatingDockLine{ 1, Foundations::Line::Dark };
         // BreadCrumbs.qss:35 $line.bar.editable.width $line.bar.editable.color
         const BoxElement::Edge EditableBreadCrumbsLine{ 1, QColor(0x2F, 0x2F, 0x2F) };
         constexpr int EditableBreadCrumbsRadius = 2;                // BreadCrumbs.qss:36 $radius.bar.editable

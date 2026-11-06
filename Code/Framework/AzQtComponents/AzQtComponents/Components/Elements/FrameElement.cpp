@@ -27,7 +27,7 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
 
         const QColor PanelFill = Foundations::Mid;          // BaseStyleSheet.qss:47 $fill.surface.idle.Mid
-        const QColor SeparatorLine(0x99, 0x99, 0x99);       // Card.qss:262 $text.surface.idle.Alt5
+        const QColor SeparatorLine = Foundations::Text::Disabled;  // Card.qss:262 $text.surface.idle.Alt5
 
         // ------------------------------------------------------------------------------
         // Elements
@@ -117,6 +117,8 @@ namespace AzQtComponents
             palette.setColor(QPalette::Button, fill);
             palette.setColor(QPalette::Window, fill);
             setShades(palette, fill);
+            // The base style draws the frame's line from this Window (QFusionStylePrivate::outline): Foundations.h, Derived
+            // ($line.surface.idle.color.Alt6)
         }
 
         // The lines of a Plain frame draw in WindowText

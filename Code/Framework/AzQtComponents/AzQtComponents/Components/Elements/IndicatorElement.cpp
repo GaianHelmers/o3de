@@ -37,7 +37,8 @@ namespace AzQtComponents
         constexpr QSize RadioButtonImageSizeFocus(18, 18);
         constexpr int RadioButtonMarginFocus = 1;           // RadioButton.qss:33 $space.check-indicator.focus
 
-        constexpr QMargins LabelFocusMargins(3, 2, 3, 2);   // QCommonStyle::subElementRect (SE_CheckBoxFocusRect) $space.check.focus.label
+        // QCommonStyle::subElementRect (SE_CheckBoxFocusRect) $space.check.focus.label-margin
+        constexpr QMargins LabelFocusMargins(3, 2, 3, 2);
 
         // ------------------------------------------------------------------------------
         // Elements

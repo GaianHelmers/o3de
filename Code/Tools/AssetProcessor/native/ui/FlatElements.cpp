@@ -9,6 +9,7 @@
 #include "native/ui/FlatElements.h"
 
 #include <AzQtComponents/Components/Elements/BoxElement.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/Elements/FrameElement.h>
 #include <AzQtComponents/Components/Elements/ItemViewElement.h>
 #include <AzQtComponents/Components/Elements/TextElement.h>
@@ -64,6 +65,7 @@ namespace AssetProcessor
     //! translation unit, where anonymous namespaces merge (the AzQtComponents elements do the same).
     namespace FlatElementsInternal
     {
+        namespace Foundations = AzQtComponents::Foundations;
         using AzQtComponents::BoxElement;
         using AzQtComponents::FrameElement;
         using AzQtComponents::ItemViewElement;
@@ -81,15 +83,16 @@ namespace AssetProcessor
 
         //! `* { background-color: transparent }` (BaseStyleSheet.qss:17): the fill of every widget no other rule fills. It still
         //! hands the widget's background to the rule (QRenderRule::hasBackground, qstylesheetstyle.cpp:507), so the base style
-        //! paints none under it. TOKENIZE: WidgetFill
-        const QBrush Transparent(QColor(0, 0, 0, 0));
+        //! paints none under it. $fill.surface.idle.Clear
+        const QBrush Transparent(Foundations::Clear);   // BaseStyleSheet.qss:17 $fill.surface.idle.Clear
 
         //! The lists, tables and trees: AssetProcessor.qss:65 (the asset trees), :134 (QTableWidget), :152 (QListWidget) and
-        //! AssetsTab.qss:87 (TableView, #builderList), rgb(45,45,45). TOKENIZE: ItemViewSurface
-        const QBrush ItemViewFill(QColor(45, 45, 45));
+        //! AssetsTab.qss:87 (TableView, #builderList), rgb(45,45,45). $fill.view.idle.fill.Alt1
+        // AssetProcessor.qss:65, :134, :152, AssetsTab.qss:87 $fill.view.idle.fill.Alt1
+        const QBrush ItemViewFill(Foundations::Fill::ItemHeader);
 
-        //! The filter bars: AssetsTab.qss:19, :25 and :32, rgb(40,40,40). TOKENIZE: FilterBarSurface
-        const QBrush FilterBarFill(QColor(40, 40, 40));
+        //! The filter bars: AssetsTab.qss:19, :25 and :32, rgb(40,40,40). $fill.field.idle.Alt3 $fill.surface.idle.Alt5
+        const QBrush FilterBarFill(QColor(40, 40, 40));   // AssetsTab.qss:19, :25, :32 $fill.field.idle.Alt3 $fill.surface.idle.Alt5
 
         // ------------------------------------------------------------------------------
         // Text: the status row
@@ -97,12 +100,13 @@ namespace AssetProcessor
 
         //! `.APTimer { font-size: 18px; font-family: "Open Sans Light" }` (AssetProcessor.qss:14, :17): the three timers of the status
         //! row (MainWindow.ui:139, 181, 223 give them the class), over the '*' rule's weight 400 (BaseStyleSheet.qss:20) and white
-        //! text (BaseStyleSheet.qss:18). TOKENIZE: TimerTextFamily, TimerTextSize, TextColor
+        //! text (BaseStyleSheet.qss:18). $text.surface.idle.Alt1
+        //! AssetProcessor.qss:17 $type.label.idle.family.Alt2, :14 $type.label.idle.size.Alt3
         const TextElement TimerText{
             .m_name = "AssetProcessor.Text.APTimer",
-            .m_family = "Open Sans Light",
-            .m_pixelSize = 18,
-            .m_color = QColor(0xFF, 0xFF, 0xFF),
+            .m_family = "Open Sans Light",   // AssetProcessor.qss:17 $type.label.idle.family.Alt2
+            .m_pixelSize = 18,   // AssetProcessor.qss:14 $type.label.idle.size.Alt3
+            .m_color = Foundations::Text::Primary,   // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
         };
 
         // ------------------------------------------------------------------------------
@@ -111,7 +115,8 @@ namespace AssetProcessor
 
         //! AssetProcessor.qss:20-22 `.TimerLine { color: #888888 }`: the three vertical lines between the timers of the
         //! status row (MainWindow.ui:160-162, 202-204, 244-246 give them the class). A QFrame with a class tag is not
-        //! matched by `.QFrame[frameShape]`, so the lines have no fill of their own. TOKENIZE: TimerLineColor
+        //! matched by `.QFrame[frameShape]`, so the lines have no fill of their own. $text.surface.idle.Alt3
+        // AssetProcessor.qss:21 $text.surface.idle.Alt3
         const FrameElement TimerLine{ .m_name = "AssetProcessor.Frame.TimerLine", .m_foreground = QColor(0x88, 0x88, 0x88) };
 
         // ------------------------------------------------------------------------------
@@ -133,6 +138,8 @@ namespace AssetProcessor
         //! `QLabel#projectLabel, QLabel#rootLabel { margin-top: 0px; margin-bottom: 0px; margin-left: 8px }` (AssetProcessor.qss:39-41)
         const BoxElement ProjectLabel{
             .m_name = "AssetProcessor.Box.ProjectLabel",
+            // AssetProcessor.qss:41, :39, :40 $space.label.idle.margin-left.Alt3 $space.label.idle.margin-top.Alt3
+            // $space.label.idle.margin-bottom.Alt3
             .m_margin = QMargins(8, 0, 0, 0),
             .m_idle = { .m_fill = Transparent },
         };
@@ -140,6 +147,8 @@ namespace AssetProcessor
         //! `QLabel#portLabel { margin-top: 0px; margin-bottom: 24px; margin-left: 8px }` (AssetProcessor.qss:45-47)
         const BoxElement PortLabel{
             .m_name = "AssetProcessor.Box.PortLabel",
+            // AssetProcessor.qss:47, :45, :46 $space.label.idle.margin-left.Alt3 $space.label.idle.margin-top.Alt3
+            // $space.label.idle.margin-bottom.Alt7
             .m_margin = QMargins(8, 0, 0, 24),
             .m_idle = { .m_fill = Transparent },
         };
@@ -148,6 +157,8 @@ namespace AssetProcessor
         //! the `.Title` it is tagged with (Text.qss:69; its margin-top, :68, lost to the id)
         const BoxElement APStatusValueLabel{
             .m_name = "AssetProcessor.Box.APStatusValueLabel",
+            // AssetProcessor.qss:26, :25 $space.label.idle.margin-left.Alt3 $space.label.idle.margin-top.Alt7; Text.qss:69
+            // $space.label.idle.margin-bottom.Alt4
             .m_margin = QMargins(8, 12, 0, 7),
             .m_idle = { .m_fill = Transparent },
         };
@@ -159,11 +170,13 @@ namespace AssetProcessor
         //! supportButton and sharedCacheSupport; UNVERIFIED by capture: MissingProductDependenciesSupport (the Product tab).
         const BoxElement SupportButton{
             .m_name = "AssetProcessor.Box.SupportButton",
+            // AssetProcessor.qss:120, :121 $space.button.idle.margin-top.Alt2 $space.button.idle.margin-right.Alt2
             .m_margin = QMargins(0, 10, 16, 0),
             .m_nativeBorder = false,
-            .m_minSize = QSize(-1, 24),
-            .m_maxSize = QSize(-1, 24),
+            .m_minSize = QSize(-1, 24),   // AssetProcessor.qss:117 $size.button.idle.min-height.Alt4
+            .m_maxSize = QSize(-1, 24),   // AssetProcessor.qss:118 $size.button.idle.max-height.Alt4
             .m_idle = { .m_fill = Transparent },
+            // AssetProcessor.qss:125 $asset.button.idle.icon.Alt5, :126 $asset.button.idle.iconsize.Alt6
             .m_properties = { { "icon", QStringLiteral(":/stylesheet/img/help.svg") }, { "iconSize", QSize(24, 24) } },
         };
 
@@ -178,23 +191,28 @@ namespace AssetProcessor
         //! :182-183, :189-190; BaseStyleSheet.qss:18, :20). A label with no highlight is a plain label too: its rule
         //! (AssetProcessor.qss:169-172) says what '*' says.
         //! Captured: blue (the Notice level). UNVERIFIED by capture: green (Active) and red (Error).
-        //! TOKENIZE: StatusNoticeFill, StatusNoticeLine, StatusActiveFill, StatusActiveLine, StatusErrorFill, StatusErrorLine
+        //! Notice AssetProcessor.qss:177-178 $fill.label.idle.Alt6 $line.label.idle.width.Alt2 $line.label.idle.color.Alt1.
+        //! Active AssetProcessor.qss:184-185 $fill.label.idle.Alt7 $line.label.idle.width.Alt2 $line.label.idle.color.Alt2.
+        //! Error AssetProcessor.qss:191-192 $fill.label.idle.Alt8 $line.label.idle.width.Alt2 $line.label.idle.color.Alt3.
         const BoxElement SharedCacheStatusNotice{
             .m_name = "AssetProcessor.Box.SharedCacheStatus.Notice",
-            .m_margin = QMargins(0, 1, 0, 1),
+            .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             .m_nativeBorder = false,
-            .m_idle = { .m_fill = QBrush(QColor(88, 140, 188, 25)), .m_edges = BoxElement::border(1, QColor(0x42, 0x85, 0xF4)) },   // AssetProcessor.qss:177-178
+            // AssetProcessor.qss:177 $fill.label.idle.Alt6, :178 $line.label.idle.width.Alt2 $line.label.idle.color.Alt1
+            .m_idle = { .m_fill = QBrush(QColor(88, 140, 188, 25)), .m_edges = BoxElement::border(1, Foundations::Accent::Info) },   // AssetProcessor.qss:177-178
         };
         const BoxElement SharedCacheStatusActive{
             .m_name = "AssetProcessor.Box.SharedCacheStatus.Active",
-            .m_margin = QMargins(0, 1, 0, 1),
+            .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             .m_nativeBorder = false,
-            .m_idle = { .m_fill = QBrush(QColor(88, 188, 97, 25)), .m_edges = BoxElement::border(1, QColor(0x58, 0xBC, 0x61)) },   // AssetProcessor.qss:184-185
+            // AssetProcessor.qss:184 $fill.label.idle.Alt7, :185 $line.label.idle.width.Alt2 $line.label.idle.color.Alt2
+            .m_idle = { .m_fill = QBrush(QColor(88, 188, 97, 25)), .m_edges = BoxElement::border(1, Foundations::Accent::Success) },   // AssetProcessor.qss:184-185
         };
         const BoxElement SharedCacheStatusError{
             .m_name = "AssetProcessor.Box.SharedCacheStatus.Error",
-            .m_margin = QMargins(0, 1, 0, 1),
+            .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             .m_nativeBorder = false,
+            // AssetProcessor.qss:191 $fill.label.idle.Alt8, :192 $line.label.idle.width.Alt2 $line.label.idle.color.Alt3
             .m_idle = { .m_fill = QBrush(QColor(255, 0, 0, 25)), .m_edges = BoxElement::border(1, QColor(0xFA, 0x27, 0x27)) },   // AssetProcessor.qss:191-192
         };
 
@@ -204,11 +222,12 @@ namespace AssetProcessor
         //! `border-image: url(":/Browse_on.png") 0 0 0 0 stretch stretch`, which Qt stretches over the whole border box, whatever the size
         //! of the image (QRenderRule::drawBorderImage, qstylesheetstyle.cpp:1167-1188; Face::m_borderImage). The resource is AssetProcessor.qrc's
         //! (:22), and the button has the same file as its icon (MainWindow.cpp:753). n2 SharedCachePage7: the button is 19x19 at [1171,308] at
-        //! 150%; the sheet has no rule for any other state of it. TOKENIZE: ServerAddressImage
+        //! 150%; the sheet has no rule for any other state of it. $asset.button.idle.border-image
         const BoxElement ServerAddressToolButton{
             .m_name = "AssetProcessor.Box.ServerAddressToolButton",
             .m_hasBox = true,
             .m_nativeBorder = false,
+            // AssetProcessor.qss:199 $asset.button.idle.border-image
             .m_idle = { .m_fill = Transparent, .m_borderImage = ":/Browse_on.png" },     // border-image: AssetProcessor.qss:199
         };
 
@@ -222,16 +241,16 @@ namespace AssetProcessor
             .m_hasBox = true,
             .m_nativeBorder = false,
             .m_idle = { .m_fill = ItemViewFill },
-            .m_properties = { { "showGrid", false } },
+            .m_properties = { { "showGrid", false } },   // TableView.qss:11 $other.view.idle.showgrid
         };
 
         //! `QWidget#SharedCachePage, QWidget#AssetRelocationPage { background-color: rgba(34, 34, 34, 0.5); border: none }`
         //! (AssetProcessor.qss:212-213, :217-218): the two pages over the dialog stack. The alpha reads as 0.5 * 255 = 127
-        //! (qcssparser.cpp:830-836). TOKENIZE: PageOverlaySurface
+        //! (qcssparser.cpp:830-836). $fill.surface.idle.Alt8
         const BoxElement PageOverlay{
             .m_name = "AssetProcessor.Box.PageOverlay",
             .m_nativeBorder = false,
-            .m_idle = { .m_fill = QBrush(QColor(34, 34, 34, 127)) },
+            .m_idle = { .m_fill = QBrush(QColor(34, 34, 34, 127)) },   // AssetProcessor.qss:212, :217 $fill.surface.idle.Alt8
         };
 
         // ------------------------------------------------------------------------------
@@ -242,31 +261,33 @@ namespace AssetProcessor
         const BoxElement JobDialogSplitter{
             .m_name = "AssetProcessor.Box.JobDialogSplitter",
             .m_idle = { .m_fill = Transparent },
-            .m_properties = { { "childrenCollapsible", false } },
+            .m_properties = { { "childrenCollapsible", false } },   // AssetsTab.qss:10 $other.separator.idle
         };
 
         //! `QFrame#jobLogLabel, QFrame#jobContextLogLabel { margin-top: 12px }` (AssetsTab.qss:121) over the margin-bottom of every
         //! QLabel (Text.qss:94). Captured: jobLogLabel. UNVERIFIED by capture: jobContextLogLabel.
         const BoxElement JobLogLabel{
             .m_name = "AssetProcessor.Box.JobLogLabel",
+            // AssetsTab.qss:121 $space.label.idle.margin-top.Alt7; Text.qss:94 $space.label.idle.margin-bottom.Alt1
             .m_margin = QMargins(0, 12, 0, 1),
             .m_idle = { .m_fill = Transparent },
         };
 
         //! `QLabel#jobLogPlaceholderLabel { background-color: rgb(34,34,34); padding: 8px; padding-top: 16px }` (AssetsTab.qss:125-127)
         //! over the margins of every QLabel (Text.qss:93-94). UNVERIFIED by capture (shown when no row is selected).
-        //! TOKENIZE: PlaceholderSurface
+        //! AssetsTab.qss:125-127 $fill.label.idle.BG $space.label.idle.padding.Alt2 $space.label.idle.padding-top.Alt3
         const BoxElement JobLogPlaceholderLabel{
             .m_name = "AssetProcessor.Box.JobLogPlaceholderLabel",
-            .m_margin = QMargins(0, 1, 0, 1),
+            .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
+            // AssetsTab.qss:126 $space.label.idle.padding.Alt2, :127 $space.label.idle.padding-top.Alt3
             .m_padding = QMargins(8, 16, 8, 8),
-            .m_idle = { .m_fill = QBrush(QColor(34, 34, 34)) },
+            .m_idle = { .m_fill = QBrush(Foundations::BG) },   // AssetsTab.qss:125 $fill.label.idle.BG
         };
 
         //! `QFrame#logButtonWrapper { margin-top: 8px }` (LogsTab.qss:13)
         const BoxElement LogButtonWrapper{
             .m_name = "AssetProcessor.Box.LogButtonWrapper",
-            .m_margin = QMargins(0, 8, 0, 0),
+            .m_margin = QMargins(0, 8, 0, 0),   // LogsTab.qss:13 $space.surface.idle.margin-top.Alt3
             .m_idle = { .m_fill = Transparent },
         };
 
@@ -292,19 +313,30 @@ namespace AssetProcessor
 
         //! rgb(34,34,34): the even rows, and the sections of every header of the sheet (AssetProcessor.qss:135, :148, :153, :166;
         //! AssetsTab.qss:88, :104). The header of the sheet's views is this dark: n2 measures #222222 on every header of the window (the
-        //! job, log, connection, builder, shared cache and event log tables), f5 #2d2d2d. TOKENIZE: ItemViewEvenRow, ItemViewHeaderSection
-        const QColor ViewDark(34, 34, 34);
+        //! job, log, connection, builder, shared cache and event log tables), f5 #2d2d2d.
+        //! AssetProcessor.qss:135 $fill.view.idle.alternate-fill.BG, :148 $fill.header.idle.BG.
+        // AssetProcessor.qss:135, :153, AssetsTab.qss:88 $fill.view.idle.alternate-fill.BG
+        // AssetProcessor.qss:148, AssetsTab.qss:104 $fill.header.idle.BG
+        const QColor ViewDark = Foundations::BG;
 
         //! rgb(73,73,73): the selection, as the role of the view and as the fill of a selected item and branch (AssetProcessor.qss:81-97,
-        //! :136, :140, :154, :158; AssetsTab.qss:90, :95). TOKENIZE: ItemViewSelection
+        //! :136, :140, :154, :158; AssetsTab.qss:90, :95).
+        //! AssetsTab.qss:90 $fill.view.idle.selection-fill.Alt3, :95 $fill.item.selected.Alt2 $fill.tree-branch.selected.Alt2.
+        // AssetProcessor.qss:136, :154, AssetsTab.qss:90 $fill.view.idle.selection-fill.Alt3
+        // AssetProcessor.qss:140, :158, AssetsTab.qss:95 $fill.item.selected.Alt2 $fill.tree-branch.selected.Alt2
+        // AssetProcessor.qss:96 $fill.item.selected+active.Alt1 $fill.tree-branch.selected.Alt2
         const QColor ViewSelected(73, 73, 73);
 
         //! rgb(60,60,60): the item and branch under the pointer, and a selected item while its window is inactive (AssetProcessor.qss:68-79,
-        //! :99-110, :143-145, :161-163; AssetsTab.qss:98-101). TOKENIZE: ItemViewHover, ItemViewInactiveSelection
+        //! :99-110, :143-145, :161-163; AssetsTab.qss:98-101). $fill.item.hover.Alt2 $fill.tree-branch.hover.Alt2
+        //! AssetProcessor.qss:99-110 $fill.item.selected+inactive.
+        // AssetProcessor.qss:68-79, :143-145, :161-163, AssetsTab.qss:98-101 $fill.item.hover.Alt2 $fill.tree-branch.hover.Alt2
+        // AssetProcessor.qss:99-110 $fill.item.selected+inactive
         const QColor ViewHover(60, 60, 60);
 
-        //! rgb(192,192,192): the text of a selected item while its window is inactive (AssetProcessor.qss:111). TOKENIZE: ItemViewInactiveSelectionText
-        const QColor ViewInactiveSelectedText(192, 192, 192);
+        //! rgb(192,192,192): the text of a selected item while its window is inactive (AssetProcessor.qss:111).
+        //! AssetProcessor.qss:111 $text.item.selected+inactive.
+        const QColor ViewInactiveSelectedText(192, 192, 192);   // AssetProcessor.qss:111 $text.item.selected+inactive
 
         //! `AzQtComponents--TableView` (AssetsTab.qss:86-105), the jobs, logs, connections, builders and shared cache tables of the window
         //! and the log tabs, which are TableViews: alternate rgb(34,34,34) and selection rgb(73,73,73) as the roles of the view (:88, :90),
@@ -385,11 +417,12 @@ namespace AssetProcessor
         //! are rgb(45,45,45) in every state a rule does not change (:50-66), rgb(60,60,60) under the pointer (:68-79), rgb(73,73,73) while
         //! selected (:81-97), and an item selected in an inactive window rgb(60,60,60) with rgb(192,192,192) text (:99-112: a rule for the
         //! item alone, the branch keeps its :selected fill, :81-82). The entries are in the order of the sheet: the hovered row of a selected
-        //! item is the selected color, as :81 follows :68. TOKENIZE: AssetTreeSurface
+        //! item is the selected color, as :81 follows :68.
+        //! AssetProcessor.qss:50-66 $fill.item.idle $fill.tree-branch.idle $fill.view.idle.fill.Alt1.
         const ItemViewElement AssetTreeRows{
             .m_name = "AssetProcessor.ItemView.AssetTree",
             .m_faces = {
-                { 0, { QColor(45, 45, 45), QColor(), QColor() } },                                  // ::item, ::branch: AssetProcessor.qss:50-66
+                { 0, { Foundations::Fill::ItemHeader, QColor(), QColor() } },                                  // ::item, ::branch: AssetProcessor.qss:50-66
                 { ItemViewElement::Hover, { ViewHover, QColor(), QColor() } },                      // ::item:hover, ::branch:hover: :68-79
                 { ItemViewElement::Selected, { ViewSelected, QColor(), QColor() } },                // :selected, :selected:active: :81-97
                 { ItemViewElement::Selected | ItemViewElement::Inactive,
@@ -402,6 +435,7 @@ namespace AssetProcessor
         //! when the tree is shown unless its element says otherwise. UNVERIFIED by capture (a popup is never open in a capture).
         const ItemViewElement FilterPopupRows{
             .m_name = "AssetProcessor.ItemView.FilterPopup",
+            // AssetsTab.qss:75 $size.view.idle.indentation.Alt2
             .m_indentation = 0,                                                     // qproperty-indentation: AssetsTab.qss:75
         };
 
@@ -413,18 +447,18 @@ namespace AssetProcessor
         //! fill, and the text filter beside its type filter rather than across the widget (qproperty-textFilterFillsWidth: False)
         const BoxElement DetailsFilterWidget{
             .m_name = "AssetProcessor.Box.DetailsFilterWidget",
-            .m_padding = QMargins(8, 8, 8, 8),
+            .m_padding = QMargins(8, 8, 8, 8),   // AssetsTab.qss:18 $space.field.idle.padding.Alt2
             .m_idle = { .m_fill = FilterBarFill },
-            .m_properties = { { "textFilterFillsWidth", false } },
+            .m_properties = { { "textFilterFillsWidth", false } },   // AssetsTab.qss:20 $other.field.idle.textfilterfillswidth.Alt1
         };
 
         //! `FilteredSearchWidget#assetDataFilteredSearchWidget` (AssetsTab.qss:23-27): the same, and the text filter across the widget
         //! (:26, the later rule wins over :20)
         const BoxElement AssetDataFilteredSearchWidget{
             .m_name = "AssetProcessor.Box.AssetDataFilteredSearchWidget",
-            .m_padding = QMargins(8, 8, 8, 8),
+            .m_padding = QMargins(8, 8, 8, 8),   // AssetsTab.qss:24 $space.field.idle.padding.Alt2
             .m_idle = { .m_fill = FilterBarFill },
-            .m_properties = { { "textFilterFillsWidth", true } },
+            .m_properties = { { "textFilterFillsWidth", true } },   // AssetsTab.qss:26 $other.field.idle.textfilterfillswidth.Alt2
         };
 
         //! `FilteredSearchWidget #textSearchContainer { background-color: rgb(40,40,40) }` (AssetsTab.qss:29-33), which holds the
@@ -438,7 +472,7 @@ namespace AssetProcessor
         //! The bar's fill and 6px above. UNVERIFIED by capture (a chip is never on in a capture).
         const BoxElement FilteredParent{
             .m_name = "AssetProcessor.Box.FilteredParent",
-            .m_margin = QMargins(0, 6, 0, 0),
+            .m_margin = QMargins(0, 6, 0, 0),   // AssetsTab.qss:43 $space.surface.idle.margin-top.Alt7
             .m_idle = { .m_fill = FilterBarFill },
         };
 
@@ -446,7 +480,7 @@ namespace AssetProcessor
         //! -4px, which negates the flow layout's (AssetsTab.qss:63-64). UNVERIFIED by capture.
         const BoxElement FilteredLayout{
             .m_name = "AssetProcessor.Box.FilteredLayout",
-            .m_margin = QMargins(-4, -4, -4, -4),
+            .m_margin = QMargins(-4, -4, -4, -4),   // AssetsTab.qss:64 $space.surface.idle.margin.Alt4
             .m_idle = { .m_fill = FilterBarFill },
         };
 
@@ -459,28 +493,35 @@ namespace AssetProcessor
         //! is a rule of the application sheet, which the fill of AssetsTab.qss:38 outranks (see the top of this file): the n2 dump of a
         //! search field has Base, Button and Window #e9e9e9 in its disabled colour group as well (its disabled text is #999999, the
         //! text of that rule). Captured: idle, and the disabled group of the palette. Needs the QLineEdit door.
-        //! TOKENIZE: SearchFieldSurface, SearchFieldRing
+        //! AssetsTab.qss:38 $fill.field.idle.Alt2; LineEdit.qss:16 $line.field.idle.width.Alt2;
+        //! BaseStyleSheet.qss:81 $line.field.idle.color.Alt1.
         const BoxElement TextSearch{
             .m_name = "AssetProcessor.Box.TextSearch",
+            // LineEdit.qss:25 $space.field.HasSearchAction, :19 $space.field.idle.padding-top.Alt1, :18 $space.field.idle.padding-bottom
             .m_padding = QMargins(-6, -1, 0, 1),
             .m_nativeBorder = false,
-            .m_radius = 2,
-            .m_size = QSize(260, 16),
-            .m_idle = { .m_fill = QBrush(QColor(0xE9, 0xE9, 0xE9)), .m_edges = BoxElement::border(2, QColor(0xE9, 0xE9, 0xE9)) },
-            .m_properties = { { "frame", true } },
+            .m_radius = 2,   // BaseStyleSheet.qss:79 $radius.field.idle.all
+            .m_size = QSize(260, 16),   // FilteredSearchWidget.qss:12 $size.field.idle.width; LineEdit.qss:13 $size.field.idle.height.Alt1
+            // AssetsTab.qss:38 $fill.field.idle.Alt2; LineEdit.qss:16 $line.field.idle.width.Alt2; BaseStyleSheet.qss:81
+            // $line.field.idle.color.Alt1
+            .m_idle = { .m_fill = QBrush(Foundations::Fill::FieldLight), .m_edges = BoxElement::border(2, Foundations::Field::Line) },
+            .m_properties = { { "frame", true } },   // FilteredSearchWidget.qss:11 $other.field.idle.frame
         };
 
         //! `#jobFilteredSearchWidget QTreeView, #detailsFilterWidget QTreeView` (AssetsTab.qss:67-77): the tree of a bar's type popup
         //! (AzQtComponents::SearchTypeSelector) stands out with a 1px border rgb(70,70,70) (:71), rounded 2px (:72), over rgb(34,34,34)
         //! (:70); one category only, so no indentation and no expanding on a double click (:75-76). A margin of 0 as every scroll
         //! area has (QDockWidget.qss:35). UNVERIFIED by capture (a popup is never open in a capture). Needs the door of the
-        //! view's viewport. TOKENIZE: FilterPopupSurface, FilterPopupLine
+        //! view's viewport.
+        //! AssetsTab.qss:70-72 $fill.view.idle.fill.BG $line.view.idle.width $line.view.idle.color.Alt2 $radius.view.idle.all.
         const BoxElement FilterPopupTree{
             .m_name = "AssetProcessor.Box.FilterPopupTree",
             .m_hasBox = true,
             .m_nativeBorder = false,
-            .m_radius = 2,
-            .m_idle = { .m_fill = QBrush(QColor(34, 34, 34)), .m_edges = BoxElement::border(1, QColor(70, 70, 70)) },
+            .m_radius = 2,   // AssetsTab.qss:72 $radius.view.idle.all
+            // AssetsTab.qss:70 $fill.view.idle.fill.BG, :71 $line.view.idle.width $line.view.idle.color.Alt2
+            .m_idle = { .m_fill = QBrush(Foundations::BG), .m_edges = BoxElement::border(1, QColor(70, 70, 70)) },
+            // AssetsTab.qss:75 $size.view.idle.indentation.Alt2, :76 $other.view.idle.expandsondoubleclick
             .m_properties = { { "indentation", 0 }, { "expandsOnDoubleClick", false } },
         };
 
@@ -489,7 +530,7 @@ namespace AssetProcessor
         //! own (one category to choose from). A property and no box. UNVERIFIED by capture (a popup is never open in a capture).
         const BoxElement FilterPopup{
             .m_name = "AssetProcessor.Box.FilterPopup",
-            .m_properties = { { "lineEditSearchVisible", false } },
+            .m_properties = { { "lineEditSearchVisible", false } },   // AssetsTab.qss:81 $other.surface.idle.lineeditsearchvisible
         };
     } // namespace FlatElementsInternal
 

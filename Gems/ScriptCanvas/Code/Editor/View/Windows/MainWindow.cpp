@@ -98,6 +98,7 @@
 #include <AzToolsFramework/ToolsComponents/ToolsAssetCatalogBus.h>
 #include <AzToolsFramework/UI/UICore/WidgetHelpers.h>
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/Elements/TabElement.h>
 #include <AzQtComponents/Components/Widgets/FileDialog.h>
 #include <AzQtComponents/Components/Widgets/TabWidget.h>
@@ -172,32 +173,46 @@ namespace ScriptCanvasEditor
         // (Editor.qss AzQtComponents--TabWidget#ScriptCanvasTabs).
         // ------------------------------------------------------------------------------
 
+        namespace Foundations = AzQtComponents::Foundations;
+
         // Sources: AzQtComponents Components/Widgets/ stylesheets as file:line, and Editor.qss.
         const AzQtComponents::TabElement GraphTabs{
             .m_name = "ScriptCanvas.Tab.Graph",
-            .m_barFill = QColor(0x44, 0x44, 0x44),                                  // TabWidget.qss:26
-            .m_barMinHeight = 28,                                                   // TabWidget.qss:46
+            .m_barFill = Foundations::Mid,                                          // TabWidget.qss:26 $fill.surface.idle.Mid
+            .m_barMinHeight = 28,                                                   // TabWidget.qss:46 $size.tab.idle.min-height.Alt1
             // TabWidget.qss:136 (idle), :145 (hover), :158 (selected text and bottom edge)
-            .m_idle = { QColor(0x44, 0x44, 0x44), QColor(0x95, 0x95, 0x95), { {}, {}, { 3, QColor(0x33, 0x33, 0x33) }, {} } },
-            .m_hover = { QColor(0xFF, 0xFF, 0xFF, 0x26), QColor(0xFF, 0xFF, 0xFF), { {}, {}, { 3, QColor(0x44, 0x44, 0x44) }, {} } },
-            .m_selected = { QColor(0x44, 0x44, 0x44), QColor(0xFF, 0xFF, 0xFF), { {}, {}, { 3, QColor(0x00, 0x8D, 0xE5) }, {} } },
-            .m_selectedHover = { QColor(0xFF, 0xFF, 0xFF, 0x26), QColor(0xFF, 0xFF, 0xFF), { {}, {}, { 3, QColor(0x00, 0x8D, 0xE5) }, {} } },
-            .m_padding = QMargins(14, 7, 14, 5),                                    // TabWidget.qss:136
-            .m_maxContentWidth = 200,                                               // TabWidget.qss:16
-            .m_closeIcon = ":/stylesheet/img/close_small.svg",                      // TabWidget.qss:64
-            .m_closeHoverFill = QColor(0xFF, 0xFF, 0xFF, 0x33),                     // TabWidget.qss:70
-            .m_closeRadius = 2,                                                     // TabWidget.qss:70
-            .m_closeMarginRight = 4,                                                // TabWidget.qss:64
-            .m_widgetFill = QColor(0x44, 0x44, 0x44),                               // TabWidget.qss:101
-            .m_paneEdges = { { 2, QColor(0x2B, 0x2B, 0x2B) }, {}, {}, {} },         // TabWidget.qss:111
+            // $fill.tab.idle.Mid $text.tab.idle $line.tab.idle.width.Alt3 $line.tab.idle.color.Low
+            .m_idle = { Foundations::Mid, Foundations::Tab::SecondaryText, { {}, {}, { 3, Foundations::Tab::SecondaryLine }, {} } },
+            // TabWidget.qss:145 $fill.tab.hover.Alt1 $text.tab.hover.Alt1 $line.tab.hover.width $line.tab.hover.color
+            .m_hover = { Foundations::Tab::SecondaryHoverFill, Foundations::Text::Primary, { {}, {}, { 3, Foundations::Mid }, {} } },
+            // TabWidget.qss:136, :158 $fill.tab.idle.Mid $text.tab.selected.Alt1 $line.tab.selected.width.Alt2 $line.tab.selected.color.Alt1
+            .m_selected = { Foundations::Mid, Foundations::Text::Primary, { {}, {}, { 3, Foundations::Accent::Selected }, {} } },
+            // TabWidget.qss:145, :158 $fill.tab.hover.Alt1 $text.tab.selected.Alt1
+            .m_selectedHover = { Foundations::Tab::SecondaryHoverFill, Foundations::Text::Primary,
+                                 // TabWidget.qss:158 $line.tab.selected.width.Alt2 $line.tab.selected.color.Alt1
+                                 { {}, {}, { 3, Foundations::Accent::Selected }, {} } },
+            .m_padding = QMargins(14, 7, 14, 5),                                    // TabWidget.qss:136 $space.tab.idle.padding.Alt3
+            .m_maxContentWidth = 200,                                               // TabWidget.qss:16 $size.tab.idle.max-width
+            .m_closeIcon = ":/stylesheet/img/close_small.svg",                      // TabWidget.qss:64 $asset.button.idle.image
+            .m_closeHoverFill = Foundations::Fill::HoverOverlay,                    // TabWidget.qss:70 $fill.button.hover.fill.Alt1
+            .m_closeRadius = 2,                                                     // TabWidget.qss:70 $radius.button.hover
+            .m_closeMarginRight = 4,                                                // TabWidget.qss:64 $space.button.idle.margin-right.Alt1
+            .m_widgetFill = Foundations::Mid,                                       // TabWidget.qss:101 $fill.tab.idle.Mid
+            // TabWidget.qss:111 $line.tab-pane.idle.width.Alt2 $line.tab-pane.idle.color
+            .m_paneEdges = { { 2, Foundations::Line::TabPane }, {}, {}, {} },
+            // TabWidget.qss:111 $space.tab-pane.idle.padding $space.tab-pane.idle.padding-top
             .m_panePadding = QMargins(3, 0, 3, 3),                                  // TabWidget.qss:111
-            .m_paneEmptyOffset = 30,                                                // TabWidget.qss:41
-            .m_barLeft = 1,                                                         // TabWidget.qss:119
-            .m_barAreaMinHeight = 30,                                               // TabWidget.qss:119
+            .m_paneEmptyOffset = 30,                                                // TabWidget.qss:41 $space.tab-pane.idle.margin-top
+            .m_barLeft = 1,                                                         // TabWidget.qss:119 $other.tab.idle.left.Alt1
+            .m_barAreaMinHeight = 30,                                               // TabWidget.qss:119 $size.tab.idle.min-height.Alt2
+            // Editor.qss:117 $size.tab.idle.height.Alt1, :119 $size.tab.idle.max-height
             .m_widgetHeight = 32,                                                   // Editor.qss:117 height, :119 max-height
-            .m_widgetMargins = QMargins(2, 0, 2, 0),                                // Editor.qss:118
+            .m_widgetMargins = QMargins(2, 0, 2, 0),                                // Editor.qss:118 $space.tab.idle.margin.Alt2
+            // TabWidgetActionToolBar.qss:1 $size.tab.idle.min-height.Alt1
             .m_cornerMinHeight = 28,                                                // TabWidgetActionToolBar.qss:1
+            // TabWidgetActionToolBar.qss:1 $space.tab.idle.margin-bottom.Alt2
             .m_cornerMarginBottom = 9,                                              // TabWidgetActionToolBar.qss:1
+            // TabWidget.qss:46 $other.tab.idle.widget-animation-duration
             .m_moveAnimationDuration = 0,                                           // TabWidget.qss:46
         };
 

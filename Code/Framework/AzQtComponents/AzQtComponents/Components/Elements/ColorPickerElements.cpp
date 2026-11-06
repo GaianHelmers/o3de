@@ -50,7 +50,7 @@ namespace AzQtComponents
 
         // ---- The frames of the color grid, the preview, the swatches and the button that adds one
         // ColorPicker.qss:108 $line.surface.idle.width.Alt1 $line.surface.idle.color.Low
-        const BoxElement::Edge FrameLine{ 1, Foundations::Low };
+        const BoxElement::Edge FrameLine{ 1, Foundations::Line::ColorPickerFrame };
         constexpr int FrameRadius = 2;                              // ColorPicker.qss:109 $radius.surface.idle.all.Alt3
         // ColorPicker.qss:115 $line.surface.selected.width $line.surface.selected.color
         const BoxElement::Edge SelectedSwatchLine{ 2, QColor(0xC8, 0xAB, 0xFF) };

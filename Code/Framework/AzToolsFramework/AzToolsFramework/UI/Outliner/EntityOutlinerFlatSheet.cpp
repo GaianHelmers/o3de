@@ -9,6 +9,7 @@
 #include <AzToolsFramework/UI/Outliner/EntityOutlinerFlatSheet.h>
 
 #include <AzQtComponents/Components/Elements/BoxElement.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/Elements/ItemViewElement.h>
 
 #include <QBrush>
@@ -41,11 +42,13 @@ namespace AzToolsFramework::EntityOutliner
         const BoxElement DisplayOptionsButton{
             .m_name = "Editor.Box.OutlinerDisplayOptions",
             .m_idle = {
-                .m_fill = QBrush(Qt::transparent),                                  // BaseStyleSheet.qss:17
+                .m_fill = QBrush(AzQtComponents::Foundations::Clear),               // BaseStyleSheet.qss:17 $fill.surface.idle.Clear
             },
             .m_properties = {
-                { "icon", QString(":/stylesheet/img/UI20/menu-centered.svg") },     // qproperty-icon, EntityOutliner.qss:11
-                { "iconSize", QSize(16, 16) },                                      // qproperty-iconSize, EntityOutliner.qss:12
+                // qproperty-icon, EntityOutliner.qss:11 $asset.button.idle.icon.Alt6
+                { "icon", QString(":/stylesheet/img/UI20/menu-centered.svg") },
+                // qproperty-iconSize, EntityOutliner.qss:12 $asset.button.idle.iconsize.Alt1
+                { "iconSize", QSize(16, 16) },
             },
         };
 
@@ -56,12 +59,14 @@ namespace AzToolsFramework::EntityOutliner
         //! text stay the Global tree's. n2 Editor 01_main_window: the rows of the outliner have no fill of their own.
         const ItemViewElement OutlinerTree{
             .m_name = "Editor.ItemView.OutlinerTree",
-            .m_selection = QColor(0, 0, 0, 0),                                      // selection-background-color: transparent, EntityOutliner.qss:17
+            .m_selection = AzQtComponents::Foundations::Clear,      // EntityOutliner.qss:17 $fill.view.idle.selection-fill.Clear
             .m_faces = {
-                // ::item:selected, ::branch:selected, with :active: transparent, EntityOutliner.qss:26-31
-                { ItemViewElement::Selected, { QColor(0, 0, 0, 0), QColor(), QColor() } },
-                // ::item:hover, ::branch:hover: transparent, EntityOutliner.qss:24-25, :31
-                { ItemViewElement::Hover, { QColor(0, 0, 0, 0), QColor(), QColor() } },
+                // ::item:selected, ::branch:selected, with :active: transparent, EntityOutliner.qss:26-31 $fill.item.selected+active.Clear
+                // $fill.tree-branch.selected+active
+                { ItemViewElement::Selected, { AzQtComponents::Foundations::Clear, QColor(), QColor() } },
+                // ::item:hover, ::branch:hover: transparent, EntityOutliner.qss:24-25, :31 $fill.item.hover.Clear
+                // $fill.tree-branch.hover.Clear
+                { ItemViewElement::Hover, { AzQtComponents::Foundations::Clear, QColor(), QColor() } },
             },
         };
 

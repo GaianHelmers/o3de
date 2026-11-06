@@ -42,10 +42,10 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
 
         // ---- The faces of every view
-        const QColor SelectedItemFill(0x65, 0x65, 0x65);            // TableView.qss:49 $fill.item.selected.Alt1
-        const QColor SelectedBranchFill(0x65, 0x65, 0x65);          // TableView.qss:49 $fill.tree-branch.selected.Alt1
+        const QColor SelectedItemFill = Foundations::Fill::ItemSelected;          // TableView.qss:49 $fill.item.selected.Alt1
+        const QColor SelectedBranchFill = Foundations::Fill::ItemSelected;          // TableView.qss:49 $fill.tree-branch.selected.Alt1
         const QColor HoveredItemFill(0x5A, 0x5A, 0x5A);             // TableView.qss:59 $fill.item.hover.Alt1
-        const QColor HoveredBranchFill(0x5A, 0x5A, 0x5A);           // TableView.qss:59 $fill.tree-branch.hover.Alt1
+        const QColor HoveredBranchFill = HoveredItemFill;           // TableView.qss:59 $fill.tree-branch.hover.Alt1
 
         // ---- A tree: its check box, its carets, its disabled text and its indentation
         // TableView.qss:84, :81 $space.check-indicator.idle.margin-left $space.check-indicator.idle.margin.Alt2

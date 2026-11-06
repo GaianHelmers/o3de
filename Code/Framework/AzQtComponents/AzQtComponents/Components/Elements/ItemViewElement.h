@@ -11,6 +11,7 @@
 #if !defined(Q_MOC_RUN)
 #include <AzQtComponents/AzQtComponentsAPI.h>
 #include <AzQtComponents/Components/Elements/ElementCommon.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <QColor>
 #include <QMargins>
 #include <QRect>
@@ -86,9 +87,9 @@ namespace AzQtComponents
         const char* m_name = "";                //!< Scope.ItemView.Look
 
         // ---- The roles of the view: its palette
-        QColor m_alternate = QColor(0x4D, 0x4D, 0x4D);      //!< TableView.qss:21 $fill.view.idle.alternate-fill.Alt1
-        QColor m_selection = QColor(0x65, 0x65, 0x65);      //!< TableView.qss:23 $fill.view.idle.selection-fill.Alt1
-        QColor m_selectionText = QColor(0xFF, 0xFF, 0xFF);  //!< TableView.qss:24 $text.view.idle
+        QColor m_alternate = Foundations::Fill::ItemView;    //!< TableView.qss:21 $fill.view.idle.alternate-fill.Alt1
+        QColor m_selection = Foundations::Fill::ItemSelected;    //!< TableView.qss:23 $fill.view.idle.selection-fill.Alt1
+        QColor m_selectionText = Foundations::Text::Primary;  //!< TableView.qss:24 $text.view.idle
 
         // ---- The item's box: the item is m_itemHeight high where the base style would make it taller or lower, grown by the box
         int m_itemHeight = 24;                              //!< TableView.qss:36 $size.item.idle (Unset: the base style's)
@@ -111,7 +112,7 @@ namespace AzQtComponents
 
         //! The fill of a header's sections, and so of the header beyond the last section (the legacy header's viewport showed the
         //! section rule's colour); an alpha of 0 lets the window show through. TableView.qss:69 $fill.header.idle.Alt1
-        QColor m_headerFill = QColor(0x2D, 0x2D, 0x2D);
+        QColor m_headerFill = Foundations::Fill::ItemHeader;
 
         // ---- Geometry and drawing
         //! The states of an option, as the faces name them

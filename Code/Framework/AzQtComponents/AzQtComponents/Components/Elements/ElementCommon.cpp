@@ -22,10 +22,10 @@ namespace AzQtComponents
         // Values
         // ------------------------------------------------------------------------------
 
-        constexpr int LightShadeFactor = 115;               // QRenderRule::configurePalette $line.shade.light
-        constexpr int MidlightShadeFactor = 107;            // QRenderRule::configurePalette $line.shade.midlight
-        constexpr int DarkShadeFactor = 150;                // QRenderRule::configurePalette $line.shade.dark
-        constexpr int ShadowShadeFactor = 300;              // QRenderRule::configurePalette $line.shade.shadow
+        constexpr int LightShadeFactor = 115;               // QRenderRule::configurePalette $line.shade.idle.light
+        constexpr int MidlightShadeFactor = 107;            // QRenderRule::configurePalette $line.shade.idle.midlight
+        constexpr int DarkShadeFactor = 150;                // QRenderRule::configurePalette $line.shade.idle.dark
+        constexpr int ShadowShadeFactor = 300;              // QRenderRule::configurePalette $line.shade.idle.shadow
     } // namespace ElementCommonInternal
 
     // ----------------------------------------------------------------------------------

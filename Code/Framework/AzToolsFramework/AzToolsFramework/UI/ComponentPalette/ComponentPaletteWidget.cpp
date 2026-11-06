@@ -19,6 +19,7 @@
 #include <AzToolsFramework/Entity/EditorEntityHelpers.h>
 
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/Widgets/LineEdit.h>
 
 AZ_PUSH_DISABLE_WARNING(4244 4251, "-Wunknown-warning-option") // 4244: conversion from 'int' to 'float', possible loss of data
@@ -89,19 +90,20 @@ namespace AzToolsFramework
         {
             // Editor.qss: ComponentPaletteWidget { border: 1px solid #4E4E4E; background-color:
             // #383A3B }, ComponentPaletteWidget > QTreeView { background-color: #222222 }.
-            // TOKENIZE: ComponentPaletteBorder, ComponentPaletteBackground, ComponentPaletteTreeBackground
+            // Editor.qss:32-36, :38-40 $line.surface.idle.color.Alt5 $fill.surface.idle.Alt10 $fill.view.idle.fill.BG
             setFrameStyle(QFrame::Box | QFrame::Plain);
             setLineWidth(1);
             QPalette palettePalette = palette();
-            palettePalette.setColor(QPalette::Window, QColor(0x38, 0x3A, 0x3B));
-            palettePalette.setColor(QPalette::WindowText, QColor(0x4E, 0x4E, 0x4E));
+            palettePalette.setColor(QPalette::Window, QColor(0x38, 0x3A, 0x3B));     // Editor.qss:35 $fill.surface.idle.Alt10
+            palettePalette.setColor(QPalette::WindowText, QColor(0x4E, 0x4E, 0x4E)); // Editor.qss:34 $line.surface.idle.color.Alt5
             setPalette(palettePalette);
             setAutoFillBackground(true);
 
             QPalette treePalette = m_componentTree->palette();
-            treePalette.setColor(QPalette::Base, QColor(0x22, 0x22, 0x22));
-            treePalette.setColor(QPalette::Text, QColor(0xFF, 0xFF, 0xFF));
-            treePalette.setColor(QPalette::WindowText, QColor(0xFF, 0xFF, 0xFF));
+            treePalette.setColor(QPalette::Base, AzQtComponents::Foundations::BG);
+            // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
+            treePalette.setColor(QPalette::Text, AzQtComponents::Foundations::Text::Primary);
+            treePalette.setColor(QPalette::WindowText, AzQtComponents::Foundations::Text::Primary);
             m_componentTree->setPalette(treePalette);
         }
 

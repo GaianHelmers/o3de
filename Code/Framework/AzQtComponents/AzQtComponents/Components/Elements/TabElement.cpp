@@ -52,16 +52,16 @@ namespace AzQtComponents
         // ---- A tab of the Secondary look, and of the bordered one
         const QColor SecondaryFill = Foundations::Mid;              // TabWidget.qss:138 $fill.tab.idle.Mid
         // TabWidget.qss:140 $line.tab.idle.width.Alt3 $line.tab.idle.color.Low
-        const TabElement::Edge SecondaryLine{ 3, Foundations::Low };
+        const TabElement::Edge SecondaryLine{ 3, Foundations::Tab::SecondaryLine };
         constexpr QMargins SecondaryPadding(14, 7, 14, 5);          // TabWidget.qss:141 $space.tab.idle.padding.Alt3
-        const QColor SecondaryText(0x95, 0x95, 0x95);               // TabWidget.qss:142 $text.tab.idle
-        const QColor SecondaryHoverFill(0xFF, 0xFF, 0xFF, 0x26);    // TabWidget.qss:147 $fill.tab.hover.Alt1
+        const QColor SecondaryText = Foundations::Tab::SecondaryText;  // TabWidget.qss:142 $text.tab.idle
+        const QColor SecondaryHoverFill = Foundations::Tab::SecondaryHoverFill;  // TabWidget.qss:147 $fill.tab.hover.Alt1
         // TabWidget.qss:148 $line.tab.hover.width $line.tab.hover.color
         const TabElement::Edge SecondaryHoverLine{ 3, Foundations::Mid };
-        const QColor SecondaryHoverText(0xFF, 0xFF, 0xFF);          // TabWidget.qss:149 $text.tab.hover.Alt1
+        const QColor SecondaryHoverText = Foundations::Text::Primary;        // TabWidget.qss:149 $text.tab.hover.Alt1
         // TabWidget.qss:160 $line.tab.selected.width.Alt2 $line.tab.selected.color.Alt1
-        const TabElement::Edge SecondarySelectedLine{ 3, QColor(0x00, 0x8D, 0xE5) };
-        const QColor SecondarySelectedText(0xFF, 0xFF, 0xFF);       // TabWidget.qss:161 $text.tab.selected.Alt1
+        const TabElement::Edge SecondarySelectedLine{ 3, Foundations::Accent::Selected };
+        const QColor SecondarySelectedText = Foundations::Text::Primary;       // TabWidget.qss:161 $text.tab.selected.Alt1
         // TabWidget.qss:154 $line.tab.idle.width.Alt1 $line.tab.idle.color.FarBG
         const TabElement::Edge BorderedTopLine{ 1, Foundations::FarBG };
         constexpr QMargins BorderedPadding(14, 6, 14, 6);           // TabWidget.qss:155 $space.tab.idle.padding.Alt2
@@ -71,7 +71,7 @@ namespace AzQtComponents
         // ---- The close button of a tab, and the hover fill of a dock tab's (a DockBarButton)
         constexpr const char* CloseIcon = ":/stylesheet/img/close_small.svg";   // TabWidget.qss:66 $asset.button.idle.image
         constexpr int CloseMarginRight = 4;                         // TabWidget.qss:67 $space.button.idle.margin-right.Alt1
-        const QColor CloseHoverFill(0xFF, 0xFF, 0xFF, 0x33);        // TabWidget.qss:72 $fill.button.hover.fill.Alt1
+        const QColor CloseHoverFill = Foundations::Fill::HoverOverlay;        // TabWidget.qss:72 $fill.button.hover.fill.Alt1
         constexpr int CloseHoverRadius = 2;                         // TabWidget.qss:73 $radius.button.hover
         const QColor DockCloseHoverFill(0xB8, 0x0D, 0x1C);          // TitleBar.qss:104 $fill.button.hover.fill.Alt3
 
@@ -84,7 +84,7 @@ namespace AzQtComponents
         // TabWidget.qss:108 $line.tab.idle.width.Alt1 $line.tab.idle.color.FarBG
         const TabElement::Edge BorderedWidgetLine{ 1, Foundations::FarBG };
         // TabWidget.qss:114 $line.tab-pane.idle.width.Alt2 $line.tab-pane.idle.color
-        const TabElement::Edge SecondaryPaneLine{ 2, QColor(0x2B, 0x2B, 0x2B) };
+        const TabElement::Edge SecondaryPaneLine{ 2, Foundations::Line::TabPane };
         // TabWidget.qss:115, :116 $space.tab-pane.idle.padding $space.tab-pane.idle.padding-top
         constexpr QMargins SecondaryPanePadding(3, 0, 3, 3);
         constexpr int SecondaryBarLeft = 1;                         // TabWidget.qss:121 $other.tab.idle.left.Alt1

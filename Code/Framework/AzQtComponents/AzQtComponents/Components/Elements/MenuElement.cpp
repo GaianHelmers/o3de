@@ -37,7 +37,7 @@ namespace AzQtComponents
         constexpr int MenuPaddingV = 4;                             // Menu.qss:13 $space.menu.idle (top and bottom)
         constexpr int MenuPaddingH = 2;                             // Menu.qss:13 $space.menu.idle (left and right)
         const QColor SelectedItemFill = Foundations::Mid;           // Menu.qss:20 $fill.item.selected.Mid
-        const QColor DisabledItemText = Foundations::Highest;       // Menu.qss:25 $text.item.disabled.Highest
+        const QColor DisabledItemText = Foundations::Text::DisabledItem; // Menu.qss:25 $text.item.disabled.Highest
         constexpr int SeparatorLineWidth = 1;                       // Menu.qss:31 $line.separator.idle.width
         const QColor SeparatorLine(0x45, 0x45, 0x45);               // Menu.qss:31 $line.separator.idle.color
         constexpr int SeparatorMarginTop = 2;                       // Menu.qss:32 $space.separator.idle.margin-top

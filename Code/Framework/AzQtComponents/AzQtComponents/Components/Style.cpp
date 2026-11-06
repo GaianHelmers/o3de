@@ -114,6 +114,29 @@ namespace AzQtComponents
     static const QColor g_dropZoneColorOnHover(23, 163, 205);
 
 
+    // ------------------------------------------------------------------------------
+    // The upstream widget Configs the flattened GUI still draws with (the status bar, the asset thumbnails, the bread crumbs,
+    // the sliders, the hyperlinks, the line edits, the push buttons' borders and icons). In flat mode Style's constructor sets
+    // their colours from the tokens, and again after an .ini reload: Foundations.h where a value is a root token, these where a
+    // value is only a Config's own. The .ini files and the upstream defaults stay as they are, the legacy look's.
+    // ------------------------------------------------------------------------------
+    namespace ConfigTokens
+    {
+        //! AssetFolderThumbnailViewConfig.ini:25 $line.thumbnail-child.idle.color
+        constexpr QColor ThumbnailChildLine(0x38, 0x38, 0x38);
+        //! AssetFolderThumbnailViewConfig.ini:33 $fill.thumbnail-expand.idle
+        constexpr QColor ThumbnailExpandFill(0x69, 0x69, 0x69);
+        constexpr QColor SliderGroove(0x99, 0x99, 0x99);            // SliderConfig.ini:21 $fill.slider-groove.idle
+        constexpr QColor SliderGrooveHover(0xCC, 0xDF, 0xF5);       // SliderConfig.ini:22 $fill.slider-groove.hover
+        constexpr QColor SliderHandleDisabled(0x99, 0x99, 0x99);    // SliderConfig.ini:16 $fill.slider-handle.disabled
+        //! PushButtonConfig.ini:37, :41 (black at alpha 0x3D) $line.button.idle.color.Alt3 $line.button.disabled.color.Alt2
+        constexpr QColor ButtonLine(0x00, 0x00, 0x00, 0x3D);
+        constexpr QColor ButtonFocusLine(0x4B, 0x8C, 0xEF);         // PushButtonConfig.ini:45 $line.button.focus.color.Alt2
+        constexpr QColor SmallIconArrowDisabled(0xBB, 0xBB, 0xBB);  // PushButtonConfig.ini:11 $text.small-icon.disabled.arrow
+        constexpr QColor ButtonPrimaryDisabled(0x2A, 0x48, 0x75);   // PushButtonConfig.ini:16-17 $fill.button.disabled+primary.Alt2
+        constexpr QColor ButtonPrimaryHoverTop(0x4A, 0xBA, 0xFF);   // PushButtonConfig.ini:20 $fill.button.hover+primary.Alt2
+    } // namespace ConfigTokens
+
     // Private data structure
     struct Style::Data
     {
@@ -219,6 +242,89 @@ namespace AzQtComponents
         loadConfig<ToolBar::Config, ToolBar>(this, &m_data->watcher, &m_data->toolBarConfig, "ToolBarConfig.ini");
         loadConfig<TreeView::Config, TreeView>(this, &m_data->watcher, &m_data->treeViewConfig, "TreeViewConfig.ini");
 
+        // Flat mode: the Configs the flattened GUI draws with read the tokens (ConfigTokens above), now and after every reload. The
+        // connection comes before any widget's, so a reload binds the tokens before the widgets repolish.
+        if (StyleManager::stylesheetsDisabled())
+        {
+            const auto bindConfigsToTokens = [data = m_data.data()]()
+            {
+                using namespace ConfigTokens;
+                // StatusBar.cpp:36-37 (StatusBar::defaultConfig) $fill.status-bar.idle.Mid $line.status-bar.idle.color.FarBG
+                data->statusBarConfig.backgroundColor = Foundations::Mid;
+                data->statusBarConfig.borderColor = Foundations::FarBG;
+                // AssetFolderThumbnailViewConfig.ini:11-15 $fill.thumbnail.idle.Mid $line.thumbnail.idle.color.BG
+                // $line.thumbnail.selected.color
+                auto& thumbnails = data->assetFolderThumbnailViewConfig;
+                thumbnails.rootThumbnail.backgroundColor = Foundations::Mid;
+                thumbnails.rootThumbnail.borderColor = Foundations::BG;
+                thumbnails.rootThumbnail.selectedBorderColor = Foundations::Accent::Primary;
+                // AssetFolderThumbnailViewConfig.ini:22-26 $fill.thumbnail-child.idle.BG $line.thumbnail-child.selected.color
+                thumbnails.childThumbnail.backgroundColor = Foundations::BG;
+                thumbnails.childThumbnail.borderColor = ThumbnailChildLine;
+                thumbnails.childThumbnail.selectedBorderColor = Foundations::Line::Light;
+                // AssetFolderThumbnailViewConfig.ini:33-34 $text.thumbnail-expand.idle
+                thumbnails.expandButton.backgroundColor = ThumbnailExpandFill;
+                thumbnails.expandButton.caretColor = Foundations::Text::Primary;
+                // AssetFolderThumbnailViewConfig.ini:39-40 $line.thumbnail-frame.idle.color.BG $fill.thumbnail-frame.idle.Mid
+                thumbnails.childFrame.borderColor = Foundations::BG;
+                thumbnails.childFrame.backgroundColor = Foundations::Mid;
+                // BreadCrumbsConfig.ini:1-2 (link colours as #rrggbb strings) $text.breadcrumb.idle $text.breadcrumb.disabled
+                data->breadCrumbsConfig.linkColor = Foundations::Text::Primary.name();
+                data->breadCrumbsConfig.disabledLinkColor = Foundations::Text::Disabled.name();
+                // SliderConfig.ini:8, :11 $line.gradient-slider.idle.color.Low $line.gradient-slider-handle.idle.color
+                data->sliderConfig.gradientSlider.grooveBorder.color = Foundations::Low;
+                data->sliderConfig.gradientSlider.handleBorder.color = Foundations::Line::Light;
+                // SliderConfig.ini:15-16, :21-22 $fill.slider-handle.idle
+                data->sliderConfig.slider.handle.color = Foundations::Accent::Primary;
+                data->sliderConfig.slider.handle.colorDisabled = SliderHandleDisabled;
+                data->sliderConfig.slider.grove.color = SliderGroove;
+                data->sliderConfig.slider.grove.colorHovered = SliderGrooveHover;
+                data->textConfig.hyperlinkColor = Foundations::Accent::Focus;     // TextConfig.ini:2 $text.link.idle
+                // LineEdit.cpp:507-515 (LineEdit::defaultConfig) $line.field.idle.color.Clear $fill.field.hover.Alt2
+                // $line.field.hover.color.BG $line.field.focus.color.Alt1 $line.field.HasError.color $text.field.idle.placeholder
+                data->lineEditConfig.borderColor = Foundations::Clear;
+                data->lineEditConfig.hoverBackgroundColor = Foundations::Field::FocusFill;
+                data->lineEditConfig.hoverBorderColor = Foundations::Field::HoverLine;
+                data->lineEditConfig.focusedBorderColor = Foundations::Field::FocusLine;
+                data->lineEditConfig.errorBorderColor = Foundations::Field::ErrorLine;
+                data->lineEditConfig.placeHolderTextColor = Foundations::Text::Muted;
+                // PushButtonConfig.ini:37, :41, :45 (the borders), :48-50 (the icon buttons) $text.icon-button.active
+                // $text.icon-button.disabled $text.icon-button.selected
+                data->pushButtonConfig.defaultBorder.color = ButtonLine;
+                data->pushButtonConfig.disabledBorder.color = ButtonLine;
+                data->pushButtonConfig.focusedBorder.color = ButtonFocusLine;
+                data->pushButtonConfig.iconButton.activeColor = Foundations::Accent::Focus;
+                data->pushButtonConfig.iconButton.disabledColor = Foundations::Text::Disabled;
+                data->pushButtonConfig.iconButton.selectedColor = Foundations::Text::Primary;
+                // PushButtonConfig.ini:10-11 $text.small-icon.idle.arrow
+                data->pushButtonConfig.smallIcon.enabledArrowColor = Foundations::Text::Primary;
+                data->pushButtonConfig.smallIcon.disabledArrowColor = SmallIconArrowDisabled;
+                // PushButtonConfig.ini:15-23 (the primary gradients) $fill.button.primary $fill.button.pressed+primary
+                auto& primary = data->pushButtonConfig.primary;
+                primary.disabled.start = ButtonPrimaryDisabled;
+                primary.disabled.end = ButtonPrimaryDisabled;
+                primary.sunken.start = Foundations::Accent::Primary;
+                primary.sunken.end = Foundations::Accent::Primary;
+                primary.hovered.start = ButtonPrimaryHoverTop;
+                primary.hovered.end = Foundations::Accent::Focus;
+                primary.normal.start = Foundations::Accent::PrimaryLight;
+                primary.normal.end = Foundations::Accent::Primary;
+                // PushButtonConfig.ini:25-33 (the secondary gradients) $fill.button.secondary $fill.button.disabled.Alt1
+                // $fill.button.pressed.Mid
+                auto& secondary = data->pushButtonConfig.secondary;
+                secondary.disabled.start = Foundations::Fill::Disabled;
+                secondary.disabled.end = Foundations::Fill::Disabled;
+                secondary.sunken.start = Foundations::Mid;
+                secondary.sunken.end = Foundations::Mid;
+                secondary.hovered.start = Foundations::Fill::ButtonHighlight;
+                secondary.hovered.end = Foundations::Fill::ButtonLight;
+                secondary.normal.start = Foundations::Fill::ButtonLight;
+                secondary.normal.end = Foundations::Fill::Disabled;
+            };
+            bindConfigsToTokens();
+            QObject::connect(this, &Style::settingsReloaded, this, bindConfigsToTokens);
+        }
+
         VectorElement::initStaticVars(m_data->spinBoxConfig.labelSize);
         Slider::initStaticVars(m_data->sliderConfig.verticalToolTipOffset, m_data->sliderConfig.horizontalToolTipOffset);
     }
@@ -308,12 +414,12 @@ namespace AzQtComponents
     //////////////////////////////////////////////////////////////////////////
     //! BaseStyleSheet.qss:52, ToolBar.qss:73 $fill.separator.idle.FarBG
     static constexpr QColor g_separatorFill = Foundations::FarBG;
-    static constexpr QColor g_separatorHoverFill(0x1E, 0x70, 0xEB);        // BaseStyleSheet.qss:57 $fill.separator.hover
+    static constexpr QColor g_separatorHoverFill = Foundations::Accent::Primary; // BaseStyleSheet.qss:57 $fill.separator.hover
     //! ToolBar.qss:74-75 $size.separator.idle.width $size.separator.idle.height.Alt1
     static constexpr int g_toolBarSeparatorWidth = 1;
     static constexpr int g_toolBarSeparatorMargin = 4;                     // ToolBar.qss:77 $space.separator.idle.margin
     static constexpr QColor g_splitterFill = Foundations::BG;              // Splitter.qss:10 $fill.scroll-handle.idle.BG
-    static constexpr QColor g_splitterHoverFill(0x1E, 0x70, 0xEB);         // Splitter.qss:23 $fill.scroll-handle.hover
+    static constexpr QColor g_splitterHoverFill = Foundations::Accent::Primary; // Splitter.qss:23 $fill.scroll-handle.hover
     static constexpr int g_splitterWidth = 1;                              // Splitter.qss:18 $size.scroll-handle.idle.height
     static constexpr QColor g_dockTitleFill = Foundations::Low;            // QDockWidget.qss:22 $fill.title.idle
     static constexpr QColor g_dockTitleText(0xCC, 0xCC, 0xCC);             // BaseStyleSheet.qss:64 $text.surface.idle.Alt2
@@ -323,7 +429,7 @@ namespace AzQtComponents
     static constexpr qreal g_chipRadius = 2.0;                             // FilteredSearchWidget.qss:29, :71 $radius.button.idle.all.Alt1
     static constexpr int g_segmentBarMarginBottom = 15;                    // SegmentControl.qss:11 $space.surface.idle.margin-bottom.Alt3
     static constexpr int g_windowFrameWidth = 1;                           // WindowDecorationWrapper.qss:11 $line.surface.idle.width.Alt1
-    static constexpr QMargins g_toolTipMargins(2, 4, 0, 4);                // ToolTip.qss:15, :17-18 (margin-left, -top, -bottom)
+    static constexpr QMargins g_toolTipMargins(2, 4, 0, 4);                // ToolTip.qss:15, :17-18 $space.tooltip.idle.margin
 
     //! The breadcrumbs' path edit: the second page of the stack beside the label (BreadCrumbs.cpp:93-102)
     static bool isBreadCrumbsPathEdit(const QWidget* widget)
@@ -458,6 +564,7 @@ namespace AzQtComponents
                     if (const BoxElement* box = BoxElement::forWidget(widget); box && qobject_cast<const QToolButton*>(widget))
                     {
                         const QSize contents = box->adjustSize(size);
+                        // QStyleSheetStyle::sizeFromContents (CT_ToolButton) $size.button.idle.box-pad
                         return box->ownsBox(option) ? box->boxSize(option, widget, contents + QSize(3, 3))
                             : ToolButton::sizeFromContents(this, type, option, contents, widget, m_data->toolButtonConfig);
                     }
@@ -1022,7 +1129,7 @@ namespace AzQtComponents
                 {
                     // The corner button of a table, drawn as a section (QTableCornerButton::paintEvent): solid black, as the legacy GUI
                     // drew it; the rule that granted it is not located (ledger) $fill.table-corner.idle
-                    painter->fillRect(option->rect, QColor(Qt::black));
+                    painter->fillRect(option->rect, Foundations::Fill::Deepest);
                     return;
                 }
                 if (StyleManager::stylesheetsDisabled() && hasFlattenedHeaderSection(widget))
@@ -1289,11 +1396,11 @@ namespace AzQtComponents
     };
     // EntityOutliner.qss:60 (:95, :106, :114, :122 restate it) $space.outliner-toggle.idle.margin-top
     static constexpr int g_toggleTop = 3;
-    static constexpr int g_lockImageTop = 1;        // EntityOutliner.qss:132, :149, :157, :165 $space.outliner-toggle.lock.margin-top
+    static constexpr int g_lockImageTop = 1;        // EntityOutliner.qss:132, :149, :157, :165 $space.lock-toggle.idle.margin-top
     // The box and the image in it, one pixel in (the transparent border of :55): EntityOutliner.qss:62, :53, :52-53
     // $size.outliner-toggle.idle.width $size.outliner-toggle.idle.height $size.outliner-toggle.idle.image
     static constexpr QSize g_toggleBox(18, 16);
-    static constexpr QRect g_toggleImage(1, 0, 16, 16);
+    static constexpr QRect g_toggleImage(1, 0, 16, 16);    // EntityOutliner.qss:52-53 $size.outliner-toggle.idle.image
     static constexpr QColor g_mixedTogglePad(0, 0, 0, 80);         // EntityOutliner.qss:78 $fill.outliner-toggle.mixed
     static constexpr int g_mixedTogglePadRadius = 5;               // EntityOutliner.qss:79 $radius.outliner-toggle.mixed
     // EntityOutliner.qss:85-166 (unchecked, checked) $asset.visibility-toggle.unchecked $asset.visibility-toggle.checked and their
@@ -1700,7 +1807,7 @@ namespace AzQtComponents
                     }
                     if (option->state.testFlag(QStyle::State_MouseOver))
                     {
-                        painter->fillRect(option->rect, QColor(0x44, 0x44, 0x44));
+                        painter->fillRect(option->rect, Foundations::Mid); // rule not located (ledger) $fill.tab-close.hover.Mid
                     }
                     QRect glyphRect(0, 0, 12, 12);
                     glyphRect.moveCenter(option->rect.center());
@@ -1723,7 +1830,7 @@ namespace AzQtComponents
                     const QDockWidget* dockWidget = qobject_cast<const QDockWidget*>(widget);
                     if (dockWidget && dockWidget->isFloating())
                     {
-                        painter->setPen(QColor(Qt::black));
+                        painter->setPen(Foundations::Line::Dark);  // rule not located (ledger) $line.dock.floating.color
                         painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
                     }
                     return;
@@ -1845,6 +1952,8 @@ namespace AzQtComponents
                         return;
                     }
                     // A plain pane is the base style's, drawn over the palette the legacy sheet gave the tab widget
+                    // (QFusionStylePrivate::tabFrameColor): Foundations.h, Derived ($fill.tab-pane.idle.Alt2
+                    // $line.tab-pane.idle.color.Alt2)
                     const TabElement* plain = TabElement::plainForTabWidget(widget);
                     auto frameOption = qstyleoption_cast<const QStyleOptionTabWidgetFrame*>(option);
                     if (plain && frameOption)
@@ -2892,15 +3001,15 @@ namespace AzQtComponents
         QColor textColor;
         if (Selectors::tagged(widget, "secondaryText"))
         {
-            textColor = QColor(0x88, 0x88, 0x88);
+            textColor = Foundations::Text::Muted;            // Text.qss:16 $text.label.idle.Alt1
         }
         else if (Selectors::tagged(widget, "highlightedText"))
         {
-            textColor = QColor(0x44, 0xB2, 0xF8);
+            textColor = QColor(0x44, 0xB2, 0xF8);            // Text.qss:21 $text.label.idle.Alt6
         }
         else if (Selectors::tagged(widget, "blackText"))
         {
-            textColor = QColor(0x00, 0x00, 0x00);
+            textColor = Foundations::Text::OnLight;          // Text.qss:26 $text.label.idle.Alt5
         }
 
         if (textColor.isValid())
@@ -2917,7 +3026,7 @@ namespace AzQtComponents
     // (LineEdit.qss:28-35, SpinBox.qss:69-74, ComboBox.qss:53-57), per widget class: the application palette keeps Base dark for the
     // item views
     //////////////////////////////////////////////////////////////////////////
-    static constexpr QColor g_textEditFill(0xE9, 0xE9, 0xE9);      // BaseStyleSheet.qss:90 $fill.field.idle.Alt2
+    static constexpr QColor g_textEditFill = Foundations::Fill::FieldLight;      // BaseStyleSheet.qss:90 $fill.field.idle.Alt2
     static constexpr QColor g_textEditText(0x54, 0x54, 0x54);      // BaseStyleSheet.qss:91 $text.field.idle.Alt2
 
     static void applyFlattenedTextEntryPalette(QWidget* widget)
@@ -2991,12 +3100,12 @@ namespace AzQtComponents
             // `QPushButton.Primary:disabled, QPushButton:default:disabled` (PushButton.qss:60-64) after QPushButton:disabled (:43-46)
             //! PushButton.qss:63 $text.button.disabled.Alt2 $text.button.default+disabled
             const QColor primaryText(0xBB, 0xBB, 0xBB);
-            const QColor buttonText(0x99, 0x99, 0x99);          // PushButton.qss:45 $text.button.disabled.Alt1
+            const QColor buttonText = Foundations::Text::Disabled;          // PushButton.qss:45 $text.button.disabled.Alt1
             disabledText = (pushButton->isDefault() || Selectors::tagged(widget, "Primary")) ? primaryText : buttonText;
         }
         else if (widget->inherits("QCheckBox") || widget->inherits("QRadioButton"))
         {
-            disabledText = QColor(0x99, 0x99, 0x99);           // CheckBox.qss:20, RadioButton.qss:19 $text.check.disabled
+            disabledText = Foundations::Text::Disabled;           // CheckBox.qss:20, RadioButton.qss:19 $text.check.disabled
         }
         else if (widget->inherits("QLineEdit") || widget->inherits("QTextEdit") || widget->inherits("QPlainTextEdit")
             || widget->inherits("QSpinBox") || widget->inherits("QDoubleSpinBox") || widget->inherits("QComboBox"))
@@ -3008,7 +3117,7 @@ namespace AzQtComponents
         else if (widget->inherits("QLabel") && Selectors::withinClass(widget, "AzQtComponents::Card"))
         {
             // More specific than a colour tag such as `.secondaryText` (Text.qss:16-19)
-            disabledText = QColor(0x99, 0x99, 0x99);           // Card.qss:274 $text.label.disabled.Alt1
+            disabledText = Foundations::Text::Disabled;           // Card.qss:274 $text.label.disabled.Alt1
         }
         if (!disabledText.isValid())
         {
@@ -3162,11 +3271,12 @@ namespace AzQtComponents
             if (widget->inherits("QProgressBar"))
             {
                 QPalette progressPalette = widget->palette();
-                progressPalette.setColor(QPalette::Base, QColor(0x9A, 0x9A, 0x9A));
-                progressPalette.setColor(QPalette::Highlight, QColor(0x1E, 0x70, 0xEB));
-                progressPalette.setColor(QPalette::HighlightedText, QColor(Qt::white));
+                progressPalette.setColor(QPalette::Base, QColor(0x9A, 0x9A, 0x9A));  // ProgressBar.qss:10 $fill.progress.idle.Alt1
+                progressPalette.setColor(QPalette::Highlight, Foundations::Accent::Primary);  // ProgressBar.qss:21 $fill.progress.idle.Alt2
+                // BaseStyleSheet.qss:18 (the '*' rule's white) $text.surface.idle.Alt1
+                progressPalette.setColor(QPalette::HighlightedText, Foundations::Surface::Text);
                 widget->setPalette(progressPalette);
-                widget->setMaximumHeight(5);
+                widget->setMaximumHeight(5);                                   // ProgressBar.qss:15 $size.progress.idle
             }
 
             // The lane's fill under the pointer needs the hover attribute, which the sheet style gave every widget with a :hover rule
@@ -3185,19 +3295,20 @@ namespace AzQtComponents
             // Set explicitly - QToolBar caches its icon size.
             if (auto toolBar = qobject_cast<QToolBar*>(widget))
             {
-                int iconExtent = 16;
+                int iconExtent = 16;                                           // ToolBar.qss:21 $asset.bar.idle.iconsize.Alt1
                 if (hasClass(widget, QStringLiteral("MainToolBar")))
                 {
+                    // ToolBar.qss:68 $asset.bar.idle.iconsize.Alt3, :43 $asset.bar.idle.iconsize.Alt2
                     iconExtent = hasClass(widget, QStringLiteral("IconLarge")) ? 32 : 20;
                 }
                 else if (hasClass(widget, QStringLiteral("IconLarge")))
                 {
-                    iconExtent = 20;
+                    iconExtent = 20;                                           // ToolBar.qss:62 $asset.bar.idle.iconsize.Alt2
                 }
                 toolBar->setIconSize(QSize(iconExtent, iconExtent));
                 if (toolBar->layout())
                 {
-                    toolBar->layout()->setContentsMargins(5, 5, 5, 5);
+                    toolBar->layout()->setContentsMargins(5, 5, 5, 5);         // ToolBar.qss:28, :44 $space.bar.idle
                 }
             }
 
@@ -3205,7 +3316,7 @@ namespace AzQtComponents
             if (widget->inherits("QStackedWidget") && Selectors::childOfClass(widget, "AzQtComponents::TabWidget"))
             {
                 QPalette pageAreaPalette = widget->palette();
-                pageAreaPalette.setColor(QPalette::Window, QColor(0x44, 0x44, 0x44));
+                pageAreaPalette.setColor(QPalette::Window, Foundations::Mid);  // TabWidget.qss:26 $fill.surface.idle.Mid
                 widget->setPalette(pageAreaPalette);
                 widget->setAutoFillBackground(true);
             }
@@ -3244,12 +3355,12 @@ namespace AzQtComponents
                 // The section rule sets no colour: the '*' rule's white (BaseStyleSheet.qss:18) reached the label
                 // (ButtonText) and the sort arrow (WindowText) in every state, disabled included (the legacy
                 // palette dump of LuaIDE's two disabled headers has both white in its disabled group)
-                headerPalette.setColor(QPalette::ButtonText, QColor(Qt::white));
-                headerPalette.setColor(QPalette::WindowText, QColor(Qt::white));
+                headerPalette.setColor(QPalette::ButtonText, Foundations::Surface::Text);  // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
+                headerPalette.setColor(QPalette::WindowText, Foundations::Surface::Text);  // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
                 // What shows through a section painted transparent by an inline sheet
                 // (e.g. the Gallery log table) is the window colour, as in the legacy render.
-                headerPalette.setColor(QPalette::Window, QColor(0x44, 0x44, 0x44));
-                headerPalette.setColor(QPalette::Base, QColor(0x44, 0x44, 0x44));
+                headerPalette.setColor(QPalette::Window, Foundations::Mid);  // BaseStyleSheet.qss:60 $fill.surface.idle.Mid
+                headerPalette.setColor(QPalette::Base, Foundations::Mid);  // BaseStyleSheet.qss:60 $fill.surface.idle.Mid
                 widget->setPalette(headerPalette);
                 // The legacy header and its viewport were transparent (BaseStyleSheet.qss:15-21): the sections paint their own
                 // fill, and what lies beyond the last one is what is behind the header
@@ -3794,18 +3905,18 @@ namespace AzQtComponents
         QPalette palette;
         const QColor window = Foundations::Mid;             // BaseStyleSheet.qss:65 $fill.surface.idle.Mid
         const QColor viewBase = Foundations::Mid;           // BaseStyleSheet.qss:29 (a view without a parent)
-        const QColor alternateBase(0x4D, 0x4D, 0x4D);       // TableView.qss:21 $fill.view.idle.alternate-fill.Alt1
+        const QColor alternateBase = Foundations::Fill::ItemView;       // TableView.qss:21 $fill.view.idle.alternate-fill.Alt1
         const QColor textWhite = Foundations::Surface::Text;
         const QColor disabledText = Foundations::Field::DisabledText;     // the placeholder only: the entry fields' (see above)
-        const QColor highlight(0x65, 0x65, 0x65);           // TableView.qss:23 $fill.view.idle.selection-fill.Alt1
-        const QColor highlightedText(0xFF, 0xFF, 0xFF);     // TableView.qss:24
-        const QColor toolTipBase(0x00, 0x00, 0x00);         // ToolTip.qss:13
-        const QColor toolTipText(0xFF, 0xFF, 0xFF);         // ToolTip.qss:12
-        const QColor link(0x94, 0xD2, 0xFF);                // the Text config's hyperlinkColor applies over it at the application's polish
+        const QColor highlight = Foundations::Fill::ItemSelected;           // TableView.qss:23 $fill.view.idle.selection-fill.Alt1
+        const QColor highlightedText = Foundations::Text::Primary;  // TableView.qss:14 $text.view.idle
+        const QColor toolTipBase = Foundations::Fill::Deepest;  // ToolTip.qss:13 $fill.tooltip.idle
+        const QColor toolTipText = Foundations::Text::Primary;  // ToolTip.qss:12 $text.tooltip.idle
+        const QColor link = Foundations::Accent::Focus;     // TextConfig::hyperlinkColor applies over it $text.link.idle
 
         // The ladder Fusion shades frames and bevels from, on the tiers (no rule gave it: ledger)
         const QColor button = Foundations::Highest;
-        const QColor light(0x66, 0x66, 0x66);
+        const QColor light(0x66, 0x66, 0x66);                // Fusion's bevel light: no rule gave it (ledger) $line.bevel.idle.light
         const QColor midlight = Foundations::Highest;
         const QColor mid = Foundations::Low;
         const QColor dark = Foundations::BG;

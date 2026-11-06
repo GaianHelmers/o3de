@@ -9,6 +9,7 @@
 #include <source/ui/FlatElements.h>
 
 #include <AzQtComponents/Components/Elements/BoxElement.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/Elements/ItemViewElement.h>
 #include <AzQtComponents/Components/Elements/TextElement.h>
 #include <AzQtComponents/Components/FilteredSearchWidget.h>
@@ -43,6 +44,7 @@ namespace AssetBundler
     //! translation unit, where anonymous namespaces merge (the AzQtComponents elements do the same).
     namespace FlatElementsInternal
     {
+        namespace Foundations = AzQtComponents::Foundations;
         using AzQtComponents::BoxElement;
         using AzQtComponents::ItemViewElement;
         using AzQtComponents::TextElement;
@@ -57,19 +59,21 @@ namespace AssetBundler
 
         //! `* { background-color: transparent }` (BaseStyleSheet.qss:17): the fill of every widget no other rule fills. It still
         //! hands the widget's background to the rule (QRenderRule::hasBackground, qstylesheetstyle.cpp:507), so the base style
-        //! paints none under it. TOKENIZE: WidgetFill
-        const QBrush Transparent(QColor(0, 0, 0, 0));
+        //! paints none under it. $fill.surface.idle.Clear
+        const QBrush Transparent(Foundations::Clear);
 
         //! The #1B1B1B of the file tables: the fill of their header frames and of the labels in them (AssetBundler.qss:47, :52) and
-        //! the line of the frames and of the log table (:22, :36). TOKENIZE: FileTableHeaderSurface, FileTableLine
-        const QColor TableLine(0x1B, 0x1B, 0x1B);
+        //! the line of the frames and of the log table (:22, :36). $fill.surface.idle.Alt2
+        //! $fill.label.idle.Alt5 $line.view.idle.color $line.surface.idle.color.Alt3
+        const QColor TableLine = Foundations::Line::Frame;
 
         //! `.QFrame[frameShape="6"] { background-color: #444444 }` (BaseStyleSheet.qss:47): the fill of a panel frame, which is what
-        //! the .ui files make of both file frames of every tab (StyledPanel). TOKENIZE: PanelSurface
-        const QBrush PanelFill(QColor(0x44, 0x44, 0x44));
+        //! the .ui files make of both file frames of every tab (StyledPanel). $fill.surface.idle.Mid
+        const QBrush PanelFill(Foundations::Mid);
 
-        //! The surface of the dialogs' frames, labels and check boxes, #555555 (AssetBundler.qss:110, :147). TOKENIZE: DialogSurface
-        const QBrush DialogFill(QColor(0x55, 0x55, 0x55));
+        //! The surface of the dialogs' frames, labels and check boxes, #555555 (AssetBundler.qss:110, :147).
+        //! $fill.check.idle.Highest $fill.label.idle.Highest
+        const QBrush DialogFill(Foundations::Highest);
 
         // ------------------------------------------------------------------------------
         // Text
@@ -78,12 +82,11 @@ namespace AssetBundler
         //! `QLabel#activeProjectLabel { font-size: 18px; font-family: "Amazon Ember Light" }` (AssetBundler.qss:16-17): the heading of
         //! every tab, over the '*' rule's weight 400 (BaseStyleSheet.qss:20) and white text (BaseStyleSheet.qss:18). The family is not
         //! installed: the string reaches the font database as it did in Native, which drew Tahoma.
-        //! TOKENIZE: ProjectHeadingFamily, ProjectHeadingSize, TextColor
         const TextElement ActiveProjectLabelText{
             .m_name = "AssetBundler.Text.ActiveProjectLabel",
-            .m_family = "Amazon Ember Light",
-            .m_pixelSize = 18,
-            .m_color = QColor(0xFF, 0xFF, 0xFF),
+            .m_family = "Amazon Ember Light",                                       // AssetBundler.qss:17 $type.label.idle.family.Alt3
+            .m_pixelSize = 18,                                                      // AssetBundler.qss:16 $type.label.idle.size.Alt3
+            .m_color = Foundations::Text::Primary,                                  // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
         };
 
         // ------------------------------------------------------------------------------
@@ -93,6 +96,7 @@ namespace AssetBundler
         //! `QLabel#activeProjectLabel { margin-bottom: 5px }` (AssetBundler.qss:18) over the margin-top of every QLabel (Text.qss:93)
         const BoxElement ActiveProjectLabel{
             .m_name = "AssetBundler.Box.ActiveProjectLabel",
+            // Text.qss:93 $space.label.idle.margin-top.Alt1; AssetBundler.qss:18 $space.label.idle.margin-bottom.Alt8
             .m_margin = QMargins(0, 1, 0, 5),
             .m_idle = { .m_fill = Transparent },
         };
@@ -102,13 +106,15 @@ namespace AssetBundler
         //! `QFrame#fileTableFrame { margin-right: 10px }` (:40)
         const BoxElement FileTableFrame{
             .m_name = "AssetBundler.Box.FileTableFrame",
-            .m_margin = QMargins(0, 0, 10, 0),
+            .m_margin = QMargins(0, 0, 10, 0),   // AssetBundler.qss:40 $space.surface.idle.margin-right.Alt2
             .m_nativeBorder = false,
+            // AssetBundler.qss:36 $line.surface.idle.width.Alt1 $line.surface.idle.color.Alt3
             .m_idle = { .m_fill = PanelFill, .m_edges = BoxElement::border(1, TableLine) },
         };
         const BoxElement FileContentsFrame{
             .m_name = "AssetBundler.Box.FileContentsFrame",
             .m_nativeBorder = false,
+            // AssetBundler.qss:36 $line.surface.idle.width.Alt1 $line.surface.idle.color.Alt3
             .m_idle = { .m_fill = PanelFill, .m_edges = BoxElement::border(1, TableLine) },
         };
 
@@ -123,6 +129,8 @@ namespace AssetBundler
         //! on the header's fill and 5px from its left, over the margins of every QLabel (Text.qss:93-94)
         const BoxElement FileHeaderLabel{
             .m_name = "AssetBundler.Box.FileHeaderLabel",
+            // AssetBundler.qss:53 $space.label.idle.margin-left.Alt5; Text.qss:93, :94 $space.label.idle.margin-top.Alt1
+            // $space.label.idle.margin-bottom.Alt1
             .m_margin = QMargins(5, 1, 0, 1),
             .m_idle = { .m_fill = QBrush(TableLine) },
         };
@@ -130,6 +138,8 @@ namespace AssetBundler
         //! The same, and `QLabel#assetListContentsLabel { margin-right: 10px }` (AssetBundler.qss:116)
         const BoxElement AssetListContentsLabel{
             .m_name = "AssetBundler.Box.AssetListContentsLabel",
+            // AssetBundler.qss:53 $space.label.idle.margin-left.Alt5, :116 $space.label.idle.margin-right.Alt3; Text.qss:93, :94
+            // $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             .m_margin = QMargins(5, 1, 10, 1),
             .m_idle = { .m_fill = QBrush(TableLine) },
         };
@@ -138,6 +148,7 @@ namespace AssetBundler
         //! (AssetBundler.qss:121-122)
         const BoxElement FileFilteredSearchWidget{
             .m_name = "AssetBundler.Box.FileFilteredSearchWidget",
+            // AssetBundler.qss:121 $space.field.idle.margin-left.Alt2, :122 $space.field.idle.margin-right
             .m_margin = QMargins(5, 0, 5, 0),
             .m_idle = { .m_fill = Transparent },
         };
@@ -145,7 +156,7 @@ namespace AssetBundler
         //! `QWidget#seedListContentsFilteredSearchWidget { margin-left: 5px }` (AssetBundler.qss:87)
         const BoxElement SeedListContentsFilteredSearchWidget{
             .m_name = "AssetBundler.Box.SeedListContentsFilteredSearchWidget",
-            .m_margin = QMargins(5, 0, 0, 0),
+            .m_margin = QMargins(5, 0, 0, 0),   // AssetBundler.qss:87 $space.field.idle.margin-left.Alt2
             .m_idle = { .m_fill = Transparent },
         };
 
@@ -155,6 +166,8 @@ namespace AssetBundler
         //! addSeedButton, generateBundleButton, runRuleButton, addComparisonStepButton. UNVERIFIED by capture: the dialogs' buttons.
         const BoxElement SpacedButton{
             .m_name = "AssetBundler.Box.SpacedButton",
+            // AssetBundler.qss:126-127, :159-160, :78-79, :67-68, :151-152 $space.button.idle.margin-left.Alt3
+            // $space.button.idle.margin-right.Alt4
             .m_margin = QMargins(10, 0, 10, 0),
             .m_idle = { .m_fill = Transparent },
         };
@@ -163,7 +176,7 @@ namespace AssetBundler
         //! Needs the QCheckBox door.
         const BoxElement SelectDefaultSeedListsCheckBox{
             .m_name = "AssetBundler.Box.SelectDefaultSeedListsCheckBox",
-            .m_margin = QMargins(5, 5, 5, 5),
+            .m_margin = QMargins(5, 5, 5, 5),   // AssetBundler.qss:83 $space.check.idle.margin.Alt3
             .m_idle = { .m_fill = Transparent },
         };
 
@@ -186,8 +199,10 @@ namespace AssetBundler
         //! BaseStyleSheet.qss:37). Needs the door of the view's viewport.
         const BoxElement LogTableView{
             .m_name = "AssetBundler.Box.LogTableView",
+            // AssetBundler.qss:23 $space.view.idle.margin-left, :24 $space.view.idle.margin-right, :25 $space.view.idle.margin-bottom.Alt1
             .m_margin = QMargins(10, 0, 10, 10),
             .m_nativeBorder = false,
+            // AssetBundler.qss:22 $line.view.idle.width $line.view.idle.color
             .m_idle = { .m_fill = Transparent, .m_edges = BoxElement::border(1, TableLine) },
             .m_properties = { { "indentation", QVariant() } },
         };
@@ -215,7 +230,7 @@ namespace AssetBundler
         //! so the panel fill does not reach it. UNVERIFIED by capture.
         const BoxElement ComparisonDataFrame{
             .m_name = "AssetBundler.Box.ComparisonDataFrame",
-            .m_padding = QMargins(10, 10, 10, 10),
+            .m_padding = QMargins(10, 10, 10, 10),   // AssetBundler.qss:168 $space.surface.idle.padding.Alt9
             .m_idle = { .m_fill = Transparent },
         };
 
@@ -226,17 +241,18 @@ namespace AssetBundler
         // ------------------------------------------------------------------------------
 
         //! `QTreeView#logTableView QHeaderView::section { background-color: #1B1B1B }` (AssetBundler.qss:28-30): as dark as the table's
-        //! frame, which wins over the rule of every table under a tab (more specific: an id). TOKENIZE: LogTableHeaderSection
+        //! frame, which wins over the rule of every table under a tab (more specific: an id). $fill.header.idle.Alt3
         const ItemViewElement LogTableHeader{
             .m_name = "AssetBundler.ItemView.LogTableHeader",
+            // AssetBundler.qss:29 $fill.header.idle.Alt3
             .m_headerFill = TableLine,                                              // background-color: AssetBundler.qss:29
         };
 
         //! `QTabWidget QTreeView QHeaderView::section { background-color: rgb(77, 77, 77) }` (AssetBundler.qss:56-58): the tables of the file
-        //! tabs, whatever their names. TOKENIZE: FileTableHeaderSection
+        //! tabs, whatever their names.
         const ItemViewElement TabTableHeader{
             .m_name = "AssetBundler.ItemView.TabTableHeader",
-            .m_headerFill = QColor(77, 77, 77),                                     // background-color: AssetBundler.qss:57
+            .m_headerFill = Foundations::Fill::ItemView,                            // AssetBundler.qss:57 $fill.header.idle.Alt2
         };
 
         // ------------------------------------------------------------------------------
@@ -247,8 +263,8 @@ namespace AssetBundler
         //! surface (:102-110)
         const BoxElement InputValuesFrame{
             .m_name = "AssetBundler.Box.InputValuesFrame",
-            .m_margin = QMargins(10, 10, 10, 10),
-            .m_padding = QMargins(10, 10, 10, 10),
+            .m_margin = QMargins(10, 10, 10, 10),   // AssetBundler.qss:92 $space.surface.idle.margin.Alt5
+            .m_padding = QMargins(10, 10, 10, 10),   // AssetBundler.qss:93 $space.surface.idle.padding.Alt9
             .m_nativeBorder = false,
             .m_idle = { .m_fill = DialogFill },
         };
@@ -257,6 +273,7 @@ namespace AssetBundler
         //! surface (:102-110)
         const BoxElement LineFrame{
             .m_name = "AssetBundler.Box.LineFrame",
+            // AssetBundler.qss:98 $space.surface.idle.margin-top.Alt1, :99 $space.surface.idle.margin-bottom.Alt6
             .m_margin = QMargins(0, 10, 0, 10),
             .m_nativeBorder = false,
             .m_idle = { .m_fill = DialogFill },
@@ -265,7 +282,7 @@ namespace AssetBundler
         //! `QFrame#bundleSettingsFrame { border: none; margin-bottom: 10px }` (AssetBundler.qss:133-134) on the surface of :143-147
         const BoxElement BundleSettingsFrame{
             .m_name = "AssetBundler.Box.BundleSettingsFrame",
-            .m_margin = QMargins(0, 0, 0, 10),
+            .m_margin = QMargins(0, 0, 0, 10),   // AssetBundler.qss:134 $space.surface.idle.margin-bottom.Alt6
             .m_nativeBorder = false,
             .m_idle = { .m_fill = DialogFill },
         };
@@ -274,7 +291,7 @@ namespace AssetBundler
         //! on the surface of :143-147
         const BoxElement BundleSettingsFileFrame{
             .m_name = "AssetBundler.Box.BundleSettingsFileFrame",
-            .m_margin = QMargins(10, 10, 10, 10),
+            .m_margin = QMargins(10, 10, 10, 10),   // AssetBundler.qss:140 $space.surface.idle.margin.Alt5
             .m_nativeBorder = false,
             .m_idle = { .m_fill = DialogFill },
         };
@@ -283,7 +300,7 @@ namespace AssetBundler
         //! the margins of every QLabel (Text.qss:93-94)
         const BoxElement DialogLabel{
             .m_name = "AssetBundler.Box.DialogLabel",
-            .m_margin = QMargins(0, 1, 0, 1),
+            .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             .m_idle = { .m_fill = DialogFill },
         };
 

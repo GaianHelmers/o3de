@@ -188,11 +188,13 @@ namespace AzQtComponents
         auto closeButton = new DockBarButton(DockBarButton::CloseButton);
         if (StyleManager::stylesheetsDisabled())
         {
-            // TitleBar.qss: AzQtComponents--TabBar AzQtComponents--DockBarButton: 14px box, icon
+            // TitleBar.qss:79: AzQtComponents--TabBar AzQtComponents--DockBarButton: 14px box, icon
             // 12px, margin-right 4px (the margin belongs to the widget, outside the drawn box)
+            // TitleBar.qss:83-86 $size.button.idle.min-width.Alt5 $size.button.idle.max-width.Alt5 $size.button.idle.min-height.Alt6
+            // $size.button.idle.max-height.Alt7, :87 $space.button.idle.margin-right.Alt1
             closeButton->setFixedSize(14 + 4, 14);
-            closeButton->setContentsMargins(0, 0, 4, 0);
-            closeButton->setIconSize(QSize(12, 12));
+            closeButton->setContentsMargins(0, 0, 4, 0);                            // TitleBar.qss:87 $space.button.idle.margin-right.Alt1
+            closeButton->setIconSize(QSize(12, 12));                                // TitleBar.qss:81 $asset.button.idle.iconsize.Alt3
         }
         connect(closeButton, &DockBarButton::clicked, this, [closeButton, this] {
             int widgetIndex = tabAt(closeButton->pos());

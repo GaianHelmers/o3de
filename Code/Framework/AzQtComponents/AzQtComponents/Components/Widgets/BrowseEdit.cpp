@@ -108,11 +108,12 @@ namespace AzQtComponents
         if (StyleManager::flatStylingActive())
         {
             // The attached button and a line edit without a frame (its field is the palette's, its frame drawFrame's): BrowseEdit.qss:53
-            // $other.button.idle.flat, :55-58 $size.button.idle.min-width.Alt4 $size.button.idle.max-width.Alt3
-            // $size.button.idle.min-height.Alt3 $size.button.idle.max-height.Alt3, :60 $asset.button.idle.iconsize.Alt3
+            // $other.button.idle.flat
             m_data->m_attachedButton->setFlat(true);
+            // BrowseEdit.qss:55-58 $size.button.idle.min-width.Alt4 $size.button.idle.max-width.Alt3 $size.button.idle.min-height.Alt3
+            // $size.button.idle.max-height.Alt3
             m_data->m_attachedButton->setFixedSize(16, 16);
-            m_data->m_attachedButton->setIconSize(QSize(12, 12));
+            m_data->m_attachedButton->setIconSize(QSize(12, 12));                   // BrowseEdit.qss:60 $asset.button.idle.iconsize.Alt3
             m_data->m_lineEdit->setFrame(false);
 
             // The padding of the rule (BrowseEdit.qss:26, :28; LineEdit.qss:18-19) is where the sheet put the text: inside the field's
@@ -253,7 +254,7 @@ namespace AzQtComponents
         }
         else if (Style::hasClass(browseEdit, InvalidDropTarget))
         {
-            field = disabledField = QColor(0xFF, 0xFF, 0xFF);           // BrowseEdit.qss:41 $fill.field.idle.Alt4
+            field = disabledField = Foundations::Field::FocusFill;           // BrowseEdit.qss:41 $fill.field.idle.Alt4
         }
         QPalette fieldPalette = lineEdit->palette();
         for (const auto group : { QPalette::Active, QPalette::Inactive, QPalette::Disabled })

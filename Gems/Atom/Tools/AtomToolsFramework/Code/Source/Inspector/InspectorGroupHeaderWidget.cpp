@@ -8,6 +8,7 @@
 
 #include <AtomToolsFramework/Inspector/InspectorGroupHeaderWidget.h>
 #include <AzQtComponents/Components/Elements/BoxElement.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/StyleManager.h>
 #include <AzQtComponents/Components/Widgets/Text.h>
 
@@ -33,12 +34,15 @@ namespace AtomToolsFramework
 
         const AzQtComponents::BoxElement GroupHeader{
             .m_name = "AtomTools.Box.InspectorGroupHeader",
-            .m_margin = QMargins(0, 1, 0, 1),                                       // margin-top, margin-bottom: Text.qss:93, :94
+            // Text.qss:93-94 $space.surface.idle.margin-top.Alt2 $space.surface.idle.margin-bottom.Alt2
+            .m_margin = QMargins(0, 1, 0, 1),
             .m_nativeBorder = false,                                                // border-style solid: a border of its own (:74)
             .m_idle = {
-                .m_fill = QBrush(QColor(0x33, 0x33, 0x33)),                         // background-color (:74). TOKENIZE: InspectorGroupHeaderFill
-                // border-color #1B1B1B, border-width 1px; border-left and border-right none (:74). TOKENIZE: InspectorGroupHeaderBorder
-                .m_edges = { { 1, QColor(0x1B, 0x1B, 0x1B) }, {}, { 1, QColor(0x1B, 0x1B, 0x1B) }, {} },
+                // InspectorGroupHeaderWidget::InspectorGroupHeaderWidget (:74): background-color $fill.surface.idle.Low
+                .m_fill = QBrush(AzQtComponents::Foundations::Low),
+                // InspectorGroupHeaderWidget::InspectorGroupHeaderWidget: border-color #1B1B1B, border-width 1px, border-left and
+                // border-right none $line.surface.idle.color.Alt3 $line.surface.idle.width.Alt1
+                .m_edges = { { 1, AzQtComponents::Foundations::Line::Frame }, {}, { 1, AzQtComponents::Foundations::Line::Frame }, {} },
             },
         };
 

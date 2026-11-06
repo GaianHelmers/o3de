@@ -48,7 +48,8 @@ namespace AzQtComponents
     static void drawFlattenedComboArrow(QPainter* painter, const QPoint& topLeft, bool enabled)
     {
         CachedIcon(enabled
-            ? QStringLiteral(":/stylesheet/img/UI20/combobox-arrow.svg")
+            ? QStringLiteral(":/stylesheet/img/UI20/combobox-arrow.svg")                     // ComboBox.qss:69 $asset.arrow.idle
+            // ComboBox.qss:74 $asset.arrow.disabled, :66-67 $size.arrow.idle.width $size.arrow.idle.height
             : QStringLiteral(":/stylesheet/img/UI20/combobox-arrow-disabled.svg")).paint(painter, QRect(topLeft, QSize(16, 16)));
     }
 

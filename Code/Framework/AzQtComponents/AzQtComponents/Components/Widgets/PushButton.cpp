@@ -188,7 +188,7 @@ bool PushButton::drawPushButtonBevel(const Style* style, const QStyleOption* opt
         QBrush face;
         if (!enabled)
         {
-            face = QColor(0x66, 0x66, 0x66);                            // BrowseEdit.qss:87 $fill.button.disabled.Alt1
+            face = Foundations::Fill::Disabled;                      // BrowseEdit.qss:87 $fill.button.disabled.Alt1
         }
         else if (pressed)
         {
@@ -197,9 +197,9 @@ bool PushButton::drawPushButtonBevel(const Style* style, const QStyleOption* opt
         else
         {
             // BrowseEdit.qss:63, :77 (the top stops) $fill.button.idle.gradient $fill.button.hover.gradient
-            const QColor top = hover ? QColor(0x77, 0x77, 0x77) : QColor(0x66, 0x66, 0x66);
+            const QColor top = hover ? Foundations::Fill::ButtonLight : Foundations::Fill::Disabled;
             // BrowseEdit.qss:63, :77 (the bottom stops) $fill.button.idle.gradient $fill.button.hover.gradient
-            const QColor bottom = hover ? QColor(0x66, 0x66, 0x66) : QColor(0x55, 0x55, 0x55);
+            const QColor bottom = hover ? Foundations::Fill::Disabled : Foundations::Highest;
             QLinearGradient gradient(r.topLeft(), r.bottomLeft());
             gradient.setColorAt(0.0, top);
             gradient.setColorAt(1.0, bottom);

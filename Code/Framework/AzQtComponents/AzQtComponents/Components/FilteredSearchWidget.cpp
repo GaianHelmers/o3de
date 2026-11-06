@@ -71,8 +71,8 @@ namespace AzQtComponents
         m_frameLayout->setContentsMargins(4, 1, 0, 1);
         if (StyleManager::stylesheetsDisabled())
         {
-            // FilteredSearchWidget.qss chips: min/max-height 22 + the 1px border = 24
-            // TOKENIZE: TagChipHeight
+            // FilteredSearchWidget.qss:72, :75-76: min/max-height 22 + the 1px border = 24
+            // $size.button.idle.min-height.Alt5 $line.button.idle.width.Alt2
             setFixedHeight(24);
         }
         m_frameLayout->setSpacing(0);
@@ -102,8 +102,8 @@ namespace AzQtComponents
         m_frameLayout->setContentsMargins(4, 1, 0, 1);
         if (StyleManager::stylesheetsDisabled())
         {
-            // FilteredSearchWidget.qss chips: min/max-height 22 + the 1px border = 24
-            // TOKENIZE: TagChipHeight
+            // FilteredSearchWidget.qss:83, :86-87: min/max-height 22 + the 1px border = 24
+            // $size.button.idle.min-height.Alt5 $line.button.idle.width.Alt2
             setFixedHeight(24);
         }
         m_frameLayout->setSpacing(0);
@@ -150,8 +150,8 @@ namespace AzQtComponents
         m_frameLayout->setContentsMargins(4, 1, 0, 1);
         if (StyleManager::stylesheetsDisabled())
         {
-            // FilteredSearchWidget.qss chips: min/max-height 22 + the 1px border = 24
-            // TOKENIZE: TagChipHeight
+            // FilteredSearchWidget.qss:30, :33-34: min/max-height 22 + the 1px border = 24
+            // $size.button.idle.min-height.Alt5 $line.button.idle.width.Alt2
             setFixedHeight(24);
         }
         m_frameLayout->setSpacing(0);
@@ -1492,8 +1492,8 @@ namespace AzQtComponents
 
         if (StyleManager::stylesheetsDisabled())
         {
-            // FilteredSearchWidget.qss: #assetTypeSelector { qproperty-icon: filter.svg }
-            // TOKENIZE: FilterIcon
+            // FilteredSearchWidget.qss:23: #assetTypeSelector { qproperty-icon: filter.svg }
+            // $asset.button.idle.icon.Alt2
             filteredSearchWidget->m_ui->assetTypeSelector->setIcon(QIcon(QStringLiteral(":/stylesheet/img/UI20/filter.svg")));
         }
 

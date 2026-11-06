@@ -9,6 +9,7 @@
 #include <AzCore/Casting/numeric_cast.h>
 
 #include <AzQtComponents/Components/Widgets/Card.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/Widgets/CardHeader.h>
 #include <AzQtComponents/Components/Widgets/CardNotification.h>
 #include <AzQtComponents/Components/ConfigHelpers.h>
@@ -436,22 +437,21 @@ namespace AzQtComponents
                 // measures the size hint with; ElidingLabel::setObjectName names both)
 
                 // CardHeader[contentModified=true] * { color: #E57829 }
-                // TOKENIZE: CardModifiedTextColor
                 QPalette titlePalette;
                 if (cardHeader->isContentModified())
                 {
-                    titlePalette.setColor(QPalette::WindowText, QColor(0xE5, 0x78, 0x29));
+                    titlePalette.setColor(QPalette::WindowText, QColor(0xE5, 0x78, 0x29)); // Card.qss:174 $text.card.modified
                 }
                 // Card.qss:272 `AzQtComponents--Card QLabel:disabled { color: #999999 }` (two type selectors and a pseudo-class: it outranks the
                 // line above, an attribute, a type and `*`): the title of a disabled card, mock disabled or not, is #999999 either way. The
                 // title is polished before its header sits in a card (ElidingLabel::elide polishes it while the header is built), so the
                 // polish of the label (Style's applyFlattenedDisabledText) did not find the card, and this palette replaces whatever it set.
-                // TOKENIZE: CardDisabledTextColor
+                // $text.label.disabled.Alt1
                 if (Selectors::withinClass(cardHeader, "AzQtComponents::Card"))
                 {
                     for (const QPalette::ColorRole role : { QPalette::WindowText, QPalette::Text, QPalette::ButtonText })
                     {
-                        titlePalette.setColor(QPalette::Disabled, role, QColor(0x99, 0x99, 0x99));
+                        titlePalette.setColor(QPalette::Disabled, role, Foundations::Text::Disabled);
                     }
                 }
                 cardHeader->m_titleLabel->setPalette(titlePalette);
@@ -513,7 +513,7 @@ namespace AzQtComponents
             // Card: border-image 5/7/9/7, padding -4/-5/-4/-5, margin-bottom 4 -> (2, 1, 2, 9)
             // ContainerCard / SectionCard: border none, same padding          -> (-5, -4, -5, 0)
             // Card[hideFrame=true]: border 1px transparent, same padding     -> (-4, -3, -4, 1)
-            // TOKENIZE: CardShadowInset
+            // Card.qss:13-18, :121-149 $space.card.idle.padding.Alt2 $space.card.idle.margin-bottom $line.card.idle.width.Alt1
             if (cardHasFlatFrame(card))
             {
                 return rect.adjusted(-5, -4, 5, 0);
@@ -530,7 +530,7 @@ namespace AzQtComponents
         {
             // #contentContainer: padding 8/7/7/7 + 1px border (no top) -> (8, 8, 8, 8)
             // ContainerCard / SectionCard body: no border               -> (7, 8, 7, 7)
-            // TOKENIZE: CardBodyInset
+            // Card.qss:25-29 $space.surface.idle.padding.Alt3 $line.surface.idle.width.Alt1
             if (auto card = qobject_cast<const Card*>(parent))
             {
                 return cardHasFlatFrame(card) ? rect.adjusted(7, 8, -7, -7) : rect.adjusted(8, 8, -8, -8);
@@ -540,7 +540,7 @@ namespace AzQtComponents
         {
             // CardHeader #Background: padding 2/7/3/7 + 1px border (no bottom) -> (8, 3, 8, 3)
             // .secondaryCardHeader #Background: padding 2/0/2/0, no border      -> (0, 2, 0, 2)
-            // TOKENIZE: CardHeaderInset
+            // Card.qss:94-95, :168-169 $space.surface.idle.padding.Alt1 $line.surface.idle.width.Alt1
             if (auto header = qobject_cast<const CardHeader*>(parent))
             {
                 return Style::hasClass(header, QStringLiteral("secondaryCardHeader"))
@@ -567,24 +567,25 @@ namespace AzQtComponents
         //   #contentContainer: #555555 with its 1px same-colour border, bottom corners
         //         2px (ContainerCard / SectionCard: transparent)
         //   Card[selected=true] > #contentContainer: 1px #94D2FF border, no top edge
-        // TOKENIZE: CardShadowImage, CardBodyColor, CardCornerRadius, CardSelectedBorderColor
+        // Card.qss:18, :23, :31-32, :37 $asset.card.idle.Alt1 $fill.surface.idle.Highest $radius.surface.idle.bottom-left
+        // $line.card.selected.color
         const bool flatFrame = cardHasFlatFrame(this);
         QPainter painter(this);
 
         if (!flatFrame && !property("hideFrame").toBool())
         {
             static const QPixmap shadow(QStringLiteral(":/Cards/img/UI20/Cards/shadow.png"));
-            const QMargins shadowSlices(7, 5, 7, 9); // left, top, right, bottom
+            const QMargins shadowSlices(7, 5, 7, 9); // Card.qss:17-18 (left, top, right, bottom) $line.card.idle.width.Alt1
             qDrawBorderPixmap(&painter, rect().adjusted(0, 0, 0, -4), shadowSlices, shadow);
         }
 
         if (!flatFrame && !m_contentContainer->isHidden())
         {
             const QRectF body(m_contentContainer->geometry());
-            const qreal radius = 2.0;
+            const qreal radius = 2.0;                   // Card.qss:31-32 $radius.surface.idle.bottom-left
             painter.setRenderHint(QPainter::Antialiasing, true);
             painter.setPen(Qt::NoPen);
-            painter.setBrush(QColor(0x55, 0x55, 0x55));
+            painter.setBrush(Foundations::Highest);     // Card.qss:23 $fill.surface.idle.Highest
             painter.drawRoundedRect(body, radius, radius);
             painter.drawRect(body.adjusted(0, 0, 0, -radius)); // square top corners
 
@@ -598,7 +599,7 @@ namespace AzQtComponents
                 outline.lineTo(stroke.right() - radius, stroke.bottom());
                 outline.arcTo(QRectF(stroke.right() - 2 * radius, stroke.bottom() - 2 * radius, 2 * radius, 2 * radius), 270, 90);
                 outline.lineTo(stroke.right(), stroke.top());
-                painter.setPen(QPen(QColor(0x94, 0xD2, 0xFF), 1.0));
+                painter.setPen(QPen(Foundations::Accent::Focus, 1.0)); // Card.qss:37 $line.card.selected.color
                 painter.setBrush(Qt::NoBrush);
                 painter.drawPath(outline);
             }

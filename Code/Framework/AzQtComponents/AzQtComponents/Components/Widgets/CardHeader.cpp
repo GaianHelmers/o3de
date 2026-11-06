@@ -7,6 +7,7 @@
  */
 
 #include <AzQtComponents/Components/Widgets/CardHeader.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/Widgets/Card.h>
 #include <AzQtComponents/Components/Widgets/CheckBox.h>
 #include <AzQtComponents/Components/Widgets/Internal/RectangleWidget.h>
@@ -460,6 +461,8 @@ namespace AzQtComponents
         static QPixmap tile;
         if (tile.isNull() || !qFuzzyCompare(tile.devicePixelRatio(), devicePixelRatio))
         {
+            // Card.qss:184 $asset.surface.idle.background-image.Alt3; error-conclict-state.svg:2 (width, height)
+            // $size.surface.idle.background-image
             tile = QIcon(QStringLiteral(":/Cards/img/UI20/Cards/error-conclict-state.svg")).pixmap(QSize(445, 24), devicePixelRatio);
         }
         return tile;
@@ -482,8 +485,8 @@ namespace AzQtComponents
         //   [warning=true] #Background: error-conclict-state.svg tiled over the box
         //   Card[selected=true] > CardHeader #Background: 1px #94D2FF, top corners 2px
         //         (all four corners while the card is collapsed)
-        // TOKENIZE: CardHeaderColor, CardSecondaryHeaderColor, CardCornerRadius,
-        //           CardWarningTile, CardSelectedBorderColor
+        // Card.qss:127-129, :153-155, :160-162, :101-112 $fill.card.idle.Low $fill.surface.idle.Low $fill.card.idle.Highest
+        // $radius.card.selected $line.card.selected.color
         const bool sectionHeader = Style::hasClass(this, g_sectionCardHeaderClass);
         const bool containerHeader = Style::hasClass(this, g_containerCardHeaderClass);
         const bool secondaryHeader = Style::hasClass(this, QStringLiteral("secondaryCardHeader"));
@@ -498,7 +501,7 @@ namespace AzQtComponents
 
         if (!sectionHeader && !paletteHeader)
         {
-            painter.setBrush(secondaryHeader ? QColor(0x55, 0x55, 0x55) : QColor(0x33, 0x33, 0x33));
+            painter.setBrush(secondaryHeader ? Foundations::Highest : Foundations::Low);
             painter.drawRoundedRect(box, radius, radius);
             painter.drawRect(box.adjusted(0, radius, 0, 0)); // square bottom corners
         }
@@ -520,7 +523,7 @@ namespace AzQtComponents
         if (card && card->isSelected() && card->header() == this)
         {
             const QRectF stroke = box.adjusted(0.5, 0.5, -0.5, -0.5);
-            painter.setPen(QPen(QColor(0x94, 0xD2, 0xFF), 1.0));
+            painter.setPen(QPen(Foundations::Accent::Focus, 1.0)); // Card.qss:103, :111 $line.card.selected.color
             painter.setBrush(Qt::NoBrush);
             if (card->isExpanded())
             {

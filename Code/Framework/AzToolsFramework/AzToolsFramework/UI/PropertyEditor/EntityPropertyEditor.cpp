@@ -601,7 +601,7 @@ namespace AzToolsFramework
             // The form embeds an orange (255,153,0) WindowText palette on these labels that
             // the app-wide `* { color: white }` rule always overrode; without the sheet the
             // palette would show. Reset them to the inherited (white) text colour.
-            // TOKENIZE: InspectorHeaderTextColor
+            // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
             for (QLabel* label : { static_cast<QLabel*>(m_gui->m_entityNameLabel), static_cast<QLabel*>(m_gui->m_entityIdLabel),
                                    static_cast<QLabel*>(m_gui->m_entityIdText), static_cast<QLabel*>(m_gui->m_prefabContainerLabel),
                                    static_cast<QLabel*>(m_gui->m_prefabContainerText), static_cast<QLabel*>(m_gui->m_statusLabel) })

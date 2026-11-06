@@ -9,6 +9,7 @@
 #include <EditorFlatSheet.h>
 
 #include <AzQtComponents/Components/Elements/BoxElement.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/Elements/ItemViewElement.h>
 
 #include <QBrush>
@@ -19,6 +20,7 @@
 
 namespace EditorFlatSheet
 {
+    namespace Foundations = AzQtComponents::Foundations;
     using AzQtComponents::BoxElement;
     using AzQtComponents::ItemViewElement;
     using AzQtComponents::Selectors::childOfClass;
@@ -41,8 +43,9 @@ namespace EditorFlatSheet
             .m_name = "Editor.Box.AssetEditorStatusBar",
             .m_nativeBorder = false,                                                // border-top is a border of its own (Editor.qss:182)
             .m_idle = {
-                .m_fill = QBrush(Qt::transparent),                                  // BaseStyleSheet.qss:17
-                .m_edges = { { 2, QColor(0x11, 0x11, 0x11) }, {}, {}, {} },         // Editor.qss:182. TOKENIZE: AssetEditorStatusBarBorder
+                .m_fill = QBrush(Foundations::Clear),                               // BaseStyleSheet.qss:17 $fill.surface.idle.Clear
+                // Editor.qss:182 $line.surface.idle.width.Alt2 $line.surface.idle.color.FarBG
+                .m_edges = { { 2, Foundations::FarBG }, {}, {}, {} },
             },
         };
 
@@ -52,7 +55,7 @@ namespace EditorFlatSheet
             .m_name = "Editor.Box.AssetBrowserSearchButtons",
             .m_nativeBorder = false,                                                // border: 0 none (Editor.qss:23)
             .m_idle = {
-                .m_fill = QBrush(QColor(0x14, 0x14, 0x14)),                         // Editor.qss:22. TOKENIZE: AssetBrowserSearchButtonsFill
+                .m_fill = QBrush(QColor(0x14, 0x14, 0x14)),                         // Editor.qss:22 $fill.surface.idle.Alt9
             },
         };
 
@@ -61,7 +64,7 @@ namespace EditorFlatSheet
         const BoxElement AssetBrowserSeparator{
             .m_name = "Editor.Box.AssetBrowserSeparator",
             .m_idle = {
-                .m_fill = QBrush(QColor(0x22, 0x22, 0x22)),                         // Editor.qss:28. TOKENIZE: AssetBrowserSeparatorFill
+                .m_fill = QBrush(Foundations::BG),                                  // Editor.qss:28 $fill.surface.idle.BG
             },
         };
 
@@ -70,13 +73,13 @@ namespace EditorFlatSheet
         //! bar shows the fill too: n2 03_add_component_palette measures #222222 on the vertical lane (the container of the bar, 8px wide at
         //! the tree's right edge) where f5 shows the popup's #383a3b through it, the viewport only having the fill by the palette that
         //! ComponentPaletteWidget.cpp:88-107 gives the tree. A margin of 0 as every scroll area has (QDockWidget.qss:35), no border
-        //! (TableView.qss:28). TOKENIZE: ComponentPaletteTreeFill
+        //! (TableView.qss:28).
         const BoxElement ComponentPaletteTree{
             .m_name = "Editor.Box.ComponentPaletteTree",
             .m_hasBox = true,                                                       // margin: 0, QDockWidget.qss:35 (QAbstractScrollArea)
             .m_nativeBorder = false,                                                // border: none, TableView.qss:28 (QTreeView)
             .m_idle = {
-                .m_fill = QBrush(QColor(0x22, 0x22, 0x22)),                         // Editor.qss:40
+                .m_fill = QBrush(Foundations::BG),                                  // Editor.qss:40 $fill.view.idle.fill.BG
             },
         };
 
@@ -85,10 +88,9 @@ namespace EditorFlatSheet
         //! which the highlight of a search match is drawn with. The fill of a selected item stays the Global one, rgb(101,101,101), whose
         //! `::item:selected` rule outranks the role (TableView.qss:42-50). The role is Native's (the n2 palette dumps of both node palettes hold
         //! Highlight #29ffffff, the sheet's rgba(255,255,255,41)); UNVERIFIED by capture: no capture shows a search highlight drawn with it.
-        //! TOKENIZE: NodePaletteSearchHighlight
         const ItemViewElement NodePaletteTree{
             .m_name = "Editor.ItemView.NodePaletteTree",
-            .m_selection = QColor(255, 255, 255, 41),                               // selection-background-color: Editor.qss:112
+            .m_selection = QColor(255, 255, 255, 41),                               // Editor.qss:112 $fill.view.idle.selection-fill.Alt2
         };
 
         //! The template list of the New Level dialog: the dialog sets `QListWidget::item { height: 148px; padding-left: 0px; padding-right: 0px;
@@ -98,14 +100,16 @@ namespace EditorFlatSheet
         //! no fill in any state: the transparent background beats the application's `::item:selected` and `::item:hover` rules (TableView.qss:42-60).
         //! Without the element the sheet style asks the flattened base style for the size and the contents of an item, which gives it the 4px
         //! of padding of the Global list (TableView.qss:31-40) that the legacy base style did not have under this rule: 4px more of width,
-        //! and the label and icon that much further in. UNVERIFIED by capture: no capture holds the dialog. TOKENIZE: NewLevelTemplateItem
+        //! and the label and icon that much further in. UNVERIFIED by capture: no capture holds the dialog.
         const ItemViewElement NewLevelTemplateList{
             .m_name = "Editor.ItemView.NewLevelTemplateList",
-            .m_itemHeight = 148,                                                    // height: NewLevelDialog.cpp:79
+            .m_itemHeight = 148,                                                    // CNewLevelDialog::CNewLevelDialog $size.item.idle.Alt2
             .m_itemPadding = QMargins(0, 0, 0, 0),                                  // padding-left, padding-right: NewLevelDialog.cpp:79
             .m_faces = {
-                { ItemViewElement::Selected, { QColor(0, 0, 0, 0), QColor(), QColor() } },  // background-color: transparent over ::item:selected
-                { ItemViewElement::Hover, { QColor(0, 0, 0, 0), QColor(), QColor() } },     // ... and over ::item:hover
+                // CNewLevelDialog::CNewLevelDialog, transparent over ::item:selected $fill.item.selected.Clear
+                { ItemViewElement::Selected, { Foundations::Clear, QColor(), QColor() } },
+                // CNewLevelDialog::CNewLevelDialog, and over ::item:hover $fill.item.hover.Clear
+                { ItemViewElement::Hover, { Foundations::Clear, QColor(), QColor() } },
             },
         };
 

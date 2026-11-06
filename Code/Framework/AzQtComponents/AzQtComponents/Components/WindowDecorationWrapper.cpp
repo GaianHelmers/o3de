@@ -10,6 +10,7 @@
 #include <qglobal.h> // For Q_OS_WIN
 
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/DockBarButton.h>
 #include <AzQtComponents/Components/StyledDockWidget.h>
 #include <AzQtComponents/Components/StyleManager.h>
@@ -926,7 +927,7 @@ namespace AzQtComponents
         // wide as the gutter they leave (150%: 2px on the left, 1px on the right; a stroked rectangle left it 1px
         // and one pixel inside)
         QPainter painter(this);
-        const QColor black(Qt::black);
+        const QColor black = Foundations::Line::Dark;        // WindowDecorationWrapper.qss:9 $line.surface.idle.color.Alt1
         painter.fillRect(QRect(0, 0, width(), FrameWidth), black);
         painter.fillRect(QRect(0, height() - FrameWidth, width(), FrameWidth), black);
         painter.fillRect(QRect(0, 0, FrameWidth, height()), black);

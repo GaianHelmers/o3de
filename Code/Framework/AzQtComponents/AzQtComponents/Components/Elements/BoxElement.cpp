@@ -52,7 +52,7 @@ namespace AzQtComponents
         constexpr int PushButtonIconSpacing = 4;
         // QStyleSheetStyle::defaultSize (a tool button's ::menu-indicator) $size.menu-indicator.idle
         constexpr QSize MenuIndicatorSize(13, 13);
-        // QStyleSheetStyle::sizeFromContents (CT_ComboBox: what the base style leaves in the label) $space.field.idle.label
+        // QStyleSheetStyle::sizeFromContents (CT_ComboBox: what the base style leaves in the label) $space.field.idle.label-extra
         constexpr int ComboLabelExtra = 2;
         // QStyleSheetStyle::drawControl (CE_ComboBoxLabel, a rule with no spacing) $space.field.idle.icon-spacing
         constexpr int ComboIconSpacing = 6;

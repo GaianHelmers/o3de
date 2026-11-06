@@ -7,6 +7,7 @@
  */
 
 #include <AzQtComponents/Components/Titlebar.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/ButtonDivider.h>
 #include <AzQtComponents/Components/ConfigHelpers.h>
 #include <AzQtComponents/Components/StyledDockWidget.h>
@@ -1191,18 +1192,24 @@ namespace AzQtComponents
                     // min/max width/height + qproperty-iconSize rules)
                     if (container == m_tabButtonsContainer)
                     {
+                        // TitleBar.qss:63-66 $size.button.idle.min-width.Alt2 $size.button.idle.max-width.Alt2
+                        // $size.button.idle.min-height.Alt2 $size.button.idle.max-height.Alt2
                         button->setFixedSize(26, 26);
-                        button->setIconSize(QSize(14, 14));
+                        button->setIconSize(QSize(14, 14));                         // TitleBar.qss:61 $asset.button.idle.iconsize.Alt2
                     }
                     else if (drawSimple())
                     {
+                        // TitleBar.qss:73-76 $size.button.idle.min-width.Alt6 $size.button.idle.max-width.Alt6
+                        // $size.button.idle.min-height.Alt4 $size.button.idle.max-height.Alt4
                         button->setFixedSize(24, 24);
-                        button->setIconSize(QSize(14, 14));
+                        button->setIconSize(QSize(14, 14));                         // TitleBar.qss:71 $asset.button.idle.iconsize.Alt2
                     }
                     else
                     {
+                        // TitleBar.qss:48-51 $size.button.idle.min-width.Alt1 $size.button.idle.max-width.Alt1
+                        // $size.button.idle.min-height.Alt1 $size.button.idle.max-height.Alt1
                         button->setFixedSize(32, 32);
-                        button->setIconSize(QSize(16, 16));
+                        button->setIconSize(QSize(16, 16));                         // TitleBar.qss:47 $asset.button.idle.iconsize.Alt1
                     }
                 }
 
@@ -1234,13 +1241,13 @@ namespace AzQtComponents
         // qstylesheetstyle.cpp:1282-1285): at a fractional device ratio the edge row of the 3px blends (n2 Gallery 25_styled-dock-widget,
         // dock1 floating: rows 36-39 #111111, row 40 #191919, the last half row of the border over the #222222 fill, not a fifth full row), as
         // BoxElement::drawFrame draws it.
-        // TOKENIZE: TitleBarSimpleFill, TitleBarFill, TitleBarSimpleAccent
+        // TitleBar.qss:11, :22-23 $fill.bar.idle.FarBG $fill.bar.drawSimple $line.bar.drawSimple.color $line.bar.drawSimple.width
         QPainter painter(this);
-        const QColor background = drawSimple() ? QColor(0x22, 0x22, 0x22) : QColor(0x11, 0x11, 0x11);
+        const QColor background = drawSimple() ? Foundations::BG : Foundations::FarBG;
         BoxElement::Edges edges;
         if (drawSimple())
         {
-            edges.m_bottom = { 3, QColor(0x11, 0x11, 0x11) };
+            edges.m_bottom = { 3, Foundations::FarBG };  // TitleBar.qss:23 $line.bar.drawSimple.width $line.bar.drawSimple.color
         }
         BoxElement::drawFrame(&painter, rect(), QBrush(background), edges, BoxElement::Radii());
     }

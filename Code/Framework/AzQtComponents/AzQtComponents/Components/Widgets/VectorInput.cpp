@@ -7,6 +7,7 @@
  */
 
 #include <AzQtComponents/Components/Widgets/VectorInput.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/GuiPerfFloor.h>
 #include <AzQtComponents/Components/Elements/ElementCommon.h>
 #include <AzQtComponents/Components/Style.h>
@@ -35,28 +36,27 @@ namespace VectorInputFlat
 {
     //! VectorInput.qss:9-16 `AzQtComponents--VectorElement QLabel { margin-top: 2px; margin-bottom: 2px; border-top-left-radius: 2px;
     //! border-bottom-left-radius: 2px }`: the label's fill lies 2px inside its rect above and below, with its two left corners rounded.
-    //! TOKENIZE: VectorLabelMargin, VectorLabelRadius
-    constexpr int LabelMargin = 2;
-    constexpr int LabelRadius = 2;
+    constexpr int LabelMargin = 2;      // VectorInput.qss:11-12 $space.label.idle.margin-top.Alt2 $space.label.idle.margin-bottom.Alt2
+    constexpr int LabelRadius = 2;      // VectorInput.qss:13-14 $radius.label.idle.top-left $radius.label.idle.bottom-left
 
-    //! The fill of each coordinate, VectorInput.qss:37-55. TOKENIZE: VectorXColor, VectorYColor, VectorZColor, VectorWColor
+    //! The fill of each coordinate, VectorInput.qss:37-55
     QColor coordinateColor(const QString& coordinate)
     {
         if (coordinate == QLatin1String("X"))
         {
-            return QColor(0xE2, 0x52, 0x43);
+            return Foundations::Accent::Error;      // VectorInput.qss:39 $fill.label.idle.Alt1
         }
         if (coordinate == QLatin1String("Y"))
         {
-            return QColor(0x58, 0xBC, 0x61);
+            return Foundations::Accent::Success;    // VectorInput.qss:44 $fill.label.idle.Alt2
         }
         if (coordinate == QLatin1String("Z"))
         {
-            return QColor(0x42, 0x85, 0xF4);
+            return Foundations::Accent::Info;       // VectorInput.qss:49 $fill.label.idle.Alt3
         }
         if (coordinate == QLatin1String("W"))
         {
-            return QColor(0xE5, 0x78, 0x29);
+            return QColor(0xE5, 0x78, 0x29);        // VectorInput.qss:54 $fill.label.idle.Alt4
         }
         return QColor();
     }

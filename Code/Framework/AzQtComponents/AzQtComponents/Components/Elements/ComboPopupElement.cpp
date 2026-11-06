@@ -26,10 +26,10 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
 
         const QColor PopupSurface = Foundations::BG;            // ComboBox.qss:81 $fill.field.idle.BG
-        const QColor ItemText(0xFF, 0xFF, 0xFF);                // ComboBox.qss:89 $text.item.idle
+        const QColor ItemText = Foundations::Text::Primary;        // ComboBox.qss:89 $text.item.idle
         const QColor SelectedItemFill = Foundations::Mid;       // ComboBox.qss:104 $fill.item.selected.Mid
-        const QColor SelectedItemText(0xFF, 0xFF, 0xFF);        // ComboBox.qss:105 $text.item.selected
-        const QColor DisabledItemText = Foundations::Highest;   // ComboBox.qss:110 $text.item.disabled.Highest
+        const QColor SelectedItemText = Foundations::Text::Primary;        // ComboBox.qss:105 $text.item.selected
+        const QColor DisabledItemText = Foundations::Text::DisabledItem; // ComboBox.qss:110 $text.item.disabled.Highest
         constexpr int ItemPaddingLeft = 24;                     // ComboBox.qss:92 $space.item.idle.padding-left.Alt3
         constexpr int ItemPaddingRight = 24;                    // ComboBox.qss:90 $space.item.idle.padding-right.Alt2
 
