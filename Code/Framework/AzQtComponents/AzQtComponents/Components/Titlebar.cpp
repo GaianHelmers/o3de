@@ -1189,7 +1189,10 @@ namespace AzQtComponents
                 if (StyleManager::stylesheetsDisabled())
                 {
                     // Footprints + icon sizes from TitleBar.qss per context (the qss
-                    // min/max width/height + qproperty-iconSize rules)
+                    // min/max width/height + qproperty-iconSize rules):
+                    //   #tabButtons: TitleBar.qss:59-67 (26px, icon 14)
+                    //   drawSimple:  TitleBar.qss:69-77 (24px, icon 14)
+                    //   otherwise:   TitleBar.qss:44-52 (32px, icon 16)
                     if (container == m_tabButtonsContainer)
                     {
                         // TitleBar.qss:63-66 $size.button.idle.min-width.Alt2 $size.button.idle.max-width.Alt2
@@ -1236,18 +1239,18 @@ namespace AzQtComponents
             return;
         }
 
-        // TitleBar.qss:11-12, :20-23: base/tab-bar background #111111; drawSimple #222222 with a 3px #111111 bottom border (torn-off floating
-        // dock widgets: `border-bottom` over the `border: none` of :15-18). The sheet drew the border antialiased (QRenderRule::drawBorder,
-        // qstylesheetstyle.cpp:1282-1285): at a fractional device ratio the edge row of the 3px blends (n2 Gallery 25_styled-dock-widget,
-        // dock1 floating: rows 36-39 #111111, row 40 #191919, the last half row of the border over the #222222 fill, not a fifth full row), as
-        // BoxElement::drawFrame draws it.
-        // TitleBar.qss:11, :22-23 $fill.bar.idle.FarBG $fill.bar.drawSimple $line.bar.drawSimple.color $line.bar.drawSimple.width
+        // TitleBar.qss:11-12, :20-23: base/tab-bar background #111111; drawSimple #222222 with a 3px #111111 bottom border (torn-off
+        // floating dock widgets: `border-bottom` over the `border: none` of :15-18). The sheet drew the border antialiased
+        // (QRenderRule::drawBorder): at a fractional device ratio the edge row of the 3px blends, the last half row of the border over
+        // the #222222 fill and not a further full row, as BoxElement::drawFrame draws it.
+        // TitleBar.qss:11, :22 $fill.bar.idle.FarBG $fill.bar.drawSimple
         QPainter painter(this);
         const QColor background = drawSimple() ? Foundations::BG : Foundations::FarBG;
         BoxElement::Edges edges;
         if (drawSimple())
         {
-            edges.m_bottom = { 3, Foundations::FarBG };  // TitleBar.qss:23 $line.bar.drawSimple.width $line.bar.drawSimple.color
+            // TitleBar.qss:23 `border-bottom: 3px solid #111111` $line.bar.drawSimple.width $line.bar.drawSimple.color
+            edges.m_bottom = { 3, Foundations::FarBG };
         }
         BoxElement::drawFrame(&painter, rect(), QBrush(background), edges, BoxElement::Radii());
     }

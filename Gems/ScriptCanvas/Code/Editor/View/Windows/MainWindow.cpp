@@ -178,27 +178,33 @@ namespace ScriptCanvasEditor
         // Sources: AzQtComponents Components/Widgets/ stylesheets as file:line, and Editor.qss.
         const AzQtComponents::TabElement GraphTabs{
             .m_name = "ScriptCanvas.Tab.Graph",
-            .m_barFill = Foundations::Mid,                                          // TabWidget.qss:26 $fill.surface.idle.Mid
+            .m_barFill = Foundations::Mid,                                          // TabWidget.qss:28 $fill.surface.idle.Mid
             .m_barMinHeight = 28,                                                   // TabWidget.qss:46 $size.tab.idle.min-height.Alt1
-            // TabWidget.qss:136 (idle), :145 (hover), :158 (selected text and bottom edge)
-            // $fill.tab.idle.Mid $text.tab.idle $line.tab.idle.width.Alt3 $line.tab.idle.color.Low
+            // Each state is a fill, a text colour and a bottom edge (3px), at the lines of the declarations in TabWidget.qss. The rule of a
+            // state that gives none of them leaves the one of the rules before it (the selected rule has no fill: the fill of :138), and
+            // the later of two rules that both give one wins (the `:selected` rule, :158, is after the `:hover` rule, :145).
+            // Idle: TabWidget.qss:138 fill, :142 text, :140 edge. $fill.tab.idle.Mid $text.tab.idle $line.tab.idle.width.Alt3
+            // $line.tab.idle.color.Low
             .m_idle = { Foundations::Mid, Foundations::Tab::SecondaryText, { {}, {}, { 3, Foundations::Tab::SecondaryLine }, {} } },
-            // TabWidget.qss:145 $fill.tab.hover.Alt1 $text.tab.hover.Alt1 $line.tab.hover.width $line.tab.hover.color
+            // Hover: TabWidget.qss:147 fill, :149 text, :148 edge. $fill.tab.hover.Alt1 $text.tab.hover.Alt1 $line.tab.hover.width
+            // $line.tab.hover.color
             .m_hover = { Foundations::Tab::SecondaryHoverFill, Foundations::Text::Primary, { {}, {}, { 3, Foundations::Mid }, {} } },
-            // TabWidget.qss:136, :158 $fill.tab.idle.Mid $text.tab.selected.Alt1 $line.tab.selected.width.Alt2 $line.tab.selected.color.Alt1
+            // Selected: TabWidget.qss:138 fill, :161 text, :160 edge. $fill.tab.idle.Mid $text.tab.selected.Alt1
+            // $line.tab.selected.width.Alt2 $line.tab.selected.color.Alt1
             .m_selected = { Foundations::Mid, Foundations::Text::Primary, { {}, {}, { 3, Foundations::Accent::Selected }, {} } },
-            // TabWidget.qss:145, :158 $fill.tab.hover.Alt1 $text.tab.selected.Alt1
+            // Selected, under the pointer: TabWidget.qss:147 fill, :161 text, :160 edge. $fill.tab.hover.Alt1 $text.tab.selected.Alt1
+            // $line.tab.selected.width.Alt2 $line.tab.selected.color.Alt1
             .m_selectedHover = { Foundations::Tab::SecondaryHoverFill, Foundations::Text::Primary,
-                                 // TabWidget.qss:158 $line.tab.selected.width.Alt2 $line.tab.selected.color.Alt1
                                  { {}, {}, { 3, Foundations::Accent::Selected }, {} } },
             .m_padding = QMargins(14, 7, 14, 5),                                    // TabWidget.qss:136 $space.tab.idle.padding.Alt3
             .m_maxContentWidth = 200,                                               // TabWidget.qss:16 $size.tab.idle.max-width
+            .m_hideFocusRect = true,                                                // TabWidget.qss:95. TOKENIZE: TabBarFocusOutline
             .m_closeIcon = ":/stylesheet/img/close_small.svg",                      // TabWidget.qss:64 $asset.button.idle.image
             .m_closeHoverFill = Foundations::Fill::HoverOverlay,                    // TabWidget.qss:70 $fill.button.hover.fill.Alt1
             .m_closeRadius = 2,                                                     // TabWidget.qss:70 $radius.button.hover
             .m_closeMarginRight = 4,                                                // TabWidget.qss:64 $space.button.idle.margin-right.Alt1
-            .m_widgetFill = Foundations::Mid,                                       // TabWidget.qss:101 $fill.tab.idle.Mid
-            // TabWidget.qss:111 $line.tab-pane.idle.width.Alt2 $line.tab-pane.idle.color
+            .m_widgetFill = Foundations::Mid,                                       // TabWidget.qss:103 $fill.tab.idle.Mid
+            // TabWidget.qss:114 $line.tab-pane.idle.width.Alt2 $line.tab-pane.idle.color
             .m_paneEdges = { { 2, Foundations::Line::TabPane }, {}, {}, {} },
             // TabWidget.qss:111 $space.tab-pane.idle.padding $space.tab-pane.idle.padding-top
             .m_panePadding = QMargins(3, 0, 3, 3),                                  // TabWidget.qss:111

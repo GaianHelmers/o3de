@@ -24,6 +24,14 @@ namespace AtomToolsFramework
     //! translation unit, where anonymous namespaces merge.
     namespace InspectorGroupHeaderWidgetInternal
     {
+        //! background-color: InspectorGroupHeaderWidget.cpp:74 (the fill of the header: the legacy sheet reads it, and the flat element
+        //! below). $fill.surface.idle.Low
+        constexpr QColor HeaderFill = AzQtComponents::Foundations::Low;
+
+        //! border-color: InspectorGroupHeaderWidget.cpp:74 (the line above and below the header: the legacy sheet reads it, and the
+        //! flat element below). $line.surface.idle.color.Alt3
+        constexpr QColor HeaderBorder = AzQtComponents::Foundations::Line::Frame;
+
         // ------------------------------------------------------------------------------
         // Flattened GUI: the box of the header. The legacy sheets gave it, together, the vertical margin of every label
         // (`.Label, QLabel`, Text.qss:89-95) and its own sheet below, set in the constructor (a fill, and a line above and below
@@ -38,11 +46,9 @@ namespace AtomToolsFramework
             .m_margin = QMargins(0, 1, 0, 1),
             .m_nativeBorder = false,                                                // border-style solid: a border of its own (:74)
             .m_idle = {
-                // InspectorGroupHeaderWidget::InspectorGroupHeaderWidget (:74): background-color $fill.surface.idle.Low
-                .m_fill = QBrush(AzQtComponents::Foundations::Low),
-                // InspectorGroupHeaderWidget::InspectorGroupHeaderWidget: border-color #1B1B1B, border-width 1px, border-left and
-                // border-right none $line.surface.idle.color.Alt3 $line.surface.idle.width.Alt1
-                .m_edges = { { 1, AzQtComponents::Foundations::Line::Frame }, {}, { 1, AzQtComponents::Foundations::Line::Frame }, {} },
+                .m_fill = QBrush(HeaderFill),                                       // background-color (:74)
+                // border-color #1B1B1B, border-width 1px; border-left and border-right none (:74) $line.surface.idle.width.Alt1
+                .m_edges = { { 1, HeaderBorder }, {}, { 1, HeaderBorder }, {} },
             },
         };
 
@@ -75,7 +81,10 @@ namespace AtomToolsFramework
         }
         else
         {
-            setStyleSheet("background-color: #333333; border-style: solid; border-color: #1B1B1B; border-width: 1px; border-left: none; border-right: none;");
+            setStyleSheet(QString("background-color: %1; border-style: solid; border-color: %2; "
+                                  "border-width: 1px; border-left: none; border-right: none;")
+                              .arg(InspectorGroupHeaderWidgetInternal::HeaderFill.name().toUpper())
+                              .arg(InspectorGroupHeaderWidgetInternal::HeaderBorder.name().toUpper()));
         }
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         setFixedHeight(24);

@@ -8,7 +8,6 @@
 
 #include <AzQtComponents/Components/Widgets/VectorInput.h>
 #include <AzQtComponents/Components/Elements/Foundations.h>
-#include <AzQtComponents/Components/GuiPerfFloor.h>
 #include <AzQtComponents/Components/Elements/ElementCommon.h>
 #include <AzQtComponents/Components/Style.h>
 #include <AzQtComponents/Components/StyleManager.h>
@@ -39,24 +38,34 @@ namespace VectorInputFlat
     constexpr int LabelMargin = 2;      // VectorInput.qss:11-12 $space.label.idle.margin-top.Alt2 $space.label.idle.margin-bottom.Alt2
     constexpr int LabelRadius = 2;      // VectorInput.qss:13-14 $radius.label.idle.top-left $radius.label.idle.bottom-left
 
+    //! `AzQtComponents--VectorElement[Coordinate="X"] QLabel { background-color }`, VectorInput.qss:37-40. VectorInput.cpp:47.
+    //! $fill.label.idle.Alt1
+    constexpr QColor XColor = Foundations::Accent::Error;
+    //! The same rule for [Coordinate="Y"], VectorInput.qss:42-45. VectorInput.cpp:51. $fill.label.idle.Alt2
+    constexpr QColor YColor = Foundations::Accent::Success;
+    //! The same rule for [Coordinate="Z"], VectorInput.qss:47-50. VectorInput.cpp:55. $fill.label.idle.Alt3
+    constexpr QColor ZColor = Foundations::Accent::Info;
+    //! The same rule for [Coordinate="W"], VectorInput.qss:52-55. VectorInput.cpp:59. $fill.label.idle.Alt4
+    constexpr QColor WColor(0xE5, 0x78, 0x29);
+
     //! The fill of each coordinate, VectorInput.qss:37-55
     QColor coordinateColor(const QString& coordinate)
     {
         if (coordinate == QLatin1String("X"))
         {
-            return Foundations::Accent::Error;      // VectorInput.qss:39 $fill.label.idle.Alt1
+            return XColor;
         }
         if (coordinate == QLatin1String("Y"))
         {
-            return Foundations::Accent::Success;    // VectorInput.qss:44 $fill.label.idle.Alt2
+            return YColor;
         }
         if (coordinate == QLatin1String("Z"))
         {
-            return Foundations::Accent::Info;       // VectorInput.qss:49 $fill.label.idle.Alt3
+            return ZColor;
         }
         if (coordinate == QLatin1String("W"))
         {
-            return QColor(0xE5, 0x78, 0x29);        // VectorInput.qss:54 $fill.label.idle.Alt4
+            return WColor;
         }
         return QColor();
     }
@@ -390,8 +399,9 @@ void VectorInput::setLabelStyle(int index, const QString& qss)
         "This control handles only %i controls", m_elementCount);
     if (index < m_elementCount)
     {
-        // an inline sheet of every vector label that has a style (StyleForX..W): the GuiPerfFloor noop and passthrough rungs leave it out
-        AzQtComponents::GuiPerfFloor::setInlineStyleSheet(m_elements[index]->getLabelWidget(), qss);
+        // The legacy GUI sets the caller's text as the label's own sheet (StyleForX..W, the Gallery's styles). The flattened GUI sets no
+        // sheet and reads none: a site that wants a look on a label there gives it a row of its own (the Gallery's SpinBoxPage.cpp)
+        StyleManager::setLegacyStyleSheet(m_elements[index]->getLabelWidget(), qss);
     }
 }
 
