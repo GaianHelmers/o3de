@@ -136,9 +136,6 @@ namespace AzQtComponents
         constexpr QColor SliderHandleDisabled(0x99, 0x99, 0x99);    // SliderConfig.ini:16 $fill.slider-handle.disabled
         //! PushButtonConfig.ini:37, :41 (black at alpha 0x3D) $line.button.idle.color.Alt3 $line.button.disabled.color.Alt2
         constexpr QColor ButtonLine(0x00, 0x00, 0x00, 0x3D);
-        constexpr QColor ButtonFocusLine(0x4B, 0x8C, 0xEF);         // PushButtonConfig.ini:45 $line.button.focus.color.Alt2
-        constexpr QColor SmallIconArrowDisabled(0xBB, 0xBB, 0xBB);  // PushButtonConfig.ini:11 $text.small-icon.disabled.arrow
-        constexpr QColor ButtonPrimaryDisabled(0x2A, 0x48, 0x75);   // PushButtonConfig.ini:16-17 $fill.button.disabled+primary.Alt2
         constexpr QColor ButtonPrimaryHoverTop(0x4A, 0xBA, 0xFF);   // PushButtonConfig.ini:20 $fill.button.hover+primary.Alt2
     } // namespace ConfigTokens
 
@@ -297,17 +294,20 @@ namespace AzQtComponents
                 // $text.icon-button.disabled $text.icon-button.selected
                 data->pushButtonConfig.defaultBorder.color = ButtonLine;
                 data->pushButtonConfig.disabledBorder.color = ButtonLine;
-                data->pushButtonConfig.focusedBorder.color = ButtonFocusLine;
+                // PushButtonConfig.ini:45 $line.button.focus.color.Alt2
+                data->pushButtonConfig.focusedBorder.color = Foundations::Accent::FocusRing;
                 data->pushButtonConfig.iconButton.activeColor = Foundations::Accent::Focus;
                 data->pushButtonConfig.iconButton.disabledColor = Foundations::Text::Disabled;
                 data->pushButtonConfig.iconButton.selectedColor = Foundations::Text::Primary;
                 // PushButtonConfig.ini:10-11 $text.small-icon.idle.arrow
                 data->pushButtonConfig.smallIcon.enabledArrowColor = Foundations::Text::Primary;
-                data->pushButtonConfig.smallIcon.disabledArrowColor = SmallIconArrowDisabled;
+                // PushButtonConfig.ini:11 $text.small-icon.disabled.arrow
+                data->pushButtonConfig.smallIcon.disabledArrowColor = Foundations::Text::DisabledOnFill;
                 // PushButtonConfig.ini:15-23 (the primary gradients) $fill.button.primary $fill.button.pressed+primary
                 auto& primary = data->pushButtonConfig.primary;
-                primary.disabled.start = ButtonPrimaryDisabled;
-                primary.disabled.end = ButtonPrimaryDisabled;
+                // PushButtonConfig.ini:16-17 $fill.button.disabled+primary.Alt2
+                primary.disabled.start = Foundations::Accent::PrimaryDisabled;
+                primary.disabled.end = Foundations::Accent::PrimaryDisabled;
                 primary.sunken.start = Foundations::Accent::Primary;
                 primary.sunken.end = Foundations::Accent::Primary;
                 primary.hovered.start = ButtonPrimaryHoverTop;
@@ -1625,61 +1625,66 @@ namespace AzQtComponents
 
     // ---- Colours, shared by the toggle switch and the radio button (file:line is toggleswitch/ or radiobutton/ of img/UI20/)
 
-    // The outline of an indicator that is off: toggleswitch/unchecked.svg:8, radiobutton/unchecked.svg:7 TOKENIZE: IndicatorOffLine
-    static constexpr QColor g_indicatorOffLine(0xFF, 0xFF, 0xFF);
+    // The outline of an indicator that is off: toggleswitch/unchecked.svg:8, radiobutton/unchecked.svg:7
+    // $line.check-indicator.unchecked.color
+    static constexpr QColor g_indicatorOffLine = Foundations::Line::Light;
     // The outline of an indicator that is off and disabled: toggleswitch/unchecked-disabled.svg:8, radiobutton/unchecked-disabled.svg:7
-    // TOKENIZE: IndicatorOffLineDisabled
-    static constexpr QColor g_indicatorOffLineDisabled(0x99, 0x99, 0x99);
+    // $line.check-indicator.unchecked+disabled.color
+    static constexpr QColor g_indicatorOffLineDisabled = Foundations::Text::Disabled;
     // The ring of an indicator that has the focus, on or off: toggleswitch/unchecked-focus.svg:8, toggleswitch/checked-focus.svg:8,
-    // radiobutton/unchecked-focus.svg:7, radiobutton/checked-focus.svg:7 TOKENIZE: IndicatorFocusLine
-    static constexpr QColor g_indicatorFocusLine(0x4B, 0x8C, 0xEF);
+    // radiobutton/unchecked-focus.svg:7, radiobutton/checked-focus.svg:7 $line.check-indicator.focus.color
+    static constexpr QColor g_indicatorFocusLine = Foundations::Accent::FocusRing;
     // The body of an indicator that is on: toggleswitch/checked.svg:8, toggleswitch/checked-focus.svg:8, radiobutton/checked.svg:8,
-    // radiobutton/checked-focus.svg:7 TOKENIZE: IndicatorOnFill
-    static constexpr QColor g_indicatorOnFill(0x1E, 0x70, 0xEB);
+    // radiobutton/checked-focus.svg:7 $fill.check-indicator.checked
+    static constexpr QColor g_indicatorOnFill = Foundations::Accent::Primary;
     // The body of an indicator that is on and disabled: toggleswitch/checked-disabled.svg:8, radiobutton/checked-disabled.svg:7
-    // TOKENIZE: IndicatorOnFillDisabled
-    static constexpr QColor g_indicatorOnFillDisabled(0x2A, 0x48, 0x75);
+    // $fill.check-indicator.checked+disabled
+    static constexpr QColor g_indicatorOnFillDisabled = Foundations::Accent::PrimaryDisabled;
     // What marks an indicator on, the knob of a toggle switch and the dot of a radio button: toggleswitch/checked.svg:9,
-    // toggleswitch/checked-focus.svg:9, radiobutton/checked.svg:9, radiobutton/checked-focus.svg:8 TOKENIZE: IndicatorMark
-    static constexpr QColor g_indicatorMark(0xFF, 0xFF, 0xFF);
-    // The same, disabled: toggleswitch/checked-disabled.svg:9, radiobutton/checked-disabled.svg:8 TOKENIZE: IndicatorMarkDisabled
-    static constexpr QColor g_indicatorMarkDisabled(0xBB, 0xBB, 0xBB);
+    // toggleswitch/checked-focus.svg:9, radiobutton/checked.svg:9, radiobutton/checked-focus.svg:8 $fill.check-indicator.checked.mark
+    static constexpr QColor g_indicatorMark = Foundations::Text::Primary;
+    // The same, disabled: toggleswitch/checked-disabled.svg:9, radiobutton/checked-disabled.svg:8
+    // $fill.check-indicator.checked+disabled.mark
+    static constexpr QColor g_indicatorMarkDisabled = Foundations::Text::DisabledOnFill;
 
     // ---- Colours of one of the two
 
     // The knob of a toggle switch that is off: toggleswitch/unchecked.svg:9, toggleswitch/unchecked-focus.svg:9
-    // TOKENIZE: ToggleSwitchKnobOff
-    static constexpr QColor g_toggleSwitchKnobOff(0xFF, 0xFF, 0xFF);
+    // $fill.check-indicator.unchecked.knob
+    static constexpr QColor g_toggleSwitchKnobOff = Foundations::Text::Primary;
     // The knob of a toggle switch that is off and disabled: toggleswitch/unchecked-disabled.svg:9
-    // TOKENIZE: ToggleSwitchKnobOffDisabled
-    static constexpr QColor g_toggleSwitchKnobOffDisabled(0x99, 0x99, 0x99);
-    // The fill of a radio button that is off and disabled: radiobutton/unchecked-disabled.svg:7 TOKENIZE: RadioButtonOffFillDisabled
-    static constexpr QColor g_radioButtonOffFillDisabled(0x66, 0x66, 0x66);
+    // $fill.check-indicator.unchecked+disabled.knob
+    static constexpr QColor g_toggleSwitchKnobOffDisabled = Foundations::Text::Disabled;
+    // The fill of a radio button that is off and disabled: radiobutton/unchecked-disabled.svg:7
+    // $fill.check-indicator.unchecked+disabled
+    static constexpr QColor g_radioButtonOffFillDisabled = Foundations::Fill::Disabled;
 
     // ---- Sizes (the view of an SVG is its viewBox: toggleswitch/*.svg:2, radiobutton/*.svg:2)
 
-    static constexpr QSize g_toggleSwitchView(32, 16);
-    static constexpr QSize g_toggleSwitchFocusView(34, 18);     // 1px of ring around the 32 x 16 switch
-    static constexpr QSize g_radioButtonView(16, 16);
-    static constexpr QSize g_radioButtonFocusView(18, 18);      // 1px of ring around the 16 x 16 button
-    static constexpr qreal g_indicatorFocusInset = 1.0;         // the translate(1, 1) of the focus SVGs
+    static constexpr QSize g_toggleSwitchView(32, 16);          // toggleswitch/unchecked.svg:2 $size.check-indicator.idle.view.Alt1
+    // 1px of ring around the 32 x 16 switch: toggleswitch/unchecked-focus.svg:2 $size.check-indicator.focus.view.Alt1
+    static constexpr QSize g_toggleSwitchFocusView(34, 18);
+    static constexpr QSize g_radioButtonView(16, 16);           // radiobutton/unchecked.svg:2 $size.check-indicator.idle.view.Alt2
+    // 1px of ring around the 16 x 16 button: radiobutton/unchecked-focus.svg:2 $size.check-indicator.focus.view.Alt2
+    static constexpr QSize g_radioButtonFocusView(18, 18);
+    // the translate(1, 1) of the focus SVGs: toggleswitch/unchecked-focus.svg:7, radiobutton/unchecked-focus.svg:7
+    // $space.check-indicator.focus.inset
+    static constexpr qreal g_indicatorFocusInset = 1.0;
 
-    // The radius of the knob of a toggle switch: toggleswitch/*.svg:9 TOKENIZE: ToggleSwitchKnobRadius
+    // The radius of the knob of a toggle switch: toggleswitch/*.svg:9 $size.check-indicator.idle.knob-radius
     static constexpr qreal g_toggleSwitchKnobRadius = 6.0;
     // The centre of the knob, at left when off and at right when on: toggleswitch/unchecked.svg:9, toggleswitch/checked.svg:9
-    // TOKENIZE: ToggleSwitchKnobOffX, ToggleSwitchKnobOnX
-    static constexpr qreal g_toggleSwitchKnobOffX = 8.0;
-    static constexpr qreal g_toggleSwitchKnobOnX = 24.0;
+    static constexpr qreal g_toggleSwitchKnobOffX = 8.0;        // toggleswitch/unchecked.svg:9 $space.check-indicator.unchecked.knob-x
+    static constexpr qreal g_toggleSwitchKnobOnX = 24.0;        // toggleswitch/checked.svg:9 $space.check-indicator.checked.knob-x
     // The centre of a radio button in both directions, and of the knob halfway down the switch: toggleswitch/*.svg:9,
-    // radiobutton/unchecked.svg:8
+    // radiobutton/unchecked.svg:8 $space.check-indicator.idle.centre
     static constexpr qreal g_indicatorCentre = 8.0;
     // The radius of a radio button: its outline is centred on 7.5 when it is off (radiobutton/unchecked.svg:8), its fill is 8 when it is
     // on (radiobutton/checked.svg:8), and the focus ring is centred on 8.5 (radiobutton/unchecked-focus.svg:8, checked-focus.svg:7)
-    // TOKENIZE: RadioButtonOffRadius, RadioButtonOnRadius, RadioButtonFocusRadius
-    static constexpr qreal g_radioButtonOffRadius = 7.5;
-    static constexpr qreal g_radioButtonOnRadius = 8.0;
-    static constexpr qreal g_radioButtonFocusRadius = 8.5;
-    // The radius of the dot of a radio button that is on: radiobutton/checked.svg:9 TOKENIZE: RadioButtonDotRadius
+    static constexpr qreal g_radioButtonOffRadius = 7.5;        // radiobutton/unchecked.svg:8 $size.check-indicator.unchecked.radius
+    static constexpr qreal g_radioButtonOnRadius = 8.0;         // radiobutton/checked.svg:8 $size.check-indicator.checked.radius
+    static constexpr qreal g_radioButtonFocusRadius = 8.5;      // radiobutton/unchecked-focus.svg:8 $size.check-indicator.focus.radius
+    // The radius of the dot of a radio button that is on: radiobutton/checked.svg:9 $size.check-indicator.checked.dot-radius
     static constexpr qreal g_radioButtonDotRadius = 4.0;
 
     // ---- The track of a toggle switch: the curves of the SVGs' `track` paths (toggleswitch/unchecked.svg:8, unchecked-focus.svg:8,
@@ -4049,7 +4054,7 @@ namespace AzQtComponents
             // (buildO3DEBasePalette), as the idle button: it needs no branch
             // `QPushButton.Primary:disabled, QPushButton:default:disabled` (PushButton.qss:60-64) after QPushButton:disabled (:43-46)
             //! PushButton.qss:63 $text.button.disabled.Alt2 $text.button.default+disabled
-            const QColor primaryText(0xBB, 0xBB, 0xBB);
+            const QColor primaryText = Foundations::Text::DisabledOnFill;
             const QColor buttonText = Foundations::Text::Disabled;          // PushButton.qss:45 $text.button.disabled.Alt1
             disabledText = (pushButton->isDefault() || Selectors::tagged(widget, "Primary")) ? primaryText : buttonText;
         }

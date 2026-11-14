@@ -63,6 +63,11 @@ namespace AzQtComponents
             //! Fragment of Highest: the text of a disabled menu or popup item
             //! Menu.qss:25, ComboBox.qss:110 $text.DisabledItem $text.item.disabled.Highest
             inline constexpr QColor DisabledItem(0x55, 0x55, 0x55);
+            //! The text and the mark over a disabled fill, lighter than Disabled: a disabled primary button's text, a small icon
+            //! button's disabled arrow, the knob and the dot of a disabled indicator that is on (toggleswitch/checked-disabled.svg:9,
+            //! radiobutton/checked-disabled.svg:8) $text.button.disabled.Alt2 $text.button.default+disabled
+            //! $text.small-icon.disabled.arrow $fill.check-indicator.checked+disabled.mark
+            inline constexpr QColor DisabledOnFill(0xBB, 0xBB, 0xBB);  // PushButton.qss:63, PushButtonConfig.ini:11 $text.DisabledOnFill
         } // namespace Text
 
         namespace Accent
@@ -77,6 +82,14 @@ namespace AzQtComponents
             //! The light top of a primary button's gradient: PushButtonConfig.ini:22, ProjectManager.qss:17 $accent.PrimaryLight
             //! $fill.button.primary
             inline constexpr QColor PrimaryLight(0x00, 0x95, 0xF2);
+            //! The body of a disabled primary control: a disabled primary button's gradient, a disabled indicator that is on
+            //! (toggleswitch/checked-disabled.svg:8, radiobutton/checked-disabled.svg:7) $fill.button.disabled+primary.Alt2
+            //! $fill.check-indicator.checked+disabled
+            inline constexpr QColor PrimaryDisabled(0x2A, 0x48, 0x75); // PushButtonConfig.ini:16-17 $accent.PrimaryDisabled
+            //! The focus ring of a control: a focused push button's border, the ring of a focused indicator, on or off
+            //! (toggleswitch/unchecked-focus.svg:8, radiobutton/unchecked-focus.svg:7) $line.button.focus.color.Alt2
+            //! $line.check-indicator.focus.color
+            inline constexpr QColor FocusRing(0x4B, 0x8C, 0xEF);       // PushButtonConfig.ini:45 $accent.FocusRing
         } // namespace Accent
 
         namespace Fill
@@ -244,8 +257,5 @@ namespace AzQtComponents
         //   $line.bevel.idle.inner-contrast | from: none, a Qt constant | white at alpha 30 (innerContrastLine) | a pane's inner line,
         //     #676767 over #535353
         //   $line.bevel.idle.pane-shadow | from: none, a Qt constant | black at alpha 15 | the pane's bottom line (PE_FrameTabWidget)
-
-        // Rule not located (ledger) (GridGraphicsItem::CacheStencils; materialcanvas_style.json:5, passcanvas_style.json:5 give #222222):
-        //   $fill.graph.idle | from: Mid, in part | rule not located (ledger) | the graph view of Material Canvas and Pass Canvas
     } // namespace Foundations
 } // namespace AzQtComponents

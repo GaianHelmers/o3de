@@ -42,25 +42,25 @@ namespace GraphCanvas
         // ---- Values (the `graph` rule: materialcanvas_style.json:3-13, passcanvas_style.json:3-13, ScriptCanvas graphcanvas_style.json:3-13
         // and LandscapeCanvas graphcanvas_style.json:3-13, the same lines in the four)
 
-        //! `background-color` (:5): the BG tier of the grey ladder, which is #222222. TOKENIZE: GraphGridBackground
+        //! `background-color` (materialcanvas_style.json:5): the BG tier of the grey ladder, which is #222222 $fill.graph.idle.BG
         inline constexpr QColor Background = AzQtComponents::Foundations::BG;
 
-        //! `grid-major-color` (:7). TOKENIZE: GraphGridMajorColor
+        //! `grid-major-color` (materialcanvas_style.json:7) $line.graph.idle.grid-major-color
         inline constexpr QColor MajorColor(0x28, 0x28, 0x28);
 
-        //! `grid-major-width` (:8). TOKENIZE: GraphGridMajorWidth
+        //! `grid-major-width` (materialcanvas_style.json:8) $line.graph.idle.grid-major-width
         inline constexpr qreal MajorWidth = 1.0;
 
-        //! `grid-major-style` (:9), `solid`. TOKENIZE: GraphGridMajorStyle
+        //! `grid-major-style` (materialcanvas_style.json:9), `solid` $line.graph.idle.grid-major-style
         inline constexpr Qt::PenStyle MajorStyle = Qt::SolidLine;
 
-        //! `grid-minor-color` (:11). TOKENIZE: GraphGridMinorColor
+        //! `grid-minor-color` (materialcanvas_style.json:11) $line.graph.idle.grid-minor-color
         inline constexpr QColor MinorColor(0x28, 0x28, 0x28);
 
-        //! `grid-minor-width` (:12). TOKENIZE: GraphGridMinorWidth
+        //! `grid-minor-width` (materialcanvas_style.json:12) $line.graph.idle.grid-minor-width
         inline constexpr qreal MinorWidth = 0.5;
 
-        //! `grid-minor-style` (:13), `dotted`. TOKENIZE: GraphGridMinorStyle
+        //! `grid-minor-style` (materialcanvas_style.json:13), `dotted` $line.graph.idle.grid-minor-style
         inline constexpr Qt::PenStyle MinorStyle = Qt::DotLine;
 
         // ---- The pens

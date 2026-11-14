@@ -40,6 +40,7 @@ The colours several families share, each defined once. A family's or a role's va
 | `Text::OnLight` | `$text.OnLight` | #000000 |  |  | BaseStyleSheet.qss:31 (the entry fields) |  |
 | `Text::Muted` | `$text.Muted` | #888888 |  |  | Text.qss:16 |  |
 | `Text::DisabledItem` | `$text.DisabledItem` | #555555 |  | $text.item.disabled.Highest | Menu.qss:25, ComboBox.qss:110 | Fragment of Highest: the text of a disabled menu or popup item Menu.qss:25, ComboBox.qss:110 |
+| `Text::DisabledOnFill` | `$text.DisabledOnFill` | #BBBBBB |  | $text.button.disabled.Alt2 $text.button.default+disabled $text.small-icon.disabled.arrow $fill.check-indicator.checked+disabled.mark | PushButton.qss:63, PushButtonConfig.ini:11 | The text and the mark over a disabled fill, lighter than Disabled: a disabled primary button's text, a small icon button's disabled arrow, the knob and the dot of a disabled indicator that is on (toggleswitch/checked-disabled.svg:9, radiobutton/checked-disabled.svg:8) |
 | `Accent::Primary` | `$accent.Primary` | #1E70EB |  |  | BaseStyleSheet.qss:55, Splitter.qss:21, ProgressBar.qss:21 |  |
 | `Accent::Focus` | `$accent.Focus` | #94D2FF |  |  | BaseStyleSheet.qss:107, SpinBox.qss:42, ComboBox.qss:31 |  |
 | `Accent::Selected` | `$accent.Selected` | #008DE5 |  |  | TabWidget.qss:158 |  |
@@ -47,6 +48,8 @@ The colours several families share, each defined once. A family's or a role's va
 | `Accent::Info` | `$accent.Info` | #4285F4 |  |  | VectorInput.qss:47 |  |
 | `Accent::Success` | `$accent.Success` | #58BC61 |  |  | VectorInput.qss:42 |  |
 | `Accent::PrimaryLight` | `$accent.PrimaryLight` | #0095F2 |  | $fill.button.primary | The light top of a primary button's gradient: PushButtonConfig.ini:22, ProjectManager.qss:17 |  |
+| `Accent::PrimaryDisabled` | `$accent.PrimaryDisabled` | #2A4875 |  | $fill.button.disabled+primary.Alt2 $fill.check-indicator.checked+disabled | PushButtonConfig.ini:16-17 | The body of a disabled primary control: a disabled primary button's gradient, a disabled indicator that is on (toggleswitch/checked-disabled.svg:8, radiobutton/checked-disabled.svg:7) |
+| `Accent::FocusRing` | `$accent.FocusRing` | #4B8CEF |  | $line.button.focus.color.Alt2 $line.check-indicator.focus.color | PushButtonConfig.ini:45 | The focus ring of a control: a focused push button's border, the ring of a focused indicator, on or off (toggleswitch/unchecked-focus.svg:8, radiobutton/unchecked-focus.svg:7) |
 | `Fill::Disabled` | `$fill.Disabled` | #666666 |  |  | LineEdit.qss:28, SpinBox.qss:69, ComboBox.qss:53 |  |
 | `Fill::ItemSelected` | `$fill.ItemSelected` | #656565 |  |  | TableView.qss:42, :14 |  |
 | `Fill::ItemHeader` | `$fill.ItemHeader` | #2D2D2D |  |  | TableView.qss:62 |  |
@@ -172,9 +175,3 @@ The values an element or Qt computes from the tokens above. None is a constant o
 | `$line.bevel.idle.top-shadow` | none, a Qt constant | black at alpha 18 (topShadow) | Fusion's top shadows |
 | `$line.bevel.idle.inner-contrast` | none, a Qt constant | white at alpha 30 (innerContrastLine) | a pane's inner line, #676767 over #535353 |
 | `$line.bevel.idle.pane-shadow` | none, a Qt constant | black at alpha 15 | the pane's bottom line (PE_FrameTabWidget) |
-
-### Rule not located (ledger) (GridGraphicsItem::CacheStencils; materialcanvas_style.json:5, passcanvas_style.json:5 give #222222)
-
-| Id | From | Formula | Where it shows |
-|---|---|---|---|
-| `$fill.graph.idle` | Mid, in part | rule not located (ledger) | the graph view of Material Canvas and Pass Canvas |
