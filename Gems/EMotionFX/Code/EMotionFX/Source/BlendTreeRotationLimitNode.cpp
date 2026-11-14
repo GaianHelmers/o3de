@@ -23,9 +23,12 @@ namespace EMotionFX
     //////////////////////////////////////////////////////////////////////////
     namespace BlendTreeRotationLimitNodeFlat
     {
-        constexpr const char* AxisXLabel = "<font color='red'>X</font>";      // BlendTreeRotationLimitNode.cpp:47 TOKENIZE: AxisXLabelColor
-        constexpr const char* AxisYLabel = "<font color='green'>Y</font>";    // BlendTreeRotationLimitNode.cpp:50 TOKENIZE: AxisYLabelColor
-        constexpr const char* AxisZLabel = "<font color='blue'>Z</font>";     // BlendTreeRotationLimitNode.cpp:53 TOKENIZE: AxisZLabelColor
+        // BlendTreeRotationLimitNode.cpp:47 (RotationLimit::GetLabel) $text.node.idle.Alt2
+        constexpr const char* AxisXLabel = "<font color='red'>X</font>";
+        // BlendTreeRotationLimitNode.cpp:50 (RotationLimit::GetLabel) $text.node.idle.Alt3
+        constexpr const char* AxisYLabel = "<font color='green'>Y</font>";
+        // BlendTreeRotationLimitNode.cpp:53 (RotationLimit::GetLabel) $text.node.idle.Alt4
+        constexpr const char* AxisZLabel = "<font color='blue'>Z</font>";
     } // namespace BlendTreeRotationLimitNodeFlat
 
     AZ_CLASS_ALLOCATOR_IMPL(BlendTreeRotationLimitNode, AnimGraphAllocator)

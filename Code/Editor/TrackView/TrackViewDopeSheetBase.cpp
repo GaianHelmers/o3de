@@ -57,165 +57,198 @@ namespace TrackViewDopeSheetBaseFlat
     //  Sheet
     //////////////////////////////////////////////////////////////////////////
 
-    // TrackViewDopeSheetBase.cpp:959 (the sheet's background gradient, top). TOKENIZE: DopeSheetGradientTop
+    // TrackViewDopeSheetBase.cpp:959 (the sheet's background gradient, top) (CTrackViewDopeSheetBase::paintEvent)
+    // $fill.dopesheet.idle.top.Alt1
     constexpr QColor SheetGradientTop(250, 250, 250);
 
-    // TrackViewDopeSheetBase.cpp:960 (the sheet's background gradient, bottom). TOKENIZE: DopeSheetGradientBottom
+    // TrackViewDopeSheetBase.cpp:960 (the sheet's background gradient, bottom) (CTrackViewDopeSheetBase::paintEvent)
+    // $fill.dopesheet.idle.bottom.Alt1
     constexpr QColor SheetGradientBottom(220, 220, 220);
 
-    // TrackViewDopeSheetBase.cpp:53 (kEditDisableColor: the fill over a locked sheet). TOKENIZE: DopeSheetEditLockFill
+    // TrackViewDopeSheetBase.cpp:53 (kEditDisableColor: the fill over a locked sheet) (CTrackViewDopeSheetBase::paintEvent)
+    // $fill.dopesheet.locked.Alt1
     constexpr QColor EditLockFill(128, 128, 128);
 
     // TrackViewDopeSheetBase.cpp:77 (the brush m_bkgrBrushEmpty, set in the constructor and not painted with today).
-    // TOKENIZE: DopeSheetBackgroundEmptyBrush
+    // CTrackViewDopeSheetBase::CTrackViewDopeSheetBase $fill.dopesheet.empty.Alt1
     constexpr QColor BackgroundEmptyBrush(190, 190, 190);
 
     // TrackViewDopeSheetBase.cpp:78 (the brush m_timeBkgBrush, set in the constructor and not painted with today).
-    // TOKENIZE: DopeSheetTimeBackgroundBrush
+    // CTrackViewDopeSheetBase::CTrackViewDopeSheetBase $fill.dopesheet.idle.Alt1
     constexpr QColor TimeBackgroundBrush(0xE0, 0xE0, 0xE0);
 
     // TrackViewDopeSheetBase.cpp:79 (the brush m_timeHighlightBrush, set in the constructor and not painted with today).
-    // TOKENIZE: DopeSheetTimeHighlightBrush
+    // CTrackViewDopeSheetBase::CTrackViewDopeSheetBase $fill.dopesheet.hover.Alt1
     constexpr QColor TimeHighlightBrush(0xFF, 0x0, 0x0);
 
     // TrackViewDopeSheetBase.cpp:80 (the brush m_selectedBrush, set in the constructor and not painted with today).
-    // TOKENIZE: DopeSheetSelectedBrush
+    // CTrackViewDopeSheetBase::CTrackViewDopeSheetBase $fill.dopesheet.selected.Alt1
     constexpr QColor SelectedBrush(200, 200, 230);
 
     //////////////////////////////////////////////////////////////////////////
     //  Timeline strip
     //////////////////////////////////////////////////////////////////////////
 
-    // TrackViewDopeSheetBase.cpp:3507 (the timeline strip's gradient, top). TOKENIZE: DopeSheetTimelineGradientTop
+    // TrackViewDopeSheetBase.cpp:3507 (the timeline strip's gradient, top) (CTrackViewDopeSheetBase::DrawTimeline)
+    // $fill.dopesheet.idle.top.Alt1
     constexpr QColor TimelineGradientTop(250, 250, 250);
 
-    // TrackViewDopeSheetBase.cpp:3508 (the timeline strip's gradient, bottom). TOKENIZE: DopeSheetTimelineGradientBottom
+    // TrackViewDopeSheetBase.cpp:3508 (the timeline strip's gradient, bottom) (CTrackViewDopeSheetBase::DrawTimeline)
+    // $fill.dopesheet.idle.bottom.Alt2
     constexpr QColor TimelineGradientBottom(180, 180, 180);
 
-    // TrackViewDopeSheetBase.cpp:3478 (the current-time marker). TOKENIZE: DopeSheetTimelineMarker
+    // TrackViewDopeSheetBase.cpp:3478 (the current-time marker) (CTrackViewDopeSheetBase::DrawTimeline) $fill.dopesheet.idle.Alt2
     constexpr QColor TimelineMarker(255, 0, 255);
 
-    // TrackViewDopeSheetBase.cpp:3485 (the current-time marker while recording). TOKENIZE: DopeSheetTimelineMarkerRecording
+    // TrackViewDopeSheetBase.cpp:3485 (the current-time marker while recording) (CTrackViewDopeSheetBase::DrawTimeline)
+    // $fill.dopesheet.idle.Alt3
     const QColor TimelineMarkerRecording(Qt::red);
 
-    // TrackViewDopeSheetBase.cpp:3479 (the labels of the timeline strip and its long ticks). TOKENIZE: DopeSheetTimelineText
+    // TrackViewDopeSheetBase.cpp:3479 (the labels of the timeline strip and its long ticks) (CTrackViewDopeSheetBase::DrawTimeline)
+    // $text.dopesheet.idle.Alt1
     const QColor TimelineText(Qt::black);
 
-    // TrackViewDopeSheetBase.cpp:3480 (the strip's pen before the first labelled tick). TOKENIZE: DopeSheetTimelineTickDark
+    // TrackViewDopeSheetBase.cpp:3480 (the strip's pen before the first labelled tick) (CTrackViewDopeSheetBase::DrawTimeline)
+    // $line.dopesheet.idle.color.Alt1
     constexpr QColor TimelineTickDark(90, 90, 90);
 
-    // TrackViewDopeSheetBase.cpp:3481 (the strip's light pen). TOKENIZE: DopeSheetTimelineTickLight
+    // TrackViewDopeSheetBase.cpp:3481 (the strip's light pen) (CTrackViewDopeSheetBase::DrawTimeline) $line.dopesheet.idle.color.Alt2
     constexpr QColor TimelineTickLight(150, 150, 150);
 
-    // TrackViewDopeSheetBase.cpp:3388, :3435 (the strip's short ticks after a labelled tick). TOKENIZE: DopeSheetTimelineTickMinor
+    // TrackViewDopeSheetBase.cpp:3388, :3435 (the strip's short ticks after a labelled tick)
+    // (CTrackViewDopeSheetBase::DrawTimeLineInFrames) $line.dopesheet.idle.color.Alt1
     constexpr QColor TimelineTickMinor(90, 90, 90);
 
     //////////////////////////////////////////////////////////////////////////
     //  Summary strip
     //////////////////////////////////////////////////////////////////////////
 
-    // TrackViewDopeSheetBase.cpp:3557 (the fill of the summary strip). TOKENIZE: DopeSheetSummaryFill
+    // TrackViewDopeSheetBase.cpp:3557 (the fill of the summary strip) (CTrackViewDopeSheetBase::DrawSummary) $fill.dopesheet.idle.Alt4
     constexpr QColor SummaryFill(150, 100, 220);
 
-    // TrackViewDopeSheetBase.cpp:3556 (the key marks on the summary strip). TOKENIZE: DopeSheetSummaryKeyLine
+    // TrackViewDopeSheetBase.cpp:3556 (the key marks on the summary strip) (CTrackViewDopeSheetBase::DrawSummary)
+    // $line.dopesheet.idle.color.Alt3
     const QColor SummaryKeyLine(Qt::black);
 
     //////////////////////////////////////////////////////////////////////////
     //  Track rows
     //////////////////////////////////////////////////////////////////////////
 
-    // TrackViewDopeSheetBase.cpp:2455 (the ticks of a track row). TOKENIZE: DopeSheetTrackTickDark
+    // TrackViewDopeSheetBase.cpp:2455 (the ticks of a track row) (CTrackViewDopeSheetBase::DrawTicks) $line.dopesheet.idle.color.Alt1
     constexpr QColor TrackTickDark(90, 90, 90);
 
-    // TrackViewDopeSheetBase.cpp:2456 (the ticks of a track row before the first tick of the range). TOKENIZE: DopeSheetTrackTickLight
+    // TrackViewDopeSheetBase.cpp:2456 (the ticks of a track row before the first tick of the range) (CTrackViewDopeSheetBase::DrawTicks)
+    // $line.dopesheet.idle.color.Alt4
     constexpr QColor TrackTickLight(120, 120, 120);
 
-    // TrackViewDopeSheetBase.cpp:2496 (the long ticks of a track row). TOKENIZE: DopeSheetTrackTickMajor
+    // TrackViewDopeSheetBase.cpp:2496 (the long ticks of a track row) (CTrackViewDopeSheetBase::DrawTicks) $line.dopesheet.idle.color.Alt3
     const QColor TrackTickMajor(Qt::black);
 
-    // TrackViewDopeSheetBase.cpp:2527 (the line under a track row). TOKENIZE: DopeSheetTrackBottomLine
+    // TrackViewDopeSheetBase.cpp:2527 (the line under a track row) (CTrackViewDopeSheetBase::DrawTrack) $line.dopesheet.idle.color.Alt4
     constexpr QColor TrackBottomLine(120, 120, 120);
 
-    // TrackViewDopeSheetBase.cpp:2606, :2616 (the gradient left and right of a track, top). TOKENIZE: DopeSheetTrackOutsideTop
+    // TrackViewDopeSheetBase.cpp:2606, :2616 (the gradient left and right of a track, top) (CTrackViewDopeSheetBase::DrawTrack)
+    // $fill.dopesheet.idle.top.Alt2
     constexpr QColor TrackOutsideTop(210, 210, 210);
 
-    // TrackViewDopeSheetBase.cpp:2607, :2617 (the gradient left and right of a track, bottom). TOKENIZE: DopeSheetTrackOutsideBottom
+    // TrackViewDopeSheetBase.cpp:2607, :2617 (the gradient left and right of a track, bottom) (CTrackViewDopeSheetBase::DrawTrack)
+    // $fill.dopesheet.idle.bottom.Alt2
     constexpr QColor TrackOutsideBottom(180, 180, 180);
 
-    // TrackViewDopeSheetBase.cpp:2581 (the fill of a track with an obsolete TCB spline). TOKENIZE: DopeSheetObsoleteTrackFill
+    // TrackViewDopeSheetBase.cpp:2581 (the fill of a track with an obsolete TCB spline) (CTrackViewDopeSheetBase::DrawTrack)
+    // $fill.dopesheet.idle.Alt5
     constexpr QColor ObsoleteTrackFill(245, 80, 70);
 
     // TrackViewDopeSheetBase.cpp:2588 (the divisor of the selected track's gradient end: each channel of the track's colour is halved).
-    // TOKENIZE: DopeSheetSelectedTrackShade
+    // CTrackViewDopeSheetBase::DrawTrack $size.dopesheet.selected.size.Alt1
     constexpr int SelectedTrackShadeDivisor = 2;
 
-    // TrackViewDopeSheetBase.cpp:3605 (the text of a node with an obsolete TCB track). TOKENIZE: DopeSheetObsoleteNodeText
+    // TrackViewDopeSheetBase.cpp:3605 (the text of a node with an obsolete TCB track) (CTrackViewDopeSheetBase::DrawNodeTrack)
+    // $text.node.idle.Alt1
     constexpr QColor ObsoleteNodeText(245, 80, 70);
 
-    // TrackViewDopeSheetBase.cpp:54 (kKeyTextColor: key descriptions and node names). TOKENIZE: DopeSheetKeyText
+    // TrackViewDopeSheetBase.cpp:54 (kKeyTextColor: key descriptions and node names) (CTrackViewDopeSheetBase::DrawKeys)
+    // $text.dopesheet.idle.Alt2
     constexpr QColor KeyText(0, 0, 50);
 
-    // TrackViewDopeSheetBase.cpp:55 (kInactiveTextColor: node of an inactive director). TOKENIZE: DopeSheetInactiveNodeText
+    // TrackViewDopeSheetBase.cpp:55 (kInactiveTextColor: node of an inactive director) (CTrackViewDopeSheetBase::DrawNodeTrack)
+    // $text.node.disabled.Alt1
     constexpr QColor InactiveNodeText(128, 128, 128);
 
     //////////////////////////////////////////////////////////////////////////
     //  Track ranges
     //////////////////////////////////////////////////////////////////////////
 
-    // TrackViewDopeSheetBase.cpp:81 (the brush set before a bool track or a key duration is drawn). TOKENIZE: DopeSheetVisibilityBrush
+    // TrackViewDopeSheetBase.cpp:81 (the brush set before a bool track or a key duration is drawn)
+    // (CTrackViewDopeSheetBase::CTrackViewDopeSheetBase) $fill.dopesheet.idle.Alt6
     constexpr QColor VisibilityBrush(120, 120, 255);
 
     // TrackViewDopeSheetBase.cpp:82 (the brush set before a select track or a sequence track is drawn).
-    // TOKENIZE: DopeSheetSelectTrackBrush
+    // CTrackViewDopeSheetBase::CTrackViewDopeSheetBase $fill.dopesheet.selected.Alt2
     constexpr QColor SelectTrackBrush(100, 190, 255);
 
-    // TrackViewDopeSheetBase.cpp:2713, :2721 (a select track's gradient, top: key and blend). TOKENIZE: DopeSheetSelectTrackFadeTop
+    // TrackViewDopeSheetBase.cpp:2713, :2721 (a select track's gradient, top: key and blend) (CTrackViewDopeSheetBase::DrawSelectTrack)
+    // $fill.dopesheet.selected.top.Alt1
     const QColor SelectTrackFadeTop(Qt::white);
 
-    // TrackViewDopeSheetBase.cpp:2714 (a select track's gradient over the key, bottom). TOKENIZE: DopeSheetSelectTrackFadeEnd
+    // TrackViewDopeSheetBase.cpp:2714 (a select track's gradient over the key, bottom) (CTrackViewDopeSheetBase::DrawSelectTrack)
+    // $fill.dopesheet.selected.bottom.Alt1
     constexpr QColor SelectTrackFadeEnd(100, 190, 255);
 
-    // TrackViewDopeSheetBase.cpp:2722 (a select track's gradient over the blend time, bottom). TOKENIZE: DopeSheetSelectTrackBlendEnd
+    // TrackViewDopeSheetBase.cpp:2722 (a select track's gradient over the blend time, bottom) (CTrackViewDopeSheetBase::DrawSelectTrack)
+    // $fill.dopesheet.selected.bottom.Alt2
     constexpr QColor SelectTrackBlendEnd(0, 115, 230);
 
-    // TrackViewDopeSheetBase.cpp:2757, :2770 (a bool track's gradient when true, top). TOKENIZE: DopeSheetBoolTrackGradientTop
+    // TrackViewDopeSheetBase.cpp:2757, :2770 (a bool track's gradient when true, top) (CTrackViewDopeSheetBase::DrawBoolTrack)
+    // $fill.dopesheet.idle.top.Alt1
     constexpr QColor BoolTrackGradientTop(250, 250, 250);
 
-    // TrackViewDopeSheetBase.cpp:2758, :2771 (a bool track's gradient when true, bottom). TOKENIZE: DopeSheetBoolTrackGradientBottom
+    // TrackViewDopeSheetBase.cpp:2758, :2771 (a bool track's gradient when true, bottom) (CTrackViewDopeSheetBase::DrawBoolTrack)
+    // $fill.dopesheet.idle.bottom.Alt3
     constexpr QColor BoolTrackGradientBottom(0, 80, 255);
 
-    // TrackViewDopeSheetBase.cpp:2805 (a sequence track's gradient, top). TOKENIZE: DopeSheetSequenceTrackGradientTop
+    // TrackViewDopeSheetBase.cpp:2805 (a sequence track's gradient, top) (CTrackViewDopeSheetBase::DrawSequenceTrack)
+    // $fill.dopesheet.idle.top.Alt3
     constexpr QColor SequenceTrackGradientTop(100, 190, 255);
 
-    // TrackViewDopeSheetBase.cpp:2806 (a sequence track's gradient, bottom). TOKENIZE: DopeSheetSequenceTrackGradientBottom
+    // TrackViewDopeSheetBase.cpp:2806 (a sequence track's gradient, bottom) (CTrackViewDopeSheetBase::DrawSequenceTrack)
+    // $fill.dopesheet.idle.bottom.Alt4
     constexpr QColor SequenceTrackGradientBottom(250, 250, 250);
 
-    // TrackViewDopeSheetBase.cpp:3676 (a key duration's gradient, top; a sound key sets its own). TOKENIZE: DopeSheetKeyDurationGradientTop
+    // TrackViewDopeSheetBase.cpp:3676 (a key duration's gradient, top; a sound key sets its own) (CTrackViewDopeSheetBase::DrawKeyDuration)
+    // $fill.dopesheet.idle.top.Alt4
     constexpr QColor KeyDurationGradientTop(120, 120, 255);
 
-    // TrackViewDopeSheetBase.cpp:3685 (a key duration's gradient, bottom). TOKENIZE: DopeSheetKeyDurationGradientBottom
+    // TrackViewDopeSheetBase.cpp:3685 (a key duration's gradient, bottom) (CTrackViewDopeSheetBase::DrawKeyDuration)
+    // $fill.dopesheet.idle.bottom.Alt4
     constexpr QColor KeyDurationGradientBottom(250, 250, 250);
 
     //////////////////////////////////////////////////////////////////////////
     //  Keys
     //////////////////////////////////////////////////////////////////////////
 
-    // TrackViewDopeSheetBase.cpp:3045 (the lines of the keys that a paste would add). TOKENIZE: DopeSheetPasteKeyLine
+    // TrackViewDopeSheetBase.cpp:3045 (the lines of the keys that a paste would add) (CTrackViewDopeSheetBase::DrawTrackClipboardKeys)
+    // $line.dopesheet.idle.color.Alt5
     const QColor PasteKeyLine(Qt::green);
 
-    // TrackViewDopeSheetBase.cpp:3326 (the lines through the selected keys). TOKENIZE: DopeSheetSelectedKeyLine
+    // TrackViewDopeSheetBase.cpp:3326 (the lines through the selected keys) (CTrackViewDopeSheetBase::DrawSelectedKeyIndicators)
+    // $line.dopesheet.selected.color.Alt1
     const QColor SelectedKeyLine(Qt::green);
 
-    // TrackViewDopeSheetBase.cpp:3617 (the body of the go-to-track arrow). TOKENIZE: DopeSheetGoToArrowBody
+    // TrackViewDopeSheetBase.cpp:3617 (the body of the go-to-track arrow) (CTrackViewDopeSheetBase::DrawGoToTrackArrow)
+    // $fill.dopesheet.idle.Alt7
     constexpr QColor GoToArrowBody(150, 150, 150);
 
-    // TrackViewDopeSheetBase.cpp:3618 (the head of the go-to-track arrow). TOKENIZE: DopeSheetGoToArrowHead
+    // TrackViewDopeSheetBase.cpp:3618 (the head of the go-to-track arrow) (CTrackViewDopeSheetBase::DrawGoToTrackArrow)
+    // $line.dopesheet.idle.color.Alt6
     constexpr QColor GoToArrowHead(50, 50, 50);
 
-    // TrackViewDopeSheetBase.cpp:3724 (the outline of the whole animation box of a selected animation key). TOKENIZE: DopeSheetAnimBoxLine
+    // TrackViewDopeSheetBase.cpp:3724 (the outline of the whole animation box of a selected animation key)
+    // (CTrackViewDopeSheetBase::DrawKeyDuration) $line.dopesheet.idle.color.Alt5
     const QColor AnimBoxLine(Qt::green);
 
-    // TrackViewDopeSheetBase.cpp:3732 (the two adjust bars of a selected animation key). TOKENIZE: DopeSheetAdjustBarLine
+    // TrackViewDopeSheetBase.cpp:3732 (the two adjust bars of a selected animation key) (CTrackViewDopeSheetBase::DrawKeyDuration)
+    // $line.bar.idle.color.Alt1
     const QColor AdjustBarLine(Qt::red);
 
     //////////////////////////////////////////////////////////////////////////
@@ -223,13 +256,13 @@ namespace TrackViewDopeSheetBaseFlat
     //////////////////////////////////////////////////////////////////////////
 
 #ifdef AZ_DEBUG_BUILD
-    // TrackViewDopeSheetBase.cpp:984 (the text of the redraw counter). TOKENIZE: DopeSheetDebugRedrawText
+    // TrackViewDopeSheetBase.cpp:984 (the text of the redraw counter) (CTrackViewDopeSheetBase::paintEvent) $text.dopesheet.idle.Alt3
     constexpr QColor DebugRedrawText(255, 255, 255);
 
-    // TrackViewDopeSheetBase.cpp:985 (the brush set for the redraw counter). TOKENIZE: DopeSheetDebugRedrawFill
+    // TrackViewDopeSheetBase.cpp:985 (the brush set for the redraw counter) (CTrackViewDopeSheetBase::paintEvent) $fill.dopesheet.idle.Alt8
     constexpr QColor DebugRedrawFill(0, 0, 0);
 
-    // TrackViewDopeSheetBase.cpp:992 (the box behind the redraw counter). TOKENIZE: DopeSheetDebugRedrawBounds
+    // TrackViewDopeSheetBase.cpp:992 (the box behind the redraw counter) (CTrackViewDopeSheetBase::paintEvent) $fill.dopesheet.idle.Alt8
     const QColor DebugRedrawBounds(Qt::black);
 #endif
 } // namespace TrackViewDopeSheetBaseFlat

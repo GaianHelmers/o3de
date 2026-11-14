@@ -28,28 +28,28 @@
 //////////////////////////////////////////////////////////////////////////
 namespace SplineCtrlFlat
 {
-    // SplineCtrl.cpp:134 (the fill of the whole panel). TOKENIZE: SplineCtrlBackground
+    // SplineCtrl.cpp:134 (the fill of the whole panel) (CSplineCtrl::paintEvent) $fill.curve.idle.Alt1
     constexpr QColor Background(140, 140, 140);
 
-    // SplineCtrl.cpp:159 (the dotted grid lines). TOKENIZE: SplineCtrlGrid
+    // SplineCtrl.cpp:159 (the dotted grid lines) (CSplineCtrl::DrawGrid) $line.curve.idle.color.Alt1
     constexpr QColor Grid(90, 90, 90);
 
-    // SplineCtrl.cpp:175 (the two centre lines and the frame of the grid). TOKENIZE: SplineCtrlGridCentre
+    // SplineCtrl.cpp:175 (the two centre lines and the frame of the grid) (CSplineCtrl::DrawGrid) $line.curve.idle.color.Alt2
     constexpr QColor GridCentre(75, 75, 75);
 
-    // SplineCtrl.cpp:191 (the curve). TOKENIZE: SplineCtrlCurve
+    // SplineCtrl.cpp:191 (the curve) (CSplineCtrl::DrawSpline) $line.curve.idle.color.Alt3
     constexpr QColor Curve(128, 255, 128);
 
-    // SplineCtrl.cpp:226 (the outline of a key). TOKENIZE: SplineCtrlKeyOutline
+    // SplineCtrl.cpp:226 (the outline of a key) (CSplineCtrl::DrawKeys) $line.curve.idle.color.Alt4
     constexpr QColor KeyOutline(0, 0, 0);
 
-    // SplineCtrl.cpp:235 (the fill of a key). TOKENIZE: SplineCtrlKeyFill
+    // SplineCtrl.cpp:235 (the fill of a key) (CSplineCtrl::DrawKeys) $fill.curve.idle.Alt2
     constexpr QColor KeyFill(220, 220, 0);
 
-    // SplineCtrl.cpp:238 (the fill of a selected key). TOKENIZE: SplineCtrlKeySelected
+    // SplineCtrl.cpp:238 (the fill of a selected key) (CSplineCtrl::DrawKeys) $fill.curve.selected.Alt1
     constexpr QColor KeySelected(255, 0, 0);
 
-    // SplineCtrl.cpp:255 (the current-time marker). TOKENIZE: SplineCtrlTimeMarker
+    // SplineCtrl.cpp:255 (the current-time marker) (CSplineCtrl::DrawTimeMarker) $fill.curve.idle.Alt3
     constexpr QColor TimeMarker(255, 0, 255);
 } // namespace SplineCtrlFlat
 

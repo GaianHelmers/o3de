@@ -26,7 +26,7 @@ namespace AzToolsFramework
     //! namespace, not an anonymous one: a unity build joins files into one translation unit, where anonymous namespaces merge.
     namespace IconButtonFlatInternal
     {
-        constexpr QColor HighlightTint(250, 250, 250, 180);   // IconButton.cpp:66. TOKENIZE: IconButtonHighlightTint
+        constexpr QColor HighlightTint(250, 250, 250, 180);   // IconButton.cpp:66 (IconButton::paintEvent) $fill.button.hover.Alt2
     }
 
     void IconButton::enterEvent(QEnterEvent *event)

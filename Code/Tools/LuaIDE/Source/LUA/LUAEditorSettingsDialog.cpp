@@ -69,7 +69,7 @@ namespace LUAEditor
         //! legacy GUI sets
         constexpr const char* PropertyEditorSheet = "QLabel{font-size: 13px;}\n";
 
-        //! font-size: LUAEditorSettingsDialog.ui:32 (the form before the flattening). TOKENIZE: SettingsLabelSize
+        //! font-size: LUAEditorSettingsDialog.ui:32 (the form before the flattening) $size.surface.idle.size.Alt6
         constexpr int LabelSize = 13;
 
         //! `QLabel{font-size: 13px;}` over the label rule's family (Text.qss:91 `QLabel`) and the weight of the '*' rule

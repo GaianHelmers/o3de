@@ -21,8 +21,10 @@ namespace O3DE::ProjectManager
         // ------------------------------------------------------------------------------
         // The rows of the requirements list (GemRequirementDelegate::paint)
         // ------------------------------------------------------------------------------
-        inline constexpr QColor ListSurface(0x44, 0x44, 0x44);  // GemRequirementDelegate.h:28 (outside). TOKENIZE: GemRequirementSurface
-        inline constexpr QColor ItemFill(0x39, 0x39, 0x39);     // GemRequirementDelegate.h:29 (item). TOKENIZE: GemRequirementItemFill
+        // GemRequirementDelegate.h:28 (outside) (GemRequirementDelegate::paint) $fill.view.idle.Mid
+        inline constexpr QColor ListSurface(0x44, 0x44, 0x44);
+        // GemRequirementDelegate.h:29 (item) (GemRequirementDelegate::m_itemBackgroundColor) $fill.item.idle.Alt8
+        inline constexpr QColor ItemFill(0x39, 0x39, 0x39);
     } // namespace GemRequirementDelegateFlat
 
     class GemRequirementDelegate

@@ -63,9 +63,9 @@ namespace AzQtComponents
     const char* const s_tagIcon = "tagIcon";
 
     // The filter menu's colours, read by FilteredSearchItemDelegate and, through GetBackgroundColor and GetSeparatorColor, by
-    // EntityOutlinerSearchWidget.cpp. FilteredSearchWidget.cpp:64. TOKENIZE: FilteredSearchFilterHighlight
+    // EntityOutlinerSearchWidget.cpp. FilteredSearchWidget.cpp:64 (FilteredSearchWidget::GetBackgroundColor) $fill.field.hover.Alt1
     const QString BackgroundColor{ "#565A5B" };
-    // FilteredSearchWidget.cpp:65. TOKENIZE: FilteredSearchMenuSeparatorLine
+    // FilteredSearchWidget.cpp:65 (FilteredSearchWidget::GetSeparatorColor) $line.menu.idle.color.Alt1
     const QString SeparatorColor{ "#606060" };
 
     SelectionCountButton::SelectionCountButton(QWidget* parent)

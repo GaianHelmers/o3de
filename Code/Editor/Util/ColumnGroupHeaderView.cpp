@@ -23,10 +23,10 @@
 //////////////////////////////////////////////////////////////////////////
 namespace ColumnGroupHeaderViewFlat
 {
-    // ColumnGroupHeaderView.cpp:66 (the fill of the strip). TOKENIZE: ColumnGroupStripFill
+    // ColumnGroupHeaderView.cpp:66 (the fill of the strip) (ColumnGroupHeaderView::event) $fill.surface.idle.Alt12
     constexpr QColor StripFill(145, 145, 145);
 
-    // ColumnGroupHeaderView.cpp:82 (the lines that join a group to its column). TOKENIZE: ColumnGroupStripLine
+    // ColumnGroupHeaderView.cpp:82 (the lines that join a group to its column) (ColumnGroupHeaderView::event) $line.surface.idle.color.Alt7
     constexpr QColor StripLine(0, 0, 0);
 } // namespace ColumnGroupHeaderViewFlat
 

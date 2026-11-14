@@ -25,16 +25,16 @@ namespace OpenParticleSystemEditor
     //=========================================================================
     namespace CurveEditorFlat
     {
-        constexpr QColor GridLine(43, 43, 43);          // CurveEditor.cpp:320. TOKENIZE: ParticleCurveGridLine
-        const QColor AxisText(Qt::gray);                // CurveEditor.cpp:339. TOKENIZE: ParticleCurveAxisText
-        constexpr QColor PlotFill(56, 56, 56);          // CurveEditor.cpp:356. TOKENIZE: ParticleCurvePlotFill
-        const QColor CurveLine(Qt::red);                // CurveEditor.cpp:367. TOKENIZE: ParticleCurveLine
-        const QColor KeyOutline(Qt::gray);              // CurveEditor.cpp:368. TOKENIZE: ParticleCurveKeyOutline
-        const QColor KeySelected(Qt::yellow);           // CurveEditor.cpp:369. TOKENIZE: ParticleCurveKeySelected
-        const QColor KeyFill(Qt::gray);                 // CurveEditor.cpp:379. TOKENIZE: ParticleCurveKeyFill
-        const QColor PresetPressedFill(Qt::darkYellow); // CurveEditor.cpp:700. TOKENIZE: ParticleCurvePresetPressedFill
-        const QColor PresetFill(Qt::black);             // CurveEditor.cpp:700. TOKENIZE: ParticleCurvePresetFill
-        const QColor PresetCurve(Qt::white);            // CurveEditor.cpp:703. TOKENIZE: ParticleCurvePresetCurve
+        constexpr QColor GridLine(43, 43, 43);          // CurveEditor.cpp:320 (CurveEditor::DrawGrid) $line.curve.idle.color.Alt10
+        const QColor AxisText(Qt::gray);                // CurveEditor.cpp:339 (CurveEditor::DrawGrid) $text.curve.idle.Alt1
+        constexpr QColor PlotFill(56, 56, 56);          // CurveEditor.cpp:356 (CurveEditor::paintEvent) $fill.curve.idle.Alt4
+        const QColor CurveLine(Qt::red);                // CurveEditor.cpp:367 (CurveEditor::paintEvent) $line.curve.idle.color.Alt5
+        const QColor KeyOutline(Qt::gray);              // CurveEditor.cpp:368 (CurveEditor::paintEvent) $line.curve.idle.color.Alt11
+        const QColor KeySelected(Qt::yellow);           // CurveEditor.cpp:369 (CurveEditor::paintEvent) $line.curve.selected.color.Alt1
+        const QColor KeyFill(Qt::gray);                 // CurveEditor.cpp:379 (CurveEditor::paintEvent) $fill.curve.idle.Alt5
+        const QColor PresetPressedFill(Qt::darkYellow); // CurveEditor.cpp:700 (PresetCurveWidget::paintEvent) $fill.curve.pressed.Alt1
+        const QColor PresetFill(Qt::black);             // CurveEditor.cpp:700 (PresetCurveWidget::paintEvent) $fill.curve.idle.Alt6
+        const QColor PresetCurve(Qt::white);            // CurveEditor.cpp:703 (PresetCurveWidget::paintEvent) $line.curve.idle.color.Alt12
     } // namespace CurveEditorFlat
 
     constexpr AZStd::string_view INTERPMODE_LINEAR = "Linear";

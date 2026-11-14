@@ -28,7 +28,7 @@
 // Constant for the width of the close button and its total offset (width + margin spacing)
 static const int g_closeButtonWidth = 19;
 static const int g_closeButtonOffset = g_closeButtonWidth + AzQtComponents::DockBar::ButtonsSpacing;
-// Constant for the color of our tab indicator underlay. DockTabBar.cpp:32. TOKENIZE: DockTabIndicatorUnderlay
+// Constant for the color of our tab indicator underlay. DockTabBar.cpp:32 (DockTabBar::DockTabBar) $fill.tab.idle.Alt1
 static const QColor g_tabIndicatorUnderlayColor(Qt::black);
 // Constant for the opacity of our tab indicator underlay
 static const qreal g_tabIndicatorUnderlayOpacity = 0.75;

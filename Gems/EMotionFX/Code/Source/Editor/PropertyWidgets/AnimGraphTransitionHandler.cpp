@@ -32,7 +32,8 @@ namespace EMotionFX
     //////////////////////////////////////////////////////////////////////////
     namespace AnimGraphTransitionHandlerFlat
     {
-        constexpr QColor BorderOverwrite(255, 133, 0);   // AnimGraphTransitionHandler.cpp:32 TOKENIZE: AnimGraphTransitionBorderOverwrite
+        // AnimGraphTransitionHandler.cpp:32 (AnimGraphTransitionIdSelector::s_graphWindowBorderOverwriteColor) $line.graph.idle.color.Alt1
+        constexpr QColor BorderOverwrite(255, 133, 0);
     } // namespace AnimGraphTransitionHandlerFlat
 
     AZ_CLASS_ALLOCATOR_IMPL(AnimGraphTransitionIdPicker, AZ::SystemAllocator)

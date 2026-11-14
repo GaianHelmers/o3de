@@ -14,6 +14,7 @@
 #include <AzQtComponents/Utilities/Conversions.h>
 
 #include <AzQtComponents/Components/Widgets/ColorPicker.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include "ScriptCanvasDataInterface.h"
 
 namespace ScriptCanvasEditor
@@ -23,8 +24,8 @@ namespace ScriptCanvasEditor
     //=========================================================================
     namespace ScriptCanvasColorDataInterfaceFlat
     {
-        // ScriptCanvasColorDataInterface.h:78, was QColor("#333333"). TOKENIZE: ScriptCanvasColorSwatchOutline
-        inline constexpr QColor ColorSwatchOutline(0x33, 0x33, 0x33);
+        // ScriptCanvasColorDataInterface.h:78, was QColor("#333333") (ScriptCanvasColorDataInterface::GetIcon) $line.picker.idle.color.Low
+        inline constexpr QColor ColorSwatchOutline = AzQtComponents::Foundations::Low;
     } // namespace ScriptCanvasColorDataInterfaceFlat
 
     class ScriptCanvasColorDataInterface

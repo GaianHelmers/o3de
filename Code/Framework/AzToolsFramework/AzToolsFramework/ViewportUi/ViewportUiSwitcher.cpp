@@ -34,11 +34,11 @@ namespace AzToolsFramework::ViewportUi::Internal
     namespace ViewportUiSwitcherFlatInternal
     {
         //! The spacing between the switcher's items: `spacing: 3px` of the sheet the ViewportUiSwitcher constructor sets in the legacy
-        //! GUI. TOKENIZE: ViewportUiSwitcherItemSpacing
+        //! GUI ViewportUiSwitcher::ViewportUiSwitcher $space.item.idle.spacing.Alt1
         constexpr int ItemSpacing = 3;
 
         //! The colour the switcher's button icons are recoloured to (RemoveIconColor: the icon's shape filled with it, SourceIn).
-        //! ViewportUiSwitcher.cpp:86. TOKENIZE: ViewportUiSwitcherIconColor
+        //! ViewportUiSwitcher.cpp:86 (Internal::RemoveIconColor) $fill.viewport.idle.Alt2
         const QColor IconColor(Qt::white);
     } // namespace ViewportUiSwitcherFlatInternal
 

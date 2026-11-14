@@ -67,7 +67,7 @@ namespace AzQtComponents
         constexpr int DownGlyphInset = 8;                           // SpinBox.qss:88 $other.field-button.idle.right.Alt1
 
         // ---- In a color picker the buttons keep their place and height and have no width: the rule sets the width alone
-        // ColorPicker.qss:79 TOKENIZE: ColorPickerSpinButtonWidth
+        // ColorPicker.qss:79 $size.field-button.idle.width.Alt2
         constexpr int PickerButtonWidth = 0;
 
         struct Glyphs
@@ -412,7 +412,6 @@ namespace AzQtComponents
         // SpinBox.qss:76-99: the button rules give every spin box the position rect of a glyph box, in the padding box of the face of
         // the state (the margin and the border of every face add up to the same on the right). ColorPicker.qss:74-81 sets the width of
         // a picker's buttons to 0 over SpinBox.qss:81's and keeps the height, the position and the inset of SpinBox.qss:82-96.
-        // TOKENIZE: SpinButtonRect
         const Look look = lookOf(option, widget);
         return buttonBox(option->rect, faceOf(look), QSize(buttonWidth(look), GlyphSize.height()), up);
     }
@@ -428,7 +427,6 @@ namespace AzQtComponents
 
         // QRenderRule::borderRect of the rule of the state: the rect inside the margin (SpinBox.qss:13 margin 2px, :27 margin 1px
         // for :hover and :focus, :62 margin 0px for an error)
-        // TOKENIZE: SpinFrameRect
         return option->rect.marginsRemoved(faceOf(lookOf(option, widget)).m_margin);
     }
 } // namespace AzQtComponents

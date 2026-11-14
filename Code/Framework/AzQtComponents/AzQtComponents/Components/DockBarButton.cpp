@@ -26,9 +26,9 @@ namespace AzQtComponents
     //////////////////////////////////////////////////////////////////////////
 
     //! TitleBar.qss:100 `rgba(255,255,255,0.1)`: Qt reads an alpha of 1 or less as a fraction and truncates it, 0.1 * 255 = 25
-    //! (QCss::parseColorValue). TOKENIZE: DockBarButtonHoverFill
+    //! (QCss::parseColorValue) $fill.button.hover.Alt1
     static constexpr QColor g_dockBarButtonHoverFill(255, 255, 255, 25);
-    //! TitleBar.qss:104 `#B80D1C`. TOKENIZE: DockBarButtonCloseHoverFill
+    //! TitleBar.qss:104 `#B80D1C` $fill.button.hover.fill.Alt3
     static constexpr QColor g_dockBarButtonCloseHoverFill(0xB8, 0x0D, 0x1C);
 
     DockBarButton::Config DockBarButton::loadConfig(QSettings& settings)

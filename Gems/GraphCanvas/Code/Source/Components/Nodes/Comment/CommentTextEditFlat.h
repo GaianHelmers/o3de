@@ -54,35 +54,37 @@ namespace GraphCanvas
 
         //! `border-color` of `comment:editing > .commentText` (materialcanvas_style.json:277, passcanvas_style.json:277, ScriptCanvas
         //! graphcanvas_style.json:307) and of `nodeGroup:editing > .commentText` (:333, :333, :363).
-        //! TOKENIZE: CommentEditorRingOrange
+        //! $line.graph.idle.color.Alt3
         inline constexpr QColor RingOrange(0xF3, 0x81, 0x1D);
 
         //! `border-color` of `comment:editing > .commentText` in Landscape Canvas (LandscapeCanvas graphcanvas_style.json:277).
-        //! TOKENIZE: CommentEditorRingBlue
+        //! $line.graph.idle.color.Alt4
         inline constexpr QColor RingBlue(0x17, 0xA3, 0xCD);
 
         //! The colour of the ring where the style gives the editing `.commentText` none: GetPen's fallback, QColor(Qt::black)
-        //! (StyleHelper.cpp:226). TOKENIZE: CommentEditorRingFallback
+        //! (StyleHelper.cpp:226) $line.graph.idle.color.Alt5
         inline constexpr QColor RingFallback(0x00, 0x00, 0x00);
 
         //! `border-width` of the same rules (:275 and :331, +30 in Script Canvas's; Landscape Canvas's :275).
-        //! TOKENIZE: CommentEditorRingWidth
+        //! materialcanvas_style.json:275, :331 $line.graph.idle.width.Alt1
         inline constexpr int RingWidth = 2;
 
         //! The width of the ring where the style gives none: GetPen's fallback (StyleHelper.cpp:227).
-        //! TOKENIZE: CommentEditorRingFallbackWidth
+        //! StyleHelper::GetPen $line.graph.idle.width.Alt2
         inline constexpr int RingFallbackWidth = 1;
 
         //! `color` of `comment > .commentText` (:255, +30 in Script Canvas's). A group title's has none: GetFontStyleSheet prints the
-        //! unset colour GetColor gives as `rgba(0,0,0,255)` (StyleHelper.cpp:178-182), the same black. TOKENIZE: CommentEditorText
+        //! unset colour GetColor gives as `rgba(0,0,0,255)` (StyleHelper.cpp:178-182), the same black (StyleHelper::GetFontStyleSheet)
+        //! $text.graph.idle.Alt1
         inline constexpr QColor TextColor(0x00, 0x00, 0x00);
 
         //! The size of a group title's text: GetFont gives it the pixel size of the default font (StyleHelper.cpp:163-167), which is the
-        //! application font's, Foundations::Surface::Size (StyleManager.cpp:352-354). TOKENIZE: CommentEditorGroupTitleSize
+        //! application font's, Foundations::Surface::Size (StyleManager.cpp:352-354) $size.graph.idle.size.Alt1
         inline constexpr int GroupTitleFontSize = AzQtComponents::Foundations::Surface::Size;
 
         //! `font-size: 120%` of `comment > .commentText` (:258, +30 in Script Canvas's): 120% of the default font's pixel size, which is
-        //! GroupTitleFontSize, cut to a whole pixel as Parser.cpp:776-777 does (int(12 * 1.2) is 14). TOKENIZE: CommentEditorCommentSize
+        //! GroupTitleFontSize, cut to a whole pixel as Parser.cpp:776-777 does (int(12 * 1.2) is 14) (materialcanvas_style.json:258,
+        //! Parser::ParseStyle) $size.graph.idle.size.Alt2
         inline constexpr int CommentFontSize = static_cast<int>(GroupTitleFontSize * 1.2);
 
         // ---- The class tags the editor takes in the flattened GUI, which the matchers of the rows read: the ring, and the kind of text

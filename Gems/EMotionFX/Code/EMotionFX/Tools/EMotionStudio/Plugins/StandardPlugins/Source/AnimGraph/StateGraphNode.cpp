@@ -27,24 +27,29 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace StateGraphNodeFlat
     {
-        constexpr QColor Transition(125, 125, 125);              // StateGraphNode.cpp:22 TOKENIZE: StateMachineTransition
-        constexpr QColor Active(4, 255, 0);                      // StateGraphNode.cpp:23 TOKENIZE: StateMachineActive
-        constexpr QColor Interrupted(255, 0, 255);               // StateGraphNode.cpp:24 TOKENIZE: StateMachineInterrupted
-        constexpr QColor InterruptionCandidate(63, 140, 62);     // StateGraphNode.cpp:25 TOKENIZE: StateMachineInterruptionCandidate
-        constexpr QColor Selected(255, 128, 0);                  // StateGraphNode.cpp:26 TOKENIZE: StateMachineSelected
-        constexpr QColor SyncedTransition(115, 125, 200);        // StateGraphNode.cpp:145 TOKENIZE: StateMachineSyncedTransition
-        const QColor ConditionPassed(Qt::green);                 // StateGraphNode.cpp:246 TOKENIZE: StateMachineConditionPassed
-        const QColor ConditionFailed(Qt::red);                   // StateGraphNode.cpp:246 TOKENIZE: StateMachineConditionFailed
-        const QColor ConditionNotTested(Qt::gray);               // StateGraphNode.cpp:250 TOKENIZE: StateMachineConditionNotTested
-        const QColor ActionMarker(Qt::yellow);                   // StateGraphNode.cpp:269 TOKENIZE: StateMachineActionMarker
-        constexpr QColor HighlightedHeadTail(0, 255, 0);         // StateGraphNode.cpp:501 TOKENIZE: StateMachineHighlightedHeadTail
-        constexpr QColor DefaultBorder(0, 0, 0);                 // StateGraphNode.cpp:708 TOKENIZE: StateMachineDefaultBorder
-        // QColor::fromRgbF is not constexpr. StateGraphNode.cpp:735 TOKENIZE: StateMachineSelectedFill
+        constexpr QColor Transition(125, 125, 125);  // StateGraphNode.cpp:22 (StateMachineColors::s_transitionColor) $fill.node.idle.Alt17
+        constexpr QColor Active(4, 255, 0);  // StateGraphNode.cpp:23 (StateMachineColors::s_activeColor) $fill.node.active.Alt2
+        constexpr QColor Interrupted(255, 0, 255);  // StateGraphNode.cpp:24 (StateMachineColors::s_interruptedColor) $fill.node.idle.Alt18
+        // StateGraphNode.cpp:25 (StateMachineColors::s_interruptionCandidateColor) $fill.node.idle.Alt19
+        constexpr QColor InterruptionCandidate(63, 140, 62);
+        constexpr QColor Selected(255, 128, 0);  // StateGraphNode.cpp:26 (StateMachineColors::s_selectedColor) $fill.node.selected.Alt2
+        constexpr QColor SyncedTransition(115, 125, 200);        // StateGraphNode.cpp:145 (StateConnection::Render) $fill.node.idle.Alt20
+        // StateGraphNode.cpp:246 (StateConnection::RenderConditionsAndActions) $fill.node.idle.Alt9
+        const QColor ConditionPassed(Qt::green);
+        // StateGraphNode.cpp:246 (StateConnection::RenderConditionsAndActions) $fill.node.idle.Alt21
+        const QColor ConditionFailed(Qt::red);
+        // StateGraphNode.cpp:250 (StateConnection::RenderConditionsAndActions) $fill.node.idle.Alt22
+        const QColor ConditionNotTested(Qt::gray);
+        // StateGraphNode.cpp:269 (StateConnection::RenderConditionsAndActions) $fill.node.idle.Alt23
+        const QColor ActionMarker(Qt::yellow);
+        constexpr QColor HighlightedHeadTail(0, 255, 0);  // StateGraphNode.cpp:501 (StateConnection::RenderTransition) $fill.node.idle.Alt9
+        constexpr QColor DefaultBorder(0, 0, 0);  // StateGraphNode.cpp:708 (StateGraphNode::Render) $line.node.idle.color.Alt6
+        // QColor::fromRgbF is not constexpr. StateGraphNode.cpp:735 $fill.node.selected.Alt1
         const QColor SelectedFill = QColor::fromRgbF(0.93f, 0.547f, 0.0f, 1.0f);
-        const QColor ErrorBlinkBorder(Qt::red);                  // StateGraphNode.cpp:752 TOKENIZE: StateMachineErrorBlinkBorder
-        const QColor SelectedText(Qt::black);                    // StateGraphNode.cpp:759 TOKENIZE: StateMachineSelectedText
-        const QColor UnselectedText(Qt::white);                  // StateGraphNode.cpp:759 TOKENIZE: StateMachineUnselectedText
-        const QColor VisualizeBorder(Qt::black);                 // StateGraphNode.cpp:862 TOKENIZE: StateMachineVisualizeBorder
+        const QColor ErrorBlinkBorder(Qt::red);  // StateGraphNode.cpp:752 (StateGraphNode::Render) $line.node.error.color.Alt1
+        const QColor SelectedText(Qt::black);                    // StateGraphNode.cpp:759 (StateGraphNode::Render) $text.node.selected.Alt1
+        const QColor UnselectedText(Qt::white);                  // StateGraphNode.cpp:759 (StateGraphNode::Render) $text.node.idle.Alt6
+        const QColor VisualizeBorder(Qt::black);  // StateGraphNode.cpp:862 (StateGraphNode::RenderVisualizeRect) $line.node.idle.color.Alt6
     } // namespace StateGraphNodeFlat
 
     const QColor StateMachineColors::s_transitionColor = StateGraphNodeFlat::Transition;

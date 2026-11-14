@@ -25,7 +25,7 @@ namespace EMStudio
     namespace NotificationWindowFlat
     {
         // The rounded background: this colour with the window's runtime opacity as its alpha
-        constexpr QColor Background(0, 0, 0);     // NotificationWindow.cpp:94 TOKENIZE: NotificationBackground
+        constexpr QColor Background(0, 0, 0);     // NotificationWindow.cpp:94 (NotificationWindow::paintEvent) $fill.surface.idle.Alt21
     } // namespace NotificationWindowFlat
 
     // constructor

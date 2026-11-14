@@ -20,7 +20,8 @@ namespace GraphCanvas
     //=========================================================================
     namespace DataConnectionGraphicsItemFlat
     {
-        // DataConnectionGraphicsItem.cpp:242 (the end colour of a data connection with no colour palette). TOKENIZE: DataConnectionFallback
+        // DataConnectionGraphicsItem.cpp:242 (the end colour of a data connection with no colour palette)
+        // (DataConnectionGraphicsItem::PopulateDataColor) $line.graph.idle.color.Alt2
         const QColor ConnectionFallback(Qt::white);
     } // namespace DataConnectionGraphicsItemFlat
 

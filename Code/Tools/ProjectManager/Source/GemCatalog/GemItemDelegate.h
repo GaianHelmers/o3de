@@ -28,13 +28,20 @@ namespace O3DE::ProjectManager
         // ------------------------------------------------------------------------------
         // The rows of the Gem Catalog list (GemItemDelegate::paint)
         // ------------------------------------------------------------------------------
-        inline constexpr QColor ItemText(0xFF, 0xFF, 0xFF);             // GemItemDelegate.h:36 (text, knob). TOKENIZE: GemItemText
-        inline constexpr QColor ItemLink(0x94, 0xD2, 0xFF);             // GemItemDelegate.h:37 (read nowhere). TOKENIZE: GemItemLink
-        inline constexpr QColor ListSurface(0x33, 0x33, 0x33);          // GemItemDelegate.h:38 (outside). TOKENIZE: GemItemListSurface
-        inline constexpr QColor ItemFill(0x40, 0x40, 0x40);             // GemItemDelegate.h:39 (item). TOKENIZE: GemItemFill
-        inline constexpr QColor SelectedBorder(0x1E, 0x70, 0xEB);       // GemItemDelegate.h:40. TOKENIZE: GemItemSelectedBorder
-        inline constexpr QColor ToggleTrackAdded(0x00, 0xB9, 0x31);     // GemItemDelegate.h:41. TOKENIZE: GemItemToggleTrackAdded
-        inline constexpr QColor ToggleTrackImplicit(0xBC, 0xBC, 0xBE);  // GemItemDelegate.h:42. TOKENIZE: GemItemToggleTrackImplicit
+        // GemItemDelegate.h:36 (text, knob) (GemItemDelegate::paint) $text.item.idle.Alt2
+        inline constexpr QColor ItemText(0xFF, 0xFF, 0xFF);
+        // GemItemDelegate.h:37 (read nowhere) (GemItemDelegate::m_linkColor) $fill.item.idle.Alt4
+        inline constexpr QColor ItemLink(0x94, 0xD2, 0xFF);
+        // GemItemDelegate.h:38 (outside) (GemItemDelegate::m_backgroundColor) $fill.view.idle.Low
+        inline constexpr QColor ListSurface(0x33, 0x33, 0x33);
+        // GemItemDelegate.h:39 (item) (GemItemDelegate::m_itemBackgroundColor) $fill.item.idle.Alt5
+        inline constexpr QColor ItemFill(0x40, 0x40, 0x40);
+        // GemItemDelegate.h:40 (GemItemDelegate::m_borderColor) $line.item.selected.color.Alt1
+        inline constexpr QColor SelectedBorder(0x1E, 0x70, 0xEB);
+        // GemItemDelegate.h:41 (GemItemDelegate::m_buttonEnabledColor) $fill.item.idle.Alt6
+        inline constexpr QColor ToggleTrackAdded(0x00, 0xB9, 0x31);
+        // GemItemDelegate.h:42 (GemItemDelegate::m_buttonImplicitlyEnabledColor) $fill.item.idle.Alt7
+        inline constexpr QColor ToggleTrackImplicit(0xBC, 0xBC, 0xBE);
     } // namespace GemItemDelegateFlat
 
     class GemItemDelegate

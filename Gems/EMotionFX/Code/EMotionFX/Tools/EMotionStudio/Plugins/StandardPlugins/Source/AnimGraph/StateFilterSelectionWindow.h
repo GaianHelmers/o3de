@@ -27,7 +27,8 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace StateFilterFlat
     {
-        inline constexpr QColor RowText(255, 255, 255);   // StateFilterSelectionWindow.h:63 TOKENIZE: StateFilterRowText
+        // StateFilterSelectionWindow.h:63 (StateFilterSelectionWindow::AddRow) $text.item.idle.Alt2
+        inline constexpr QColor RowText(255, 255, 255);
     } // namespace StateFilterFlat
 
     // forward declarations

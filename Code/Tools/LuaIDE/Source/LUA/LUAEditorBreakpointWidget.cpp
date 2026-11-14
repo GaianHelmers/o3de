@@ -24,8 +24,10 @@ namespace LUAEditor
     //=========================================================================
     namespace LUAEditorBreakpointWidgetFlat
     {
-        constexpr QColor BreakpointDot(255, 0, 0);        // LUAEditorBreakpointWidget.cpp:112, :113. TOKENIZE: LuaBreakpointDot
-        constexpr QColor ExecutionMarker(255, 255, 0);    // LUAEditorBreakpointWidget.cpp:126, :127. TOKENIZE: LuaExecutionMarker
+        // LUAEditorBreakpointWidget.cpp:112, :113 (LUAEditorBreakpointWidget::paintEvent) $fill.surface.idle.Alt19
+        constexpr QColor BreakpointDot(255, 0, 0);
+        // LUAEditorBreakpointWidget.cpp:126, :127 (LUAEditorBreakpointWidget::paintEvent) $fill.surface.idle.Alt20
+        constexpr QColor ExecutionMarker(255, 255, 0);
     } // namespace LUAEditorBreakpointWidgetFlat
 
     namespace

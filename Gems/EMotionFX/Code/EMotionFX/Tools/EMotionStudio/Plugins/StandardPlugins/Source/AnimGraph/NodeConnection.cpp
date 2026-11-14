@@ -23,11 +23,11 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace NodeConnectionFlat
     {
-        constexpr QColor DefaultLine(128, 255, 128);     // NodeConnection.cpp:35 TOKENIZE: NodeConnectionDefaultLine
-        constexpr QColor SelectedLine(255, 128, 0);      // NodeConnection.cpp:106 TOKENIZE: NodeConnectionSelectedLine
-        constexpr QColor UnprocessedLine(75, 75, 75);    // NodeConnection.cpp:124 TOKENIZE: NodeConnectionUnprocessedLine
-        constexpr QColor WildcardLine(75, 75, 75);       // NodeConnection.cpp:146 TOKENIZE: NodeConnectionWildcardLine
-        const QColor ErrorLine(Qt::red);                 // NodeConnection.cpp:195 TOKENIZE: NodeConnectionErrorLine
+        constexpr QColor DefaultLine(128, 255, 128);  // NodeConnection.cpp:35 (NodeConnection::NodeConnection) $line.node.idle.color.Alt8
+        constexpr QColor SelectedLine(255, 128, 0);      // NodeConnection.cpp:106 (NodeConnection::Render) $line.node.selected.color.Alt1
+        constexpr QColor UnprocessedLine(75, 75, 75);    // NodeConnection.cpp:124 (NodeConnection::Render) $line.node.idle.color.Alt9
+        constexpr QColor WildcardLine(75, 75, 75);       // NodeConnection.cpp:146 (NodeConnection::Render) $line.node.idle.color.Alt9
+        const QColor ErrorLine(Qt::red);                 // NodeConnection.cpp:195 (NodeConnection::Render) $line.node.error.color.Alt1
     } // namespace NodeConnectionFlat
 
     // constructor

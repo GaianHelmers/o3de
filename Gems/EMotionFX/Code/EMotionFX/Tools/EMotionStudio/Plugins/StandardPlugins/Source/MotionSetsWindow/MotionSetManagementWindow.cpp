@@ -42,8 +42,10 @@ namespace EMStudio
     namespace MotionSetManagementWindowFlat
     {
         // The HTML colour name green is rgb(0, 128, 0), unlike Qt::green
-        constexpr QColor SaveSuccessText(0, 128, 0);    // MotionSetManagementWindow.cpp:969 TOKENIZE: MotionSetManagementSaveSuccessText
-        constexpr QColor SaveFailureText(255, 0, 0);    // MotionSetManagementWindow.cpp:964 TOKENIZE: MotionSetManagementSaveFailureText
+        // MotionSetManagementWindow.cpp:969 (MotionSetManagementWindow::OnSave) $text.surface.idle.Alt18
+        constexpr QColor SaveSuccessText(0, 128, 0);
+        // MotionSetManagementWindow.cpp:964 (MotionSetManagementWindow::OnSave) $text.surface.idle.Alt10
+        constexpr QColor SaveFailureText(255, 0, 0);
     } // namespace MotionSetManagementWindowFlat
 
     MotionSetManagementRemoveMotionsFailedWindow::MotionSetManagementRemoveMotionsFailedWindow(QWidget* parent, const AZStd::vector<EMotionFX::Motion*>& motions)

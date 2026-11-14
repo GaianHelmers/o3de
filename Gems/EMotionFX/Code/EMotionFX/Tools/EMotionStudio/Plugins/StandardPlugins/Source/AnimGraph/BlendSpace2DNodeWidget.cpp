@@ -38,18 +38,30 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace BlendSpace2DNodeWidgetFlat
     {
-        constexpr QColor Edge(0xBB, 0xBB, 0xBB);                  // BlendSpace2DNodeWidget.cpp:59 TOKENIZE: BlendSpace2DEdge
-        constexpr QColor HighlightedEdge(0xF5, 0xA6, 0x23);       // BlendSpace2DNodeWidget.cpp:63 TOKENIZE: BlendSpace2DHighlightedEdge
-        constexpr QColor Grid(61, 61, 61);                        // BlendSpace2DNodeWidget.cpp:71 TOKENIZE: BlendSpace2DGrid
-        constexpr QColor Subgrid(55, 55, 55);                     // BlendSpace2DNodeWidget.cpp:72 TOKENIZE: BlendSpace2DSubgrid
-        constexpr QColor AxisLabel(0xBB, 0xBB, 0xBB);             // BlendSpace2DNodeWidget.cpp:74 TOKENIZE: BlendSpace2DAxisLabel
-        constexpr QColor InfoText(0xBB, 0xBB, 0xBB);              // BlendSpace2DNodeWidget.cpp:78 TOKENIZE: BlendSpace2DInfoText
-        constexpr QColor BackgroundRect(0xDD, 0xDD, 0xDD, 0x11);  // BlendSpace2DNodeWidget.cpp:82 TOKENIZE: BlendSpace2DBackgroundRect
-        constexpr QColor NormalPoly(0xF5, 0xA6, 0x23, 0x13);      // BlendSpace2DNodeWidget.cpp:86 TOKENIZE: BlendSpace2DNormalPoly
-        constexpr QColor HighlightedPoly(0xF5, 0xA6, 0x23, 0x26); // BlendSpace2DNodeWidget.cpp:90 TOKENIZE: BlendSpace2DHighlightedPoly
-        constexpr QColor Point(0xBB, 0xBB, 0xBB);                 // BlendSpace2DNodeWidget.cpp:94 TOKENIZE: BlendSpace2DPoint
-        constexpr QColor InterpolatedPoint(0xF5, 0xA6, 0x23);     // BlendSpace2DNodeWidget.cpp:98 TOKENIZE: BlendSpace2DInterpolatedPoint
-        constexpr QColor InfoTextBackground(0x22, 0x22, 0x22);    // BlendSpace2DNodeWidget.cpp:102 TOKENIZE: BlendSpace2DInfoTextBackground
+        // BlendSpace2DNodeWidget.cpp:59 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $line.node.idle.color.Alt3
+        constexpr QColor Edge(0xBB, 0xBB, 0xBB);
+        // BlendSpace2DNodeWidget.cpp:63 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $line.node.idle.color.Alt4
+        constexpr QColor HighlightedEdge(0xF5, 0xA6, 0x23);
+        // BlendSpace2DNodeWidget.cpp:71 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $line.node.idle.color.Alt5
+        constexpr QColor Grid(61, 61, 61);
+        // BlendSpace2DNodeWidget.cpp:72 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $fill.node.idle.Alt2
+        constexpr QColor Subgrid(55, 55, 55);
+        // BlendSpace2DNodeWidget.cpp:74 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $text.node.idle.Alt5
+        constexpr QColor AxisLabel(0xBB, 0xBB, 0xBB);
+        // BlendSpace2DNodeWidget.cpp:78 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $text.node.idle.Alt5
+        constexpr QColor InfoText(0xBB, 0xBB, 0xBB);
+        // BlendSpace2DNodeWidget.cpp:82 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $fill.node.idle.Alt3
+        constexpr QColor BackgroundRect(0xDD, 0xDD, 0xDD, 0x11);
+        // BlendSpace2DNodeWidget.cpp:86 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $fill.node.idle.Alt5
+        constexpr QColor NormalPoly(0xF5, 0xA6, 0x23, 0x13);
+        // BlendSpace2DNodeWidget.cpp:90 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $fill.node.idle.Alt6
+        constexpr QColor HighlightedPoly(0xF5, 0xA6, 0x23, 0x26);
+        // BlendSpace2DNodeWidget.cpp:94 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $fill.node.idle.Alt4
+        constexpr QColor Point(0xBB, 0xBB, 0xBB);
+        // BlendSpace2DNodeWidget.cpp:98 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $fill.node.idle.Alt7
+        constexpr QColor InterpolatedPoint(0xF5, 0xA6, 0x23);
+        // BlendSpace2DNodeWidget.cpp:102 (BlendSpace2DNodeWidget::BlendSpace2DNodeWidget) $fill.node.idle.BG
+        constexpr QColor InfoTextBackground(0x22, 0x22, 0x22);
     } // namespace BlendSpace2DNodeWidgetFlat
 
     const int       BlendSpace2DNodeWidget::s_motionPointCircleWidth = 4;

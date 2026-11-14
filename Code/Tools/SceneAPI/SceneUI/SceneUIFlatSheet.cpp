@@ -47,11 +47,15 @@ namespace SceneUIFlatSheetInternal
     constexpr const char* DividerHeaderSheet = "QFrame, QLabel {margin-top: 0px; font: bold;}";
     constexpr const char* DividerHeaderTag = "SceneDividerHeader";      // the class tag of the header, which the flattened GUI sets
 
-    const QColor DividerFill(0x33, 0x33, 0x33);     // PropertyRowWidget.cpp:66. TOKENIZE: SceneDividerRowFill
-    constexpr int DividerRadius = 2;                // PropertyRowWidget.cpp:66. TOKENIZE: SceneDividerRowRadius
-    constexpr int DividerHeaderWeight = 700;        // SceneUIFlatSheet.cpp:45 (font: bold). TOKENIZE: SceneDividerHeaderWeight
-    constexpr int DividerHeaderItalic = 0;          // SceneUIFlatSheet.cpp:45 (font: bold). TOKENIZE: SceneDividerHeaderStyle
-    constexpr int DividerHeaderMarginTop = 0;       // SceneUIFlatSheet.cpp:45 (margin-top: 0px). TOKENIZE: SceneDividerHeaderMarginTop
+    // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $fill.separator.idle.Low
+    const QColor DividerFill = AzQtComponents::Foundations::Low;
+    constexpr int DividerRadius = 2;  // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $radius.separator.idle.Alt1
+    // SceneUIFlatSheet.cpp:45 (font: bold) (HeaderWidget::UpdateUIForManifestObject) $type.separator.idle.weight.Alt1
+    constexpr int DividerHeaderWeight = 700;
+    // SceneUIFlatSheet.cpp:45 (font: bold) (HeaderWidget::UpdateUIForManifestObject) $type.separator.idle.style.Alt1
+    constexpr int DividerHeaderItalic = 0;
+    // SceneUIFlatSheet.cpp:45 (margin-top: 0px) (HeaderWidget::UpdateUIForManifestObject) $space.separator.idle.margin.Alt2
+    constexpr int DividerHeaderMarginTop = 0;
 
     //! The labels below the header: the box of every label (margin above and below, Text.qss:93-94) with the margin above set to 0 by
     //! the header's sheet, over the fill and the top corners of the row's. The corners give the border a style of their own.
@@ -92,9 +96,9 @@ namespace SceneUIFlatSheetInternal
     constexpr const char* PageHeaderSheet =
         "QFrame {border-top: 1px transparent; padding-top: 6px; border-bottom: 1px solid #000000; padding-bottom: 6px}";
 
-    constexpr QMargins PageHeaderPadding(0, 6, 0, 6);               // SceneUIFlatSheet.cpp:89. TOKENIZE: ScenePageHeaderPadding
-    constexpr int PageHeaderLineWidth = 1;                          // SceneUIFlatSheet.cpp:89. TOKENIZE: ScenePageHeaderLine
-    const QColor PageHeaderLine(0x00, 0x00, 0x00);                  // SceneUIFlatSheet.cpp:89. TOKENIZE: ScenePageHeaderLine
+    constexpr QMargins PageHeaderPadding(0, 6, 0, 6);  // SceneUIFlatSheet.cpp:89 (ManifestWidgetPage.ui:44) $space.header.idle.padding.Alt2
+    constexpr int PageHeaderLineWidth = 1;  // SceneUIFlatSheet.cpp:89 (ManifestWidgetPage.ui:44) $line.header.idle.width.Alt1
+    const QColor PageHeaderLine(0x00, 0x00, 0x00);  // SceneUIFlatSheet.cpp:89 (ManifestWidgetPage.ui:44) $line.header.idle.color.Alt1
 
     const BoxElement PageHeader{
         .m_name = "SceneUI.Box.PageHeader",
@@ -119,8 +123,10 @@ namespace SceneUIFlatSheetInternal
     constexpr const char* AddObjectButtonSheet = "padding: 6px;";
     constexpr const char* AddButtonSheet = "padding-left: 12px; padding-right: 12px;";
 
-    constexpr QMargins AddObjectButtonPadding(6, 6, 6, 6);          // SceneUIFlatSheet.cpp:115. TOKENIZE: SceneAddObjectPadding
-    constexpr QMargins AddButtonPadding(12, 0, 12, 0);              // SceneUIFlatSheet.cpp:116. TOKENIZE: SceneAddButtonPadding
+    // SceneUIFlatSheet.cpp:115 (ManifestVectorWidget.ui:79) $space.button.idle.padding.Alt3
+    constexpr QMargins AddObjectButtonPadding(6, 6, 6, 6);
+    // SceneUIFlatSheet.cpp:116 (ManifestWidgetPage.ui:80) $space.button.idle.padding.Alt4
+    constexpr QMargins AddButtonPadding(12, 0, 12, 0);
 
     const BoxElement AddObjectButton{
         .m_name = "SceneUI.Box.AddObjectButton",

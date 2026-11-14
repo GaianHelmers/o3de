@@ -11,6 +11,7 @@
 
 #include <AzCore/StringFunc/StringFunc.h>
 #include <AzQtComponents/Components/Style.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 
 #include <ACEEnums.h>
 #include <ATLControlsModel.h>
@@ -43,7 +44,8 @@ namespace AudioControls
     //=========================================================================
     namespace ATLControlsPanelFlat
     {
-        constexpr QColor FilterButtonHoverFill(0x44, 0x44, 0x44); // ATLControlsPanel.cpp:87. TOKENIZE: AudioFilterButtonHoverFill
+        // ATLControlsPanel.cpp:87 (QFilterButton::enterEvent) $fill.button.hover.Mid
+        constexpr QColor FilterButtonHoverFill = AzQtComponents::Foundations::Mid;
     } // namespace ATLControlsPanelFlat
 
     //-------------------------------------------------------------------------------------------//

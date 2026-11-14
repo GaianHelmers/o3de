@@ -465,12 +465,12 @@ namespace AzQtComponents
 
         // ---- The box of #Background in a state: the edges and the corners the rules that reach it leave, in the cascade's order
         // Card.qss:95-96 `border: 1px solid transparent; border-bottom: none`
-        // TOKENIZE: CardHeaderBorderWidth
+        // $line.surface.idle.width.Alt1
         constexpr int IdleBorderWidth = 1;
         // Card.qss:103 `border: 1px solid #94D2FF; border-bottom: none` (:111 on the four edges)
-        // TOKENIZE: CardSelectedBorderWidth
+        // $line.card.selected.width.Alt1
         constexpr int SelectedBorderWidth = 1;
-        constexpr QColor SelectedBorderColor = Foundations::Accent::Focus;         // $line.card.selected.color
+        constexpr QColor SelectedBorderColor = Foundations::Accent::Focus;         // Card.qss:103 $line.card.selected.color
         // Card.qss:179-180 (warning) and :105-106 (selected) `border-top-left-radius: 2px; border-top-right-radius: 2px`, and :112
         // `border-radius: 2px` on the four corners
         // $radius.card.selected
@@ -507,7 +507,7 @@ namespace AzQtComponents
 
         BackgroundBox backgroundBoxOf(const BackgroundLook& look)
         {
-            const QColor invisible(Qt::transparent);
+            const QColor invisible(Foundations::Clear);  // Card.qss:95 $line.surface.idle.color.Clear
             const BoxElement::Edge idle{ IdleBorderWidth, invisible };
             const BoxElement::Edge selected{ SelectedBorderWidth, SelectedBorderColor };
             const BoxElement::Edge none{ 0, invisible };

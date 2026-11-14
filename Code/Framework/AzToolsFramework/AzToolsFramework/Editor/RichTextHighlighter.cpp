@@ -19,9 +19,12 @@ namespace AzToolsFramework
     //! where anonymous namespaces merge.
     namespace RichTextHighlighterFlatInternal
     {
-        constexpr QColor MatchBackground(0x70, 0x70, 0x70);   // RichTextHighlighter.cpp:23. TOKENIZE: RichTextMatchBackground
-        const QColor EnabledText(Qt::white);                  // RichTextHighlighter.cpp:41. TOKENIZE: RichTextEnabledText
-        constexpr QColor DisabledText(0x7C, 0x7C, 0x7C);      // RichTextHighlighter.cpp:45. TOKENIZE: RichTextDisabledText
+        // RichTextHighlighter.cpp:23 (RichTextHighlighter::HighlightText) $fill.surface.idle.Alt14
+        constexpr QColor MatchBackground(0x70, 0x70, 0x70);
+        // RichTextHighlighter.cpp:41 (RichTextHighlighter::PaintHighlightedRichText) $text.surface.idle.Alt8
+        const QColor EnabledText(Qt::white);
+        // RichTextHighlighter.cpp:45 (RichTextHighlighter::PaintHighlightedRichText) $text.surface.disabled.Alt1
+        constexpr QColor DisabledText(0x7C, 0x7C, 0x7C);
     }
 
     QString RichTextHighlighter::HighlightText(const QString& displayString, const QString& matchingSubstring)

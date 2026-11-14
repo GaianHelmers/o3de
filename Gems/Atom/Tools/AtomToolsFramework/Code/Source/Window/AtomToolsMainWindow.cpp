@@ -36,9 +36,12 @@ namespace AtomToolsFramework
     //=========================================================================
     namespace AtomToolsMainWindowFlat
     {
-        constexpr QColor StatusMessageText(255, 255, 255); // AtomToolsMainWindow.cpp:193. TOKENIZE: AtomToolsStatusMessageText
-        constexpr QColor StatusWarningText(255, 255, 0);   // AtomToolsMainWindow.cpp:198. TOKENIZE: AtomToolsStatusWarningText
-        constexpr QColor StatusErrorText(255, 0, 0);       // AtomToolsMainWindow.cpp:203. TOKENIZE: AtomToolsStatusErrorText
+        // AtomToolsMainWindow.cpp:193 (AtomToolsMainWindow::SetStatusMessage) $text.surface.idle.Alt8
+        constexpr QColor StatusMessageText(255, 255, 255);
+        // AtomToolsMainWindow.cpp:198 (AtomToolsMainWindow::SetStatusWarning) $text.surface.warning.Alt1
+        constexpr QColor StatusWarningText(255, 255, 0);
+        // AtomToolsMainWindow.cpp:203 (AtomToolsMainWindow::SetStatusError) $text.surface.error.Alt1
+        constexpr QColor StatusErrorText(255, 0, 0);
     } // namespace AtomToolsMainWindowFlat
 
     AtomToolsMainWindow::AtomToolsMainWindow(const AZ::Crc32& toolId, const QString& objectName, QWidget* parent)

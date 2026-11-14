@@ -222,7 +222,7 @@ namespace AzQtComponents
     //! this file with others into one translation unit, where anonymous namespaces merge.
     namespace StyledDockWidgetFlatInternal
     {
-        //! The line StyledDockWidget::drawFrame draws around the dock widget. StyledDockWidget.cpp:225. TOKENIZE: DockWidgetFrameLine
+        //! The line StyledDockWidget::drawFrame draws around the dock widget. StyledDockWidget.cpp:225 $line.dock.idle.color.Alt2
         constexpr QColor FrameLine(33, 34, 35);
     } // namespace StyledDockWidgetFlatInternal
 

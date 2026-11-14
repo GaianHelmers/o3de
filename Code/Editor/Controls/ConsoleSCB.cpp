@@ -25,6 +25,7 @@
 #include <AzQtComponents/Components/Widgets/LineEdit.h>
 #include <AzQtComponents/Components/Widgets/ScrollBar.h>
 #include <AzQtComponents/Components/Widgets/SliderCombo.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 
 // Editor
 #include "QtViewPaneManager.h"
@@ -46,58 +47,60 @@
 //////////////////////////////////////////////////////////////////////////
 namespace ConsoleSCBFlat
 {
-    // ConsoleSCB.cpp:443, :464 (the text of the light theme). TOKENIZE: ConsoleTextLight
+    // ConsoleSCB.cpp:443, :464 (the text of the light theme) (CConsoleSCB::RefreshStyle) $text.console.idle.Alt1
     constexpr QColor TextLight(0, 0, 0);
 
-    // ConsoleSCB.cpp:450 (the text of the dark theme). TOKENIZE: ConsoleTextDark
+    // ConsoleSCB.cpp:450 (the text of the dark theme) (CConsoleSCB::RefreshStyle) $text.console.idle.Alt2
     constexpr QColor TextDark(255, 255, 255);
 
-    // ConsoleSCB.cpp:327 (colour code 0, black). TOKENIZE: ConsoleCode0Black
+    // ConsoleSCB.cpp:327 (colour code 0, black) (CConsoleSCB::CConsoleSCB) $text.console.idle.Alt1
     constexpr QColor Code0Black(0, 0, 0);
 
-    // ConsoleSCB.cpp:328 (colour code 1, black). TOKENIZE: ConsoleCode1Black
+    // ConsoleSCB.cpp:328 (colour code 1, black) (CConsoleSCB::CConsoleSCB) $text.console.idle.Alt1
     constexpr QColor Code1Black(0, 0, 0);
 
-    // ConsoleSCB.cpp:329 (colour code 2, blue). TOKENIZE: ConsoleCodeBlue
+    // ConsoleSCB.cpp:329 (colour code 2, blue) (CConsoleSCB::CConsoleSCB) $text.console.idle.Alt3
     constexpr QColor CodeBlue(0, 0, 200);
 
-    // ConsoleSCB.cpp:330 (colour code 3, green). TOKENIZE: ConsoleCodeGreen
+    // ConsoleSCB.cpp:330 (colour code 3, green) (CConsoleSCB::CConsoleSCB) $text.console.idle.Alt4
     constexpr QColor CodeGreen(0, 200, 0);
 
-    // ConsoleSCB.cpp:332 (colour code 5, cyan). TOKENIZE: ConsoleCodeCyan
+    // ConsoleSCB.cpp:332 (colour code 5, cyan) (CConsoleSCB::CConsoleSCB) $text.console.idle.Alt5
     constexpr QColor CodeCyan(0, 200, 200);
 
-    // ConsoleSCB.cpp:334 (colour code 7, red and blue). TOKENIZE: ConsoleCodeMagenta
+    // ConsoleSCB.cpp:334 (colour code 7, red and blue) (CConsoleSCB::CConsoleSCB) $text.console.idle.Alt6
     constexpr QColor CodeMagenta(200, 0, 200);
 
-    // ConsoleSCB.cpp:335 (colour code 8; the int 0x000080ff, whose alpha byte QColor(QRgb) ignores). TOKENIZE: ConsoleCodeAzure
+    // ConsoleSCB.cpp:335 (colour code 8; the int 0x000080ff, whose alpha byte QColor(QRgb) ignores) (CConsoleSCB::CConsoleSCB)
+    // $text.console.idle.Alt7
     constexpr QColor CodeAzure(0x00, 0x80, 0xff);
 
-    // ConsoleSCB.cpp:336 (colour code 9; the int 0x008f8f8f, whose alpha byte QColor(QRgb) ignores). TOKENIZE: ConsoleCodeGray
+    // ConsoleSCB.cpp:336 (colour code 9; the int 0x008f8f8f, whose alpha byte QColor(QRgb) ignores) (CConsoleSCB::CConsoleSCB)
+    // $text.console.idle.Alt8
     constexpr QColor CodeGray(0x8f, 0x8f, 0x8f);
 
-    // ConsoleSCB.cpp:331, :444 (colour code 4, the error on the light theme). TOKENIZE: ConsoleErrorLight
+    // ConsoleSCB.cpp:331, :444 (colour code 4, the error on the light theme) (CConsoleSCB::CConsoleSCB) $text.console.error.Alt1
     constexpr QColor ErrorLight(200, 0, 0);
 
-    // ConsoleSCB.cpp:333, :445 (colour code 6, the warning on the light theme). TOKENIZE: ConsoleWarningLight
+    // ConsoleSCB.cpp:333, :445 (colour code 6, the warning on the light theme) (CConsoleSCB::CConsoleSCB) $text.console.warning.Alt1
     constexpr QColor WarningLight(128, 112, 0);
 
-    // ConsoleSCB.cpp:451 (the error on the dark theme). TOKENIZE: ConsoleErrorDark
+    // ConsoleSCB.cpp:451 (the error on the dark theme) (CConsoleSCB::RefreshStyle) $text.console.error.Alt2
     constexpr QColor ErrorDark(0xfa, 0x27, 0x27);
 
-    // ConsoleSCB.cpp:452 (the warning on the dark theme). TOKENIZE: ConsoleWarningDark
+    // ConsoleSCB.cpp:452 (the warning on the dark theme) (CConsoleSCB::RefreshStyle) $text.console.warning.Alt2
     constexpr QColor WarningDark(0xff, 0xaa, 0x22);
 
-    // ConsoleSCB.cpp:458 (the background of the dark theme). TOKENIZE: ConsoleBackgroundDark
-    constexpr QColor BackgroundDark(0x22, 0x22, 0x22);
+    // ConsoleSCB.cpp:458 (the background of the dark theme) (CConsoleSCB::RefreshStyle) $fill.console.idle.BG
+    constexpr QColor BackgroundDark = AzQtComponents::Foundations::BG;
 
-    // ConsoleSCB.cpp:463 (the background of the light theme). TOKENIZE: ConsoleBackgroundLight
+    // ConsoleSCB.cpp:463 (the background of the light theme) (CConsoleSCB::RefreshStyle) $fill.console.idle.Alt1
     constexpr QColor BackgroundLight(255, 255, 255);
 
-    // ConsoleSCB.cpp:98 (the text of a console variable whose value was modified). TOKENIZE: ConsoleModifiedVariable
+    // ConsoleSCB.cpp:98 (the text of a console variable whose value was modified) (ConsoleVariableModel::data) $text.console.modified.Alt1
     constexpr QColor ModifiedVariable(243, 129, 29);
 
-    // ConsoleSCB.cpp:77 (the background of a search hit). TOKENIZE: ConsoleSearchHighlight
+    // ConsoleSCB.cpp:77 (the background of a search hit) (CConsoleSCB::highlightBlock) $fill.console.hover.Alt1
     constexpr QColor SearchHighlight(255, 255, 0);
 } // namespace ConsoleSCBFlat
 

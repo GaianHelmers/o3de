@@ -23,7 +23,8 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace LoadActorSettingsWindowFlat
     {
-        constexpr QColor TopLabelBackground(40, 40, 40);    // LoadActorSettingsWindow.cpp:32 TOKENIZE: LoadActorSettingsTopLabelBackground
+        // LoadActorSettingsWindow.cpp:32 (LoadActorSettingsWindow::LoadActorSettingsWindow) $fill.surface.idle.top.Alt1
+        constexpr QColor TopLabelBackground(40, 40, 40);
     } // namespace LoadActorSettingsWindowFlat
 
     // constructor

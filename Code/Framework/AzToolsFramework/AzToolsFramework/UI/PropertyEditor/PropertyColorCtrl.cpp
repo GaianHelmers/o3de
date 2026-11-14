@@ -38,10 +38,12 @@ namespace AzToolsFramework
     //! merge.
     namespace PropertyColorCtrlFlatInternal
     {
-        constexpr QColor SwatchOutline(0x33, 0x33, 0x33);   // PropertyColorCtrl.cpp:124. TOKENIZE: ColorSwatchOutline
+        // PropertyColorCtrl.cpp:124 (PropertyColorCtrl::SetColor) $line.picker.idle.color.Low
+        constexpr QColor SwatchOutline = AzQtComponents::Foundations::Low;
 
         //! The colour of the text in the colour field while what is typed is not a valid colour: the `color: red;` of OnTextEdited
-        //! (PropertyColorCtrl.cpp:326, before the flattening). The sheet of the legacy GUI is built from it. TOKENIZE: ColorEditInvalidText
+        //! (PropertyColorCtrl.cpp:326, before the flattening). The sheet of the legacy GUI is built from it
+        //! (PropertyColorCtrl::OnTextEdited) $text.field.error.Alt1
         constexpr QColor InvalidText(0xFF, 0x00, 0x00);
     }
 
@@ -62,7 +64,7 @@ namespace AzToolsFramework
 
         //! `color: red;` of the sheet OnTextEdited set (PropertyColorCtrl.cpp:326, before the flattening), over the field's own text:
         //! the family and the size of the entry fields (BaseStyleSheet.qss:78, :82), which an element restates, as it takes the place
-        //! of the Global one. TOKENIZE: ColorEditInvalidText
+        //! of the Global one
         const AzQtComponents::TextElement InvalidTextElement{
             .m_name = "Editor.Text.ColorEditInvalid",
             .m_family = AzQtComponents::Foundations::Field::Family,         // BaseStyleSheet.qss:78

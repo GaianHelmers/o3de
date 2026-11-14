@@ -24,8 +24,10 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace ActionHistoryCallbackFlat
     {
-        constexpr QColor DarkenedRowText(110, 110, 110);   // ActionHistoryCallback.cpp:31 TOKENIZE: ActionHistoryDarkenedRowText
-        constexpr QColor RowText(200, 200, 200);           // ActionHistoryCallback.cpp:32 TOKENIZE: ActionHistoryRowText
+        // ActionHistoryCallback.cpp:31 (ActionHistoryCallback::ActionHistoryCallback) $text.item.idle.Alt3
+        constexpr QColor DarkenedRowText(110, 110, 110);
+        // ActionHistoryCallback.cpp:32 (ActionHistoryCallback::ActionHistoryCallback) $text.item.idle.Alt4
+        constexpr QColor RowText(200, 200, 200);
     } // namespace ActionHistoryCallbackFlat
 
     ActionHistoryCallback::ActionHistoryCallback(QListWidget* list)

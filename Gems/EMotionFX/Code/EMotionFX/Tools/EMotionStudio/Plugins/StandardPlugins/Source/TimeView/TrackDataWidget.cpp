@@ -50,51 +50,68 @@ namespace EMStudio
     namespace TrackDataWidgetFlat
     {
         // The backgrounds of the data area
-        constexpr QColor Background(40, 45, 50);                // TrackDataWidget.cpp:49 TOKENIZE: TimeDataBackground
-        constexpr QColor BackgroundClipped(40, 40, 40);         // TrackDataWidget.cpp:50 TOKENIZE: TimeDataBackgroundClipped
-        constexpr QColor BackgroundOutOfRange(35, 35, 35);      // TrackDataWidget.cpp:51 TOKENIZE: TimeDataBackgroundOutOfRange
+        constexpr QColor Background(40, 45, 50);  // TrackDataWidget.cpp:49 (TrackDataWidget::TrackDataWidget) $fill.timeline.idle.Alt6
+        // TrackDataWidget.cpp:50 (TrackDataWidget::TrackDataWidget) $fill.timeline.idle.Alt7
+        constexpr QColor BackgroundClipped(40, 40, 40);
+        // TrackDataWidget.cpp:51 (TrackDataWidget::TrackDataWidget) $fill.timeline.idle.Alt8
+        constexpr QColor BackgroundOutOfRange(35, 35, 35);
 
         // The rubber band: zooming into a rectangle, and selecting the elements in a rectangle
-        constexpr QColor ZoomRectFill(0, 100, 200, 75);         // TrackDataWidget.cpp:167 TOKENIZE: TimeDataZoomRectFill
-        constexpr QColor ZoomRectLine(0, 100, 255);             // TrackDataWidget.cpp:168 TOKENIZE: TimeDataZoomRectLine
-        constexpr QColor SelectRectFill(200, 120, 0, 75);       // TrackDataWidget.cpp:175 TOKENIZE: TimeDataSelectRectFill
-        constexpr QColor SelectRectLine(255, 128, 0);           // TrackDataWidget.cpp:176 TOKENIZE: TimeDataSelectRectLine
+        constexpr QColor ZoomRectFill(0, 100, 200, 75);  // TrackDataWidget.cpp:167 (TrackDataWidget::paintEvent) $fill.timeline.idle.Alt9
+        constexpr QColor ZoomRectLine(0, 100, 255);  // TrackDataWidget.cpp:168 (TrackDataWidget::paintEvent) $line.timeline.idle.color.Alt7
+        // TrackDataWidget.cpp:175 (TrackDataWidget::paintEvent) $fill.timeline.selected.Alt2
+        constexpr QColor SelectRectFill(200, 120, 0, 75);
+        // TrackDataWidget.cpp:176 (TrackDataWidget::paintEvent) $line.timeline.selected.color.Alt1
+        constexpr QColor SelectRectLine(255, 128, 0);
 
         // The recorded node history graph: the line and the fill of the selected node
-        constexpr QColor GraphHighlight(255, 128, 0);           // TrackDataWidget.cpp:376 TOKENIZE: TimeDataGraphHighlight
+        // TrackDataWidget.cpp:376 (TrackDataWidget::PaintRelativeGraph) $fill.timeline.hover.Alt1
+        constexpr QColor GraphHighlight(255, 128, 0);
 
         // The recorded event ticks. EventTickPen and EventTickBrush are replaced before anything is drawn with them (:562, :563).
-        constexpr QColor EventTickBorder(30, 30, 30);           // TrackDataWidget.cpp:520 TOKENIZE: TimeDataEventTickBorder
-        constexpr QColor EventTickEmitterBorder(255, 128, 0);   // TrackDataWidget.cpp:534 TOKENIZE: TimeDataEventTickEmitterBorder
-        constexpr QColor EventTickEmitterFill(255, 128, 0);     // TrackDataWidget.cpp:535 TOKENIZE: TimeDataEventTickEmitterFill
-        constexpr QColor EventTickSelectedBorder(255, 128, 0);  // TrackDataWidget.cpp:542 TOKENIZE: TimeDataEventTickSelectedBorder
-        const QColor EventTickPen(Qt::red);                     // TrackDataWidget.cpp:552 TOKENIZE: TimeDataEventTickPen
-        const QColor EventTickBrush(Qt::black);                 // TrackDataWidget.cpp:553 TOKENIZE: TimeDataEventTickBrush
+        // TrackDataWidget.cpp:520 (TrackDataWidget::PaintRecorderEventHistory) $line.timeline.idle.color.Alt3
+        constexpr QColor EventTickBorder(30, 30, 30);
+        // TrackDataWidget.cpp:534 (TrackDataWidget::PaintRecorderEventHistory) $line.timeline.idle.color.Alt8
+        constexpr QColor EventTickEmitterBorder(255, 128, 0);
+        // TrackDataWidget.cpp:535 (TrackDataWidget::PaintRecorderEventHistory) $fill.timeline.idle.Alt10
+        constexpr QColor EventTickEmitterFill(255, 128, 0);
+        // TrackDataWidget.cpp:542 (TrackDataWidget::PaintRecorderEventHistory) $line.timeline.selected.color.Alt1
+        constexpr QColor EventTickSelectedBorder(255, 128, 0);
+        // TrackDataWidget.cpp:552 (TrackDataWidget::PaintRecorderEventHistory) $line.timeline.idle.color.Alt9
+        const QColor EventTickPen(Qt::red);
+        // TrackDataWidget.cpp:553 (TrackDataWidget::PaintRecorderEventHistory) $fill.timeline.idle.Alt11
+        const QColor EventTickBrush(Qt::black);
 
         // The recorded node history boxes and their text
-        constexpr QColor NodeSelectedFill(255, 128, 0);         // TrackDataWidget.cpp:643 TOKENIZE: TimeDataNodeSelectedFill
-        constexpr QColor NodeEmitterFill(255, 128, 0);          // TrackDataWidget.cpp:650 TOKENIZE: TimeDataNodeEmitterFill
-        constexpr QColor NodeText(255, 255, 255, 175);          // TrackDataWidget.cpp:725, :734 TOKENIZE: TimeDataNodeText
-        constexpr QColor NodeSelectedText(0, 0, 0);             // TrackDataWidget.cpp:729 TOKENIZE: TimeDataNodeSelectedText
-        const QColor NodeEmitterText(Qt::black);                // TrackDataWidget.cpp:739 TOKENIZE: TimeDataNodeEmitterText
+        // TrackDataWidget.cpp:643 (TrackDataWidget::PaintRecorderNodeHistory) $fill.node.selected.Alt2
+        constexpr QColor NodeSelectedFill(255, 128, 0);
+        // TrackDataWidget.cpp:650 (TrackDataWidget::PaintRecorderNodeHistory) $fill.node.idle.Alt24
+        constexpr QColor NodeEmitterFill(255, 128, 0);
+        // TrackDataWidget.cpp:725, :734 (TrackDataWidget::PaintRecorderNodeHistory) $text.node.idle.Alt12
+        constexpr QColor NodeText(255, 255, 255, 175);
+        // TrackDataWidget.cpp:729 (TrackDataWidget::PaintRecorderNodeHistory) $text.node.selected.Alt1
+        constexpr QColor NodeSelectedText(0, 0, 0);
+        // TrackDataWidget.cpp:739 (TrackDataWidget::PaintRecorderNodeHistory) $text.node.idle.Alt11
+        const QColor NodeEmitterText(Qt::black);
 
         // The line under a track title bar
-        constexpr QColor Separator(60, 70, 80);                 // TrackDataWidget.cpp:2636 TOKENIZE: TimeDataSeparator
+        // TrackDataWidget.cpp:2636 (TrackDataWidget::PaintSeparator) $line.separator.idle.color.Alt1
+        constexpr QColor Separator(60, 70, 80);
 
         // The tooltips of the node history items and the event history items (BuildToolTipString): the text colours of a row.
         // The label cell of a row, at
         // TrackDataWidget.cpp:2366, :2397, :2400, :2403, :2408, :2411, :2420, :2431, :2434, :2437, :2440, :2445, :2503, :2513, :2515,
         // :2518, :2521, :2538, :2542, :2545, :2557, :2578, :2581, :2584, :2589, :2592, :2606, :2611, :2614, :2617, :2622
-        // TOKENIZE: TimeDataToolTipLabel
+        // TrackDataWidget::BuildToolTipString $text.tooltip.idle.Alt3
         constexpr QColor ToolTipLabel(200, 200, 200);
         // The value cell of a row, at
         // TrackDataWidget.cpp:2367, :2398, :2401, :2404, :2409, :2412, :2421, :2432, :2435, :2438, :2441, :2504, :2516, :2519, :2522,
         // :2539, :2543, :2546, :2558, :2579, :2582, :2585, :2590, :2593, :2609, :2612, :2615, :2618
-        // TOKENIZE: TimeDataToolTipValue
+        // TrackDataWidget::BuildToolTipString $fill.tooltip.idle.Alt1
         constexpr QColor ToolTipValue(115, 115, 115);
         // The value of a motion that is not loaded anymore, at
         // TrackDataWidget.cpp:2446, :2623
-        // TOKENIZE: TimeDataToolTipMissing
+        // TrackDataWidget::BuildToolTipString $fill.tooltip.idle.Alt2
         constexpr QColor ToolTipMissing(255, 0, 0);
     } // namespace TrackDataWidgetFlat
 

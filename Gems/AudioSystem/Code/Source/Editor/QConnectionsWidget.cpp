@@ -32,8 +32,10 @@ namespace AudioControls
     //===========================================================================================//
     namespace QConnectionsWidgetFlat
     {
-        constexpr QColor NotFoundText(0xf3, 0x81, 0x1d);  // QConnectionsWidget.cpp:31. TOKENIZE: AudioConnectionNotFoundText
-        constexpr QColor LocalizedText(0x42, 0x85, 0xf4); // QConnectionsWidget.cpp:32. TOKENIZE: AudioControlLocalizedText
+        // QConnectionsWidget.cpp:31 (QConnectionsWidget::QConnectionsWidget) $text.surface.idle.Alt14
+        constexpr QColor NotFoundText(0xf3, 0x81, 0x1d);
+        // QConnectionsWidget.cpp:32 (QConnectionsWidget::QConnectionsWidget) $text.surface.idle.Alt15
+        constexpr QColor LocalizedText(0x42, 0x85, 0xf4);
     } // namespace QConnectionsWidgetFlat
 
     //-------------------------------------------------------------------------------------------//

@@ -26,12 +26,12 @@ namespace EMStudio
     namespace LogWindowCallbackFlat
     {
         // The message colours are SVG colour names: "darkgray" is rgb(169, 169, 169), "orange" is rgb(255, 165, 0)
-        constexpr QColor TimeText(105, 105, 105);       // LogWindowCallback.cpp:84 TOKENIZE: LogWindowTimeText
-        const QColor FatalText("red");                  // LogWindowCallback.cpp:92 TOKENIZE: LogWindowFatalText
-        const QColor ErrorText("red");                  // LogWindowCallback.cpp:95 TOKENIZE: LogWindowErrorText
-        const QColor WarningText("orange");             // LogWindowCallback.cpp:98 TOKENIZE: LogWindowWarningText
-        const QColor DetailedInfoText("darkgray");      // LogWindowCallback.cpp:101 TOKENIZE: LogWindowDetailedInfoText
-        const QColor DebugText("yellow");               // LogWindowCallback.cpp:104 TOKENIZE: LogWindowDebugText
+        constexpr QColor TimeText(105, 105, 105);       // LogWindowCallback.cpp:84 (LogWindowCallback::LogImpl) $text.console.idle.Alt12
+        const QColor FatalText("red");                  // LogWindowCallback.cpp:92 (LogWindowCallback::LogImpl) $text.console.idle.Alt13
+        const QColor ErrorText("red");                  // LogWindowCallback.cpp:95 (LogWindowCallback::LogImpl) $text.console.error.Alt4
+        const QColor WarningText("orange");             // LogWindowCallback.cpp:98 (LogWindowCallback::LogImpl) $text.console.warning.Alt4
+        const QColor DetailedInfoText("darkgray");      // LogWindowCallback.cpp:101 (LogWindowCallback::LogImpl) $text.console.idle.Alt14
+        const QColor DebugText("yellow");               // LogWindowCallback.cpp:104 (LogWindowCallback::LogImpl) $text.console.idle.Alt15
     } // namespace LogWindowCallbackFlat
 
     // constructor

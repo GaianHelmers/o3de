@@ -46,12 +46,12 @@ namespace AtomToolsFramework
     namespace AssetSelectionGridFlatInternal
     {
         //! background-color: AssetSelectionGrid.cpp:159 before the flattening (the form before the flattening):
-        //! `header->setStyleSheet("background-color: rgb(35, 35, 35)")`. TOKENIZE: AssetSelectionGridHeaderFill
+        //! `header->setStyleSheet("background-color: rgb(35, 35, 35)")` AssetSelectionGrid::AddPath $fill.header.selected.Alt1
         const QColor HeaderFill(35, 35, 35);
 
         //! background-color: AssetSelectionGrid.cpp:266 (the fill the context menu of the search box gives itself, set as the legacy
-        //! sheet of the menu). TOKENIZE: AssetSelectionGridSearchMenuFill
-        constexpr QColor SearchMenuFill(0x33, 0x33, 0x33);
+        //! sheet of the menu) AssetSelectionGrid::ShowSearchMenu $fill.menu.selected.Low
+        constexpr QColor SearchMenuFill = AzQtComponents::Foundations::Low;
 
         //! The `background-color` of the header, over the box of every label (`.Label, QLabel { margin-top: 1px; margin-bottom: 1px }`,
         //! Text.qss:89-95, the margins at :93-94): an element is the whole definition of its frame, so it carries that margin, which

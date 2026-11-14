@@ -679,7 +679,8 @@ namespace O3DE::ProjectManager
         const BoxElement FormComboBox{
             .m_name = "ProjectManager.Box.FormComboBox",
             .m_margin = QMargins(1, 1, 1, 1),                 // ComboBox.qss:17 (QComboBox) $space.field.idle.margin.Alt2
-            .m_padding = QMargins(0, 0, 0, 0),                // ProjectManager.qss:157,158 (#formFrame QComboBox padding-left, padding-right)
+            // ProjectManager.qss:157,158 (#formFrame QComboBox padding-left, padding-right) $space.surface.idle.padding.Alt17
+            .m_padding = QMargins(0, 0, 0, 0),
             .m_hasBox = true,                                 // a margin and a padding are declared (ComboBox.qss:17, ProjectManager.qss:157)
             .m_nativeBorder = false,                          // border-width: BaseStyleSheet.qss:80 (QComboBox), border-radius :79
             .m_radius = 2,                                    // BaseStyleSheet.qss:79 (QComboBox) $radius.field.idle.all
@@ -700,13 +701,16 @@ namespace O3DE::ProjectManager
                 { BoxElement::Hover, {
                     // ComboBox.qss:28 (QComboBox:hover) $line.field.hover.color.Alt1
                     .m_fill = QBrush(Field::Fill), .m_edges = BoxElement::border(Field::HoverLineWidth, QColor(0, 0, 0, 50)),
+                    // ComboBox.qss:22-29 $space.field.hover.margin.Alt2
                     .m_text = Field::Text, .m_margin = QMargins(0, 0, 0, 0), .m_radius = Field::HoverRadius } },
                 // ComboBox.qss:31-42 (QComboBox:focus), and :32-33 (QComboBox[HasPopupOpen=true]) the same declarations
                 { BoxElement::Focus, {
                     .m_fill = QBrush(Field::FocusFill), .m_edges = BoxElement::border(Field::FocusLineWidth, Field::FocusLine),
+                    // ComboBox.qss:31-42 $space.field.focus.margin.Alt2
                     .m_text = Field::Text, .m_margin = QMargins(0, 0, 0, 0), .m_radius = Field::FocusRadius } },
                 { BoxElement::Checked, {
                     .m_fill = QBrush(Field::FocusFill), .m_edges = BoxElement::border(Field::FocusLineWidth, Field::FocusLine),
+                    // ProjectManager.qss:149-159 $space.surface.idle.margin.Alt11
                     .m_text = Field::Text, .m_margin = QMargins(0, 0, 0, 0), .m_radius = Field::FocusRadius } },
                 // ComboBox.qss:53-57 (QComboBox:disabled): the fill and the colour only
                 { BoxElement::Disabled, { .m_fill = QBrush(Field::DisabledFill), .m_text = Field::DisabledText } },
@@ -714,6 +718,7 @@ namespace O3DE::ProjectManager
                 // colour of the first and the box of the second
                 { BoxElement::Disabled | BoxElement::Focus, {
                     .m_fill = QBrush(Field::DisabledFill), .m_edges = BoxElement::border(Field::FocusLineWidth, Field::FocusLine),
+                    // ComboBox.qss:35 (the margin of :focus) $space.field.focus.margin.Alt2
                     .m_text = Field::DisabledText, .m_margin = QMargins(0, 0, 0, 0), .m_radius = Field::FocusRadius } },
             },
         };
@@ -836,7 +841,7 @@ namespace O3DE::ProjectManager
             // ProjectManager.qss:234, :235 (#formTagField QCheckBox) $space.check.idle.padding-left $space.check.idle.padding-top
             // ProjectManager.qss:237, :236 (#formTagField QCheckBox) $space.check.idle.padding-right $space.check.idle.padding-bottom
             .m_padding = QMargins(7, 2, 5, 2),
-            .m_spacing = 0,                                   // TOKENIZE: FormTagChipSpacing; ProjectManager.qss:238
+            .m_spacing = 0,                                   // $space.surface.idle.spacing.Alt1; ProjectManager.qss:238
             .m_idle = { .m_fill = QBrush(ChipFill) },         // ProjectManager.qss:233 (#formTagField QCheckBox)
         };
 
@@ -896,13 +901,13 @@ namespace O3DE::ProjectManager
         //! (FormLineEditTagsWidget.cpp:148). The chip's `background-color: transparent` (ProjectManager.qss:243) draws nothing.
         const IndicatorElement FormTagChipIndicator{
             .m_name = "ProjectManager.Indicator.FormTagChip",
-            .m_imageSize = QSize(10, 16),                     // TOKENIZE: FormTagChipMarkSize; ProjectManager.qss:245, CheckBox.qss:26
-            .m_margin = 2,                                    // TOKENIZE: FormTagChipMarkMargin; CheckBox.qss:27
+            .m_imageSize = QSize(10, 16),                     // $size.surface.idle.size.Alt7; ProjectManager.qss:245, CheckBox.qss:26
+            .m_margin = 2,                                    // $space.check-indicator.idle.margin.Alt1; CheckBox.qss:27
             // The same box focused: the :focus rules (CheckBox.qss:35-37, :50-52, :65-67) set an image only
-            .m_focusImageSize = QSize(10, 16),                // TOKENIZE: FormTagChipMarkSize; ProjectManager.qss:245, CheckBox.qss:26
-            .m_focusMargin = 2,                               // TOKENIZE: FormTagChipMarkMargin; CheckBox.qss:27
-            .m_padding = QMargins(3, 0, 0, 0),                // TOKENIZE: FormTagChipMarkPadding; ProjectManager.qss:246
-            .m_image = ":/X.svg",                             // TOKENIZE: FormTagChipMark; ProjectManager.qss:244
+            .m_focusImageSize = QSize(10, 16),                // $size.surface.focus.size.Alt1; ProjectManager.qss:245, CheckBox.qss:26
+            .m_focusMargin = 2,                               // $space.check-indicator.idle.margin.Alt1; CheckBox.qss:27
+            .m_padding = QMargins(3, 0, 0, 0),                // $space.surface.idle.padding.Alt18; ProjectManager.qss:246
+            .m_image = ":/X.svg",                             // $asset.surface.idle.image.Alt10; ProjectManager.qss:244
         };
 
         // ---- Item views: the header of the gem list
@@ -2398,7 +2403,7 @@ namespace O3DE::ProjectManager
             .m_name = "ProjectManager.Frame.GemListHeaderSeparator",
             .m_fill = GemListHeaderFill,                          // GemListHeaderWidget.cpp:31
             .m_fillShapes = FrameElement::PanelShapes,            // the divider's shapes, with the HLine (BaseStyleSheet.qss:41-45)
-            // TOKENIZE: HorizontalSeparatorColor (the divider's own; ProjectManager.qss:482 #horizontalSeparatingLine)
+            // $text.surface.idle.Alt4 (the divider's own; ProjectManager.qss:482 #horizontalSeparatingLine)
             .m_foreground = QColor(0x66, 0x66, 0x66),
         };
 
@@ -2417,10 +2422,10 @@ namespace O3DE::ProjectManager
 
         // ---- The popup of the tags field's completer
 
-        // TOKENIZE: CompleterPopupFill (ProjectManagerCompleterPopup.qss:2 `background: #333333;`)
-        const QColor CompleterPopupFill(0x33, 0x33, 0x33);
-        // TOKENIZE: CompleterPopupSelection (ProjectManagerCompleterPopup.qss:4 `selection-background-color:#444444;`)
-        const QColor CompleterPopupSelection(0x44, 0x44, 0x44);
+        // $fill.surface.idle.Low (ProjectManagerCompleterPopup.qss:2 `background: #333333;`)
+        const QColor CompleterPopupFill = AzQtComponents::Foundations::Low;
+        // $fill.surface.selected.Mid (ProjectManagerCompleterPopup.qss:4 `selection-background-color:#444444;`)
+        const QColor CompleterPopupSelection = AzQtComponents::Foundations::Mid;
 
         //! The list the completer pops up (a QListView with no parent, named #formCompleterPopup, FormLineEditTagsWidget.cpp): the
         //! fill of its sheet over the margin and the border an item view has (QDockWidget.qss:35, TableView.qss:28).
@@ -2437,7 +2442,7 @@ namespace O3DE::ProjectManager
         const ItemViewElement CompleterPopupItems{
             .m_name = "ProjectManager.ItemView.CompleterPopup",
             .m_selection = CompleterPopupSelection,               // ProjectManagerCompleterPopup.qss:4
-            // TOKENIZE: CompleterPopupSelectionText (ProjectManagerCompleterPopup.qss:5 `selection-color: #ffffff;`)
+            // $text.surface.selected.Alt1 (ProjectManagerCompleterPopup.qss:5 `selection-color: #ffffff;`)
             .m_selectionText = QColor(0xFF, 0xFF, 0xFF),
         };
 
@@ -2445,9 +2450,10 @@ namespace O3DE::ProjectManager
 
         // The values the callers write. The elements, the matchers and HasFlatLinkLabelText / HasFlatStyledLabelText read these and
         // nothing else, so they cannot disagree; a caller with a value outside them gets the warning of its constructor
-        constexpr int LinkSizeDefault = 10;                           // LinkWidget.h:28 (the constructor's default)
+        // LinkWidget.h:28 (the constructor's default) (LinkLabel::LinkLabel) $size.surface.idle.size.Alt8
+        constexpr int LinkSizeDefault = 10;
         constexpr int LinkSizeBase = GemInspector::s_baseFontSize;    // GemInspector.h:62, 12 (GemRepoInspector.cpp:137 writes 12)
-        constexpr int InspectorNameSize = 18;                         // GemInspector.cpp:385
+        constexpr int InspectorNameSize = 18;  // GemInspector.cpp:385 (GemInspector::InitMainWidget) $size.surface.idle.size.Alt9
 
         //! The two values a call of GemInspector::CreateStyledLabel writes into its sheet: the size in pixels, the colour as written
         struct StyledLabelValues
@@ -2460,9 +2466,9 @@ namespace O3DE::ProjectManager
         constexpr StyledLabelValues InspectorHeaderValues{ GemInspector::s_baseFontSize, GemInspector::s_headerColor };
         constexpr StyledLabelValues InspectorBodyValues{ GemInspector::s_baseFontSize, GemInspector::s_textColor };
 
-        // TOKENIZE: InspectorHeaderTextColor (GemInspector.h:65 s_headerColor)
+        // (GemInspector::s_headerColor) $text.header.idle.Alt2 (GemInspector.h:65 s_headerColor)
         const QColor InspectorHeaderColor(0xFF, 0xFF, 0xFF);
-        // TOKENIZE: InspectorBodyTextColor (GemInspector.h:66 s_textColor)
+        // (GemInspector::s_textColor) $text.surface.idle.Alt12 (GemInspector.h:66 s_textColor)
         const QColor InspectorBodyColor(0xDD, 0xDD, 0xDD);
 
         //! The link (LinkLabel) a widget is, or the one it is inside: a link keeps a label of its own to measure its text
@@ -2504,7 +2510,8 @@ namespace O3DE::ProjectManager
         const TextElement LinkLabel10Text{
             .m_name = "ProjectManager.Text.LinkLabel10",
             .m_pixelSize = LinkSizeDefault,                       // font-size: LinkWidget.cpp:76, the size of LinkWidget.h:28
-            .m_underline = 0,                                     // LinkWidget.cpp:76 sets none (the hover sheet, :56, does)
+            // LinkWidget.cpp:76 sets none (the hover sheet, :56, does) (LinkLabel::SetDefaultStyle) $type.surface.idle.decoration.Alt2
+            .m_underline = 0,
             .m_color = LinkLabelColor,                            // LinkWidget.cpp:76
         };
 
@@ -2514,16 +2521,17 @@ namespace O3DE::ProjectManager
             .m_name = "ProjectManager.Text.LinkLabel12",
             // font-size: LinkWidget.cpp:76, with the size of GemInspector.h:62 and of GemRepoInspector.cpp:137
             .m_pixelSize = LinkSizeBase,
-            .m_underline = 0,                                     // LinkWidget.cpp:76 sets none (the hover sheet, :56, does)
+            // LinkWidget.cpp:76 sets none (the hover sheet, :56, does) (LinkLabel::SetDefaultStyle) $type.surface.idle.decoration.Alt2
+            .m_underline = 0,
             .m_color = LinkLabelColor,                            // LinkWidget.cpp:76
         };
 
         //! A link of 10px under the pointer: the hover sheet of LinkLabel::enterEvent is the idle one with `text-decoration:
-        //! underline` (LinkWidget.cpp:56). TOKENIZE: LinkLabelHoverDecoration
+        //! underline` (LinkWidget.cpp:56)
         const TextElement LinkLabel10HoverText{
             .m_name = "ProjectManager.Text.LinkLabel10Hover",
             .m_pixelSize = LinkSizeDefault,                       // font-size: LinkWidget.cpp:56
-            .m_underline = 1,                                     // text-decoration: LinkWidget.cpp:56
+            .m_underline = 1,  // text-decoration: LinkWidget.cpp:56 (LinkLabel::enterEvent) $type.surface.idle.decoration.Alt1
             .m_color = LinkLabelColor,                            // LinkWidget.cpp:56
         };
 
@@ -2531,7 +2539,7 @@ namespace O3DE::ProjectManager
         const TextElement LinkLabel12HoverText{
             .m_name = "ProjectManager.Text.LinkLabel12Hover",
             .m_pixelSize = LinkSizeBase,                          // font-size: LinkWidget.cpp:56
-            .m_underline = 1,                                     // text-decoration: LinkWidget.cpp:56
+            .m_underline = 1,  // text-decoration: LinkWidget.cpp:56 (LinkLabel::enterEvent) $type.surface.idle.decoration.Alt1
             .m_color = LinkLabelColor,                            // LinkWidget.cpp:56
         };
 

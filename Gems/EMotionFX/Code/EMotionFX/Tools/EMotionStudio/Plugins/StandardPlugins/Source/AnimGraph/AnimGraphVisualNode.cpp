@@ -27,8 +27,10 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace AnimGraphVisualNodeFlat
     {
-        constexpr QColor TrackPlayedFill(255, 255, 255, 32);   // AnimGraphVisualNode.cpp:102 TOKENIZE: AnimGraphTrackPlayedFill
-        const QColor TrackPlayTimeLine(Qt::yellow);            // AnimGraphVisualNode.cpp:141 TOKENIZE: AnimGraphTrackPlayTimeLine
+        // AnimGraphVisualNode.cpp:102 (AnimGraphVisualNode::RenderTracks) $fill.node.idle.Alt1
+        constexpr QColor TrackPlayedFill(255, 255, 255, 32);
+        // AnimGraphVisualNode.cpp:141 (AnimGraphVisualNode::RenderTracks) $line.node.idle.color.Alt1
+        const QColor TrackPlayTimeLine(Qt::yellow);
     } // namespace AnimGraphVisualNodeFlat
 
     // constructor

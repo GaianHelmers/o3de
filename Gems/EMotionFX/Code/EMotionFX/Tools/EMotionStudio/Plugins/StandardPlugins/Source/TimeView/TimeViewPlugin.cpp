@@ -53,14 +53,17 @@ namespace EMStudio
     {
         // CurTimeHandleFill and CurTimeHelperLine feed m_brushCurTimeHandle and m_penCurTimeHelper, which are set here and read nowhere,
         // so they paint nothing. CurTimeHandleLine and ElementHandleLine feed m_penCurTimeHandle and m_penTimeHandles, which are read.
-        constexpr QColor CurTimeHandleFill(255, 180, 0);     // TimeViewPlugin.cpp:51 TOKENIZE: TimeViewCurTimeHandleFill
-        constexpr QColor CurTimeHandleLine(255, 180, 0);     // TimeViewPlugin.cpp:52 TOKENIZE: TimeViewCurTimeHandleLine
-        constexpr QColor ElementHandleLine(150, 150, 150);   // TimeViewPlugin.cpp:53 TOKENIZE: TimeViewElementHandleLine
-        constexpr QColor CurTimeHelperLine(100, 100, 100);   // TimeViewPlugin.cpp:54 TOKENIZE: TimeViewCurTimeHelperLine
+        constexpr QColor CurTimeHandleFill(255, 180, 0);  // TimeViewPlugin.cpp:51 (TimeViewPlugin::TimeViewPlugin) $fill.timeline.idle.Alt5
+        // TimeViewPlugin.cpp:52 (TimeViewPlugin::TimeViewPlugin) $line.timeline.idle.color.Alt4
+        constexpr QColor CurTimeHandleLine(255, 180, 0);
+        // TimeViewPlugin.cpp:53 (TimeViewPlugin::TimeViewPlugin) $line.timeline.idle.color.Alt5
+        constexpr QColor ElementHandleLine(150, 150, 150);
+        // TimeViewPlugin.cpp:54 (TimeViewPlugin::TimeViewPlugin) $line.timeline.idle.color.Alt6
+        constexpr QColor CurTimeHelperLine(100, 100, 100);
 
         // The tooltip of a motion event. The label cell of a row takes the colour of the event (data, so it stays); the value cell
         // of a row, at TimeViewPlugin.cpp:1251, :1258, :1263, :1279
-        // TOKENIZE: TimeViewToolTipValue
+        // TimeViewPlugin::ReInit $fill.tooltip.idle.Alt1
         constexpr QColor ToolTipValue(115, 115, 115);
     } // namespace TimeViewPluginFlat
 

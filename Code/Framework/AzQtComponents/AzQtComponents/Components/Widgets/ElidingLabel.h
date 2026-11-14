@@ -27,7 +27,8 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
         // The filter highlight: the rect behind the filter text (ElidingLabel::paintEvent)
         // ------------------------------------------------------------------------------
-        inline constexpr QColor FilterHighlight(0x70, 0x70, 0x70);  // ElidingLabel.h:136. TOKENIZE: ElidingLabelFilterHighlight
+        // ElidingLabel.h:136 (ElidingLabel::paintEvent) $text.surface.hover.Alt1
+        inline constexpr QColor FilterHighlight(0x70, 0x70, 0x70);
     } // namespace ElidingLabelFlat
 
     //! Extends the QLabel widget to automatically elide the label text with an

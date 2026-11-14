@@ -25,7 +25,8 @@
 //////////////////////////////////////////////////////////////////////////
 namespace ColorButtonFlat
 {
-    // ColorButton.cpp:31 (the border of the colour button; the fill is the button's own colour). TOKENIZE: ColorButtonBorder
+    // ColorButton.cpp:31 (the border of the colour button; the fill is the button's own colour) (ColorButton::paintEvent)
+    // $line.button.idle.color.Alt4
     const QColor Border(Qt::black);
 } // namespace ColorButtonFlat
 

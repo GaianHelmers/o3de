@@ -33,12 +33,16 @@ namespace OpenParticleSystemEditor
     //=========================================================================
     namespace EffectorInspectorFlat
     {
-        constexpr QColor NameEditIdleFill(0, 0, 0, 0);    // EffectorInspector.cpp:31 (transparent). TOKENIZE: ParticleNameEditIdleFill
-        constexpr QColor NameEditText(255, 255, 255);     // EffectorInspector.cpp:31, :58. TOKENIZE: ParticleNameEditText
-        constexpr QColor NameEditFocusedText(68, 68, 68); // EffectorInspector.cpp:54. TOKENIZE: ParticleNameEditFocusedText
-        constexpr QColor NameEditBlurredFill(68, 68, 68); // EffectorInspector.cpp:58. TOKENIZE: ParticleNameEditBlurredFill
-        constexpr QColor NameIconTop(223, 169, 112);      // EffectorInspector.ui:46 `stop:0`. TOKENIZE: ParticleNameIconTop
-        constexpr QColor NameIconBottom(217, 141, 50);    // EffectorInspector.ui:46 `stop:1`. TOKENIZE: ParticleNameIconBottom
+        // EffectorInspector.cpp:31 (transparent) (EffectorInspector::EffectorInspector) $fill.surface.idle.Clear
+        constexpr QColor NameEditIdleFill(0, 0, 0, 0);
+        // EffectorInspector.cpp:31, :58 (EffectorInspector::EffectorInspector) $text.surface.idle.Alt8
+        constexpr QColor NameEditText(255, 255, 255);
+        // EffectorInspector.cpp:54 (EffectorInspector::eventFilter) $text.surface.focus.Mid
+        constexpr QColor NameEditFocusedText(68, 68, 68);
+        // EffectorInspector.cpp:58 (EffectorInspector::eventFilter) $fill.surface.idle.Mid
+        constexpr QColor NameEditBlurredFill(68, 68, 68);
+        constexpr QColor NameIconTop(223, 169, 112);      // EffectorInspector.ui:46 `stop:0` $text.surface.idle.top.Alt1
+        constexpr QColor NameIconBottom(217, 141, 50);    // EffectorInspector.ui:46 `stop:1` $text.surface.idle.bottom.Alt1
     } // namespace EffectorInspectorFlat
 
     //=========================================================================
@@ -46,7 +50,7 @@ namespace OpenParticleSystemEditor
     //=========================================================================
     namespace ParticleGraphicsViewFlat
     {
-        constexpr QColor ViewFill(0x2D, 0x2D, 0x2D); // ParticleGraphicsView.cpp:52. TOKENIZE: ParticleGraphicsViewFill
+        constexpr QColor ViewFill(0x2D, 0x2D, 0x2D); // ParticleGraphicsView.cpp:52 (ParticleGraphicsView::SetupUi) $fill.surface.idle.Alt24
     } // namespace ParticleGraphicsViewFlat
 
     //=========================================================================
@@ -54,24 +58,25 @@ namespace OpenParticleSystemEditor
     //=========================================================================
     namespace ParticleItemWidgetFlat
     {
-        constexpr QColor ItemWindowFill(0x33, 0x33, 0x33); // ParticleItemWidget.cpp:54. TOKENIZE: ParticleItemWindowFill
-        constexpr int ItemWindowRadius = 8;                // ParticleItemWidget.cpp:54. TOKENIZE: ParticleItemWindowRadius
-        constexpr QColor TitleTop(223, 169, 112);          // ParticleItemWidget.ui:59 `stop:0`. TOKENIZE: ParticleItemTitleTop
-        constexpr QColor TitleBottom(217, 141, 50);        // ParticleItemWidget.ui:59 `stop:1`. TOKENIZE: ParticleItemTitleBottom
-        constexpr int TitleRadius = 8;                     // ParticleItemWidget.ui:60-61 top. TOKENIZE: ParticleItemTitleRadius
-        constexpr int TitleRowRadius = 1;                  // ParticleItemWidget.ui:62-63 bottom. TOKENIZE: ParticleItemTitleRowRadius
-        // ParticleItemWidget.ui:781, :797, :813, :829 `yellow`. TOKENIZE: ParticleItemSelectionLine
+        // ParticleItemWidget.cpp:54 (ParticleItemWidget::ParticleItemWidget) $fill.item.idle.Low
+        constexpr QColor ItemWindowFill(0x33, 0x33, 0x33);
+        constexpr int ItemWindowRadius = 8;  // ParticleItemWidget.cpp:54 (ParticleItemWidget::ParticleItemWidget) $radius.item.idle.Alt2
+        constexpr QColor TitleTop(223, 169, 112);          // ParticleItemWidget.ui:59 `stop:0` $text.item.idle.top.Alt1
+        constexpr QColor TitleBottom(217, 141, 50);        // ParticleItemWidget.ui:59 `stop:1` $text.item.idle.bottom.Alt1
+        constexpr int TitleRadius = 8;                     // ParticleItemWidget.ui:60-61 top $radius.item.idle.Alt2
+        constexpr int TitleRowRadius = 1;                  // ParticleItemWidget.ui:62-63 bottom $radius.item.idle.Alt3
+        // ParticleItemWidget.ui:781, :797, :813, :829 `yellow` $line.item.selected.color.Alt2
         constexpr QColor SelectionLine(255, 255, 0);
 
         // The images of the check boxes: one image for every state of the box (the widget's sheet outranks the application's
         // :focus and :disabled rules for the images, CheckBox.qss:50-73)
-        // ParticleItemWidget.ui:120. TOKENIZE: ParticleItemSoloUncheckedImage
+        // ParticleItemWidget.ui:120 $asset.item.idle.image.Alt1
         constexpr const char* SoloUncheckedImage = ":/Gallery/Asset_File.svg";
-        // ParticleItemWidget.ui:121. TOKENIZE: ParticleItemSoloCheckedImage
+        // ParticleItemWidget.ui:121 $asset.item.checked.image.Alt1
         constexpr const char* SoloCheckedImage = ":/Gallery/Favorite_File.svg";
-        // ParticleItemWidget.ui:141, PropertyEditorWidget.cpp:55. TOKENIZE: ParticleItemFixedUncheckedImage
+        // ParticleItemWidget.ui:141, PropertyEditorWidget.cpp:55 $asset.item.idle.image.Alt2
         constexpr const char* FixedUncheckedImage = ":/stylesheet/img/UI20/checkbox/off.svg";
-        // ParticleItemWidget.ui:142, PropertyEditorWidget.cpp:56. TOKENIZE: ParticleItemFixedCheckedImage
+        // ParticleItemWidget.ui:142, PropertyEditorWidget.cpp:56 $asset.item.checked.image.Alt2
         constexpr const char* FixedCheckedImage = ":/stylesheet/img/UI20/checkbox/on.svg";
     } // namespace ParticleItemWidgetFlat
 
@@ -80,9 +85,12 @@ namespace OpenParticleSystemEditor
     //=========================================================================
     namespace ParticleLineWidgetFlat
     {
-        constexpr QColor LineIdleFill(0x47, 0x47, 0x47);    // ParticleLineWidget.cpp:18, :55. TOKENIZE: ParticleLineIdleFill
-        constexpr QColor LinePressedFill(0x66, 0x66, 0x66); // ParticleLineWidget.cpp:40. TOKENIZE: ParticleLinePressedFill
-        constexpr int LineRadius = 1;                       // ParticleLineWidget.cpp:18, :40, :55. TOKENIZE: ParticleLineRadius
+        // ParticleLineWidget.cpp:18, :55 (ParticleLineWidget::ParticleLineWidget) $fill.surface.idle.Alt25
+        constexpr QColor LineIdleFill(0x47, 0x47, 0x47);
+        // ParticleLineWidget.cpp:40 (ParticleLineWidget::mousePressEvent) $fill.surface.pressed.Alt1
+        constexpr QColor LinePressedFill(0x66, 0x66, 0x66);
+        // ParticleLineWidget.cpp:18, :40, :55 (ParticleLineWidget::ParticleLineWidget) $radius.surface.idle.Alt3
+        constexpr int LineRadius = 1;
     } // namespace ParticleLineWidgetFlat
 
     //=========================================================================

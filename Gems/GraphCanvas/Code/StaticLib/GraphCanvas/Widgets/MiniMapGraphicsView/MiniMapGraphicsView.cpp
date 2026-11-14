@@ -23,10 +23,12 @@ namespace GraphCanvas
     //=========================================================================
     namespace MiniMapGraphicsViewFlat
     {
-        // MiniMapGraphicsView.cpp:51 (the drop shadow of a docked mini map). TOKENIZE: MiniMapShadow
+        // MiniMapGraphicsView.cpp:51 (the drop shadow of a docked mini map) (MiniMapGraphicsView::MiniMapGraphicsView)
+        // $fill.graph.idle.Alt4
         constexpr QColor MiniMapShadow(0, 0, 0, 127);
 
-        // MiniMapGraphicsView.cpp:282 (the outline of the magnifier box, opaque yellow). TOKENIZE: MiniMapMagnifierBox
+        // MiniMapGraphicsView.cpp:282 (the outline of the magnifier box, opaque yellow) (MiniMapGraphicsView::paintEvent)
+        // $fill.graph.idle.Alt5
         constexpr QColor MiniMapMagnifierBox(255, 255, 0, 255);
     } // namespace MiniMapGraphicsViewFlat
 

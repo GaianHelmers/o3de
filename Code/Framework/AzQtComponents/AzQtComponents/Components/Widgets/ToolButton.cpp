@@ -31,7 +31,7 @@ namespace ToolButtonFlat
     // GUI. The flattened GUI reads it for a tool button that no element draws (Style::drawComplexControl hands CC_ToolButton to
     // BoxElement::drawToolButton first).
     // ------------------------------------------------------------------------------
-    constexpr QColor CheckedFill(0x1E, 0x70, 0xEB); // ToolButton.cpp:46. TOKENIZE: ToolButtonCheckedFill
+    constexpr QColor CheckedFill(0x1E, 0x70, 0xEB); // ToolButton.cpp:46 (ToolButton::defaultConfig) $fill.button.checked.Alt1
 } // namespace ToolButtonFlat
 
 ToolButton::Config ToolButton::loadConfig(QSettings& settings)

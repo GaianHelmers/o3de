@@ -23,8 +23,8 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace TimeInfoWidgetFlat
     {
-        constexpr QColor Text(200, 200, 200);        // TimeInfoWidget.cpp:37 TOKENIZE: TimeInfoText
-        constexpr QColor FocusText(244, 156, 28);    // TimeInfoWidget.cpp:38 TOKENIZE: TimeInfoFocusText
+        constexpr QColor Text(200, 200, 200);        // TimeInfoWidget.cpp:37 (TimeInfoWidget::TimeInfoWidget) $text.timeline.idle.Alt1
+        constexpr QColor FocusText(244, 156, 28);    // TimeInfoWidget.cpp:38 (TimeInfoWidget::TimeInfoWidget) $text.timeline.focus.Alt1
     } // namespace TimeInfoWidgetFlat
 
     // the constructor

@@ -42,7 +42,7 @@ namespace ScriptCanvasEditor
         //=========================================================================
         namespace CanvasWidgetFlat
         {
-            constexpr QColor DisabledGraphOverlay(0, 0, 0); // CanvasWidget.cpp:116. TOKENIZE: ScriptCanvasDisabledGraphOverlay
+            constexpr QColor DisabledGraphOverlay(0, 0, 0); // CanvasWidget.cpp:116 (CanvasWidget::DisableView) $fill.surface.disabled.Alt1
         } // namespace CanvasWidgetFlat
 
         CanvasWidget::CanvasWidget(const SourceHandle& assetId, QWidget* parent)

@@ -34,8 +34,10 @@ namespace EMStudio
     namespace MotionEventPresetManagerFlat
     {
         // The HTML colour name green is rgb(0, 128, 0), unlike Qt::green
-        constexpr QColor SaveSuccessText(0, 128, 0);    // MotionEventPresetManager.cpp:270 TOKENIZE: MotionEventPresetSaveSuccessText
-        constexpr QColor SaveFailureText(255, 0, 0);    // MotionEventPresetManager.cpp:277 TOKENIZE: MotionEventPresetSaveFailureText
+        // MotionEventPresetManager.cpp:270 (MotionEventPresetManager::SaveAs) $text.surface.idle.Alt18
+        constexpr QColor SaveSuccessText(0, 128, 0);
+        // MotionEventPresetManager.cpp:277 (MotionEventPresetManager::SaveAs) $text.surface.idle.Alt10
+        constexpr QColor SaveFailureText(255, 0, 0);
     } // namespace MotionEventPresetManagerFlat
 
     MotionEventPreset::MotionEventPreset(const AZStd::string& name, EMotionFX::EventDataSet&& eventDatas, AZ::Color color, const AZStd::string& comment)

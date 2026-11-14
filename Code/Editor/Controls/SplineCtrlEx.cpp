@@ -31,40 +31,43 @@
 //////////////////////////////////////////////////////////////////////////
 namespace SplineCtrlExFlat
 {
-    // SplineCtrlEx.cpp:687 (the fill of the whole panel). TOKENIZE: SplineEditorBackground
+    // SplineCtrlEx.cpp:687 (the fill of the whole panel) (SplineWidget::paintEvent) $fill.field.idle.Alt5
     constexpr QColor Background(160, 160, 160);
 
-    // SplineCtrlEx.cpp:29 (the ACTIVE_BKG_COLOR macro: the fill of the time range and strip). TOKENIZE: SplineEditorActiveBackground
+    // SplineCtrlEx.cpp:29 (the ACTIVE_BKG_COLOR macro: the fill of the time range and strip) (SplineWidget::DrawGrid)
+    // $fill.field.active.Alt1
     constexpr QColor ActiveBackground(190, 190, 190);
 
-    // SplineCtrlEx.cpp:30 (the GRID_COLOR macro: the left separator and the dotted grid lines). TOKENIZE: SplineEditorGrid
+    // SplineCtrlEx.cpp:30 (the GRID_COLOR macro: the left separator and the dotted grid lines) (SplineWidget::DrawGrid)
+    // $line.field.idle.color.Alt3
     constexpr QColor Grid(110, 110, 110);
 
-    // SplineCtrlEx.cpp:783 (the value labels at the grid lines). TOKENIZE: SplineEditorGridLabel
+    // SplineCtrlEx.cpp:783 (the value labels at the grid lines) (SplineWidget::DrawGrid) $line.field.idle.color.Alt4
     constexpr QColor GridLabel(0, 0, 0);
 
-    // SplineCtrlEx.cpp:795 (the X and Y axes). TOKENIZE: SplineEditorAxis
+    // SplineCtrlEx.cpp:795 (the X and Y axes) (SplineWidget::DrawGrid) $fill.field.idle.Alt6
     constexpr QColor Axis(110, 100, 100);
 
-    // SplineCtrlEx.cpp:31 (the EDIT_SPLINE_COLOR macro: the curve before its dimension's colour is read). TOKENIZE: SplineEditorEditCurve
+    // SplineCtrlEx.cpp:31 (the EDIT_SPLINE_COLOR macro: the curve before its dimension's colour is read) (SplineWidget::DrawSpline)
+    // $line.field.idle.color.Alt5
     constexpr QColor EditCurve(128, 255, 128);
 
-    // SplineCtrlEx.cpp:944 (the outline of a key). TOKENIZE: SplineEditorKeyOutline
+    // SplineCtrlEx.cpp:944 (the outline of a key) (SplineWidget::DrawKeys) $line.field.idle.color.Alt4
     constexpr QColor KeyOutline(0, 0, 0);
 
-    // SplineCtrlEx.cpp:994 (the fill of a key). TOKENIZE: SplineEditorKeyFill
+    // SplineCtrlEx.cpp:994 (the fill of a key) (SplineWidget::DrawKeys) $fill.field.idle.Alt7
     constexpr QColor KeyFill(220, 220, 0);
 
-    // SplineCtrlEx.cpp:997 (the fill of a selected key). TOKENIZE: SplineEditorKeySelected
+    // SplineCtrlEx.cpp:997 (the fill of a selected key) (SplineWidget::DrawKeys) $fill.field.selected.Alt1
     constexpr QColor KeySelected(255, 0, 0);
 
-    // SplineCtrlEx.cpp:1026 (the in and out tangent lines of a selected key). TOKENIZE: SplineEditorTangentLine
+    // SplineCtrlEx.cpp:1026 (the in and out tangent lines of a selected key) (SplineWidget::DrawTangentHandle) $line.field.idle.color.Alt6
     constexpr QColor TangentLine(96, 96, 96);
 
-    // SplineCtrlEx.cpp:1037 (the end handles of a tangent). TOKENIZE: SplineEditorTangentHandle
+    // SplineCtrlEx.cpp:1037 (the end handles of a tangent) (SplineWidget::DrawTangentHandle) $fill.field.idle.Alt8
     constexpr QColor TangentHandle(0, 220, 0);
 
-    // SplineCtrlEx.cpp:1052 (the current-time marker). TOKENIZE: SplineEditorTimeMarker
+    // SplineCtrlEx.cpp:1052 (the current-time marker) (SplineWidget::DrawTimeMarker) $fill.field.idle.Alt9
     constexpr QColor TimeMarker(255, 0, 255);
 } // namespace SplineCtrlExFlat
 

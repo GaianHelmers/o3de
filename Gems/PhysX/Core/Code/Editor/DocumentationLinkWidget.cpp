@@ -31,8 +31,9 @@ namespace PhysX
         //! unit, where anonymous namespaces merge.
         namespace DocumentationLinkWidgetFlatInternal
         {
-            //! background-color: DocumentationLinkWidget.cpp:24, the form before the flattening. TOKENIZE: DocumentationLinkFill
-            const QColor LinkFill(0x33, 0x33, 0x33);
+            //! background-color: DocumentationLinkWidget.cpp:24, the form before the flattening
+            //! (DocumentationLinkWidget::DocumentationLinkWidget) $fill.surface.idle.Low
+            const QColor LinkFill = AzQtComponents::Foundations::Low;
 
             //! The `background-color` of the link, over the box of every label (`QLabel { margin-top: 1px; margin-bottom: 1px }`,
             //! Text.qss:93-94): an element is the whole definition of its frame, so it carries that margin, which Style gives a label

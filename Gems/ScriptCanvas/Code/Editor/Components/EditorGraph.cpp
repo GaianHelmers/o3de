@@ -108,9 +108,12 @@ namespace ScriptCanvasEditor
     //=========================================================================
     namespace EditorGraphFlat
     {
-        constexpr QColor HighlightGlow(243, 129, 29);       // EditorGraph.cpp:1572. TOKENIZE: ScriptCanvasHighlightGlow
-        constexpr QColor DetachPulse(255, 0, 0);            // EditorGraph.cpp:3021. TOKENIZE: ScriptCanvasDetachPulse
-        constexpr QColor DetachRefusedPulse(255, 255, 255); // EditorGraph.cpp:3025. TOKENIZE: ScriptCanvasDetachRefusedPulse
+        // EditorGraph.cpp:1572 (EditorGraph::HighlightScriptCanvasEntity) $fill.graph.hover.Alt1
+        constexpr QColor HighlightGlow(243, 129, 29);
+        // EditorGraph.cpp:3021 (EditorGraph::ConvertVariableNodeToReference) $fill.graph.idle.Alt2
+        constexpr QColor DetachPulse(255, 0, 0);
+        // EditorGraph.cpp:3025 (EditorGraph::ConvertVariableNodeToReference) $fill.graph.idle.Alt1
+        constexpr QColor DetachRefusedPulse(255, 255, 255);
     } // namespace EditorGraphFlat
 
     EditorGraph::~EditorGraph()

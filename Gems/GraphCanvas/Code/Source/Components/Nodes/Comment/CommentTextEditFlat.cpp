@@ -26,7 +26,7 @@ namespace GraphCanvas
             .m_name = "GraphCanvas.Box.CommentEditorOrange",
             .m_hasBox = true,                                                           // margin: 0, padding: 0: :171-172
             .m_nativeBorder = false,                                                    // border-width, -style, -color: :151-168
-            .m_radius = 0,                                                              // border-radius: 0: :169
+            .m_radius = 0,  // border-radius: 0: :169 CommentTextGraphicsWidget::UpdateStyles $radius.graph.idle.Alt1
             .m_idle = {
                 .m_fill = QBrush(AzQtComponents::Foundations::Clear),                   // background-color: rgba(0,0,0,0): :149
                 .m_edges = AzQtComponents::BoxElement::border(RingWidth, RingOrange),   // border: :151-168
@@ -38,7 +38,7 @@ namespace GraphCanvas
             .m_name = "GraphCanvas.Box.CommentEditorBlue",
             .m_hasBox = true,                                                           // margin: 0, padding: 0: :171-172
             .m_nativeBorder = false,                                                    // border-width, -style, -color: :151-168
-            .m_radius = 0,                                                              // border-radius: 0: :169
+            .m_radius = 0,  // border-radius: 0: :169 CommentTextGraphicsWidget::UpdateStyles $radius.graph.idle.Alt1
             .m_idle = {
                 .m_fill = QBrush(AzQtComponents::Foundations::Clear),                   // background-color: rgba(0,0,0,0): :149
                 .m_edges = AzQtComponents::BoxElement::border(RingWidth, RingBlue),     // border: :151-168
@@ -50,7 +50,7 @@ namespace GraphCanvas
             .m_name = "GraphCanvas.Box.CommentEditorFallback",
             .m_hasBox = true,                                                           // margin: 0, padding: 0: :171-172
             .m_nativeBorder = false,                                                    // border-width, -style, -color: :151-168
-            .m_radius = 0,                                                              // border-radius: the default 0: :169
+            .m_radius = 0,  // border-radius: the default 0: :169 CommentTextGraphicsWidget::UpdateStyles $radius.graph.idle.Alt1
             .m_idle = {
                 .m_fill = QBrush(AzQtComponents::Foundations::Clear),                   // background-color: rgba(0,0,0,0): :149
                 .m_edges = AzQtComponents::BoxElement::border(RingFallbackWidth, RingFallback),     // GetPen: StyleHelper.cpp:226-228
@@ -67,7 +67,7 @@ namespace GraphCanvas
             .m_family = AzQtComponents::Foundations::Surface::Family,                   // font-family: :257
             .m_pixelSize = CommentFontSize,                                             // font-size: :258
             .m_weight = AzQtComponents::Foundations::Surface::Weight,                   // font-weight: :261
-            .m_italic = 1,                                                              // font-style: :259
+            .m_italic = 1,  // font-style: :259 materialcanvas_style.json:259 $type.graph.idle.style.Alt1
             .m_color = TextColor,                                                       // color: :255
         };
 

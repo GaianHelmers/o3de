@@ -68,7 +68,8 @@ namespace ScriptCanvasEditor
     //=========================================================================
     namespace ScriptCanvasContextMenusFlat
     {
-        constexpr QColor CreatedNodePulse(255, 255, 255); // ScriptCanvasContextMenus.cpp:386. TOKENIZE: ScriptCanvasCreatedNodePulse
+        // ScriptCanvasContextMenus.cpp:386 (ConvertReferenceToVariableNodeAction::TriggerAction) $fill.node.idle.Alt25
+        constexpr QColor CreatedNodePulse(255, 255, 255);
     } // namespace ScriptCanvasContextMenusFlat
 
     ////////////////////////////

@@ -63,8 +63,8 @@ namespace AzQtComponents
         // line edit of the combo box as the sheet's palette did (applySheetPlaceholder); FramelessText only where no element draws the
         // combo box (drawComboBox and drawComboBoxLabel hand it to ComboBoxFlat::elementOf first).
         // ------------------------------------------------------------------------------
-        constexpr QColor PlaceholderText(0x99, 0x99, 0x99);  // ComboBox.cpp:423. TOKENIZE: ComboBoxPlaceholderText
-        constexpr QColor FramelessText(0xFF, 0xFF, 0xFF);    // ComboBox.cpp:424 (Qt::white). TOKENIZE: ComboBoxFramelessText
+        constexpr QColor PlaceholderText(0x99, 0x99, 0x99);  // ComboBox.cpp:423 (ComboBox::defaultConfig) $text.field.idle.Alt4
+        constexpr QColor FramelessText(0xFF, 0xFF, 0xFF);    // ComboBox.cpp:424 (Qt::white) $text.field.idle.Alt5
 
         // ------------------------------------------------------------------------------
         // The look of a combo box: ComboBox.qss over the entry field (Foundations::Field). The rule is computed for each state

@@ -46,154 +46,190 @@ namespace UiAnimViewDopeSheetBaseFlat
     //  Sheet
     //////////////////////////////////////////////////////////////////////////
 
-    // UiAnimViewDopeSheetBase.cpp:858 (the sheet's background gradient, top). TOKENIZE: DopeSheetGradientTop
+    // UiAnimViewDopeSheetBase.cpp:858 (the sheet's background gradient, top) (CUiAnimViewDopeSheetBase::paintEvent)
+    // $fill.dopesheet.idle.top.Alt1
     constexpr QColor SheetGradientTop(250, 250, 250);
 
-    // UiAnimViewDopeSheetBase.cpp:859 (the sheet's background gradient, bottom). TOKENIZE: DopeSheetGradientBottom
+    // UiAnimViewDopeSheetBase.cpp:859 (the sheet's background gradient, bottom) (CUiAnimViewDopeSheetBase::paintEvent)
+    // $fill.dopesheet.idle.bottom.Alt1
     constexpr QColor SheetGradientBottom(220, 220, 220);
 
-    // UiAnimViewDopeSheetBase.cpp:37 (the #define EDIT_DISABLE_GRAY_COLOR: the fill over a locked sheet). TOKENIZE: DopeSheetEditLockFill
+    // UiAnimViewDopeSheetBase.cpp:37 (the #define EDIT_DISABLE_GRAY_COLOR: the fill over a locked sheet)
+    // (CUiAnimViewDopeSheetBase::paintEvent) $fill.dopesheet.locked.Alt1
     constexpr QColor EditLockFill(128, 128, 128);
 
-    // UiAnimViewDopeSheetBase.cpp:67 (m_bkgrBrushEmpty, the empty sheet's background; never read). TOKENIZE: DopeSheetEmptyBackground
+    // UiAnimViewDopeSheetBase.cpp:67 (m_bkgrBrushEmpty, the empty sheet's background; never read)
+    // (CUiAnimViewDopeSheetBase::CUiAnimViewDopeSheetBase) $fill.dopesheet.empty.Alt1
     constexpr QColor EmptyBackground(190, 190, 190);
 
-    // UiAnimViewDopeSheetBase.cpp:68 (m_timeBkgBrush, the time strip's background; never read). TOKENIZE: DopeSheetTimeBackground
+    // UiAnimViewDopeSheetBase.cpp:68 (m_timeBkgBrush, the time strip's background; never read)
+    // (CUiAnimViewDopeSheetBase::CUiAnimViewDopeSheetBase) $fill.dopesheet.idle.Alt1
     constexpr QColor TimeBackground(0xE0, 0xE0, 0xE0);
 
-    // UiAnimViewDopeSheetBase.cpp:69 (m_timeHighlightBrush, the time strip's highlight; never read). TOKENIZE: DopeSheetTimeHighlight
+    // UiAnimViewDopeSheetBase.cpp:69 (m_timeHighlightBrush, the time strip's highlight; never read)
+    // (CUiAnimViewDopeSheetBase::CUiAnimViewDopeSheetBase) $fill.dopesheet.hover.Alt1
     constexpr QColor TimeHighlight(0xFF, 0x0, 0x0);
 
-    // UiAnimViewDopeSheetBase.cpp:70 (m_selectedBrush, the fill of a selection; never read). TOKENIZE: DopeSheetSelectedFill
+    // UiAnimViewDopeSheetBase.cpp:70 (m_selectedBrush, the fill of a selection; never read)
+    // (CUiAnimViewDopeSheetBase::CUiAnimViewDopeSheetBase) $fill.dopesheet.selected.Alt1
     constexpr QColor SelectedFill(200, 200, 230);
 
     //////////////////////////////////////////////////////////////////////////
     //  Timeline strip
     //////////////////////////////////////////////////////////////////////////
 
-    // UiAnimViewDopeSheetBase.cpp:2871 (the timeline strip's gradient, top). TOKENIZE: DopeSheetTimelineGradientTop
+    // UiAnimViewDopeSheetBase.cpp:2871 (the timeline strip's gradient, top) (CUiAnimViewDopeSheetBase::DrawTimeline)
+    // $fill.dopesheet.idle.top.Alt1
     constexpr QColor TimelineGradientTop(250, 250, 250);
 
-    // UiAnimViewDopeSheetBase.cpp:2872 (the timeline strip's gradient, bottom). TOKENIZE: DopeSheetTimelineGradientBottom
+    // UiAnimViewDopeSheetBase.cpp:2872 (the timeline strip's gradient, bottom) (CUiAnimViewDopeSheetBase::DrawTimeline)
+    // $fill.dopesheet.idle.bottom.Alt2
     constexpr QColor TimelineGradientBottom(180, 180, 180);
 
-    // UiAnimViewDopeSheetBase.cpp:2842 (the current-time marker). TOKENIZE: DopeSheetTimelineMarker
+    // UiAnimViewDopeSheetBase.cpp:2842 (the current-time marker) (CUiAnimViewDopeSheetBase::DrawTimeline) $fill.dopesheet.idle.Alt2
     constexpr QColor TimelineMarker(255, 0, 255);
 
-    // UiAnimViewDopeSheetBase.cpp:2849 (the current-time marker while recording). TOKENIZE: DopeSheetTimelineMarkerRecording
+    // UiAnimViewDopeSheetBase.cpp:2849 (the current-time marker while recording) (CUiAnimViewDopeSheetBase::DrawTimeline)
+    // $fill.dopesheet.idle.Alt3
     const QColor TimelineMarkerRecording(Qt::red);
 
-    // UiAnimViewDopeSheetBase.cpp:2843 (the labels of the timeline strip and its long ticks). TOKENIZE: DopeSheetTimelineText
+    // UiAnimViewDopeSheetBase.cpp:2843 (the labels of the timeline strip and its long ticks) (CUiAnimViewDopeSheetBase::DrawTimeline)
+    // $text.dopesheet.idle.Alt1
     const QColor TimelineText(Qt::black);
 
-    // UiAnimViewDopeSheetBase.cpp:2844 (the strip's pen before the first labelled tick). TOKENIZE: DopeSheetTimelineTickDark
+    // UiAnimViewDopeSheetBase.cpp:2844 (the strip's pen before the first labelled tick) (CUiAnimViewDopeSheetBase::DrawTimeline)
+    // $line.dopesheet.idle.color.Alt1
     constexpr QColor TimelineTickDark(90, 90, 90);
 
-    // UiAnimViewDopeSheetBase.cpp:2845 (the strip's light pen). TOKENIZE: DopeSheetTimelineTickLight
+    // UiAnimViewDopeSheetBase.cpp:2845 (the strip's light pen) (CUiAnimViewDopeSheetBase::DrawTimeline) $line.dopesheet.idle.color.Alt2
     constexpr QColor TimelineTickLight(150, 150, 150);
 
-    // UiAnimViewDopeSheetBase.cpp:2749, :2796 (the strip's short ticks after a labelled tick). TOKENIZE: DopeSheetTimelineTickMinor
+    // UiAnimViewDopeSheetBase.cpp:2749, :2796 (the strip's short ticks after a labelled tick)
+    // (CUiAnimViewDopeSheetBase::DrawTimeLineInFrames) $line.dopesheet.idle.color.Alt1
     constexpr QColor TimelineTickMinor(90, 90, 90);
 
     //////////////////////////////////////////////////////////////////////////
     //  Summary strip
     //////////////////////////////////////////////////////////////////////////
 
-    // UiAnimViewDopeSheetBase.cpp:2924 (the fill of the summary strip). TOKENIZE: DopeSheetSummaryFill
+    // UiAnimViewDopeSheetBase.cpp:2924 (the fill of the summary strip) (CUiAnimViewDopeSheetBase::DrawSummary) $fill.dopesheet.idle.Alt4
     constexpr QColor SummaryFill(150, 100, 220);
 
-    // UiAnimViewDopeSheetBase.cpp:2923 (the key marks on the summary strip). TOKENIZE: DopeSheetSummaryKeyLine
+    // UiAnimViewDopeSheetBase.cpp:2923 (the key marks on the summary strip) (CUiAnimViewDopeSheetBase::DrawSummary)
+    // $line.dopesheet.idle.color.Alt3
     const QColor SummaryKeyLine(Qt::black);
 
     //////////////////////////////////////////////////////////////////////////
     //  Track rows
     //////////////////////////////////////////////////////////////////////////
 
-    // UiAnimViewDopeSheetBase.cpp:1977 (the ticks of a track row). TOKENIZE: DopeSheetTrackTickDark
+    // UiAnimViewDopeSheetBase.cpp:1977 (the ticks of a track row) (CUiAnimViewDopeSheetBase::DrawTicks) $line.dopesheet.idle.color.Alt1
     constexpr QColor TrackTickDark(90, 90, 90);
 
-    // UiAnimViewDopeSheetBase.cpp:1978 (the ticks of a track row before the first tick of the range). TOKENIZE: DopeSheetTrackTickLight
+    // UiAnimViewDopeSheetBase.cpp:1978 (the ticks of a track row before the first tick of the range) (CUiAnimViewDopeSheetBase::DrawTicks)
+    // $line.dopesheet.idle.color.Alt4
     constexpr QColor TrackTickLight(120, 120, 120);
 
-    // UiAnimViewDopeSheetBase.cpp:2018 (the long ticks of a track row). TOKENIZE: DopeSheetTrackTickMajor
+    // UiAnimViewDopeSheetBase.cpp:2018 (the long ticks of a track row) (CUiAnimViewDopeSheetBase::DrawTicks)
+    // $line.dopesheet.idle.color.Alt3
     const QColor TrackTickMajor(Qt::black);
 
-    // UiAnimViewDopeSheetBase.cpp:2051 (the line under a track row). TOKENIZE: DopeSheetTrackBottomLine
+    // UiAnimViewDopeSheetBase.cpp:2051 (the line under a track row) (CUiAnimViewDopeSheetBase::DrawTrack) $line.dopesheet.idle.color.Alt4
     constexpr QColor TrackBottomLine(120, 120, 120);
 
-    // UiAnimViewDopeSheetBase.cpp:2131, :2141 (the gradient left and right of a track, top). TOKENIZE: DopeSheetTrackOutsideTop
+    // UiAnimViewDopeSheetBase.cpp:2131, :2141 (the gradient left and right of a track, top) (CUiAnimViewDopeSheetBase::DrawTrack)
+    // $fill.dopesheet.idle.top.Alt2
     constexpr QColor TrackOutsideTop(210, 210, 210);
 
-    // UiAnimViewDopeSheetBase.cpp:2132, :2142 (the gradient left and right of a track, bottom). TOKENIZE: DopeSheetTrackOutsideBottom
+    // UiAnimViewDopeSheetBase.cpp:2132, :2142 (the gradient left and right of a track, bottom) (CUiAnimViewDopeSheetBase::DrawTrack)
+    // $fill.dopesheet.idle.bottom.Alt2
     constexpr QColor TrackOutsideBottom(180, 180, 180);
 
-    // UiAnimViewDopeSheetBase.cpp:2106 (the fill of a track with an obsolete TCB spline). TOKENIZE: DopeSheetObsoleteTrackFill
+    // UiAnimViewDopeSheetBase.cpp:2106 (the fill of a track with an obsolete TCB spline) (CUiAnimViewDopeSheetBase::DrawTrack)
+    // $fill.dopesheet.idle.Alt5
     constexpr QColor ObsoleteTrackFill(245, 80, 70);
 
-    // UiAnimViewDopeSheetBase.cpp:2973 (the text of a node with an obsolete TCB track). TOKENIZE: DopeSheetObsoleteNodeText
+    // UiAnimViewDopeSheetBase.cpp:2973 (the text of a node with an obsolete TCB track) (CUiAnimViewDopeSheetBase::DrawNodeTrack)
+    // $text.node.idle.Alt1
     constexpr QColor ObsoleteNodeText(245, 80, 70);
 
-    // UiAnimViewDopeSheetBase.cpp:38 (the #define KEY_TEXT_COLOR: key descriptions and node names). TOKENIZE: DopeSheetKeyText
+    // UiAnimViewDopeSheetBase.cpp:38 (the #define KEY_TEXT_COLOR: key descriptions and node names) (CUiAnimViewDopeSheetBase::DrawKeys)
+    // $text.dopesheet.idle.Alt2
     constexpr QColor KeyText(0, 0, 50);
 
-    // UiAnimViewDopeSheetBase.cpp:39 (the #define INACTIVE_TEXT_COLOR: node of an inactive director). TOKENIZE: DopeSheetInactiveNodeText
+    // UiAnimViewDopeSheetBase.cpp:39 (the #define INACTIVE_TEXT_COLOR: node of an inactive director)
+    // (CUiAnimViewDopeSheetBase::DrawNodeTrack) $text.node.disabled.Alt1
     constexpr QColor InactiveNodeText(128, 128, 128);
 
     //////////////////////////////////////////////////////////////////////////
     //  Track ranges
     //////////////////////////////////////////////////////////////////////////
 
-    // UiAnimViewDopeSheetBase.cpp:71 (the brush set before a bool track or a key duration is drawn). TOKENIZE: DopeSheetVisibilityBrush
+    // UiAnimViewDopeSheetBase.cpp:71 (the brush set before a bool track or a key duration is drawn)
+    // (CUiAnimViewDopeSheetBase::CUiAnimViewDopeSheetBase) $fill.dopesheet.idle.Alt6
     constexpr QColor VisibilityBrush(120, 120, 255);
 
-    // UiAnimViewDopeSheetBase.cpp:72 (the brush set before a select track is drawn). TOKENIZE: DopeSheetSelectTrackBrush
+    // UiAnimViewDopeSheetBase.cpp:72 (the brush set before a select track is drawn) (CUiAnimViewDopeSheetBase::CUiAnimViewDopeSheetBase)
+    // $fill.dopesheet.selected.Alt2
     constexpr QColor SelectTrackBrush(100, 190, 255);
 
-    // UiAnimViewDopeSheetBase.cpp:2212, :2220 (a select track's gradient, top: key and blend). TOKENIZE: DopeSheetSelectTrackFadeTop
+    // UiAnimViewDopeSheetBase.cpp:2212, :2220 (a select track's gradient, top: key and blend) (CUiAnimViewDopeSheetBase::DrawSelectTrack)
+    // $fill.dopesheet.selected.top.Alt1
     const QColor SelectTrackFadeTop(Qt::white);
 
-    // UiAnimViewDopeSheetBase.cpp:2213 (a select track's gradient over the key, bottom). TOKENIZE: DopeSheetSelectTrackFadeEnd
+    // UiAnimViewDopeSheetBase.cpp:2213 (a select track's gradient over the key, bottom) (CUiAnimViewDopeSheetBase::DrawSelectTrack)
+    // $fill.dopesheet.selected.bottom.Alt1
     constexpr QColor SelectTrackFadeEnd(100, 190, 255);
 
-    // UiAnimViewDopeSheetBase.cpp:2221 (a select track's gradient over the blend time, bottom). TOKENIZE: DopeSheetSelectTrackBlendEnd
+    // UiAnimViewDopeSheetBase.cpp:2221 (a select track's gradient over the blend time, bottom) (CUiAnimViewDopeSheetBase::DrawSelectTrack)
+    // $fill.dopesheet.selected.bottom.Alt2
     constexpr QColor SelectTrackBlendEnd(0, 115, 230);
 
-    // UiAnimViewDopeSheetBase.cpp:2258, :2271 (a bool track's gradient when true, top). TOKENIZE: DopeSheetBoolTrackGradientTop
+    // UiAnimViewDopeSheetBase.cpp:2258, :2271 (a bool track's gradient when true, top) (CUiAnimViewDopeSheetBase::DrawBoolTrack)
+    // $fill.dopesheet.idle.top.Alt1
     constexpr QColor BoolTrackGradientTop(250, 250, 250);
 
-    // UiAnimViewDopeSheetBase.cpp:2259, :2272 (a bool track's gradient when true, bottom). TOKENIZE: DopeSheetBoolTrackGradientBottom
+    // UiAnimViewDopeSheetBase.cpp:2259, :2272 (a bool track's gradient when true, bottom) (CUiAnimViewDopeSheetBase::DrawBoolTrack)
+    // $fill.dopesheet.idle.bottom.Alt3
     constexpr QColor BoolTrackGradientBottom(0, 80, 255);
 
-    // UiAnimViewDopeSheetBase.cpp:3046 (a key duration's gradient, top). TOKENIZE: DopeSheetKeyDurationGradientTop
+    // UiAnimViewDopeSheetBase.cpp:3046 (a key duration's gradient, top) (CUiAnimViewDopeSheetBase::DrawKeyDuration)
+    // $fill.dopesheet.idle.top.Alt4
     constexpr QColor KeyDurationGradientTop(120, 120, 255);
 
-    // UiAnimViewDopeSheetBase.cpp:3049 (a key duration's gradient, bottom). TOKENIZE: DopeSheetKeyDurationGradientBottom
+    // UiAnimViewDopeSheetBase.cpp:3049 (a key duration's gradient, bottom) (CUiAnimViewDopeSheetBase::DrawKeyDuration)
+    // $fill.dopesheet.idle.bottom.Alt4
     constexpr QColor KeyDurationGradientBottom(250, 250, 250);
 
     //////////////////////////////////////////////////////////////////////////
     //  Keys
     //////////////////////////////////////////////////////////////////////////
 
-    // UiAnimViewDopeSheetBase.cpp:2436 (the keys that a paste would add). TOKENIZE: DopeSheetPasteKeyLine
+    // UiAnimViewDopeSheetBase.cpp:2436 (the keys that a paste would add) (CUiAnimViewDopeSheetBase::DrawTrackClipboardKeys)
+    // $line.dopesheet.idle.color.Alt5
     const QColor PasteKeyLine(Qt::green);
 
-    // UiAnimViewDopeSheetBase.cpp:2686 (the lines through the selected keys). TOKENIZE: DopeSheetSelectedKeyLine
+    // UiAnimViewDopeSheetBase.cpp:2686 (the lines through the selected keys) (CUiAnimViewDopeSheetBase::DrawSelectedKeyIndicators)
+    // $line.dopesheet.selected.color.Alt1
     const QColor SelectedKeyLine(Qt::green);
 
-    // UiAnimViewDopeSheetBase.cpp:2986 (the body of the go-to-track arrow). TOKENIZE: DopeSheetGoToArrowBody
+    // UiAnimViewDopeSheetBase.cpp:2986 (the body of the go-to-track arrow) (CUiAnimViewDopeSheetBase::DrawGoToTrackArrow)
+    // $fill.dopesheet.idle.Alt7
     constexpr QColor GoToArrowBody(150, 150, 150);
 
-    // UiAnimViewDopeSheetBase.cpp:2987 (the head of the go-to-track arrow). TOKENIZE: DopeSheetGoToArrowHead
+    // UiAnimViewDopeSheetBase.cpp:2987 (the head of the go-to-track arrow) (CUiAnimViewDopeSheetBase::DrawGoToTrackArrow)
+    // $line.dopesheet.idle.color.Alt6
     constexpr QColor GoToArrowHead(50, 50, 50);
 
     //////////////////////////////////////////////////////////////////////////
     //  Redraw counter (the DEBUG build only)
     //////////////////////////////////////////////////////////////////////////
 
-    // UiAnimViewDopeSheetBase.cpp:883 (the text of the redraw counter). TOKENIZE: DopeSheetRedrawCountText
+    // UiAnimViewDopeSheetBase.cpp:883 (the text of the redraw counter) (CUiAnimViewDopeSheetBase::paintEvent) $text.dopesheet.idle.Alt3
     [[maybe_unused]] constexpr QColor RedrawCountText(255, 255, 255);
 
-    // UiAnimViewDopeSheetBase.cpp:884, :891 (the box behind the redraw counter). TOKENIZE: DopeSheetRedrawCountFill
+    // UiAnimViewDopeSheetBase.cpp:884, :891 (the box behind the redraw counter) (CUiAnimViewDopeSheetBase::paintEvent)
+    // $fill.dopesheet.idle.Alt8
     [[maybe_unused]] constexpr QColor RedrawCountFill(0, 0, 0);
 } // namespace UiAnimViewDopeSheetBaseFlat
 

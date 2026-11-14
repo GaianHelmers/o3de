@@ -28,7 +28,8 @@ namespace AudioControls
     //===========================================================================================//
     namespace InspectorPanelFlat
     {
-        constexpr QColor ScopeNotFoundText(255, 128, 128); // InspectorPanel.cpp:30. TOKENIZE: AudioInspectorScopeNotFoundText
+        // InspectorPanel.cpp:30 (CInspectorPanel::CInspectorPanel) $text.surface.idle.Alt13
+        constexpr QColor ScopeNotFoundText(255, 128, 128);
     } // namespace InspectorPanelFlat
 
     //-------------------------------------------------------------------------------------------//

@@ -66,11 +66,11 @@ namespace AzQtComponents
         // GUI. The flattened GUI reads only PlaceholderText (LineEdit::polish, for a line edit inside a spin box or a combo box): a
         // framed line edit is drawn by LineEditFlat::Frame (LineEdit::drawFrame) before the hover, focus and error colours are read.
         // ------------------------------------------------------------------------------
-        constexpr QColor HoverFill(0xFF, 0xFF, 0xFF);       // LineEdit.cpp:509. TOKENIZE: LineEditHoverFill
-        constexpr QColor HoverLine(0x22, 0x22, 0x22);       // LineEdit.cpp:510. TOKENIZE: LineEditHoverLine
-        constexpr QColor FocusLine(0x94, 0xD2, 0xFF);       // LineEdit.cpp:512. TOKENIZE: LineEditFocusLine
-        constexpr QColor ErrorLine(0xE2, 0x52, 0x43);       // LineEdit.cpp:514. TOKENIZE: LineEditErrorLine
-        constexpr QColor PlaceholderText(0x88, 0x88, 0x88); // LineEdit.cpp:516. TOKENIZE: LineEditPlaceholderText
+        constexpr QColor HoverFill(0xFF, 0xFF, 0xFF);       // LineEdit.cpp:509 (LineEdit::defaultConfig) $fill.field.hover.Alt3
+        constexpr QColor HoverLine = Foundations::BG;       // LineEdit.cpp:510 (LineEdit::defaultConfig) $line.field.hover.color.BG
+        constexpr QColor FocusLine(0x94, 0xD2, 0xFF);       // LineEdit.cpp:512 (LineEdit::defaultConfig) $line.field.focus.color.Alt3
+        constexpr QColor ErrorLine(0xE2, 0x52, 0x43);       // LineEdit.cpp:514 (LineEdit::defaultConfig) $line.field.error.color.Alt1
+        constexpr QColor PlaceholderText(0x88, 0x88, 0x88); // LineEdit.cpp:516 (LineEdit::defaultConfig) $text.field.idle.Alt6
     } // namespace LineEditFlat
 
     class LineEditWatcher : public QObject
@@ -665,7 +665,7 @@ namespace AzQtComponents
                 // LineEdit.qss:39 `QAbstractItemView QLineEdit { qproperty-frame: true }`: the editor a delegate opens in a view. The
                 // default editor factory leaves a string editor without a frame (it asks QStyle::SH_ItemView_DrawDelegateFrame, which
                 // neither rung's style answers), and the sheet set it at polish. The line edit of a spin box or a combo box stays as
-                // the container left it, as the legacy GUI's did. TOKENIZE: ItemViewEditorFrame
+                // the container left it, as the legacy GUI's did
                 if (!isEmbedded(lineEdit) && StyleHelpers::findParent<QAbstractItemView>(lineEdit))
                 {
                     lineEdit->setFrame(true);

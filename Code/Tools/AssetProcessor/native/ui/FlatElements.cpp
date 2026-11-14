@@ -574,13 +574,12 @@ namespace AssetProcessor
         //! SourceAssetDetailsPanel.ui:241, :274, :287, the forms before the flattening). The shorthand sets the style to normal and the
         //! weight to bold, and leaves the family and the size to the label rule: Open Sans, 12px (Text.qss:91-92). Captured:
         //! builderInfoHeaderTitleName (legacy dump: Open Sans, 12px, weight 700). UNVERIFIED by capture: the other twelve.
-        //! TOKENIZE: FormTitleWeight
         const TextElement FormBold{
             .m_name = "AssetProcessor.Text.FormBold",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = Foundations::Label::Size,
             .m_weight = BoldWeight,
-            .m_italic = 0,
+            .m_italic = 0,  // MainWindow.ui:1334, :1392, :1422, :1442, :1462 $type.surface.idle.style.Alt2
         };
 
         //! `font: 12pt;` (ProductAssetDetailsPanel.ui:41, :470, :563, :662, :800; SourceAssetDetailsPanel.ui:41, the forms before the
@@ -590,13 +589,13 @@ namespace AssetProcessor
         //! (Text.qss:66, :91). The size is carried in points (TextElement::m_pointSize), as the sheet gave it: Qt makes pixels of it at
         //! the screen's logical DPI in both GUIs. Also the font of the context menu of the four selectable value labels (see
         //! isPointLabelMenu). Captured: assetNameLabel of the source panel (legacy dump: Open Sans, pt 12, px -1, weight 400).
-        //! UNVERIFIED by capture: the other five, and the menu. TOKENIZE: FormTextSize
+        //! UNVERIFIED by capture: the other five, and the menu
         const TextElement FormPoint{
             .m_name = "AssetProcessor.Text.FormPoint",
             .m_family = Foundations::Label::Family,
-            .m_pointSize = 12,
+            .m_pointSize = 12,  // ProductAssetDetailsPanel.ui:41, :470, :563, :662, :800 $type.surface.idle.size.Alt2
             .m_weight = QFont::Normal,
-            .m_italic = 0,
+            .m_italic = 0,  // ProductAssetDetailsPanel.ui:41, :470, :563, :662, :800 $type.surface.idle.style.Alt2
         };
 
         //! `font: bold, 12pt;` (ProductAssetDetailsPanel.ui:212, :454, :550, :649, :787, the form before the flattening). Qt reads the
@@ -607,21 +606,22 @@ namespace AssetProcessor
         //! family named "12pt", which no machine has: Qt falls back to a font of its own. Qt 6.10.2 is the engine's; a probe on 6.10.3
         //! measured family "12pt", 12px, weight 700 with the rules above the label, and the test
         //! Fonts_TheShorthandWithACommaMakesTheWordAfterItTheFamily pins it on the engine's Qt. The effective value is kept, quirk and
-        //! all. UNVERIFIED by capture (the product tabs are in no capture). TOKENIZE: FormTitleFamily, FormTitleWeight
+        //! all. UNVERIFIED by capture (the product tabs are in no capture)
         const TextElement FormBoldWithComma{
             .m_name = "AssetProcessor.Text.FormBoldWithComma",
             .m_family = "12pt",
             .m_pixelSize = Foundations::Label::Size,
             .m_weight = BoldWeight,
-            .m_italic = 0,
+            .m_italic = 0,  // ProductAssetDetailsPanel.ui:212, :454, :550, :649, :787 $type.surface.idle.style.Alt2
         };
 
         //! `background-color: #616161;` (MainWindow.ui:1619, :1767, :1900, :2051, :2202, the form before the flattening) on the five
         //! dividers of the settings page, over the frame fill `.QFrame[frameShape="4"] { background-color: #444444 }`
         //! (BaseStyleSheet.qss:40-48), which the widget's own sheet outranks. The fill, and the divider's own frame (a sunken line),
-        //! which the base style draws over the palette of the fill, as it did under the sheet. Captured. TOKENIZE: SettingsDividerSurface
+        //! which the base style draws over the palette of the fill, as it did under the sheet. Captured
         const BoxElement SettingsDivider{
             .m_name = "AssetProcessor.Box.SettingsDivider",
+            // MainWindow.ui:1619, :1767, :1900, :2051, :2202 $fill.surface.idle.Alt17
             .m_idle = { .m_fill = QBrush(QColor(0x61, 0x61, 0x61)) },
         };
 

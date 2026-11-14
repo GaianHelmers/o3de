@@ -32,7 +32,7 @@ namespace EMotionFX
     //////////////////////////////////////////////////////////////////////////
     namespace RagdollNodeWidgetFlat
     {
-        inline const QColor Underline{ "#f5a623" };   // RagdollNodeWidget.h:69 TOKENIZE: RagdollCardUnderline
+        inline const QColor Underline{ "#f5a623" };   // RagdollNodeWidget.h:69 (RagdollNodeWidget::GetColor) $line.card.idle.color.Alt4
     } // namespace RagdollNodeWidgetFlat
 
     class ObjectEditor;

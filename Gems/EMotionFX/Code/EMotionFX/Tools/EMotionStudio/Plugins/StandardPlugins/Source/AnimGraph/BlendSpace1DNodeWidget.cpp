@@ -21,15 +21,24 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace BlendSpace1DNodeWidgetFlat
     {
-        constexpr QColor Edge(0xBB, 0xBB, 0xBB);                  // BlendSpace1DNodeWidget.cpp:41 TOKENIZE: BlendSpace1DEdge
-        constexpr QColor HighlightedEdge(0xF5, 0xA6, 0x23);       // BlendSpace1DNodeWidget.cpp:45 TOKENIZE: BlendSpace1DHighlightedEdge
-        constexpr QColor Grid(61, 61, 61);                        // BlendSpace1DNodeWidget.cpp:49 TOKENIZE: BlendSpace1DGrid
-        constexpr QColor Subgrid(55, 55, 55);                     // BlendSpace1DNodeWidget.cpp:50 TOKENIZE: BlendSpace1DSubgrid
-        constexpr QColor AxisLabel(0xBB, 0xBB, 0xBB);             // BlendSpace1DNodeWidget.cpp:52 TOKENIZE: BlendSpace1DAxisLabel
-        constexpr QColor InfoText(0xBB, 0xBB, 0xBB);              // BlendSpace1DNodeWidget.cpp:56 TOKENIZE: BlendSpace1DInfoText
-        constexpr QColor BackgroundRect(0xDD, 0xDD, 0xDD, 0x11);  // BlendSpace1DNodeWidget.cpp:60 TOKENIZE: BlendSpace1DBackgroundRect
-        constexpr QColor Point(0xBB, 0xBB, 0xBB);                 // BlendSpace1DNodeWidget.cpp:64 TOKENIZE: BlendSpace1DPoint
-        constexpr QColor InfoTextBackground(0x22, 0x22, 0x22);    // BlendSpace1DNodeWidget.cpp:68 TOKENIZE: BlendSpace1DInfoTextBackground
+        // BlendSpace1DNodeWidget.cpp:41 (BlendSpace1DNodeWidget::BlendSpace1DNodeWidget) $line.node.idle.color.Alt3
+        constexpr QColor Edge(0xBB, 0xBB, 0xBB);
+        // BlendSpace1DNodeWidget.cpp:45 (BlendSpace1DNodeWidget::BlendSpace1DNodeWidget) $line.node.idle.color.Alt4
+        constexpr QColor HighlightedEdge(0xF5, 0xA6, 0x23);
+        // BlendSpace1DNodeWidget.cpp:49 (BlendSpace1DNodeWidget::BlendSpace1DNodeWidget) $line.node.idle.color.Alt5
+        constexpr QColor Grid(61, 61, 61);
+        // BlendSpace1DNodeWidget.cpp:50 (BlendSpace1DNodeWidget::BlendSpace1DNodeWidget) $fill.node.idle.Alt2
+        constexpr QColor Subgrid(55, 55, 55);
+        // BlendSpace1DNodeWidget.cpp:52 (BlendSpace1DNodeWidget::BlendSpace1DNodeWidget) $text.node.idle.Alt5
+        constexpr QColor AxisLabel(0xBB, 0xBB, 0xBB);
+        // BlendSpace1DNodeWidget.cpp:56 (BlendSpace1DNodeWidget::BlendSpace1DNodeWidget) $text.node.idle.Alt5
+        constexpr QColor InfoText(0xBB, 0xBB, 0xBB);
+        // BlendSpace1DNodeWidget.cpp:60 (BlendSpace1DNodeWidget::BlendSpace1DNodeWidget) $fill.node.idle.Alt3
+        constexpr QColor BackgroundRect(0xDD, 0xDD, 0xDD, 0x11);
+        // BlendSpace1DNodeWidget.cpp:64 (BlendSpace1DNodeWidget::BlendSpace1DNodeWidget) $fill.node.idle.Alt4
+        constexpr QColor Point(0xBB, 0xBB, 0xBB);
+        // BlendSpace1DNodeWidget.cpp:68 (BlendSpace1DNodeWidget::BlendSpace1DNodeWidget) $fill.node.idle.BG
+        constexpr QColor InfoTextBackground(0x22, 0x22, 0x22);
     } // namespace BlendSpace1DNodeWidgetFlat
 
     const int   BlendSpace1DNodeWidget::s_motionPointCircleWidth = 4;

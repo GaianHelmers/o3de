@@ -25,11 +25,11 @@ namespace AtomToolsFramework
     namespace InspectorGroupHeaderWidgetInternal
     {
         //! background-color: InspectorGroupHeaderWidget.cpp:74 (the fill of the header: the legacy sheet reads it, and the flat element
-        //! below). $fill.surface.idle.Low
+        //! below). InspectorGroupHeaderWidget::InspectorGroupHeaderWidget $fill.surface.idle.Low
         constexpr QColor HeaderFill = AzQtComponents::Foundations::Low;
 
         //! border-color: InspectorGroupHeaderWidget.cpp:74 (the line above and below the header: the legacy sheet reads it, and the
-        //! flat element below). $line.surface.idle.color.Alt3
+        //! flat element below). InspectorGroupHeaderWidget::InspectorGroupHeaderWidget $line.surface.idle.color.Alt3
         constexpr QColor HeaderBorder = AzQtComponents::Foundations::Line::Frame;
 
         // ------------------------------------------------------------------------------
@@ -47,7 +47,8 @@ namespace AtomToolsFramework
             .m_nativeBorder = false,                                                // border-style solid: a border of its own (:74)
             .m_idle = {
                 .m_fill = QBrush(HeaderFill),                                       // background-color (:74)
-                // border-color #1B1B1B, border-width 1px; border-left and border-right none (:74) $line.surface.idle.width.Alt1
+                // border-color #1B1B1B, border-width 1px; border-left and border-right none (:74,
+                // InspectorGroupHeaderWidget::InspectorGroupHeaderWidget) $line.surface.idle.width.Alt1
                 .m_edges = { { 1, HeaderBorder }, {}, { 1, HeaderBorder }, {} },
             },
         };

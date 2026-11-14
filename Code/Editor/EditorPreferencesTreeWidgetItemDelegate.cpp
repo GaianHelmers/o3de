@@ -21,13 +21,16 @@
 //////////////////////////////////////////////////////////////////////////
 namespace EditorPreferencesTreeWidgetItemDelegateFlat
 {
-    // EditorPreferencesTreeWidgetItemDelegate.cpp:21 (the fill of the item under the mouse). TOKENIZE: PreferencesTreeItemHover
+    // EditorPreferencesTreeWidgetItemDelegate.cpp:21 (the fill of the item under the mouse)
+    // (EditorPreferencesTreeWidgetItemDelegate::EditorPreferencesTreeWidgetItemDelegate) $fill.view.hover.Alt1
     constexpr QColor ItemHover(0x40, 0x40, 0x40);
 
-    // EditorPreferencesTreeWidgetItemDelegate.cpp:22 (the fill of the selected item). TOKENIZE: PreferencesTreeItemSelected
+    // EditorPreferencesTreeWidgetItemDelegate.cpp:22 (the fill of the selected item)
+    // (EditorPreferencesTreeWidgetItemDelegate::EditorPreferencesTreeWidgetItemDelegate) $fill.view.selected.Alt1
     constexpr QColor ItemSelected(0x47, 0x47, 0x47);
 
-    // EditorPreferencesTreeWidgetItemDelegate.cpp:59 (the text of an item). TOKENIZE: PreferencesTreeItemText
+    // EditorPreferencesTreeWidgetItemDelegate.cpp:59 (the text of an item) (EditorPreferencesTreeWidgetItemDelegate::paint)
+    // $text.view.idle.Alt1
     constexpr QColor ItemText(255, 255, 255);
 } // namespace EditorPreferencesTreeWidgetItemDelegateFlat
 

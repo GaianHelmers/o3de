@@ -23,22 +23,24 @@
 //////////////////////////////////////////////////////////////////////////
 namespace TrackViewCurveEditorFlat
 {
-    // TrackViewCurveEditor.cpp:189 (the colour of a sub-track whose index is not 0 to 3). TOKENIZE: TrackViewCurveAxisFallback
+    // TrackViewCurveEditor.cpp:189 (the colour of a sub-track whose index is not 0 to 3) (CTrackViewCurveEditor::AddSpline)
+    // $line.curve.idle.color.Alt5
     constexpr QColor AxisFallback(255, 0, 0);
 
-    // TrackViewCurveEditor.cpp:193, :211 (the X curve). TOKENIZE: TrackViewCurveAxisX
+    // TrackViewCurveEditor.cpp:193, :211 (the X curve) (CTrackViewCurveEditor::AddSpline) $line.curve.idle.color.Alt5
     constexpr QColor AxisX(255, 0, 0);
 
-    // TrackViewCurveEditor.cpp:196, :212 (the Y curve). TOKENIZE: TrackViewCurveAxisY
+    // TrackViewCurveEditor.cpp:196, :212 (the Y curve) (CTrackViewCurveEditor::AddSpline) $line.curve.idle.color.Alt6
     constexpr QColor AxisY(0, 255, 0);
 
-    // TrackViewCurveEditor.cpp:199, :213 (the Z curve). TOKENIZE: TrackViewCurveAxisZ
+    // TrackViewCurveEditor.cpp:199, :213 (the Z curve) (CTrackViewCurveEditor::AddSpline) $line.curve.idle.color.Alt7
     constexpr QColor AxisZ(0, 0, 255);
 
-    // TrackViewCurveEditor.cpp:202 (the W curve). TOKENIZE: TrackViewCurveAxisW
+    // TrackViewCurveEditor.cpp:202 (the W curve) (CTrackViewCurveEditor::AddSpline) $line.curve.idle.color.Alt8
     constexpr QColor AxisW(255, 255, 0);
 
-    // TrackViewCurveEditor.cpp:214 (the fourth curve of a multi-curve track, pink as a warning). TOKENIZE: TrackViewCurveAxisUnknown
+    // TrackViewCurveEditor.cpp:214 (the fourth curve of a multi-curve track, pink as a warning) (CTrackViewCurveEditor::AddSpline)
+    // $line.curve.idle.color.Alt9
     constexpr QColor AxisUnknown(255, 0, 255);
 } // namespace TrackViewCurveEditorFlat
 

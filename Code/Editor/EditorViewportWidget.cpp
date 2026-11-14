@@ -95,16 +95,17 @@
 //////////////////////////////////////////////////////////////////////////
 namespace EditorViewportWidgetFlat
 {
-    // EditorViewportWidget.cpp:310 (the fallback background gradient, top). TOKENIZE: ViewportFallbackGradientTop
+    // EditorViewportWidget.cpp:310 (the fallback background gradient, top) (EditorViewportWidget::paintEvent) $fill.viewport.idle.top.Alt1
     constexpr QColor FallbackGradientTop(80, 80, 80);
 
-    // EditorViewportWidget.cpp:311 (the fallback background gradient, bottom). TOKENIZE: ViewportFallbackGradientBottom
+    // EditorViewportWidget.cpp:311 (the fallback background gradient, bottom) (EditorViewportWidget::paintEvent)
+    // $fill.viewport.idle.bottom.Alt1
     constexpr QColor FallbackGradientBottom(200, 200, 200);
 
-    // EditorViewportWidget.cpp:320 (the 'Preparing level' text). TOKENIZE: ViewportFallbackText
+    // EditorViewportWidget.cpp:320 (the 'Preparing level' text) (EditorViewportWidget::paintEvent) $text.viewport.idle.Alt1
     constexpr QColor FallbackText(255, 255, 255);
 
-    // EditorViewportWidget.cpp:321 (the shadow of the 'Preparing level' text). TOKENIZE: ViewportFallbackTextShadow
+    // EditorViewportWidget.cpp:321 (the shadow of the 'Preparing level' text) (EditorViewportWidget::paintEvent) $text.viewport.idle.Alt2
     constexpr QColor FallbackTextShadow(0, 0, 0);
 } // namespace EditorViewportWidgetFlat
 

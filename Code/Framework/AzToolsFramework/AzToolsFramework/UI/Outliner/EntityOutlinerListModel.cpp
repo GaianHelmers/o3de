@@ -311,6 +311,7 @@ namespace AzToolsFramework
 
         if (isEditorOnly)
         {
+            // EntityOutlinerListModel::GetEntityIcon $asset.view.idle.image.Alt1
             return AzQtComponents::CachedIcon(QStringLiteral(":/Entity/entity_editoronly.svg"));
         }
 
@@ -320,9 +321,11 @@ namespace AzToolsFramework
 
         if (!isInitiallyActive)
         {
+            // EntityOutlinerListModel::GetEntityIcon $asset.view.idle.image.Alt2
             return AzQtComponents::CachedIcon(QStringLiteral(":/Entity/entity_notactive.svg"));
         }
 
+        // EntityOutlinerListModel::GetEntityIcon $asset.view.idle.image.Alt3
         return AzQtComponents::CachedIcon(QStringLiteral(":/Entity/entity.svg"));
     }
 

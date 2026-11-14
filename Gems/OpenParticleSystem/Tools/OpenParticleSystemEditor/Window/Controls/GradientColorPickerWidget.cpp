@@ -22,9 +22,12 @@ namespace OpenParticleSystemEditor
     //=========================================================================
     namespace GradientColorPickerWidgetFlat
     {
-        const QColor KeyIdle(Qt::gray);      // GradientColorPickerWidget.cpp:24. TOKENIZE: ParticleGradientKeyIdle
-        const QColor KeyHovered(Qt::yellow); // GradientColorPickerWidget.cpp:25. TOKENIZE: ParticleGradientKeyHovered
-        const QColor KeySelected(Qt::blue);  // GradientColorPickerWidget.cpp:26. TOKENIZE: ParticleGradientKeySelected
+        // GradientColorPickerWidget.cpp:24 (GradientColorPickerWidget::GradientColorPickerWidget) $fill.gradient.idle.Alt1
+        const QColor KeyIdle(Qt::gray);
+        // GradientColorPickerWidget.cpp:25 (GradientColorPickerWidget::GradientColorPickerWidget) $fill.gradient.hover.Alt1
+        const QColor KeyHovered(Qt::yellow);
+        // GradientColorPickerWidget.cpp:26 (GradientColorPickerWidget::GradientColorPickerWidget) $fill.gradient.selected.Alt1
+        const QColor KeySelected(Qt::blue);
     } // namespace GradientColorPickerWidgetFlat
 
     GradientColorPickerWidget::GradientColorPickerWidget(QWidget* parent)

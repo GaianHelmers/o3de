@@ -31,10 +31,10 @@ namespace AzQtComponents
     {
         // ---- The fills of two widgets that set a sheet of their own. The legacy GUI's sheet and the elements read the same value.
         //! ToastNotification.ui:59 (before the flattening) `background-color: rgba(255, 255, 255, 20)` of the toast's icon frame.
-        //! TOKENIZE: ToastIconFrameFill
+        //! $fill.toast.idle.Alt1
         inline constexpr QColor ToastIconFrameFill(255, 255, 255, 20);
         //! OverlayWidgetLayer.cpp:35 (LayerStyle) `background-color:rgba(0, 0, 0, 179)` of an overlay layer that dims what is behind it,
-        //! and of every widget below it. TOKENIZE: OverlayDimFill
+        //! and of every widget below it OverlayWidgetLayer::OverlayWidgetLayer $fill.surface.idle.Alt13
         inline constexpr QColor OverlayDimFill(0, 0, 0, 179);
         //! The class tag of a layer that dims (OverlayWidgetLayer sets it in the flattened GUI, where the legacy GUI sets the sheet): the
         //! elements of the layer and of the widgets below it are matched by it

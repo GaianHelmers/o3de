@@ -46,7 +46,8 @@ namespace OpenParticleSystemEditor
     //=========================================================================
     namespace OpenParticleSystemEditorWindowFlat
     {
-        constexpr QColor StatusMessageText(255, 255, 255); // OpenParticleSystemEditorWindow.cpp:519. TOKENIZE: ParticleStatusMessageText
+        // OpenParticleSystemEditorWindow.cpp:519 (OpenParticleSystemEditorWindow::SetStatusMessage) $text.surface.idle.Alt8
+        constexpr QColor StatusMessageText(255, 255, 255);
     } // namespace OpenParticleSystemEditorWindowFlat
 
     OpenParticleSystemEditorWindow::OpenParticleSystemEditorWindow(QWidget* parent)

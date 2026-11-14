@@ -25,7 +25,7 @@ namespace AzToolsFramework
     //! a header is read by many files, and a unity build joins files into one translation unit, where anonymous namespaces merge.
     namespace LevelRootUiHandlerFlat
     {
-        //! LevelRootUiHandler.h:48. TOKENIZE: OutlinerLevelRootBorder
+        //! LevelRootUiHandler.h:48 (LevelRootUiHandler::m_levelRootBorderColor) $line.surface.idle.color.Alt9
         inline constexpr QColor Border(0x65, 0x65, 0x65);
     }
 

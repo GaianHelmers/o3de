@@ -26,6 +26,7 @@
 
 // AzQtComponents
 #include <AzQtComponents/Components/Widgets/ScrollBar.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 
 // Editor
 #include "ScriptHelpDialog.h"
@@ -44,16 +45,18 @@ namespace AzToolsFramework
     namespace ScriptTermDialogFlatInternal
     {
         // The light console colour theme
-        const QColor LightText(Qt::black);                  // ScriptTermDialog.cpp:78. TOKENIZE: PythonConsoleLightText
-        constexpr QColor LightError(200, 0, 0);             // ScriptTermDialog.cpp:79. TOKENIZE: PythonConsoleLightError
-        constexpr QColor LightWarning(128, 112, 0);         // ScriptTermDialog.cpp:80. TOKENIZE: PythonConsoleLightWarning
-        const QColor LightBackground(Qt::white);            // ScriptTermDialog.cpp:100. TOKENIZE: PythonConsoleLightBackground
+        const QColor LightText(Qt::black);  // ScriptTermDialog.cpp:78 (CScriptTermDialog::RefreshStyle) $text.console.idle.Alt1
+        constexpr QColor LightError(200, 0, 0);  // ScriptTermDialog.cpp:79 (CScriptTermDialog::RefreshStyle) $text.console.error.Alt1
+        constexpr QColor LightWarning(128, 112, 0);  // ScriptTermDialog.cpp:80 (CScriptTermDialog::RefreshStyle) $text.console.warning.Alt1
+        const QColor LightBackground(Qt::white);  // ScriptTermDialog.cpp:100 (CScriptTermDialog::RefreshStyle) $fill.console.idle.Alt1
 
         // The dark console colour theme
-        const QColor DarkText(Qt::white);                   // ScriptTermDialog.cpp:87. TOKENIZE: PythonConsoleDarkText
-        constexpr QColor DarkError(0xfa, 0x27, 0x27);       // ScriptTermDialog.cpp:88. TOKENIZE: PythonConsoleDarkError
-        constexpr QColor DarkWarning(0xff, 0xaa, 0x22);     // ScriptTermDialog.cpp:89. TOKENIZE: PythonConsoleDarkWarning
-        constexpr QColor DarkBackground(0x22, 0x22, 0x22);  // ScriptTermDialog.cpp:95. TOKENIZE: PythonConsoleDarkBackground
+        const QColor DarkText(Qt::white);  // ScriptTermDialog.cpp:87 (CScriptTermDialog::RefreshStyle) $text.console.idle.Alt2
+        constexpr QColor DarkError(0xfa, 0x27, 0x27);  // ScriptTermDialog.cpp:88 (CScriptTermDialog::RefreshStyle) $text.console.error.Alt2
+        // ScriptTermDialog.cpp:89 (CScriptTermDialog::RefreshStyle) $text.console.warning.Alt2
+        constexpr QColor DarkWarning(0xff, 0xaa, 0x22);
+        // ScriptTermDialog.cpp:95 (CScriptTermDialog::RefreshStyle) $fill.console.idle.BG
+        constexpr QColor DarkBackground = AzQtComponents::Foundations::BG;
     }
 
     static constexpr const char* OtherCategory = "Other";

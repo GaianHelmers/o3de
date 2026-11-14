@@ -137,8 +137,8 @@ namespace AzToolsFramework
             constexpr const char* PreviewImageName = "m_previewImage";
 
             //! background-color: AssetBrowserEntityInspectorWidget.cpp:169, the line before the flattening.
-            //! TOKENIZE: AssetBrowserPreviewImageFill
-            const QColor PreviewImageFill(0x33, 0x33, 0x33);
+            //! AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget $fill.surface.idle.Low
+            const QColor PreviewImageFill = AzQtComponents::Foundations::Low;
 
             //! The sheet the constructor gave the preview image before the flattening (AssetBrowserEntityInspectorWidget.cpp:169), as it
             //! was written, its fill read from the constant the element reads
@@ -190,28 +190,33 @@ namespace AzToolsFramework
             constexpr const char* DetailsButtonTag = "details";
             constexpr const char* SceneSettingsButtonTag = "sceneSettings";
 
-            //! background-color: :147, :158. TOKENIZE: AssetInspectorSwitchButtonFill
-            const QColor ButtonFill(0x33, 0x33, 0x33);
-            //! `QPushButton:hover:!checked { background-color }`: :151, :162. TOKENIZE: AssetInspectorSwitchButtonHoverFill
-            const QColor ButtonHoverFill(0x44, 0x44, 0x44);
-            //! `QPushButton:checked { background-color }`: :150, :161. TOKENIZE: AssetInspectorSwitchButtonCheckedFill
+            //! background-color: :147, :158 AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget $fill.button.idle.Low
+            const QColor ButtonFill = AzQtComponents::Foundations::Low;
+            //! `QPushButton:hover:!checked { background-color }`: :151, :162
+            //! AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget $fill.button.hover.Mid
+            const QColor ButtonHoverFill = AzQtComponents::Foundations::Mid;
+            //! `QPushButton:checked { background-color }`: :150, :161 AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget
+            //! $fill.button.checked.Alt1
             const QColor ButtonCheckedFill(0x1E, 0x70, 0xEB);
             //! The colour of the edges: the sheet sets none (`border-color #222222`, :147, :158, is dropped); it is the invalid colour that
-            //! `border: none` (PushButton.qss:50) left, drawn black. TOKENIZE: AssetInspectorSwitchButtonBorder
+            //! `border: none` (PushButton.qss:50) left, drawn black $line.button.idle.color.Alt4
             const QColor ButtonBorder(0x00, 0x00, 0x00);
             //! `QPushButton { color }` and its `:hover, :pressed` rule: PushButton.qss:32, :40, the label of every state but disabled.
-            //! TOKENIZE: AssetInspectorSwitchButtonText
+            //! $text.button.idle.Alt1
             const QColor ButtonText(0xFF, 0xFF, 0xFF);
-            //! `QPushButton:disabled { color }`: PushButton.qss:45. TOKENIZE: AssetInspectorSwitchButtonDisabledText
+            //! `QPushButton:disabled { color }`: PushButton.qss:45 $text.button.disabled.Alt1
             const QColor ButtonDisabledText(0x99, 0x99, 0x99);
-            constexpr int ButtonBorderWidth = 1;                // border-width: 1px, :147, :158
-            //! `height: 28px` (:149, :160), the height of the contents. TOKENIZE: AssetInspectorSwitchButtonHeight
+            // border-width: 1px, :147, :158 AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget
+            // $line.button.idle.width.Alt4
+            constexpr int ButtonBorderWidth = 1;
+            //! `height: 28px` (:149, :160), the height of the contents AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget
+            //! $size.button.idle.height.Alt1
             constexpr int ButtonContentsHeight = 28;
             //! `border-top-left-radius`, `border-bottom-left-radius` (Details) and `border-top-right-radius` (Scene Settings): 3px
-            //! (:148, :159). TOKENIZE: AssetInspectorSwitchButtonRadius
+            //! (:148, :159) AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget $radius.button.idle.Alt1
             constexpr int ButtonRadius = 3;
             //! `margin-left: -1px` (:160): the Scene Settings button lies this far over the Details button, so that the two borders are
-            //! one. TOKENIZE: AssetInspectorSwitchButtonOverlap
+            //! one AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget $size.button.idle.size.Alt1
             constexpr int ButtonOverlap = 1;
 
             //! The sheets the constructor gave the buttons before the flattening (:146-152 and :157-163), as they were written, each
@@ -257,7 +262,9 @@ namespace AzToolsFramework
                     .m_margin = margin,                         // margin-left: -1px, :160 (Scene Settings only; ButtonOverlap)
                     .m_nativeBorder = false,                    // border-style: solid; border-width: 1px, :147, :158
                     .m_radii = radii,
-                    .m_size = QSize(-1, ButtonContentsHeight), // height: 28px, :149, :160
+                    // height: 28px, :149, :160 (AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget)
+                    // $size.button.idle.height.Alt1
+                    .m_size = QSize(-1, ButtonContentsHeight),
                     .m_idle = buttonFace(ButtonFill, ButtonText),
                     .m_stateFaces = {
                         { BoxElement::Hover, buttonFace(ButtonHoverFill, ButtonText) },

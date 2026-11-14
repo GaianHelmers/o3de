@@ -29,7 +29,7 @@ namespace AzToolsFramework
     //! unit, where anonymous namespaces merge.
     namespace AssetCompleterListViewFlat
     {
-        //! AssetCompleterListView.h:34. TOKENIZE: AssetCompleterHoverWash
+        //! AssetCompleterListView.h:34 (AssetCompleterDelegate::m_hoverColor) $fill.surface.hover.Alt2
         inline constexpr QColor HoverWash(255, 255, 255, 30);
     }
 

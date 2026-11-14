@@ -68,7 +68,7 @@ namespace AzQtComponents
     namespace PaletteViewFlatInternal
     {
         //! The colour of the drop indicator when PaletteViewConfig.ini names none, as it names it: `[DropIndicator] Color`,
-        //! PaletteViewConfig.ini:7. PaletteView.cpp:1311. TOKENIZE: PaletteDropIndicatorColor
+        //! PaletteViewConfig.ini:7. PaletteView.cpp:1311 $fill.view.idle.Alt4
         const QColor DropIndicatorColor(Qt::white);
     } // namespace PaletteViewFlatInternal
 

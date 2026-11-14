@@ -29,7 +29,8 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace RecoverFilesWindowFlat
     {
-        constexpr QColor WarningText(255, 255, 0);    // RecoverFilesWindow.cpp:191 TOKENIZE: RecoverFilesWarningText
+        // RecoverFilesWindow.cpp:191 (RecoverFilesWindow::RecoverFilesWindow) $text.surface.warning.Alt1
+        constexpr QColor WarningText(255, 255, 0);
     } // namespace RecoverFilesWindowFlat
 
     RecoverFilesWindow::RecoverFilesWindow(QWidget* parent, const AZStd::vector<AZStd::string>& files)

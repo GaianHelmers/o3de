@@ -54,15 +54,17 @@ namespace PhysX
         //=========================================================================
         namespace KinematicDescriptionDialogFlat
         {
-            constexpr QColor BoxFill(51, 51, 51);      // KinematicDescriptionDialog.cpp:71. TOKENIZE: KinematicDescriptionBoxFill
-            constexpr QColor BoxBorder(30, 112, 235);  // KinematicDescriptionDialog.cpp:72. TOKENIZE: KinematicDescriptionBoxBorder
+            // KinematicDescriptionDialog.cpp:71 (KinematicDescriptionDialog::OnButtonClicked) $fill.surface.idle.Low
+            constexpr QColor BoxFill = AzQtComponents::Foundations::Low;
+            // KinematicDescriptionDialog.cpp:72 (KinematicDescriptionDialog::OnButtonClicked) $line.surface.idle.color.Alt13
+            constexpr QColor BoxBorder(30, 112, 235);
 
-            constexpr QColor ValidText(0x58, 0xBC, 0x61);       // KinematicDescriptionDialog.ui:295. TOKENIZE: KinematicValidText
-            constexpr QColor InvalidText(0xFA, 0x27, 0x27);     // KinematicDescriptionDialog.ui:311. TOKENIZE: KinematicInvalidText
-            constexpr int NoteMarginLeft = 5;       // KinematicDescriptionDialog.ui:327, :349, :371, :393. TOKENIZE: KinematicNoteIndent
-            constexpr QColor DividerLine(136, 136, 136);        // KinematicDescriptionDialog.ui:434-435. TOKENIZE: KinematicDividerLine
-            constexpr int DividerLineWidth = 1;                 // KinematicDescriptionDialog.ui:435. TOKENIZE: KinematicDividerLineWidth
-            constexpr QColor SaveFill(30, 112, 235);            // KinematicDescriptionDialog.ui:519. TOKENIZE: KinematicSaveFill
+            constexpr QColor ValidText(0x58, 0xBC, 0x61);       // KinematicDescriptionDialog.ui:295 $text.surface.idle.Alt22
+            constexpr QColor InvalidText(0xFA, 0x27, 0x27);     // KinematicDescriptionDialog.ui:311 $text.surface.error.Alt4
+            constexpr int NoteMarginLeft = 5;       // KinematicDescriptionDialog.ui:327, :349, :371, :393 $space.surface.idle.margin.Alt12
+            constexpr QColor DividerLine(136, 136, 136);        // KinematicDescriptionDialog.ui:434-435 $line.separator.idle.color.Alt4
+            constexpr int DividerLineWidth = 1;                 // KinematicDescriptionDialog.ui:435 $line.separator.idle.width.Alt1
+            constexpr QColor SaveFill(30, 112, 235);            // KinematicDescriptionDialog.ui:519 $fill.surface.idle.Alt26
         } // namespace KinematicDescriptionDialogFlat
 
         //=========================================================================
@@ -119,6 +121,7 @@ namespace PhysX
                 .m_nativeBorder = false,
                 .m_idle = {
                     .m_fill = QBrush(KinematicDescriptionDialogFlat::BoxFill),
+                    // KinematicDescriptionDialog::OnButtonClicked $line.surface.idle.width.Alt5
                     .m_edges = AzQtComponents::BoxElement::border(1, KinematicDescriptionDialogFlat::BoxBorder),
                 },
             };

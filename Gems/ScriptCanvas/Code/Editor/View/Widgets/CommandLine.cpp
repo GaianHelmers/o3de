@@ -584,7 +584,7 @@ namespace ScriptCanvasEditor
         {
             //! background-color: CommandLine.ui:54 (the form before the flattening), `rgba(15,15,15,0.1)`. Qt's style sheet parser reads
             //! a fractional alpha as int(alpha * 255), so 0.1 is 25 (the same reading as rgba(0,0,0,0.7) = 178 in ProjectManager's
-            //! FlatElements.cpp). TOKENIZE: CommandListFill
+            //! FlatElements.cpp) $fill.view.idle.Alt21
             const QColor CommandListFill(15, 15, 15, 25);
 
             //! `QTableView { background-color }` on the list, over the rules every table has: a margin of 0 (`QAbstractScrollArea`,

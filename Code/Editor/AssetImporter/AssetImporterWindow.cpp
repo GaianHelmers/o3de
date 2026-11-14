@@ -98,25 +98,26 @@ namespace AssetImporterWindowFlatInternal
     //! element's (TableView.qss:84), which a module's element leaves to the Global one.
     const AzQtComponents::ItemViewElement ImporterTree{
         .m_name = "Editor.ItemView.ImporterTree",
-        // width: 12px; height: 12px (AssetImporterWindow.qss:6-12, :8-9). TOKENIZE: ImporterCheckSize
+        // width: 12px; height: 12px (AssetImporterWindow.qss:6-12, :8-9) $size.check.idle.size.Alt1
         .m_indicatorSize = QSize(12, 12),
         .m_check = {
-            // border-radius: 2px (AssetImporterWindow.qss:11, :18). TOKENIZE: ImporterCheckRadius
+            // border-radius: 2px (AssetImporterWindow.qss:11, :18) $radius.check.idle.Alt1
             .m_radius = 2,
             .m_faces = {
-                // border: 1px solid rgb(204, 204, 204) (AssetImporterWindow.qss:10). TOKENIZE: ImporterCheckLine
+                // border: 1px solid rgb(204, 204, 204) (AssetImporterWindow.qss:10) $line.check.idle.width.Alt1 $line.check.idle.color.Alt1
                 { .m_states = 0, .m_face = { .m_borderWidth = 1, .m_borderColor = QColor(204, 204, 204) } },
                 // background-color: rgb(66, 133, 244) (AssetImporterWindow.qss:14-20, :16); image: url(:Icons/CheckMark_Checked.png),
-                // which loads nothing (:17); border: 0px (:19). TOKENIZE: ImporterCheckFill
+                // which loads nothing (:17); border: 0px (:19)
                 { .m_states = AzQtComponents::ItemViewElement::Checked,
+                  // AssetImporterWindow.qss:14-20, :16 $line.check.idle.width.Alt2 $fill.check.idle.Alt1
                   .m_face = { .m_borderWidth = 0, .m_fill = QColor(66, 133, 244), .m_image = "" } },
                 // border: 1px solid white (AssetImporterWindow.qss:22-25, :24), over :checked's by the order of the rules.
-                // TOKENIZE: ImporterCheckHoverLine
                 { .m_states = AzQtComponents::ItemViewElement::Hover,
+                  // AssetImporterWindow.qss:22-25, :24 $line.check.hover.width.Alt1 $line.check.hover.color.Alt1
                   .m_face = { .m_borderWidth = 1, .m_borderColor = QColor(255, 255, 255) } },
                 // border: 1px solid rgb(102, 102, 102) (AssetImporterWindow.qss:37-40, :39), the last of the three of one weight.
-                // TOKENIZE: ImporterCheckDisabledLine
                 { .m_states = AzQtComponents::ItemViewElement::Disabled,
+                  // AssetImporterWindow.qss:37-40, :39 $line.check.disabled.width.Alt1 $line.check.disabled.color.Alt1
                   .m_face = { .m_borderWidth = 1, .m_borderColor = QColor(102, 102, 102) } },
                 // image: url(:Icons/CheckMark_Hover.png) (AssetImporterWindow.qss:27-30, :29, :checked:hover) and
                 // url(:Icons/CheckMark_Unchecked_Hover.png) (AssetImporterWindow.qss:32-35, :34, :!checked:hover): two rules of a higher

@@ -21,11 +21,11 @@ namespace AzToolsFramework
     //! anonymous namespaces merge.
     namespace ProceduralPrefabUiHandlerFlat
     {
-        //! ProceduralPrefabUiHandler.cpp:17. TOKENIZE: OutlinerProceduralPrefabCapsule
+        //! ProceduralPrefabUiHandler.cpp:17 (ProceduralPrefabUiHandler::ProceduralPrefabUiHandler) $fill.item.idle.Alt3
         constexpr QColor Capsule(0x36, 0x15, 0x61);
-        //! ProceduralPrefabUiHandler.cpp:18. TOKENIZE: OutlinerProceduralPrefabCapsuleDisabled
+        //! ProceduralPrefabUiHandler.cpp:18 (ProceduralPrefabUiHandler::ProceduralPrefabUiHandler) $fill.item.disabled.Alt2
         constexpr QColor CapsuleDisabled(0x4B, 0x34, 0x55);
-        //! ProceduralPrefabUiHandler.cpp:19. TOKENIZE: OutlinerProceduralPrefabCapsuleEdit
+        //! ProceduralPrefabUiHandler.cpp:19 (ProceduralPrefabUiHandler::ProceduralPrefabUiHandler) $fill.item.idle.Alt3
         constexpr QColor CapsuleEdit(0x36, 0x15, 0x61);
     }
 

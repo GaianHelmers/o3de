@@ -25,10 +25,12 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace TimeTrackElementFlat
     {
-        constexpr QColor Text(30, 30, 30);              // TimeTrackElement.cpp:23 TOKENIZE: TimeTrackElementText
-        constexpr QColor HighlightedText(0, 0, 0);      // TimeTrackElement.cpp:24 TOKENIZE: TimeTrackElementHighlightedText
-        constexpr QColor Highlight(255, 128, 0);        // TimeTrackElement.cpp:25 TOKENIZE: TimeTrackElementHighlight
-        constexpr QColor Border(30, 30, 30);            // TimeTrackElement.cpp:95 TOKENIZE: TimeTrackElementBorder
+        constexpr QColor Text(30, 30, 30);              // TimeTrackElement.cpp:23 (TimeTrackElement::s_textColor) $text.timeline.idle.Alt3
+        // TimeTrackElement.cpp:24 (TimeTrackElement::s_highlightedTextColor) $text.timeline.idle.Alt4
+        constexpr QColor HighlightedText(0, 0, 0);
+        // TimeTrackElement.cpp:25 (TimeTrackElement::s_highlightedColor) $fill.timeline.hover.Alt1
+        constexpr QColor Highlight(255, 128, 0);
+        constexpr QColor Border(30, 30, 30);            // TimeTrackElement.cpp:95 (TimeTrackElement::Render) $line.timeline.idle.color.Alt3
     } // namespace TimeTrackElementFlat
 
     // statics

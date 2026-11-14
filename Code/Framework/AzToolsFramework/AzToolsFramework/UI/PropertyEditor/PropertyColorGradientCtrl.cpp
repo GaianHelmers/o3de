@@ -77,20 +77,32 @@ namespace AzToolsFramework
     //! anonymous one: a unity build joins files into one translation unit, where anonymous namespaces merge.
     namespace PropertyColorGradientCtrlFlatInternal
     {
-        constexpr QColor MixedField(90, 90, 90);             // PropertyColorGradientCtrl.cpp:111. TOKENIZE: GradientMixedFieldFill
-        constexpr QColor MixedCross(30, 30, 30);             // PropertyColorGradientCtrl.cpp:112. TOKENIZE: GradientMixedCross
-        constexpr QColor BarFrame(30, 30, 30);               // PropertyColorGradientCtrl.cpp:115, :149. TOKENIZE: GradientBarFrame
-        constexpr QColor CheckerDark(80, 80, 80);            // PropertyColorGradientCtrl.cpp:127. TOKENIZE: GradientCheckerDark
-        constexpr QColor CheckerLight(120, 120, 120);        // PropertyColorGradientCtrl.cpp:127. TOKENIZE: GradientCheckerLight
-        constexpr QColor AlphaMarkerFill(220, 220, 220);     // PropertyColorGradientCtrl.cpp:411. TOKENIZE: GradientAlphaMarkerFill
-        constexpr QColor MarkerDeleteOutline(255, 60, 60);   // PropertyColorGradientCtrl.cpp:418. TOKENIZE: GradientMarkerDeleteOutline
-        constexpr QColor MarkerSelectedOutline(255, 200, 0); // PropertyColorGradientCtrl.cpp:419. TOKENIZE: GradientMarkerSelectedOutline
-        constexpr QColor MarkerIdleOutline(20, 20, 20);      // PropertyColorGradientCtrl.cpp:420. TOKENIZE: GradientMarkerIdleOutline
-        constexpr QColor CubeCheckerDark(80, 80, 80);        // PropertyColorGradientCtrl.cpp:450. TOKENIZE: GradientCubeCheckerDark
-        constexpr QColor CubeCheckerLight(170, 170, 170);    // PropertyColorGradientCtrl.cpp:451. TOKENIZE: GradientCubeCheckerLight
+        // PropertyColorGradientCtrl.cpp:111 (GradientBarWidget::paintEvent) $fill.field.idle.Alt10
+        constexpr QColor MixedField(90, 90, 90);
+        // PropertyColorGradientCtrl.cpp:112 (GradientBarWidget::paintEvent) $fill.field.idle.Alt11
+        constexpr QColor MixedCross(30, 30, 30);
+        // PropertyColorGradientCtrl.cpp:115, :149 (GradientBarWidget::paintEvent) $line.bar.idle.color.Alt2
+        constexpr QColor BarFrame(30, 30, 30);
+        // PropertyColorGradientCtrl.cpp:127 (GradientBarWidget::paintEvent) $fill.field.idle.Alt12
+        constexpr QColor CheckerDark(80, 80, 80);
+        // PropertyColorGradientCtrl.cpp:127 (GradientBarWidget::paintEvent) $fill.field.idle.Alt13
+        constexpr QColor CheckerLight(120, 120, 120);
+        // PropertyColorGradientCtrl.cpp:411 (GradientStopsTrack::paintEvent) $fill.field.idle.Alt14
+        constexpr QColor AlphaMarkerFill(220, 220, 220);
+        // PropertyColorGradientCtrl.cpp:418 (GradientStopsTrack::paintEvent) $line.field.idle.color.Alt8
+        constexpr QColor MarkerDeleteOutline(255, 60, 60);
+        // PropertyColorGradientCtrl.cpp:419 (GradientStopsTrack::paintEvent) $line.field.selected.color.Alt1
+        constexpr QColor MarkerSelectedOutline(255, 200, 0);
+        // PropertyColorGradientCtrl.cpp:420 (GradientStopsTrack::paintEvent) $line.field.idle.color.Alt9
+        constexpr QColor MarkerIdleOutline(20, 20, 20);
+        // PropertyColorGradientCtrl.cpp:450 (GradientStopsTrack::paintEvent) $fill.field.idle.Alt12
+        constexpr QColor CubeCheckerDark(80, 80, 80);
+        // PropertyColorGradientCtrl.cpp:451 (GradientStopsTrack::paintEvent) $fill.field.idle.Alt15
+        constexpr QColor CubeCheckerLight(170, 170, 170);
         // The channels of the overlay on the alpha marker's preview cube; the alpha is the marker's own (the use sets it)
-        constexpr QColor CubeOverlay(255, 255, 255);         // PropertyColorGradientCtrl.cpp:457. TOKENIZE: GradientCubeOverlay
-        // PropertyColorGradientCtrl.cpp:623. TOKENIZE: GradientMultiEditBannerText
+        // PropertyColorGradientCtrl.cpp:457 (GradientStopsTrack::paintEvent) $fill.field.idle.Alt16
+        constexpr QColor CubeOverlay(255, 255, 255);
+        // PropertyColorGradientCtrl.cpp:623 (ColorGradientEditorDialog::ColorGradientEditorDialog) $text.field.idle.Alt10
         constexpr QColor MultiEditBannerText(0xFF, 0xCC, 0x00);
     }
 
@@ -111,7 +123,7 @@ namespace AzToolsFramework
 
         //! `color: #ffcc00; font-weight: bold;` of the sheet the constructor set on the banner (PropertyColorGradientCtrl.cpp:623,
         //! before the flattening), over the text of every label (Text.qss:91-92: the family and the size an element restates, as it
-        //! takes the place of the Global one). TOKENIZE: GradientMultiEditBannerText
+        //! takes the place of the Global one)
         const AzQtComponents::TextElement MultiEditBanner{
             .m_name = "Editor.Text.GradientMultiEditBanner",
             .m_family = AzQtComponents::Foundations::Label::Family,         // Text.qss:91

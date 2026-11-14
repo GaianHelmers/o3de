@@ -24,9 +24,12 @@ namespace AudioControls
     //===========================================================================================//
     namespace QSimpleAudioControlListWidgetFlat
     {
-        constexpr QColor ConnectedText(0x99, 0x99, 0x99);  // QSimpleAudioControlListWidget.cpp:42. TOKENIZE: AudioControlConnectedText
-        constexpr QColor UnassignedText(0xf3, 0x81, 0x1d); // QSimpleAudioControlListWidget.cpp:43. TOKENIZE: AudioControlUnassignedText
-        constexpr QColor LocalizedText(0x42, 0x85, 0xf4);  // QSimpleAudioControlListWidget.cpp:44. TOKENIZE: AudioControlLocalizedText
+        // QSimpleAudioControlListWidget.cpp:42 (QSimpleAudioControlListWidget::QSimpleAudioControlListWidget) $text.surface.idle.Alt16
+        constexpr QColor ConnectedText(0x99, 0x99, 0x99);
+        // QSimpleAudioControlListWidget.cpp:43 (QSimpleAudioControlListWidget::QSimpleAudioControlListWidget) $text.surface.idle.Alt14
+        constexpr QColor UnassignedText(0xf3, 0x81, 0x1d);
+        // QSimpleAudioControlListWidget.cpp:44 (QSimpleAudioControlListWidget::QSimpleAudioControlListWidget) $text.surface.idle.Alt15
+        constexpr QColor LocalizedText(0x42, 0x85, 0xf4);
     } // namespace QSimpleAudioControlListWidgetFlat
 
     //-------------------------------------------------------------------------------------------//

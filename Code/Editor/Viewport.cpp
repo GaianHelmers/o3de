@@ -45,7 +45,8 @@
 //////////////////////////////////////////////////////////////////////////
 namespace QtViewportFlat
 {
-    // Viewport.cpp:296 (the base fill of the whole client area, normally covered by the render overlay). TOKENIZE: ViewportBaseFill
+    // Viewport.cpp:296 (the base fill of the whole client area, normally covered by the render overlay) (QtViewport::paintEvent)
+    // $fill.viewport.idle.Alt1
     constexpr QColor BaseFill(0xf0, 0xf0, 0xf0);
 } // namespace QtViewportFlat
 

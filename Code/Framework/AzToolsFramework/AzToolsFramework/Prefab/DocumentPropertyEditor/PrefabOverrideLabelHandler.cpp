@@ -197,6 +197,7 @@ namespace AzToolsFramework::Prefab
         {
             RefreshStyle();
         }
+        // CompactPrefabOverrideLabelHandler::RefreshUI $asset.surface.idle.image.Alt9
         static const QIcon s_overrideIcon(QStringLiteral(":/Entity/entity_modified_as_override.svg"));
         setIcon(m_overridden ? s_overrideIcon : QIcon(), kIconSize);
     }

@@ -56,17 +56,17 @@ namespace AssetProcessor
 
     namespace ProductAssetDetailsPanelFlat
     {
-        // ProductAssetDetailsPanel.ui:63-67 (Active, WindowText). TOKENIZE: ProductPanelSeparatorLineActive
+        // ProductAssetDetailsPanel.ui:63-67 (Active, WindowText) $line.separator.active.color.Alt1
         inline constexpr QColor SeparatorLineActive(255, 255, 255, 255);
 
-        // ProductAssetDetailsPanel.ui:101-105 (Inactive, WindowText). TOKENIZE: ProductPanelSeparatorLineInactive
+        // ProductAssetDetailsPanel.ui:101-105 (Inactive, WindowText) $line.separator.disabled.color.Alt1
         inline constexpr QColor SeparatorLineInactive(255, 255, 255, 255);
 
-        // ProductAssetDetailsPanel.ui:139-143 (Disabled, WindowText). TOKENIZE: ProductPanelSeparatorLineDisabled
+        // ProductAssetDetailsPanel.ui:139-143 (Disabled, WindowText) $line.separator.disabled.color.Alt2
         inline constexpr QColor SeparatorLineDisabled(120, 120, 120, 255);
 
         // ProductAssetDetailsPanel.ui:72-76, :81-85, :90-94 (Active Button, Base, Window), :110-114, :119-123, :128-132 (Inactive),
-        // :148-152, :157-161, :166-170 (Disabled). TOKENIZE: ProductPanelSeparatorFill
+        // :148-152, :157-161, :166-170 (Disabled) $fill.separator.idle.Alt2
         inline constexpr QColor SeparatorFill(87, 87, 87, 255);
 
         //! The palette of the "AssetDetailsSeparator" line, set right after setupUi
@@ -82,17 +82,17 @@ namespace AssetProcessor
 
     namespace SourceAssetDetailsPanelFlat
     {
-        // SourceAssetDetailsPanel.ui:63-67 (Active, WindowText). TOKENIZE: SourcePanelSeparatorLineActive
+        // SourceAssetDetailsPanel.ui:63-67 (Active, WindowText) $line.separator.active.color.Alt2
         inline constexpr QColor SeparatorLineActive(200, 200, 200, 200);
 
-        // SourceAssetDetailsPanel.ui:101-105 (Inactive, WindowText). TOKENIZE: SourcePanelSeparatorLineInactive
+        // SourceAssetDetailsPanel.ui:101-105 (Inactive, WindowText) $line.separator.disabled.color.Alt1
         inline constexpr QColor SeparatorLineInactive(255, 255, 255, 255);
 
-        // SourceAssetDetailsPanel.ui:139-143 (Disabled, WindowText). TOKENIZE: SourcePanelSeparatorLineDisabled
+        // SourceAssetDetailsPanel.ui:139-143 (Disabled, WindowText) $line.separator.disabled.color.Alt2
         inline constexpr QColor SeparatorLineDisabled(120, 120, 120, 255);
 
         // SourceAssetDetailsPanel.ui:72-76, :81-85, :90-94 (Active Button, Base, Window), :110-114, :119-123, :128-132 (Inactive),
-        // :148-152, :157-161, :166-170 (Disabled). TOKENIZE: SourcePanelSeparatorFill
+        // :148-152, :157-161, :166-170 (Disabled) $fill.separator.idle.Alt2
         inline constexpr QColor SeparatorFill(87, 87, 87, 255);
 
         //! The palette of the "AssetDetailsSeparator" line, set right after setupUi

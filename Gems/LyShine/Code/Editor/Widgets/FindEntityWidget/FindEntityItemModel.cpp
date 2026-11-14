@@ -27,7 +27,8 @@
 //////////////////////////////////////////////////////////////////////////
 namespace FindEntityItemModelFlat
 {
-    // FindEntityItemModel.cpp:162 (the text of an entry that does not match the filter). TOKENIZE: FindEntityNotMatchedText
+    // FindEntityItemModel.cpp:162 (the text of an entry that does not match the filter) (FindEntityItemModel::DataForName)
+    // $text.surface.idle.Alt20
     constexpr QColor NotMatchedText(130, 130, 130);
 } // namespace FindEntityItemModelFlat
 

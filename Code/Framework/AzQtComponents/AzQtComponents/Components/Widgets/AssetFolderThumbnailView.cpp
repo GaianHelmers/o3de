@@ -11,6 +11,7 @@
 #include <AzCore/Debug/Trace.h>
 #include <AzCore/std/algorithm.h>
 #include <AzQtComponents/Components/Style.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 
 AZ_PUSH_DISABLE_WARNING(4244 4251 4800, "-Wunknown-warning-option") // 4244: 'initializing': conversion from 'int' to 'float', possible loss of data
                                                                     // 4251: 'QInputEvent::modState': class 'QFlags<Qt::KeyboardModifier>' needs to have dll-interface to be used by clients of class 'QInputEvent'
@@ -103,9 +104,12 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
         // The thumbnails: what the delegate and the drag image paint outside the Config
         // ------------------------------------------------------------------------------
-        constexpr QColor StatusSquare(0x22, 0x22, 0x22);  // AssetFolderThumbnailView.cpp:192, :1469. TOKENIZE: ThumbnailStatusSquare
-        constexpr QColor ItemRichText(0xFF, 0xFF, 0xFF);  // AssetFolderThumbnailView.cpp:235 (white). TOKENIZE: ThumbnailItemRichText
-        constexpr QColor DragStack(0x55, 0x55, 0x55);     // AssetFolderThumbnailView.cpp:1415. TOKENIZE: ThumbnailDragStack
+        // AssetFolderThumbnailView.cpp:192, :1469 (AssetFolderThumbnailView::CreateDragImage) $fill.view.idle.BG
+        constexpr QColor StatusSquare = Foundations::BG;
+        // AssetFolderThumbnailView.cpp:235 (white) (AssetFolderThumbnailViewDelegate::paint) $text.item.idle.Alt2
+        constexpr QColor ItemRichText(0xFF, 0xFF, 0xFF);
+        // AssetFolderThumbnailView.cpp:1415 (AssetFolderThumbnailView::CreateDragImage) $fill.view.drag.Highest
+        constexpr QColor DragStack = Foundations::Highest;
     } // namespace AssetFolderThumbnailViewFlat
 
     static void paintExpandButton(QPainter* painter, const QRect& rect, bool closed, const AssetFolderThumbnailView::Config::ExpandButton& config)

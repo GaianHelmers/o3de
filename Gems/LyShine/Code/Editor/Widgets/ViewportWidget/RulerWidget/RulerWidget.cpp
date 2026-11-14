@@ -30,10 +30,10 @@
 //////////////////////////////////////////////////////////////////////////
 namespace RulerWidgetFlat
 {
-    // RulerWidget.cpp:232 (the tick marks and the number labels). TOKENIZE: RulerTick
+    // RulerWidget.cpp:232 (the tick marks and the number labels) (RulerWidget::DrawTickMarksWithLabels) $line.viewport.idle.color.Alt3
     constexpr QColor Tick(204, 204, 204);
 
-    // RulerWidget.cpp:324 (the dotted line at the cursor position). TOKENIZE: RulerCursorLine
+    // RulerWidget.cpp:324 (the dotted line at the cursor position) (RulerWidget::DrawCursorPos) $line.viewport.idle.color.Alt4
     const QColor CursorLine(Qt::magenta);
 } // namespace RulerWidgetFlat
 

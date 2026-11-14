@@ -37,7 +37,8 @@ namespace ScriptCanvasEditor
     //=========================================================================
     namespace LoggingWindowTreeItemsFlat
     {
-        constexpr QColor ScriptNameLink(42, 132, 252); // LoggingWindowTreeItems.cpp:284. TOKENIZE: ScriptCanvasLoggingScriptNameLink
+        // LoggingWindowTreeItems.cpp:284 (ExecutionLogTreeItem::Data) $text.surface.idle.Alt23
+        constexpr QColor ScriptNameLink(42, 132, 252);
     } // namespace LoggingWindowTreeItemsFlat
 
     /////////////////////

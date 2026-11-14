@@ -44,19 +44,23 @@
 //////////////////////////////////////////////////////////////////////////
 namespace SpriteBorderEditorFlat
 {
-    // SpriteBorderEditor.cpp:497 (the white dashed divider between the cells). TOKENIZE: SpriteBorderCellDividerDashed
+    // SpriteBorderEditor.cpp:497 (the white dashed divider between the cells) (SpriteBorderEditor::AddSelectCellSection)
+    // $line.separator.idle.color.Alt2
     const QColor CellDividerDashed(Qt::white);
 
-    // SpriteBorderEditor.cpp:500 (the black solid divider under the dashed one). TOKENIZE: SpriteBorderCellDividerSolid
+    // SpriteBorderEditor.cpp:500 (the black solid divider under the dashed one) (SpriteBorderEditor::AddSelectCellSection)
+    // $line.separator.idle.color.Alt3
     const QColor CellDividerSolid(Qt::black);
 
-    // SpriteBorderEditor.cpp:554 (the outer border around the sprite sheet). TOKENIZE: SpriteBorderOuterBorder
+    // SpriteBorderEditor.cpp:554 (the outer border around the sprite sheet) (SpriteBorderEditor::AddSelectCellSection)
+    // $line.viewport.idle.color.Alt2
     const QColor OuterBorder(Qt::black);
 
-    // SpriteBorderEditor.cpp:570 (the inner border around the sprite sheet). TOKENIZE: SpriteBorderInnerBorder
+    // SpriteBorderEditor.cpp:570 (the inner border around the sprite sheet) (SpriteBorderEditor::AddSelectCellSection)
+    // $line.viewport.idle.color.Alt1
     const QColor InnerBorder(Qt::white);
 
-    // SpriteBorderEditor.cpp:1015 (the border of the selected cell). TOKENIZE: SpriteBorderSelectedCell
+    // SpriteBorderEditor.cpp:1015 (the border of the selected cell) (CellSelectRectItem::SelectCell) $line.viewport.selected.color.Alt1
     constexpr QColor SelectedCell(255, 165, 0);
 } // namespace SpriteBorderEditorFlat
 

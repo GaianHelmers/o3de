@@ -37,16 +37,16 @@
 //////////////////////////////////////////////////////////////////////////
 namespace ToolsConfigPageFlat
 {
-    // ToolsConfigPage.cpp:34 (an editor script command). TOKENIZE: ToolsCommandEditor
+    // ToolsConfigPage.cpp:34 (an editor script command) (CommandModel::data) $fill.view.idle.Alt1
     constexpr QColor EditorCommand(0, 255, 0);
 
-    // ToolsConfigPage.cpp:35 (a console command). TOKENIZE: ToolsCommandConsole
+    // ToolsConfigPage.cpp:35 (a console command) (CommandModel::data) $text.console.idle.Alt9
     constexpr QColor ConsoleCommand(0, 0, 255);
 
-    // ToolsConfigPage.cpp:36 (a console variable toggle). TOKENIZE: ToolsCommandToggle
+    // ToolsConfigPage.cpp:36 (a console variable toggle) (CommandModel::data) $fill.view.idle.Alt2
     constexpr QColor ToggleCommand(128, 0, 255);
 
-    // ToolsConfigPage.cpp:37 (an invalid command). TOKENIZE: ToolsCommandInvalid
+    // ToolsConfigPage.cpp:37 (an invalid command) (CommandModel::data) $fill.view.error.Alt1
     constexpr QColor InvalidCommand(255, 0, 0);
 } // namespace ToolsConfigPageFlat
 

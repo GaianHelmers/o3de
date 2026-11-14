@@ -26,9 +26,12 @@ namespace LUAEditor
         //! The object name the site gives the label, which the label's rows match first
         inline constexpr const char* PerforceStatusName = "luaPerforceStatus";
 
-        inline constexpr QColor PerforceStatusFill(192, 192, 192, 255);   // LUAEditorMainWindow.cpp:565. TOKENIZE: LuaPerforceStatusFill
-        inline constexpr QColor PerforceStatusText(0, 0, 0);              // LUAEditorMainWindow.cpp:565. TOKENIZE: LuaPerforceStatusText
-        inline constexpr QColor PerforceStatusBorder(100, 100, 100, 255); // LUAEditorMainWindow.cpp:565. TOKENIZE: LuaPerforceStatusBorder
+        // LUAEditorMainWindow.cpp:565 (LUAEditorMainWindow::OnOpenLUAView) $fill.surface.idle.Alt18
+        inline constexpr QColor PerforceStatusFill(192, 192, 192, 255);
+        // LUAEditorMainWindow.cpp:565 (LUAEditorMainWindow::OnOpenLUAView) $text.surface.idle.Alt11
+        inline constexpr QColor PerforceStatusText(0, 0, 0);
+        // LUAEditorMainWindow.cpp:565 (LUAEditorMainWindow::OnOpenLUAView) $line.surface.idle.color.Alt11
+        inline constexpr QColor PerforceStatusBorder(100, 100, 100, 255);
     } // namespace LUAEditorMainWindowFlat
 
     //! Registers the elements of the flattened GUI of LuaIDE (the Perforce status label of a document view). LuaIDE sets no style sheet

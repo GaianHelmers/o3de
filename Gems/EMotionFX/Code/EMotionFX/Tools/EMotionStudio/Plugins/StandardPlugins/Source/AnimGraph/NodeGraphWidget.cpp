@@ -37,15 +37,18 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace NodeGraphWidgetFlat
     {
-        constexpr QColor Background(47, 47, 47);               // NodeGraphWidget.cpp:251 TOKENIZE: NodeGraphWidgetBackground
-        constexpr QColor SelectionAltFill(0, 100, 200, 75);    // NodeGraphWidget.cpp:270 TOKENIZE: NodeGraphWidgetSelectionAltFill
-        constexpr QColor SelectionAltBorder(0, 100, 255);      // NodeGraphWidget.cpp:271 TOKENIZE: NodeGraphWidgetSelectionAltBorder
-        constexpr QColor SelectionFill(200, 120, 0, 75);       // NodeGraphWidget.cpp:275 TOKENIZE: NodeGraphWidgetSelectionFill
-        constexpr QColor SelectionBorder(255, 128, 0);         // NodeGraphWidget.cpp:276 TOKENIZE: NodeGraphWidgetSelectionBorder
-        constexpr QColor Border(0, 0, 0);                      // NodeGraphWidget.cpp:293 TOKENIZE: NodeGraphWidgetBorder
-        constexpr QColor FocusBorder(244, 156, 28);            // NodeGraphWidget.cpp:297 TOKENIZE: NodeGraphWidgetFocusBorder
-        constexpr QColor Fps(150, 150, 150);                   // NodeGraphWidget.cpp:344 TOKENIZE: NodeGraphWidgetFps
-        constexpr QColor ActorInfo(150, 150, 150);             // NodeGraphWidget.cpp:362 TOKENIZE: NodeGraphWidgetActorInfo
+        constexpr QColor Background(47, 47, 47);  // NodeGraphWidget.cpp:251 (NodeGraphWidget::paintEvent) $fill.node.idle.Alt16
+        // NodeGraphWidget.cpp:270 (NodeGraphWidget::paintEvent) $fill.node.selected.Alt3
+        constexpr QColor SelectionAltFill(0, 100, 200, 75);
+        // NodeGraphWidget.cpp:271 (NodeGraphWidget::paintEvent) $line.node.selected.color.Alt2
+        constexpr QColor SelectionAltBorder(0, 100, 255);
+        constexpr QColor SelectionFill(200, 120, 0, 75);  // NodeGraphWidget.cpp:275 (NodeGraphWidget::paintEvent) $fill.node.selected.Alt4
+        // NodeGraphWidget.cpp:276 (NodeGraphWidget::paintEvent) $line.node.selected.color.Alt1
+        constexpr QColor SelectionBorder(255, 128, 0);
+        constexpr QColor Border(0, 0, 0);  // NodeGraphWidget.cpp:293 (NodeGraphWidget::paintEvent) $line.node.idle.color.Alt6
+        constexpr QColor FocusBorder(244, 156, 28);  // NodeGraphWidget.cpp:297 (NodeGraphWidget::paintEvent) $line.node.focus.color.Alt1
+        constexpr QColor Fps(150, 150, 150);  // NodeGraphWidget.cpp:344 (NodeGraphWidget::paintEvent) $fill.node.idle.Alt15
+        constexpr QColor ActorInfo(150, 150, 150);  // NodeGraphWidget.cpp:362 (NodeGraphWidget::paintEvent) $fill.node.idle.Alt15
     } // namespace NodeGraphWidgetFlat
 
     //NodeGraphWidget::NodeGraphWidget(NodeGraph* activeGraph, QWidget* parent) : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
@@ -381,7 +384,7 @@ namespace EMStudio
             m_tempString = AZStd::string::format("Showing graph for ActorInstance with ID %d and Actor file \"%s\"", firstActorInstance->GetID(), m_actorName.c_str());
             GraphNode::RenderText(
                 painter, m_tempString.c_str(), NodeGraphWidgetFlat::ActorInfo, m_font, *m_fontMetrics, Qt::AlignLeft,
-                QRect(8, 0, 50, 20));
+                QRect(8, 0, 50, 20));  // NodeGraphWidget::paintEvent $size.node.idle.size.Alt1
         }
     }
 

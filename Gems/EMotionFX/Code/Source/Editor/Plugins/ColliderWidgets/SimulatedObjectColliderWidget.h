@@ -27,7 +27,8 @@ namespace EMotionFX
     //////////////////////////////////////////////////////////////////////////
     namespace SimulatedObjectColliderWidgetFlat
     {
-        inline const QColor Underline{ "#1ad092" };   // SimulatedObjectColliderWidget.h:37 TOKENIZE: SimulatedObjectColliderCardUnderline
+        // SimulatedObjectColliderWidget.h:37 (SimulatedObjectColliderWidget::GetColor) $line.card.idle.color.Alt5
+        inline const QColor Underline{ "#1ad092" };
     } // namespace SimulatedObjectColliderWidgetFlat
 
     class AddColliderButton;

@@ -26,22 +26,24 @@
 //////////////////////////////////////////////////////////////////////////
 namespace UiTimelineCtrlFlat
 {
-    // UiTimelineCtrl.cpp:127, :596, :641 (the tick lines). TOKENIZE: TimelineTickLine
+    // UiTimelineCtrl.cpp:127, :596, :641 (the tick lines) (TimelineWidget::DrawTicks) $line.timeline.idle.color.Alt1
     constexpr QColor TickLine(110, 110, 110);
 
-    // UiTimelineCtrl.cpp:128, :597, :647 (the long tick and its label). TOKENIZE: TimelineTickMajor
+    // UiTimelineCtrl.cpp:128, :597, :647 (the long tick and its label) (TimelineWidget::DrawTicks) $line.timeline.idle.color.Alt2
     const QColor TickMajor(Qt::black);
 
-    // UiTimelineCtrl.cpp:129, :159, :598 (the current-time marker). TOKENIZE: TimelineTimeMarker
+    // UiTimelineCtrl.cpp:129, :159, :598 (the current-time marker) (TimelineWidget::DrawTicks) $fill.timeline.idle.Alt1
     constexpr QColor TimeMarker(255, 0, 255);
 
-    // UiTimelineCtrl.cpp:167, :168 (the pen and the brush of a selected key). TOKENIZE: TimelineKeySelected
+    // UiTimelineCtrl.cpp:167, :168 (the pen and the brush of a selected key) (TimelineWidget::DrawTicks) $fill.timeline.selected.Alt1
     constexpr QColor KeySelected(100, 255, 255);
 
-    // UiTimelineCtrl.cpp:174 (the key marker with the fewest keys, first end of the colour code). TOKENIZE: TimelineKeyCountLow
+    // UiTimelineCtrl.cpp:174 (the key marker with the fewest keys, first end of the colour code) (TimelineWidget::DrawTicks)
+    // $fill.timeline.idle.Alt2
     const QColor KeyCountLow(Qt::green);
 
-    // UiTimelineCtrl.cpp:174 (the key marker with the most keys, last end of the colour code). TOKENIZE: TimelineKeyCountHigh
+    // UiTimelineCtrl.cpp:174 (the key marker with the most keys, last end of the colour code) (TimelineWidget::DrawTicks)
+    // $fill.timeline.idle.Alt3
     const QColor KeyCountHigh(Qt::red);
 } // namespace UiTimelineCtrlFlat
 

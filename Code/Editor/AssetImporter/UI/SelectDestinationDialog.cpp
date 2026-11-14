@@ -26,7 +26,8 @@
 //////////////////////////////////////////////////////////////////////////
 namespace SelectDestinationDialogFlat
 {
-    // SelectDestinationDialog.cpp:26, :27, :28, :29 (the text of the four invalid-directory tooltips). TOKENIZE: DestinationToolTipText
+    // SelectDestinationDialog.cpp:26, :27, :28, :29 (the text of the four invalid-directory tooltips)
+    // (DestinationDialogValidator::validate) $text.tooltip.idle.Alt1
     constexpr QColor ToolTipText(0xcc, 0xcc, 0xcc);
 } // namespace SelectDestinationDialogFlat
 

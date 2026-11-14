@@ -39,22 +39,28 @@ namespace EMStudio
     {
         // The background gradient and the pen set next to it paint nothing: paintEvent never hands the gradient to a brush, a pen or a
         // fill, and the outline pen replaces that pen a few lines later, so GradientEdge, GradientMiddle and GradientPen are dead.
-        constexpr QColor GradientEdge(66, 66, 66);         // PhonemeSelectionWindow.cpp:77, :79 TOKENIZE: VisimeGradientEdge
-        constexpr QColor GradientMiddle(94, 102, 110);     // PhonemeSelectionWindow.cpp:78 TOKENIZE: VisimeGradientMiddle
-        constexpr QColor GradientPen(94, 102, 110);        // PhonemeSelectionWindow.cpp:80 TOKENIZE: VisimeGradientPen
-        constexpr QColor OutlinePen(66, 66, 66);           // PhonemeSelectionWindow.cpp:83 TOKENIZE: VisimeOutlinePen
+        // PhonemeSelectionWindow.cpp:77, :79 (VisimeWidget::paintEvent) $line.view.idle.color.Alt3
+        constexpr QColor GradientEdge(66, 66, 66);
+        constexpr QColor GradientMiddle(94, 102, 110);     // PhonemeSelectionWindow.cpp:78 (VisimeWidget::paintEvent) $fill.view.idle.Alt18
+        constexpr QColor GradientPen(94, 102, 110);  // PhonemeSelectionWindow.cpp:80 (VisimeWidget::paintEvent) $line.view.idle.color.Alt4
+        constexpr QColor OutlinePen(66, 66, 66);  // PhonemeSelectionWindow.cpp:83 (VisimeWidget::paintEvent) $line.view.idle.color.Alt3
 
         // The border and the background of a visime widget: selected, under the pointer, and normal
-        constexpr QColor SelectedBorder(244, 156, 28);     // PhonemeSelectionWindow.cpp:88 TOKENIZE: VisimeSelectedBorder
-        constexpr QColor HoverBorder(153, 160, 178);       // PhonemeSelectionWindow.cpp:92 TOKENIZE: VisimeHoverBorder
-        constexpr QColor NormalBorder(113, 120, 128);      // PhonemeSelectionWindow.cpp:96 TOKENIZE: VisimeNormalBorder
-        constexpr QColor SelectedBackground(56, 65, 72);   // PhonemeSelectionWindow.cpp:104 TOKENIZE: VisimeSelectedBackground
-        constexpr QColor HoverBackground(134, 142, 150);   // PhonemeSelectionWindow.cpp:108 TOKENIZE: VisimeHoverBackground
-        constexpr QColor NormalBackground(144, 152, 160);  // PhonemeSelectionWindow.cpp:112 TOKENIZE: VisimeNormalBackground
+        // PhonemeSelectionWindow.cpp:88 (VisimeWidget::paintEvent) $line.view.selected.color.Alt3
+        constexpr QColor SelectedBorder(244, 156, 28);
+        // PhonemeSelectionWindow.cpp:92 (VisimeWidget::paintEvent) $line.view.hover.color.Alt1
+        constexpr QColor HoverBorder(153, 160, 178);
+        // PhonemeSelectionWindow.cpp:96 (VisimeWidget::paintEvent) $line.view.idle.color.Alt5
+        constexpr QColor NormalBorder(113, 120, 128);
+        // PhonemeSelectionWindow.cpp:104 (VisimeWidget::paintEvent) $fill.view.selected.Alt5
+        constexpr QColor SelectedBackground(56, 65, 72);
+        constexpr QColor HoverBackground(134, 142, 150);  // PhonemeSelectionWindow.cpp:108 (VisimeWidget::paintEvent) $fill.view.hover.Alt4
+        // PhonemeSelectionWindow.cpp:112 (VisimeWidget::paintEvent) $fill.view.idle.Alt19
+        constexpr QColor NormalBackground(144, 152, 160);
 
         // The visime name
-        constexpr QColor SelectedName(244, 156, 28);       // PhonemeSelectionWindow.cpp:124 TOKENIZE: VisimeSelectedName
-        constexpr QColor NormalName(0, 0, 0);              // PhonemeSelectionWindow.cpp:128 TOKENIZE: VisimeNormalName
+        constexpr QColor SelectedName(244, 156, 28);  // PhonemeSelectionWindow.cpp:124 (VisimeWidget::paintEvent) $text.view.selected.Alt1
+        constexpr QColor NormalName(0, 0, 0);              // PhonemeSelectionWindow.cpp:128 (VisimeWidget::paintEvent) $text.view.idle.Alt6
     } // namespace PhonemeSelectionWindowFlat
 
     // constructor

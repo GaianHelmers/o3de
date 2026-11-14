@@ -24,17 +24,18 @@ namespace O3DE::ProjectManager
         // ------------------------------------------------------------------------------
 
         // The fill of the sheet the legacy GUI sets on the header of the gem list; it has no selector and so reaches every widget in the
-        // header (GemListHeaderWidget.cpp:31 `background-color: #333333;`). $fill.surface.idle.Low
+        // header (GemListHeaderWidget.cpp:31 `background-color: #333333;`, GemListHeaderWidget::GemListHeaderWidget)
+        // $fill.surface.idle.Low
         const QColor GemListHeaderFill = AzQtComponents::Foundations::Low;
 
         // The fill of the sheet the legacy GUI sets on a tag of the gem filter (GemFilterTagWidget.cpp:29 `background-color: #555555;`).
-        // TOKENIZE: FilterTagFill
-        const QColor FilterTagFill(0x55, 0x55, 0x55);
+        // FilterTagWidget::FilterTagWidget $fill.surface.idle.Highest
+        const QColor FilterTagFill = AzQtComponents::Foundations::Highest;
 
         // The fill of the sheet the legacy GUI sets on the list of the 'Manual setup is required' dialog; it has no selector and so
         // reaches the list, its viewport and its scroll bars (GemRequirementListView.cpp:19 `background-color: #444444;`).
-        // TOKENIZE: GemRequirementListFill
-        const QColor GemRequirementListFill(0x44, 0x44, 0x44);
+        // GemRequirementListView::GemRequirementListView $fill.view.idle.Mid
+        const QColor GemRequirementListFill = AzQtComponents::Foundations::Mid;
 
         // The cart panel's fill (ProjectManager.qss:811), and the triangle under the cart button that joins the button to the open
         // panel (GemCatalogHeaderWidget.cpp:628 `QBrush(QColor("#555555"))`). $fill.surface.idle.Highest
@@ -45,7 +46,7 @@ namespace O3DE::ProjectManager
         // ------------------------------------------------------------------------------
 
         // The colour of the sheets the legacy GUI sets on a link label, idle and hovered (LinkWidget.cpp:68 and :95 `color: #94D2FF;`).
-        // TOKENIZE: LinkLabelTextColor
+        // LinkLabel::enterEvent, LinkLabel::SetDefaultStyle $text.surface.idle.Alt7
         const QColor LinkLabelColor(0x94, 0xD2, 0xFF);
     } // namespace FlatValues
 } // namespace O3DE::ProjectManager

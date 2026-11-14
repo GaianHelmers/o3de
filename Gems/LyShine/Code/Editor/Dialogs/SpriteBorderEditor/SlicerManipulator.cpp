@@ -22,13 +22,16 @@
 //////////////////////////////////////////////////////////////////////////
 namespace SlicerManipulatorFlat
 {
-    // SlicerManipulator.cpp:57, :162 (the front line of a slice, white while the mouse is away). TOKENIZE: SlicerLineFront
+    // SlicerManipulator.cpp:57, :162 (the front line of a slice, white while the mouse is away) (SlicerManipulator::SlicerManipulator)
+    // $line.viewport.idle.color.Alt1
     const QColor LineFront(Qt::white);
 
-    // SlicerManipulator.cpp:58 (the back line of a slice, drawn under the front line). TOKENIZE: SlicerLineBack
+    // SlicerManipulator.cpp:58 (the back line of a slice, drawn under the front line) (SlicerManipulator::SlicerManipulator)
+    // $line.viewport.idle.color.Alt2
     const QColor LineBack(Qt::black);
 
-    // SlicerManipulator.cpp:155 (the front line of a slice while the mouse is over it). TOKENIZE: SlicerLineHover
+    // SlicerManipulator.cpp:155 (the front line of a slice while the mouse is over it) (SlicerManipulator::hoverEnterEvent)
+    // $line.viewport.hover.color.Alt1
     const QColor LineHover(Qt::yellow);
 } // namespace SlicerManipulatorFlat
 

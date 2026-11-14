@@ -32,16 +32,16 @@ namespace AzToolsFramework
         namespace LogLineFlatInternal
         {
             // The background of the row
-            constexpr QColor ErrorBackground(64, 0, 0);       // LogLine.cpp:465. TOKENIZE: LogErrorBackground
-            constexpr QColor WarningBackground(64, 64, 0);    // LogLine.cpp:468. TOKENIZE: LogWarningBackground
-            constexpr QColor ContextBackground(32, 0, 32);    // LogLine.cpp:471. TOKENIZE: LogContextBackground
+            constexpr QColor ErrorBackground(64, 0, 0);       // LogLine.cpp:465 (LogLine::data) $fill.console.error.Alt1
+            constexpr QColor WarningBackground(64, 64, 0);    // LogLine.cpp:468 (LogLine::data) $fill.console.warning.Alt1
+            constexpr QColor ContextBackground(32, 0, 32);    // LogLine.cpp:471 (LogLine::data) $fill.console.idle.Alt2
 
             // The text of the row
-            constexpr QColor MessageText(255, 255, 255);      // LogLine.cpp:480. TOKENIZE: LogMessageText
-            constexpr QColor ErrorText(255, 192, 192);        // LogLine.cpp:482. TOKENIZE: LogErrorText
-            constexpr QColor WarningText(255, 255, 192);      // LogLine.cpp:484. TOKENIZE: LogWarningText
-            constexpr QColor DebugText(128, 128, 128);        // LogLine.cpp:486. TOKENIZE: LogDebugText
-            constexpr QColor ContextText(255, 192, 255);      // LogLine.cpp:488. TOKENIZE: LogContextText
+            constexpr QColor MessageText(255, 255, 255);      // LogLine.cpp:480 (LogLine::data) $text.console.idle.Alt2
+            constexpr QColor ErrorText(255, 192, 192);        // LogLine.cpp:482 (LogLine::data) $text.console.error.Alt3
+            constexpr QColor WarningText(255, 255, 192);      // LogLine.cpp:484 (LogLine::data) $text.console.warning.Alt3
+            constexpr QColor DebugText(128, 128, 128);        // LogLine.cpp:486 (LogLine::data) $text.console.idle.Alt10
+            constexpr QColor ContextText(255, 192, 255);      // LogLine.cpp:488 (LogLine::data) $text.console.idle.Alt11
         }
 
         static bool IsNumeral(char c)

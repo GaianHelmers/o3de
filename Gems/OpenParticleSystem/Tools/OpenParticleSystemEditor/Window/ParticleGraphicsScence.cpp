@@ -19,7 +19,7 @@ namespace OpenParticleSystemEditor
     //=========================================================================
     namespace ParticleGraphicsScenceFlat
     {
-        // ParticleGraphicsScence.cpp:23. TOKENIZE: ParticleGraphGridLine
+        // ParticleGraphicsScence.cpp:23 (ParticleGraphicsScence::drawBackground) $line.graph.idle.color.BG
         constexpr QColor GridLine(34, 34, 34);
     } // namespace ParticleGraphicsScenceFlat
 

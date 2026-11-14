@@ -37,31 +37,51 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace TrackDataHeaderWidgetFlat
     {
-        constexpr QColor OutOfRangeBackground(35, 35, 35);   // TrackDataHeaderWidget.cpp:49 TOKENIZE: TimeHeaderOutOfRangeBackground
+        // TrackDataHeaderWidget.cpp:49 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.idle.Alt7
+        constexpr QColor OutOfRangeBackground(35, 35, 35);
 
         // The header gradients, from the top (stop 0.0) down to the bottom (stop 1.0)
-        constexpr QColor ActiveTop(20, 20, 20);              // TrackDataHeaderWidget.cpp:54 TOKENIZE: TimeHeaderActiveTop
-        constexpr QColor ActiveMiddle(30, 35, 40);           // TrackDataHeaderWidget.cpp:53 TOKENIZE: TimeHeaderActiveMiddle
-        constexpr QColor ActiveBottom(100, 105, 110);        // TrackDataHeaderWidget.cpp:52 TOKENIZE: TimeHeaderActiveBottom
-        constexpr QColor ActiveFocusTop(20, 20, 20);         // TrackDataHeaderWidget.cpp:59 TOKENIZE: TimeHeaderActiveFocusTop
-        constexpr QColor ActiveFocusMiddle(30, 35, 40);      // TrackDataHeaderWidget.cpp:58 TOKENIZE: TimeHeaderActiveFocusMiddle
-        constexpr QColor ActiveFocusBottom(100, 105, 130);   // TrackDataHeaderWidget.cpp:57 TOKENIZE: TimeHeaderActiveFocusBottom
-        constexpr QColor InactiveTop(20, 20, 20);            // TrackDataHeaderWidget.cpp:63 TOKENIZE: TimeHeaderInactiveTop
-        constexpr QColor InactiveBottom(30, 30, 30);         // TrackDataHeaderWidget.cpp:62 TOKENIZE: TimeHeaderInactiveBottom
-        constexpr QColor InactiveFocusTop(20, 20, 20);       // TrackDataHeaderWidget.cpp:67 TOKENIZE: TimeHeaderInactiveFocusTop
-        constexpr QColor InactiveFocusBottom(30, 30, 30);    // TrackDataHeaderWidget.cpp:66 TOKENIZE: TimeHeaderInactiveFocusBottom
+        // TrackDataHeaderWidget.cpp:54 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.active.top.Alt1
+        constexpr QColor ActiveTop(20, 20, 20);
+        // TrackDataHeaderWidget.cpp:53 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.active.Alt1
+        constexpr QColor ActiveMiddle(30, 35, 40);
+        // TrackDataHeaderWidget.cpp:52 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.active.bottom.Alt1
+        constexpr QColor ActiveBottom(100, 105, 110);
+        // TrackDataHeaderWidget.cpp:59 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.focus.top.Alt1
+        constexpr QColor ActiveFocusTop(20, 20, 20);
+        // TrackDataHeaderWidget.cpp:58 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.focus.Alt1
+        constexpr QColor ActiveFocusMiddle(30, 35, 40);
+        // TrackDataHeaderWidget.cpp:57 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.focus.bottom.Alt1
+        constexpr QColor ActiveFocusBottom(100, 105, 130);
+        // TrackDataHeaderWidget.cpp:63 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.disabled.top.Alt1
+        constexpr QColor InactiveTop(20, 20, 20);
+        // TrackDataHeaderWidget.cpp:62 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.disabled.bottom.Alt1
+        constexpr QColor InactiveBottom(30, 30, 30);
+        // TrackDataHeaderWidget.cpp:67 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.disabled.top.Alt1
+        constexpr QColor InactiveFocusTop(20, 20, 20);
+        // TrackDataHeaderWidget.cpp:66 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.disabled.bottom.Alt1
+        constexpr QColor InactiveFocusBottom(30, 30, 30);
 
-        constexpr QColor MainTimeStepLines(110, 110, 110);   // TrackDataHeaderWidget.cpp:69 TOKENIZE: TimeHeaderMainTimeStepLines
-        constexpr QColor RecorderRange(175, 0, 0);           // TrackDataHeaderWidget.cpp:506 TOKENIZE: TimeHeaderRecorderRange
-        constexpr QColor AnimationRange(0, 175, 0);          // TrackDataHeaderWidget.cpp:519 TOKENIZE: TimeHeaderAnimationRange
-        constexpr QColor FiveSecondLabelText(175, 175, 175); // TrackDataHeaderWidget.cpp:557 TOKENIZE: TimeHeaderFiveSecondLabelText
+        // TrackDataHeaderWidget.cpp:69 (TrackDataHeaderWidget::TrackDataHeaderWidget) $fill.header.idle.Alt8
+        constexpr QColor MainTimeStepLines(110, 110, 110);
+        // TrackDataHeaderWidget.cpp:506 (TrackDataHeaderWidget::DrawTimeLine) $fill.header.idle.Alt9
+        constexpr QColor RecorderRange(175, 0, 0);
+        // TrackDataHeaderWidget.cpp:519 (TrackDataHeaderWidget::DrawTimeLine) $fill.header.idle.Alt10
+        constexpr QColor AnimationRange(0, 175, 0);
+        // TrackDataHeaderWidget.cpp:557 (TrackDataHeaderWidget::DrawTimeLine) $text.header.idle.Alt4
+        constexpr QColor FiveSecondLabelText(175, 175, 175);
 
         // The labels of the finer time steps fade in: these hold the RGB of the label, the alpha is set where they are used
-        constexpr QColor SecondLabelText(200, 200, 200);     // TrackDataHeaderWidget.cpp:605 TOKENIZE: TimeHeaderSecondLabelText
-        constexpr QColor HalfSecondLabelText(175, 175, 175); // TrackDataHeaderWidget.cpp:662 TOKENIZE: TimeHeaderHalfSecondLabelText
-        constexpr QColor HundredMsLabelText(110, 110, 110);  // TrackDataHeaderWidget.cpp:710 TOKENIZE: TimeHeaderHundredMsLabelText
-        constexpr QColor FiftyMsLabelText(80, 80, 80);       // TrackDataHeaderWidget.cpp:756 TOKENIZE: TimeHeaderFiftyMsLabelText
-        constexpr QColor TenMsLabelText(60, 60, 60);         // TrackDataHeaderWidget.cpp:800 TOKENIZE: TimeHeaderTenMsLabelText
+        // TrackDataHeaderWidget.cpp:605 (TrackDataHeaderWidget::DrawTimeLine) $text.header.idle.Alt5
+        constexpr QColor SecondLabelText(200, 200, 200);
+        // TrackDataHeaderWidget.cpp:662 (TrackDataHeaderWidget::DrawTimeLine) $text.header.idle.Alt4
+        constexpr QColor HalfSecondLabelText(175, 175, 175);
+        // TrackDataHeaderWidget.cpp:710 (TrackDataHeaderWidget::DrawTimeLine) $text.header.idle.Alt6
+        constexpr QColor HundredMsLabelText(110, 110, 110);
+        // TrackDataHeaderWidget.cpp:756 (TrackDataHeaderWidget::DrawTimeLine) $text.header.idle.Alt7
+        constexpr QColor FiftyMsLabelText(80, 80, 80);
+        // TrackDataHeaderWidget.cpp:800 (TrackDataHeaderWidget::DrawTimeLine) $text.header.idle.Alt8
+        constexpr QColor TenMsLabelText(60, 60, 60);
     } // namespace TrackDataHeaderWidgetFlat
 
     // the constructor

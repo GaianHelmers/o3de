@@ -19,7 +19,8 @@ namespace GraphCanvas
     //=========================================================================
     namespace ExecutionSlotConnectionPinFlat
     {
-        // ExecutionSlotConnectionPin.cpp:42 (the fill of a connected execution pin with no style colour). TOKENIZE: ExecutionPinFallback
+        // ExecutionSlotConnectionPin.cpp:42 (the fill of a connected execution pin with no style colour)
+        // (ExecutionSlotConnectionPin::DrawConnectionPin) $fill.graph.idle.Alt1
         constexpr QColor ExecutionPinFallback(0xFF, 0xFF, 0xFF);
     } // namespace ExecutionSlotConnectionPinFlat
 

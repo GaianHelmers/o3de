@@ -8,6 +8,7 @@
 
 #include <AzQtComponents/Components/Widgets/StatusBar.h>
 #include <AzQtComponents/Components/ConfigHelpers.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzCore/Casting/numeric_cast.h>
 
 #include <QPainter>
@@ -25,8 +26,8 @@ namespace StatusBarFlat
     // ------------------------------------------------------------------------------
     // The Config defaults of StatusBar::defaultConfig: StatusBarConfig.ini holds no line, so these are the live values of both rungs
     // ------------------------------------------------------------------------------
-    constexpr QColor PanelFill(0x44, 0x44, 0x44);   // StatusBar.cpp:36. TOKENIZE: StatusBarPanelFill
-    constexpr QColor TopLine(0x11, 0x11, 0x11);     // StatusBar.cpp:37. TOKENIZE: StatusBarTopLine
+    constexpr QColor PanelFill = Foundations::Mid;  // StatusBar.cpp:36 (StatusBar::defaultConfig) $fill.bar.idle.Mid
+    constexpr QColor TopLine = Foundations::FarBG;  // StatusBar.cpp:37 (StatusBar::defaultConfig) $line.bar.idle.color.FarBG
 } // namespace StatusBarFlat
 
 StatusBar::Config StatusBar::loadConfig(QSettings& settings)

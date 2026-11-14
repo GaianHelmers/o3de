@@ -30,10 +30,10 @@
 //////////////////////////////////////////////////////////////////////////
 namespace HierarchyItemFlat
 {
-    // HierarchyItem.cpp:402 (the text of an item that belongs to a slice). TOKENIZE: HierarchySliceText
+    // HierarchyItem.cpp:402 (the text of an item that belongs to a slice) (HierarchyItem::UpdateSliceInfo) $text.surface.idle.Alt21
     constexpr QColor SliceText(117, 156, 254);
 
-    // HierarchyItem.cpp:476 (the background of an editor-only entity). TOKENIZE: HierarchyEditorOnlyBack
+    // HierarchyItem.cpp:476 (the background of an editor-only entity) (HierarchyItem::UpdateEditorOnlyInfo) $fill.surface.idle.Alt23
     constexpr QColor EditorOnlyBack(60, 0, 0);
 } // namespace HierarchyItemFlat
 

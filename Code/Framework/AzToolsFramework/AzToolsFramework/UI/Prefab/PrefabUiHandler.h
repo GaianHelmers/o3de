@@ -25,17 +25,17 @@ namespace AzToolsFramework
     //! files, and a unity build joins files into one translation unit, where anonymous namespaces merge.
     namespace PrefabUiHandlerFlat
     {
-        //! PrefabUiHandler.h:79. TOKENIZE: OutlinerPrefabBackground
+        //! PrefabUiHandler.h:79 (PrefabUiHandler::m_backgroundColor) $fill.item.idle.Mid
         inline constexpr QColor Background(0x44, 0x44, 0x44);
-        //! PrefabUiHandler.h:80. TOKENIZE: OutlinerPrefabBackgroundHover
+        //! PrefabUiHandler.h:80 (PrefabUiHandler::m_backgroundHoverColor) $fill.item.hover.Alt3
         inline constexpr QColor BackgroundHover(0x5A, 0x5A, 0x5A);
-        //! PrefabUiHandler.h:81. TOKENIZE: OutlinerPrefabBackgroundSelected
+        //! PrefabUiHandler.h:81 (PrefabUiHandler::m_backgroundSelectedColor) $fill.item.selected.Alt3
         inline constexpr QColor BackgroundSelected(0x65, 0x65, 0x65);
-        //! PrefabUiHandler.h:82, LevelRootUiHandler.h:50. TOKENIZE: OutlinerPrefabCapsule
+        //! PrefabUiHandler.h:82, LevelRootUiHandler.h:50 (PrefabUiHandler::m_prefabCapsuleColor) $fill.item.idle.Alt1
         inline constexpr QColor Capsule(0x1E, 0x25, 0x2F);
-        //! PrefabUiHandler.h:83, LevelRootUiHandler.h:51. TOKENIZE: OutlinerPrefabCapsuleDisabled
+        //! PrefabUiHandler.h:83, LevelRootUiHandler.h:51 (PrefabUiHandler::m_prefabCapsuleDisabledColor) $fill.item.disabled.Alt1
         inline constexpr QColor CapsuleDisabled(0x35, 0x38, 0x3C);
-        //! PrefabUiHandler.h:84, LevelRootUiHandler.h:52. TOKENIZE: OutlinerPrefabCapsuleEdit
+        //! PrefabUiHandler.h:84, LevelRootUiHandler.h:52 (PrefabUiHandler::m_prefabCapsuleEditColor) $fill.item.idle.Alt2
         inline constexpr QColor CapsuleEdit(0x4A, 0x90, 0xE2);
     }
 

@@ -28,7 +28,7 @@ namespace ShaderManagementConsole
     //=========================================================================
     namespace ShaderManagementConsoleTableViewFlat
     {
-        // ShaderManagementConsoleTableView.cpp:231. TOKENIZE: ShaderMaterialOptionHeaderText
+        // ShaderManagementConsoleTableView.cpp:231 (ShaderManagementConsoleTableView::RebuildTable) $text.header.idle.Alt3
         constexpr QColor MaterialOptionHeaderText = QColorConstants::Yellow;
     } // namespace ShaderManagementConsoleTableViewFlat
 

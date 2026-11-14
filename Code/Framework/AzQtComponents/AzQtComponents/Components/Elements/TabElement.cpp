@@ -100,7 +100,7 @@ namespace AzQtComponents
         // (the PE_FrameFocusRect that the base style's tab label draws for State_HasFocus). TabWidget.qss:96 `border: none` changes
         // nothing: no rule that reaches a bar gives it a border the focused bar would lose (the bar of TabWidget.qss:125-128 and the
         // dock bars of StyledDockWidget.qss:25-28 have none, and the Bordered rule of TabWidget.qss:130-134 is the more specific).
-        // TOKENIZE: TabBarFocusOutline
+        // $other.tab.focus.outline-rect.Alt1
         constexpr bool HideFocusRect = true;
 
         // ------------------------------------------------------------------------------
@@ -244,7 +244,6 @@ namespace AzQtComponents
         //! `border-left: none` of StyledDockWidget.qss:30-34 is the left edge the secondary tab has). The container in the corner is
         //! the secondary one too (TabWidgetActionToolBar.qss:9-12 outranks :26-32). The one difference from the TabBar looks is the
         //! close button: a DockBarButton (DockTabBar::tabInserted) that the element gives only the hover fill of, as DockGroup does.
-        //! TOKENIZE: DockGroupSecondaryClose
         TabElement dockGroupOf(TabElement secondary, const char* name)
         {
             secondary.m_name = name;

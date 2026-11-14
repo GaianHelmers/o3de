@@ -195,10 +195,11 @@ namespace ScriptCanvasEditor
             // Selected, under the pointer: TabWidget.qss:147 fill, :161 text, :160 edge. $fill.tab.hover.Alt1 $text.tab.selected.Alt1
             // $line.tab.selected.width.Alt2 $line.tab.selected.color.Alt1
             .m_selectedHover = { Foundations::Tab::SecondaryHoverFill, Foundations::Text::Primary,
+                                 // TabWidget.qss:160 $line.tab.selected.width.Alt2 $line.tab.selected.color.Alt1
                                  { {}, {}, { 3, Foundations::Accent::Selected }, {} } },
             .m_padding = QMargins(14, 7, 14, 5),                                    // TabWidget.qss:136 $space.tab.idle.padding.Alt3
             .m_maxContentWidth = 200,                                               // TabWidget.qss:16 $size.tab.idle.max-width
-            .m_hideFocusRect = true,                                                // TabWidget.qss:95. TOKENIZE: TabBarFocusOutline
+            .m_hideFocusRect = true,                                                // TabWidget.qss:95 $other.tab.focus.outline-rect.Alt1
             .m_closeIcon = ":/stylesheet/img/close_small.svg",                      // TabWidget.qss:64 $asset.button.idle.image
             .m_closeHoverFill = Foundations::Fill::HoverOverlay,                    // TabWidget.qss:70 $fill.button.hover.fill.Alt1
             .m_closeRadius = 2,                                                     // TabWidget.qss:70 $radius.button.hover

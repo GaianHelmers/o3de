@@ -18,6 +18,7 @@
 #include <AzQtComponents/Components/Style.h>
 #include <AzQtComponents/Components/StyleManager.h>
 #include <AzQtComponents/Components/ConfigHelpers.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 
 namespace AzQtComponents
 {
@@ -31,7 +32,7 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
         // The drag image of a tree item (shown only while dragging)
         // ------------------------------------------------------------------------------
-        constexpr QColor DragImageFill(0x22, 0x22, 0x22);   // TreeView.cpp:330. TOKENIZE: TreeViewDragImageFill
+        constexpr QColor DragImageFill = Foundations::BG;   // TreeView.cpp:330 (StyledTreeView::CreateDragImage) $fill.view.drag.BG
     } // namespace TreeViewFlat
 
     class TreeViewWatcher

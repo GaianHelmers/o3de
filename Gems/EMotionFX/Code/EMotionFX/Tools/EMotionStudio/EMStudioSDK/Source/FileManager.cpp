@@ -52,8 +52,10 @@ namespace EMStudio
     namespace FileManagerFlat
     {
         // The HTML colour name green is rgb(0, 128, 0), unlike Qt::green
-        constexpr QColor SaveSuccessText(0, 128, 0);    // FileManager.cpp:440, :503, :584, :660 TOKENIZE: FileManagerSaveSuccessText
-        constexpr QColor SaveFailureText(255, 0, 0);    // FileManager.cpp:445, :508, :579, :655 TOKENIZE: FileManagerSaveFailureText
+        // FileManager.cpp:440, :503, :584, :660 (FileManager::SaveMotion) $text.surface.idle.Alt18
+        constexpr QColor SaveSuccessText(0, 128, 0);
+        // FileManager.cpp:445, :508, :579, :655 (FileManager::SaveMotion) $text.surface.idle.Alt10
+        constexpr QColor SaveFailureText(255, 0, 0);
     } // namespace FileManagerFlat
 
     FileManager::FileManager(QWidget* parent)

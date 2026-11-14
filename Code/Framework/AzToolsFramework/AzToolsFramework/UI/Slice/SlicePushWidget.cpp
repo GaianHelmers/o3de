@@ -58,7 +58,7 @@ namespace AzToolsFramework
     //! anonymous one: a unity build joins files into one translation unit, where anonymous namespaces merge.
     namespace SlicePushWidgetFlatInternal
     {
-        const QColor ConflictText(Qt::red);   // SlicePushWidget.cpp:1299. TOKENIZE: SlicePushConflictText
+        const QColor ConflictText(Qt::red);   // SlicePushWidget.cpp:1299 (SlicePushWidget::ShowConflictMessage) $text.view.idle.Alt3
     }
 
     using EditorEntitySortComponent = AzToolsFramework::Components::EditorEntitySortComponent;

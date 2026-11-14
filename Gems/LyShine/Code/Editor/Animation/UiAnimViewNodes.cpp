@@ -50,22 +50,26 @@
 //////////////////////////////////////////////////////////////////////////
 namespace UiAnimViewNodesFlat
 {
-    // UiAnimViewNodes.cpp:515 (the text of an entity node). TOKENIZE: NodeTreeEntityText
+    // UiAnimViewNodes.cpp:515 (the text of an entity node) (CUiAnimViewNodesCtrl::UpdateUiAnimNodeRecord) $text.view.idle.Alt7
     constexpr QColor NormalEntityText(220, 220, 220);
 
-    // UiAnimViewNodes.cpp:516 (the text of an entity node whose entity is missing). TOKENIZE: NodeTreeMissingEntityText
+    // UiAnimViewNodes.cpp:516 (the text of an entity node whose entity is missing) (CUiAnimViewNodesCtrl::UpdateUiAnimNodeRecord)
+    // $text.view.idle.Alt3
     constexpr QColor MissingEntityText(255, 0, 0);
 
-    // UiAnimViewNodes.cpp:517 (the text of a material node whose material is invalid). TOKENIZE: NodeTreeInvalidMaterialText
+    // UiAnimViewNodes.cpp:517 (the text of a material node whose material is invalid) (CUiAnimViewNodesCtrl::UpdateUiAnimNodeRecord)
+    // $text.view.error.Alt1
     constexpr QColor InvalidMaterialText(255, 0, 0);
 
-    // UiAnimViewNodes.cpp:518 (the background of the active director node). TOKENIZE: NodeTreeActiveDirectorBack
+    // UiAnimViewNodes.cpp:518 (the background of the active director node) (CUiAnimViewNodesCtrl::UpdateUiAnimNodeRecord)
+    // $fill.view.active.Alt2
     constexpr QColor ActiveDirectorBack(192, 192, 255);
 
-    // UiAnimViewNodes.cpp:519 (the background of an inactive director node). TOKENIZE: NodeTreeInactiveDirectorBack
+    // UiAnimViewNodes.cpp:519 (the background of an inactive director node) (CUiAnimViewNodesCtrl::UpdateUiAnimNodeRecord)
+    // $fill.view.disabled.Alt3
     constexpr QColor InactiveDirectorBack(224, 224, 224);
 
-    // UiAnimViewNodes.cpp:547 (the background of a group node). TOKENIZE: NodeTreeGroupBack
+    // UiAnimViewNodes.cpp:547 (the background of a group node) (CUiAnimViewNodesCtrl::UpdateUiAnimNodeRecord) $fill.view.idle.Alt20
     constexpr QColor GroupBack(220, 255, 220);
 } // namespace UiAnimViewNodesFlat
 

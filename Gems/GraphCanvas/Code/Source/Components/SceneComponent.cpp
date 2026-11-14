@@ -65,10 +65,11 @@ namespace GraphCanvas
     //=========================================================================
     namespace SceneComponentFlat
     {
-        // SceneComponent.cpp:531, :891, :953, :4476, :4492, :4583 (the pulse of an accepted splice). TOKENIZE: ScenePulseAccepted
+        // SceneComponent.cpp:531, :891, :953, :4476, :4492, :4583 (the pulse of an accepted splice) (MimeDelegateSceneHelper::OnTrySplice)
+        // $fill.graph.idle.Alt1
         constexpr QColor PulseAccepted(255, 255, 255);
 
-        // SceneComponent.cpp:4481, :4498, :4587 (the pulse of a refused splice). TOKENIZE: ScenePulseRefused
+        // SceneComponent.cpp:4481, :4498, :4587 (the pulse of a refused splice) (SceneComponent::OnTrySplice) $fill.graph.idle.Alt2
         constexpr QColor PulseRefused(255, 0, 0);
     } // namespace SceneComponentFlat
 

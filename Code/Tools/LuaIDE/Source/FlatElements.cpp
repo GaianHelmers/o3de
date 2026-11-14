@@ -46,8 +46,10 @@ namespace LUAEditor
         // The Perforce status label
         // ------------------------------------------------------------------------------
 
-        constexpr int PerforceStatusBorderWidth = 1;    // border-width: LUAEditorMainWindow.cpp:565. TOKENIZE: LuaPerforceStatusBorderWidth
-        constexpr int PerforceStatusRadius = 8;         // border-radius: LUAEditorMainWindow.cpp:565. TOKENIZE: LuaPerforceStatusRadius
+        // border-width: LUAEditorMainWindow.cpp:565 (LUAEditorMainWindow::OnOpenLUAView) $line.surface.idle.width.Alt5
+        constexpr int PerforceStatusBorderWidth = 1;
+        // border-radius: LUAEditorMainWindow.cpp:565 (LUAEditorMainWindow::OnOpenLUAView) $radius.surface.idle.Alt2
+        constexpr int PerforceStatusRadius = 8;
 
         //! `background: rgba(192,192,192,255); border-style: inset; border-width: 1px; border-color: rgba(100,100,100,255);
         //! border-radius: 8px` (LUAEditorMainWindow.cpp:565) over the margin of every label (`QLabel { margin-top: 1px; margin-bottom:

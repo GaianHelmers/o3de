@@ -64,7 +64,7 @@ namespace O3DE::ProjectManager
         // The overlay over the background artwork of the Projects screen (ProjectsScreen::paintEvent): the channels of its colour; the
         // alpha is set at the use, from the overlay opacity (0.3f)
         // ------------------------------------------------------------------------------
-        constexpr QColor BackgroundOverlay(0, 0, 0);    // ProjectsScreen.cpp:480. TOKENIZE: ProjectsBackgroundOverlay
+        constexpr QColor BackgroundOverlay(0, 0, 0);    // ProjectsScreen.cpp:480 (ProjectsScreen::paintEvent) $fill.surface.idle.Alt21
     } // namespace ProjectsScreenFlat
 
     ProjectsScreen::ProjectsScreen(DownloadController* downloadController, QWidget* parent)

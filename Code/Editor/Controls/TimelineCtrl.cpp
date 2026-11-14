@@ -27,22 +27,25 @@
 //////////////////////////////////////////////////////////////////////////
 namespace TimelineCtrlFlat
 {
-    // TimelineCtrl.cpp:128, :596, :640 (the tick marks of the ruler). TOKENIZE: TimelineTick
+    // TimelineCtrl.cpp:128, :596, :640 (the tick marks of the ruler) (TimelineWidget::DrawTicks) $line.timeline.idle.color.Alt1
     constexpr QColor Tick(110, 110, 110);
 
-    // TimelineCtrl.cpp:646 (the long tick and the label of a frame tick). TOKENIZE: TimelineFrameTickLabel
+    // TimelineCtrl.cpp:646 (the long tick and the label of a frame tick) (TickDrawer::operator()) $line.timeline.idle.color.Alt2
     constexpr QColor FrameTickLabel(0, 0, 0);
 
-    // TimelineCtrl.cpp:129, :159 (the current-time marker). TOKENIZE: TimelineTimeMarker
+    // TimelineCtrl.cpp:129, :159 (the current-time marker) (TimelineWidget::DrawTicks) $fill.timeline.idle.Alt1
     constexpr QColor TimeMarker(255, 0, 255);
 
-    // TimelineCtrl.cpp:167, :168 (the outline and the fill of a selected key marker). TOKENIZE: TimelineKeySelected
+    // TimelineCtrl.cpp:167, :168 (the outline and the fill of a selected key marker) (TimelineWidget::DrawTicks)
+    // $fill.timeline.selected.Alt1
     constexpr QColor KeySelected(100, 255, 255);
 
-    // TimelineCtrl.cpp:174 (the key marker of a time with the fewest keys; the colour the markers blend from). TOKENIZE: TimelineKeyFewest
+    // TimelineCtrl.cpp:174 (the key marker of a time with the fewest keys; the colour the markers blend from) (TimelineWidget::DrawTicks)
+    // $fill.timeline.idle.Alt2
     constexpr QColor KeyFewest(0, 255, 0);
 
-    // TimelineCtrl.cpp:174 (the key marker of a time with the most keys; the colour the markers blend to). TOKENIZE: TimelineKeyMost
+    // TimelineCtrl.cpp:174 (the key marker of a time with the most keys; the colour the markers blend to) (TimelineWidget::DrawTicks)
+    // $fill.timeline.idle.Alt3
     constexpr QColor KeyMost(255, 0, 0);
 } // namespace TimelineCtrlFlat
 

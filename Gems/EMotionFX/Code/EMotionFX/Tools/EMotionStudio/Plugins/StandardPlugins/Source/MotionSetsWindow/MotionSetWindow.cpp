@@ -51,10 +51,13 @@ namespace EMStudio
     namespace MotionSetWindowFlat
     {
         // Qt::green is rgb(0, 255, 0), unlike the SVG name "green" (rgb(0, 128, 0))
-        const QColor RenameDuplicateText(Qt::red);     // MotionSetWindow.cpp:2123, :2124 TOKENIZE: MotionSetRenameDuplicateText
-        const QColor RenameValidText(Qt::green);       // MotionSetWindow.cpp:2131, :2132 TOKENIZE: MotionSetRenameValidText
+        // MotionSetWindow.cpp:2123, :2124 (MotionEditStringIDWindow::UpdateTableAndButton) $text.surface.idle.Alt10
+        const QColor RenameDuplicateText(Qt::red);
+        // MotionSetWindow.cpp:2131, :2132 (MotionEditStringIDWindow::UpdateTableAndButton) $text.surface.idle.Alt19
+        const QColor RenameValidText(Qt::green);
         // The number of duplicate IDs in its label (the HTML colour name red is rgb(255, 0, 0))
-        constexpr QColor DuplicateCountText(255, 0, 0);    // MotionSetWindow.cpp:2154 TOKENIZE: MotionSetDuplicateCountText
+        // MotionSetWindow.cpp:2154 (MotionEditStringIDWindow::UpdateTableAndButton) $text.surface.idle.Alt10
+        constexpr QColor DuplicateCountText(255, 0, 0);
     } // namespace MotionSetWindowFlat
 
     MotionSetRemoveMotionsFailedWindow::MotionSetRemoveMotionsFailedWindow(QWidget* parent, const AZStd::vector<EMotionFX::Motion*>& motions)

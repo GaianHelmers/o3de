@@ -27,7 +27,8 @@ namespace EMotionFX
     //////////////////////////////////////////////////////////////////////////
     namespace JointLimitOptimizerFlat
     {
-        constexpr QColor FailureText(255, 0, 0);    // JointLimitOptimizer.cpp:30, :40, :66, :141 TOKENIZE: JointLimitOptimizerFailureText
+        // JointLimitOptimizer.cpp:30, :40, :66, :141 (EMotionFX::OptimizeJointLimits) $text.surface.idle.Alt10
+        constexpr QColor FailureText(255, 0, 0);
     } // namespace JointLimitOptimizerFlat
 
     void OptimizeJointLimits(const PhysicsSetupManipulatorData& physicsSetupManipulatorData)

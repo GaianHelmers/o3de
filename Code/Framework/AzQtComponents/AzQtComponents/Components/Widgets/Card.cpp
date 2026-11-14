@@ -48,14 +48,11 @@ namespace AzQtComponents
     namespace CardInternal
     {
         // ---- The body of a card: #contentContainer, Card.qss:21-33 and :41-44, and its selected state, :35-39
-        // $fill.surface.idle.Highest
-        constexpr QColor BodyColor = Foundations::Highest;             // Card.qss:23, :25, :43 background-color, border-color
-        // $line.card.selected.color
-        constexpr QColor BodySelectedBorderColor = Foundations::Accent::Focus;     // Card.qss:37
-        // $line.surface.idle.width.Alt1
-        constexpr int BodyBorderWidth = 1;                              // Card.qss:25, :37 (no top edge: :26, :38)
-        // $radius.surface.idle.bottom-left
-        constexpr int BodyBottomRadius = 2;                             // Card.qss:31-32
+        // Card.qss:23, :25, :43 background-color, border-color $fill.surface.idle.Highest
+        constexpr QColor BodyColor = Foundations::Highest;
+        constexpr QColor BodySelectedBorderColor = Foundations::Accent::Focus;     // Card.qss:37 $line.card.selected.color
+        constexpr int BodyBorderWidth = 1;                  // Card.qss:25, :37 (no top edge: :26, :38) $line.surface.idle.width.Alt1
+        constexpr int BodyBottomRadius = 2;                             // Card.qss:31-32 $radius.surface.idle.bottom-left
 
         // ---- The title of a header (flattened GUI)
         // Card.qss:172-175 CardHeader[contentModified=true] * { color: #E57829 }. Card.cpp:443
@@ -675,7 +672,6 @@ namespace AzQtComponents
         //   #contentContainer (Card.qss:21-33, Card.qss:41-44; ContainerCard Card.qss:121-125 / SectionCard Card.qss:140-144:
         //         transparent) and its selected state (Card.qss:35-39) are the container's own rule: CardInternal::BodyPainter paints
         //         them when the container is painted, after the header, as the container did
-        // TOKENIZE: CardHiddenFrameBorderWidth
         const bool flatFrame = cardHasFlatFrame(this);
         QPainter painter(this);
 
@@ -684,7 +680,7 @@ namespace AzQtComponents
             static const QPixmap shadow(QStringLiteral(":/Cards/img/UI20/Cards/shadow.png"));     // Card.qss:18 $asset.card.idle.Alt1
             // left, top, right, bottom (Card.qss:18 border-image cuts, Card.qss:17 border widths) $line.card.idle.width.Alt1
             const QMargins shadowSlices(7, 5, 7, 9);
-            constexpr int hiddenFrameBorderWidth = 1; // Card.qss:48 border: 1px
+            constexpr int hiddenFrameBorderWidth = 1; // Card.qss:48 border: 1px $line.card.idle.width.Alt4
             const QMargins shadowEdges = property("hideFrame").toBool()
                 ? QMargins(hiddenFrameBorderWidth, hiddenFrameBorderWidth, hiddenFrameBorderWidth, hiddenFrameBorderWidth)
                 : shadowSlices;

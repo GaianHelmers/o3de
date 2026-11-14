@@ -31,8 +31,8 @@ namespace ColorGridFlat
     // ------------------------------------------------------------------------------
     // The cursor circle of the grid: white on a dark value (<= 0.5), black on a light one
     // ------------------------------------------------------------------------------
-    constexpr QColor CursorOnDark(255, 255, 255);   // ColorGrid.cpp:160 (Qt::white). TOKENIZE: ColorGridCursorOnDark
-    constexpr QColor CursorOnLight(0, 0, 0);        // ColorGrid.cpp:160 (Qt::black). TOKENIZE: ColorGridCursorOnLight
+    constexpr QColor CursorOnDark(255, 255, 255);   // ColorGrid.cpp:160 (Qt::white) $line.picker.idle.color.Alt1
+    constexpr QColor CursorOnLight(0, 0, 0);        // ColorGrid.cpp:160 (Qt::black) $line.picker.idle.color.Alt2
 } // namespace ColorGridFlat
 
 ColorGrid::ColorGrid(QWidget* parent)

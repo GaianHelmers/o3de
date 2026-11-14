@@ -49,12 +49,18 @@ namespace AzToolsFramework
     //! namespace, not an anonymous one: a unity build joins files into one translation unit, where anonymous namespaces merge.
     namespace SearchCriteriaWidgetFlatInternal
     {
-        constexpr QColor Border(0x80, 0x80, 0x80);           // SearchCriteriaWidget.cpp:149. TOKENIZE: SearchCriteriaBorder
-        constexpr QColor Background(0x40, 0x40, 0x40);       // SearchCriteriaWidget.cpp:150. TOKENIZE: SearchCriteriaBackground
-        constexpr QColor DisabledBorder(0x66, 0x66, 0x66);   // SearchCriteriaWidget.cpp:153. TOKENIZE: SearchCriteriaDisabledBorder
-        constexpr QColor HoverBackground(0x50, 0x50, 0x50);  // SearchCriteriaWidget.cpp:157. TOKENIZE: SearchCriteriaHoverBackground
-        constexpr QColor DisabledText(0x66, 0x66, 0x66);     // SearchCriteriaWidget.cpp:169, :180. TOKENIZE: SearchCriteriaDisabledText
-        constexpr QColor TagText(0xD9, 0x82, 0x2E);          // SearchCriteriaWidget.cpp:176. TOKENIZE: SearchCriteriaTag
+        // SearchCriteriaWidget.cpp:149 (SearchCriteriaButton::SetFilterEnabled) $line.field.idle.color.Alt10
+        constexpr QColor Border(0x80, 0x80, 0x80);
+        // SearchCriteriaWidget.cpp:150 (SearchCriteriaButton::SetFilterEnabled) $fill.field.idle.Alt17
+        constexpr QColor Background(0x40, 0x40, 0x40);
+        // SearchCriteriaWidget.cpp:153 (SearchCriteriaButton::SetFilterEnabled) $line.field.disabled.color.Alt1
+        constexpr QColor DisabledBorder(0x66, 0x66, 0x66);
+        // SearchCriteriaWidget.cpp:157 (SearchCriteriaButton::SetFilterEnabled) $fill.field.hover.Alt4
+        constexpr QColor HoverBackground(0x50, 0x50, 0x50);
+        // SearchCriteriaWidget.cpp:169, :180 (SearchCriteriaButton::SetFilterEnabled) $text.field.disabled.Alt3
+        constexpr QColor DisabledText(0x66, 0x66, 0x66);
+        // SearchCriteriaWidget.cpp:176 (SearchCriteriaButton::SetFilterEnabled) $text.field.idle.Alt11
+        constexpr QColor TagText(0xD9, 0x82, 0x2E);
     }
 
     //////////////////////////////////////////////////////////////////////////

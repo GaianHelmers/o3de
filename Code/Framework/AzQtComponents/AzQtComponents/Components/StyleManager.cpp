@@ -121,7 +121,6 @@ namespace AzQtComponents
         //! (the rule is one, and a fill is drawn in the border box of the rule's margin: QRenderRule::drawBackground), and the sample's
         //! sheet alone, with no application sheet to give the margin, would fill the label up to its edges. The margin comes first so
         //! that a margin of the sample's own, which outranked the application's in the legacy GUI, outranks it here.
-        //! TOKENIZE: LabelMargin
         QString sampleSheetText(const QString& fileText)
         {
             if (!areStyleSheetsDisabled())

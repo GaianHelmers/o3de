@@ -25,7 +25,8 @@ namespace EMotionFX
     //////////////////////////////////////////////////////////////////////////
     namespace HitDetectionJointWidgetFlat
     {
-        inline const QColor Underline{ "#4A90E2" };   // HitDetectionJointWidget.h:38 TOKENIZE: HitDetectionCardUnderline
+        // HitDetectionJointWidget.h:38 (HitDetectionJointWidget::GetColor) $line.card.idle.color.Alt3
+        inline const QColor Underline{ "#4A90E2" };
     } // namespace HitDetectionJointWidgetFlat
 
     class AddColliderButton;

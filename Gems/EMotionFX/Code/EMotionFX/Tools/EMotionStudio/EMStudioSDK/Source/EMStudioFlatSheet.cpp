@@ -97,73 +97,77 @@ namespace EMStudioFlat
         // ------------------------------------------------------------------------------
 
         //! The application's box of a line edit (LineEdit.qss:11-19) over the entry field: no padding left, the text one pixel up
-        //! (the padding above is -1 and the one below 1). TOKENIZE: InputFieldPadding
+        //! (the padding above is -1 and the one below 1) $space.field.idle.padding.Alt4
         const QMargins InputFieldPadding(Field::PaddingLeft, Field::PaddingTop, 0, Field::PaddingBottom);
 
         //! `border-width: 2px` (LineEdit.qss:16): the line of a line edit that its own sheet gives a background and no border of its
-        //! own. TOKENIZE: InputFieldLineWidth
+        //! own $line.field.idle.width.Alt2
         constexpr int InputFieldLineWidth = 2;
 
         //! The edges of an input field while its text is not valid: `border: 1px solid red;` (EMStudioManager.cpp:262,
         //! LineEditValidatable.cpp:46), in every state of the field, over the 2px line of LineEdit.qss:16
         const BoxElement::Edges InvalidInputEdges = BoxElement::border(Values::InvalidInputLineWidth, Values::InvalidInputLine);
 
-        //! `padding-left: 3px` (RecoverFilesWindow.cpp:118). TOKENIZE: RecoverCheckPaddingLeft
+        //! `padding-left: 3px` (RecoverFilesWindow.cpp:118) (RecoverFilesWindow::RecoverFilesWindow) $space.check.idle.padding.Alt1
         constexpr int RecoverCheckPaddingLeft = 3;
 
         //! `max-width: 13px` (RecoverFilesWindow.cpp:118): the check box is at most 16 wide with its padding.
-        //! TOKENIZE: RecoverCheckMaxWidth
+        //! RecoverFilesWindow::RecoverFilesWindow $size.check.idle.width.Alt1
         constexpr int RecoverCheckMaxWidth = 13;
 
-        //! `padding: 6px` (ResetSettingsDialog.cpp:56, the sheet of the strip behind the title). TOKENIZE: ResetSettingsTopLabelPadding
+        //! `padding: 6px` (ResetSettingsDialog.cpp:56, the sheet of the strip behind the title) (ResetSettingsDialog::ResetSettingsDialog)
+        //! $space.surface.idle.padding.Alt19
         constexpr int ResetSettingsTopLabelPadding = 6;
 
-        //! `padding-right: 1px` (CommandBarPlugin.cpp:93). TOKENIZE: CommandBarProgressTextPaddingRight
+        //! `padding-right: 1px` (CommandBarPlugin.cpp:93) (CommandBarPlugin::Init) $space.progress.idle.padding.Alt1
         constexpr int ProgressTextPaddingRight = 1;
 
-        //! `padding-right: 2px` (CommandBarPlugin.cpp:101). TOKENIZE: CommandBarProgressBarPaddingRight
+        //! `padding-right: 2px` (CommandBarPlugin.cpp:101) (CommandBarPlugin::Init) $space.progress.idle.padding.Alt2
         constexpr int ProgressBarPaddingRight = 2;
 
         //! `background: #9A9A9A` of every progress bar (ProgressBar.qss:14), which the sheet of the command bar's bar sits over
-        //! (Global.Box.ProgressBar is private to ControlElements.cpp). TOKENIZE: ProgressTrackFill
+        //! (Global.Box.ProgressBar is private to ControlElements.cpp) $fill.progress.idle.Alt1
         const QColor ProgressTrackFill(0x9A, 0x9A, 0x9A);
 
-        //! `qproperty-textVisible: False` (ProgressBar.qss:18). TOKENIZE: ProgressTextVisible
+        //! `qproperty-textVisible: False` (ProgressBar.qss:18) $other.progress.idle
         constexpr bool ProgressTextVisible = false;
 
         //! The caret of the 'Motion Extraction' check box, right while it is collapsed and down while it is open
-        //! (MotionExtractionWindow.cpp:156-165). TOKENIZE: CaretCheckCollapsedImage, CaretCheckExpandedImage
+        //! (MotionExtractionWindow.cpp:156-165) (MotionExtractionWindow::Init) $asset.check.collapsed.image.Alt1
         constexpr const char* CaretRightImage = ":/Cards/img/UI20/Cards/caret-right.svg";
+        // MotionExtractionWindow::Init $asset.surface.pressed.image.Alt1
         constexpr const char* CaretDownImage = ":/Cards/img/UI20/Cards/caret-down.svg";
 
-        //! `margin: 0px` of the caret (MotionExtractionWindow.cpp:154). TOKENIZE: CaretCheckMargin
+        //! `margin: 0px` of the caret (MotionExtractionWindow.cpp:154) (MotionExtractionWindow::Init) $space.check.idle.margin.Alt4
         constexpr int CaretCheckMargin = 0;
 
         //! `QSplitter::handle{ height: 4px; background: transparent; }` while a dialog of the stack is open (DialogStack.cpp:35, :383),
-        //! `height: 1px` while it is closed (:146, :176, :469). TOKENIZE: DialogStackOpenGap, DialogStackClosedGap
+        //! `height: 1px` while it is closed (:146, :176, :469) $space.surface.idle.gap.Alt1
         constexpr int DialogStackOpenGap = 4;
-        constexpr int DialogStackClosedGap = 1;
+        constexpr int DialogStackClosedGap = 1;  // DialogStack::Add, DialogStack::Close $space.surface.idle.gap.Alt2
 
         //! `margin: 1px` of a combo box (ComboBox.qss:17), `padding-left: 4px` (:16), and the margin 0 of its :hover, :focus and open
-        //! popup (:24, :35). TOKENIZE: ComboBoxMargin, ComboBoxPadding
+        //! popup (:24, :35) $space.field.idle.margin.Alt2
         constexpr QMargins ComboMargin(1, 1, 1, 1);
-        constexpr QMargins ComboPadding(4, 0, 0, 0);
-        constexpr QMargins ComboStateMargin(0, 0, 0, 0);
+        constexpr QMargins ComboPadding(4, 0, 0, 0);  // ComboBox.qss:16 $space.field.idle.padding.Alt3
+        constexpr QMargins ComboStateMargin(0, 0, 0, 0);  // ComboBox.qss:24, :35 $space.field.idle.margin.Alt5
 
-        //! `border: 1px solid orange;` (AnimGraphEditor.cpp:229, :245): the width of the line. TOKENIZE: AnimGraphEditorWarningBorderWidth
+        //! `border: 1px solid orange;` (AnimGraphEditor.cpp:229, :245): the width of the line (AnimGraphEditor::UpdateMotionSetComboBox)
+        //! $line.surface.warning.width.Alt1
         constexpr int WarningLineWidth = 1;
 
         //! `QComboBox QAbstractItemView { background-color: #222222 }` (ComboBox.qss:81): the fill of the popup list.
-        //! TOKENIZE: ComboPopupSurface
+        //! $fill.field.idle.BG
         const QColor ComboPopupSurface = Foundations::BG;
 
-        //! `border: 2px dashed` of the preview frame (ParameterCreateEditWidget.cpp:72). TOKENIZE: ParameterPreviewBorderWidth
+        //! `border: 2px dashed` of the preview frame (ParameterCreateEditWidget.cpp:72)
+        //! (ParameterCreateEditWidget::ParameterCreateEditWidget) $line.surface.idle.width.Alt6
         constexpr int PreviewLineWidth = 2;
 
         //! `QToolTip { font-size: 12px; font-family: "Open Sans" }` (ToolTip.qss:16, :19): the text of a tip, over which a `color` of
-        //! the sheet of the tip's widget outranks ToolTip.qss:12. TOKENIZE: ToolTipFamily, ToolTipSize
+        //! the sheet of the tip's widget outranks ToolTip.qss:12 $type.tooltip.idle.family.Alt1
         constexpr const char* ToolTipFamily = "Open Sans";
-        constexpr int ToolTipSize = 12;
+        constexpr int ToolTipSize = 12;  // ToolTip.qss:16 $size.tooltip.idle.size.Alt1
 
         // ------------------------------------------------------------------------------
         // The input fields: `border: 1px solid red;` while the text is not valid, `background-color` on a disabled track's name
@@ -424,7 +428,7 @@ namespace EMStudioFlat
         //! a rule with no type does not reach a sub-control
         const TextElement GraphTree{
             .m_name = "EMotionFX.Text.GraphTree",
-            .m_pixelSize = 11,
+            .m_pixelSize = 11,  // BaseStyleSheet.qss:19-20 $type.surface.idle.size.Alt1
             .m_color = Values::GraphTreeText,
         };
 

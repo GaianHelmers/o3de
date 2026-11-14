@@ -39,18 +39,18 @@ namespace AzToolsFramework
     namespace ProgressShieldFlatInternal
     {
         // ---- The colours and the sizes of the sheets
-        //! ProgressShield.ui:17 `stop:0`. TOKENIZE: ProgressShieldTop
+        //! ProgressShield.ui:17 `stop:0` $fill.progress.idle.top.Alt1
         constexpr QColor ShieldTop(0, 0, 0, 50);
-        //! ProgressShield.ui:17 `stop:1`. TOKENIZE: ProgressShieldBottom
+        //! ProgressShield.ui:17 `stop:1` $fill.progress.idle.bottom.Alt1
         constexpr QColor ShieldBottom(0, 0, 0, 90);
-        //! ProgressShield.ui:21 `QLabel { color }`. TOKENIZE: ProgressShieldText
+        //! ProgressShield.ui:21 `QLabel { color }` $text.progress.idle.Alt1
         constexpr QColor LabelColor(0, 0, 0, 255);
-        //! ProgressShield.ui:58 `background-color` of the frame. TOKENIZE: ProgressShieldFrameFill
+        //! ProgressShield.ui:58 `background-color` of the frame $fill.progress.idle.Alt3
         constexpr QColor FrameFill(255, 255, 255, 128);
-        //! ProgressShield.ui:59 `border: 2px solid white`. TOKENIZE: ProgressShieldFrameLine
+        //! ProgressShield.ui:59 `border: 2px solid white` $line.progress.idle.color.Alt2
         constexpr QColor FrameLine(255, 255, 255);
-        constexpr int FrameLineWidth = 2;               // ProgressShield.ui:59. TOKENIZE: ProgressShieldFrameLineWidth
-        constexpr int FrameRadius = 10;                 // ProgressShield.ui:60. TOKENIZE: ProgressShieldFrameRadius
+        constexpr int FrameLineWidth = 2;               // ProgressShield.ui:59 $line.progress.idle.width.Alt1
+        constexpr int FrameRadius = 10;                 // ProgressShield.ui:60 $radius.progress.idle.Alt1
 
         constexpr const char* ShieldName = "progressShield";                        // ProgressShield.ui:17 `#progressShield`
         constexpr const char* FrameName = "frame";                                  // ProgressShield.ui:56 `QFrame#frame`
@@ -83,7 +83,7 @@ namespace AzToolsFramework
 
         // ---- The elements
         //! `QWidget #progressShield { background-color: qlineargradient }`, ProgressShield.ui:17: the gradient, from the top to the bottom
-        //! of the window. TOKENIZE: ProgressShieldBackground
+        //! of the window
         const AzQtComponents::BoxElement ShieldBox{
             .m_name = "Editor.Box.ProgressShield",
             .m_idle = { .m_fill = AzQtComponents::BoxElement::vertical(ShieldTop, ShieldBottom) },
@@ -91,7 +91,6 @@ namespace AzToolsFramework
         };
 
         //! `QFrame#frame`, ProgressShield.ui:56-61: a translucent fill and a line of its own around it, with round corners.
-        //! TOKENIZE: ProgressShieldFrame
         const AzQtComponents::BoxElement FrameBox{
             .m_name = "Editor.Box.ProgressShieldFrame",
             .m_nativeBorder = false,                    // ProgressShield.ui:59 a border of its own
@@ -104,7 +103,7 @@ namespace AzToolsFramework
         };
 
         //! `QLabel { color }`, ProgressShield.ui:19-22, over the text of every label (Text.qss:91-92: the family and the size an element
-        //! restates, as it takes the place of the Global one). TOKENIZE: ProgressShieldLabel
+        //! restates, as it takes the place of the Global one)
         const AzQtComponents::TextElement ProgressLabel{
             .m_name = "Editor.Text.ProgressShieldLabel",
             .m_family = AzQtComponents::Foundations::Label::Family,         // Text.qss:91

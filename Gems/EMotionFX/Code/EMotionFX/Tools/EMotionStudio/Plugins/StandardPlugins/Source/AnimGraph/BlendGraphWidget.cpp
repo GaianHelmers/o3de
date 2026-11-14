@@ -54,9 +54,11 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace BlendGraphWidgetFlat
     {
-        constexpr QColor PreviewNodeBorder(0, 255, 0);   // BlendGraphWidget.cpp:844 TOKENIZE: BlendGraphPreviewNodeBorder
-        constexpr QColor TooltipParameterLabel(80, 80, 80);      // BlendGraphWidget.cpp:1566 TOKENIZE: BlendGraphTooltipParameterLabel
-        constexpr QColor TooltipParameterValue(115, 115, 115);   // BlendGraphWidget.cpp:1566 TOKENIZE: BlendGraphTooltipParameterValue
+        // BlendGraphWidget.cpp:844 (BlendGraphWidget::SetVirtualFinalNode) $line.node.idle.color.Alt2
+        constexpr QColor PreviewNodeBorder(0, 255, 0);
+        constexpr QColor TooltipParameterLabel(80, 80, 80);  // BlendGraphWidget.cpp:1566 (BlendGraphWidget::event) $text.tooltip.idle.Alt2
+        // BlendGraphWidget.cpp:1566 (BlendGraphWidget::event) $fill.tooltip.idle.Alt1
+        constexpr QColor TooltipParameterValue(115, 115, 115);
     } // namespace BlendGraphWidgetFlat
 
     void BlendGraphMimeEvent::Reflect(AZ::ReflectContext* context)

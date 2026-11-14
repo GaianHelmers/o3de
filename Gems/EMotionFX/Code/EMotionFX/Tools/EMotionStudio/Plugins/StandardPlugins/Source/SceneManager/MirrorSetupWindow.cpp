@@ -46,8 +46,10 @@ namespace EMStudio
     namespace MirrorSetupWindowFlat
     {
         // The HTML colour name green is rgb(0, 128, 0), unlike Qt::green
-        constexpr QColor SaveSuccessText(0, 128, 0);    // MirrorSetupWindow.cpp:972 TOKENIZE: MirrorSetupSaveSuccessText
-        constexpr QColor SaveFailureText(255, 0, 0);    // MirrorSetupWindow.cpp:967 TOKENIZE: MirrorSetupSaveFailureText
+        // MirrorSetupWindow.cpp:972 (MirrorSetupWindow::OnSaveMapping) $text.surface.idle.Alt18
+        constexpr QColor SaveSuccessText(0, 128, 0);
+        // MirrorSetupWindow.cpp:967 (MirrorSetupWindow::OnSaveMapping) $text.surface.idle.Alt10
+        constexpr QColor SaveFailureText(255, 0, 0);
     } // namespace MirrorSetupWindowFlat
 
     // constructor

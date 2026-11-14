@@ -32,8 +32,8 @@ namespace EMStudio
     namespace LayoutManagerFlat
     {
         // The HTML colour name green is rgb(0, 128, 0), unlike Qt::green
-        constexpr QColor SaveSuccessText(0, 128, 0);    // LayoutManager.cpp:61 TOKENIZE: LayoutManagerSaveSuccessText
-        constexpr QColor SaveFailureText(255, 0, 0);    // LayoutManager.cpp:71 TOKENIZE: LayoutManagerSaveFailureText
+        constexpr QColor SaveSuccessText(0, 128, 0);    // LayoutManager.cpp:61 (LayoutManager::SaveDialogAccepted) $text.surface.idle.Alt18
+        constexpr QColor SaveFailureText(255, 0, 0);    // LayoutManager.cpp:71 (LayoutManager::SaveDialogAccepted) $text.surface.idle.Alt10
     } // namespace LayoutManagerFlat
 
     LayoutManager::LayoutManager()

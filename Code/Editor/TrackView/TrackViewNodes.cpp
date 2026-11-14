@@ -60,17 +60,19 @@
 namespace TrackViewNodesFlat
 {
     // TrackViewNodes.cpp:603 (the text of a node whose entity is missing; the LY palette 'Error/Failure').
-    // TOKENIZE: NodeTreeMissingEntityText
+    // CTrackViewNodesCtrl::UpdateAnimNodeRecord $text.view.idle.Alt2
     constexpr QColor MissingEntityText(226, 52, 43);
 
-    // TrackViewNodes.cpp:604 (the background of the active director's row; the LY palette 'Primary'). TOKENIZE: NodeTreeActiveDirectorBack
+    // TrackViewNodes.cpp:604 (the background of the active director's row; the LY palette 'Primary')
+    // (CTrackViewNodesCtrl::UpdateAnimNodeRecord) $fill.view.active.Alt1
     constexpr QColor ActiveDirectorBack(243, 81, 29);
 
     // TrackViewNodes.cpp:605 (the background of an inactive director's row; the LY palette 'Background (In Focus)').
-    // TOKENIZE: NodeTreeInactiveDirectorBack
+    // CTrackViewNodesCtrl::UpdateAnimNodeRecord $fill.view.disabled.Alt1
     constexpr QColor InactiveDirectorBack(22, 23, 27);
 
-    // TrackViewNodes.cpp:606 (the background of a group node's row; the LY palette 'Secondary'). TOKENIZE: NodeTreeGroupNodeBack
+    // TrackViewNodes.cpp:606 (the background of a group node's row; the LY palette 'Secondary') (CTrackViewNodesCtrl::UpdateAnimNodeRecord)
+    // $fill.view.idle.Alt3
     constexpr QColor GroupNodeBack(42, 84, 244);
 } // namespace TrackViewNodesFlat
 

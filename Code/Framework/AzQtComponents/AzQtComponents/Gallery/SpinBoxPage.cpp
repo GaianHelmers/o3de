@@ -82,10 +82,14 @@ namespace SpinBoxPageFlat
     using AzQtComponents::TextElement;
 
     // ---- The values of the sample texts
-    constexpr int SampleWeight = QFont::Bold;       // SpinBoxPage.cpp:196-198 (`font: bold`). TOKENIZE: GalleryVectorLabelWeight
-    constexpr QColor SampleRed(184, 51, 51);        // SpinBoxPage.cpp:196 (`color: rgb(184,51,51)`). TOKENIZE: GalleryVectorLabelRed
-    constexpr QColor SampleGreen(48, 208, 120);     // SpinBoxPage.cpp:197 (`color: rgb(48,208,120)`). TOKENIZE: GalleryVectorLabelGreen
-    constexpr QColor SampleBlue(66, 133, 244);      // SpinBoxPage.cpp:198 (`color: rgb(66,133,244)`). TOKENIZE: GalleryVectorLabelBlue
+    // SpinBoxPage.cpp:196-198 (`font: bold`) (SpinBoxPage::SpinBoxPage) $type.field.idle.weight.Alt1
+    constexpr int SampleWeight = QFont::Bold;
+    // SpinBoxPage.cpp:196 (`color: rgb(184,51,51)`) (SpinBoxPage::SpinBoxPage) $text.field.idle.Alt7
+    constexpr QColor SampleRed(184, 51, 51);
+    // SpinBoxPage.cpp:197 (`color: rgb(48,208,120)`) (SpinBoxPage::SpinBoxPage) $text.field.idle.Alt8
+    constexpr QColor SampleGreen(48, 208, 120);
+    // SpinBoxPage.cpp:198 (`color: rgb(66,133,244)`) (SpinBoxPage::SpinBoxPage) $text.field.idle.Alt9
+    constexpr QColor SampleBlue(66, 133, 244);
 
     // ---- The elements
     //! `font: bold; color: <colour>;` as a label's own sheet: the shorthand sets the style to normal and the weight to bold and leaves
@@ -95,7 +99,7 @@ namespace SpinBoxPageFlat
         .m_family = AzQtComponents::Foundations::Label::Family,
         .m_pixelSize = AzQtComponents::Foundations::Label::Size,
         .m_weight = SampleWeight,
-        .m_italic = 0,
+        .m_italic = 0,  // SpinBoxPage::SpinBoxPage $type.field.idle.style.Alt1
         .m_color = SampleRed,
     };
     const TextElement SampleGreenText{
@@ -103,7 +107,7 @@ namespace SpinBoxPageFlat
         .m_family = AzQtComponents::Foundations::Label::Family,
         .m_pixelSize = AzQtComponents::Foundations::Label::Size,
         .m_weight = SampleWeight,
-        .m_italic = 0,
+        .m_italic = 0,  // SpinBoxPage::SpinBoxPage $type.field.idle.style.Alt1
         .m_color = SampleGreen,
     };
     const TextElement SampleBlueText{
@@ -111,7 +115,7 @@ namespace SpinBoxPageFlat
         .m_family = AzQtComponents::Foundations::Label::Family,
         .m_pixelSize = AzQtComponents::Foundations::Label::Size,
         .m_weight = SampleWeight,
-        .m_italic = 0,
+        .m_italic = 0,  // SpinBoxPage::SpinBoxPage $type.field.idle.style.Alt1
         .m_color = SampleBlue,
     };
 

@@ -56,12 +56,14 @@ namespace AzQtComponents
 
         // ---- The minimize, maximize and close buttons of a tab widget's action toolbar (a tabbed floating window)
         // TitleBar.qss:100 rgba(255,255,255,0.1): Qt reads an alpha of 1 or less as a fraction and truncates it, 0.1 * 255 = 25
-        // (QCss::parseColorValue). TOKENIZE: WindowButtonHoverFill
+        // (QCss::parseColorValue) $fill.button.hover.Alt1
         const QColor WindowButtonHoverFill(255, 255, 255, 25);
-        const QColor WindowCloseHoverFill(0xB8, 0x0D, 0x1C);        // TitleBar.qss:104 TOKENIZE: WindowCloseHoverFill
-        constexpr const char* WindowMinimizeIcon = ":/Application/titlebar-minimize.svg";   // TitleBar.qss:134 TOKENIZE: WindowMinimizeIcon
-        constexpr const char* WindowMaximizeIcon = ":/Application/titlebar-maximize.svg";   // TitleBar.qss:119 TOKENIZE: WindowMaximizeIcon
-        constexpr const char* WindowCloseIcon = ":/Application/titlebar-close.svg";         // TitleBar.qss:109 TOKENIZE: WindowCloseIcon
+        const QColor WindowCloseHoverFill(0xB8, 0x0D, 0x1C);        // TitleBar.qss:104 $fill.button.hover.fill.Alt3
+        // TitleBar.qss:134 $asset.surface.idle.image.Alt1
+        constexpr const char* WindowMinimizeIcon = ":/Application/titlebar-minimize.svg";
+        // TitleBar.qss:119 $asset.surface.idle.image.Alt2
+        constexpr const char* WindowMaximizeIcon = ":/Application/titlebar-maximize.svg";
+        constexpr const char* WindowCloseIcon = ":/Application/titlebar-close.svg";  // TitleBar.qss:109 $asset.surface.idle.image.Alt3
 
         // ---- The close button of a filter tag
         const QColor CloseTagFill = Foundations::Clear;             // FilteredSearchWidget.qss:42 $fill.button.idle.fill.Clear
@@ -118,34 +120,34 @@ namespace AzQtComponents
         constexpr int EditableBreadCrumbsRadius = 2;                // BreadCrumbs.qss:36 $radius.bar.editable
 
         // ---- The button of breadcrumbs that shows the path that does not fit them
-        // BreadCrumbs.qss:22 qproperty-icon. TOKENIZE: BreadCrumbsMenuIcon
+        // BreadCrumbs.qss:22 qproperty-icon $asset.menu.idle.image.Alt1
         constexpr const char* BreadCrumbsMenuIcon = ":/Breadcrumb/img/UI20/Breadcrumb/dot-dot-dot_with_arrow.svg";
-        // BreadCrumbs.qss:23 qproperty-iconSize. TOKENIZE: BreadCrumbsMenuIconSize
+        // BreadCrumbs.qss:23 qproperty-iconSize $size.menu.idle.size.Alt1
         constexpr QSize BreadCrumbsMenuIconSize(22, 11);
 
         // ---- The labels of a message box: the padding that keeps the text and the icon off the border of the box
         // The margin above and below every label has (Text.qss:93-94) and the fill (BaseStyleSheet.qss:17) are the foundations'
         // (Foundations::Label::MarginV, Foundations::Surface::Fill), which the elements below restate
-        // MessageBox.qss:13-15 padding-top, padding-right, padding-bottom. TOKENIZE: MessageBoxTextPadding
+        // MessageBox.qss:13-15 padding-top, padding-right, padding-bottom $space.surface.idle.padding.Alt15
         constexpr QMargins MessageBoxTextPadding(0, 20, 20, 20);
-        // MessageBox.qss:20-21 padding-left, padding-top. TOKENIZE: MessageBoxIconPadding
+        // MessageBox.qss:20-21 padding-left, padding-top $space.surface.idle.padding.Alt16
         constexpr QMargins MessageBoxIconPadding(20, 20, 0, 0);
 
         // ---- The tool tip of a slider: its offset from the pointer, added to SliderConfig.ini's (Slider::ShowValueToolTip)
-        // Slider.qss:12-13 qproperty-toolTipOffsetX, -Y. TOKENIZE: HorizontalSliderToolTipOffset
+        // Slider.qss:12-13 qproperty-toolTipOffsetX, -Y $other.slider.idle.tooltipoffsetx.Alt1
         constexpr int HorizontalSliderToolTipOffsetX = -8;
-        constexpr int HorizontalSliderToolTipOffsetY = -16;
-        // Slider.qss:18-19 qproperty-toolTipOffsetX, -Y. TOKENIZE: VerticalSliderToolTipOffset
+        constexpr int HorizontalSliderToolTipOffsetY = -16;  // Slider.qss:13 $other.slider.idle.tooltipoffsety.Alt1
+        // Slider.qss:18-19 qproperty-toolTipOffsetX, -Y $other.slider.idle.tooltipoffsetx.Alt2
         constexpr int VerticalSliderToolTipOffsetX = 8;
-        constexpr int VerticalSliderToolTipOffsetY = -24;
+        constexpr int VerticalSliderToolTipOffsetY = -24;  // Slider.qss:19 $other.slider.idle.tooltipoffsety.Alt2
 
         // ---- The progress bar: a square track, a flat chunk, and no text
         const QColor ProgressTrackFill(0x9A, 0x9A, 0x9A);           // ProgressBar.qss:14 background $fill.progress.idle.Alt1
         const QColor ProgressChunkFill = Foundations::Accent::Primary;    // ProgressBar.qss:23 background $fill.progress.idle.Alt2
-        // ProgressBar.qss:18 qproperty-textVisible. TOKENIZE: ProgressTextVisible
+        // ProgressBar.qss:18 qproperty-textVisible $other.progress.idle
         constexpr bool ProgressTextVisible = false;
         //! The busy chunk moves 8px every step of the sheet style's animation, which runs at the common style's 30 frames a second
-        //! (QStyleSheetStyle::drawControl, CE_ProgressBarContents, and QCommonStylePrivate::animationFps)
+        //! (QStyleSheetStyle::drawControl, CE_ProgressBarContents, and QCommonStylePrivate::animationFps) $size.surface.idle.size.Alt4
         constexpr int BusyStepPixels = 8;
         constexpr double BusyStepMilliseconds = 1000.0 / 30.0;
         constexpr const char* BusyAnimationName = "_o3de_progressBusy";
@@ -357,7 +359,7 @@ namespace AzQtComponents
         //! has no element of its own: ProgressChunkFill is drawn by drawProgressBar for every bar, as ProjectManager.qss:778-780 repeats.
         const BoxElement ProgressBarTrack{
             .m_name = "Global.Box.ProgressBar",
-            // ProgressBar.qss:12-13 border, border-radius: none, square. TOKENIZE: ProgressTrackBorder
+            // ProgressBar.qss:12-13 border, border-radius: none, square $other.progress.idle
             .m_nativeBorder = false,
             .m_idle = {
                 .m_fill = QBrush(ProgressTrackFill),
@@ -377,7 +379,7 @@ namespace AzQtComponents
         const BoxElement PlainGroupBox{
             .m_name = "Global.Box.GroupBox",
             .m_idle = {
-                .m_fill = QBrush(Foundations::Surface::Fill),       // BaseStyleSheet.qss:17. TOKENIZE: GroupBoxFill
+                .m_fill = QBrush(Foundations::Surface::Fill),       // BaseStyleSheet.qss:17 $fill.surface.idle.Clear
             },
         };
 

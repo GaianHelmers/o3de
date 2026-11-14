@@ -17,7 +17,7 @@
 //=========================================================================
 namespace UiEditorFlat
 {
-    inline constexpr QColor DisabledText(127, 127, 127); // EditorCommon.h:50. TOKENIZE: UiCanvasMenuItemDisabledText
+    inline constexpr QColor DisabledText(127, 127, 127); // EditorCommon.h:50 (HierarchyMenu::HierarchyMenu) $text.menu.disabled.Alt1
 } // namespace UiEditorFlat
 
 // This allows iterating over an enum class.

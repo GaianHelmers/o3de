@@ -23,30 +23,32 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace BlendTreeVisualNodeFlat
     {
-        constexpr QColor PortPose(150, 150, 255);       // BlendTreeVisualNode.cpp:96 TOKENIZE: BlendTreePortPose
-        constexpr QColor PortFloat(0, 200, 0);          // BlendTreeVisualNode.cpp:98 TOKENIZE: BlendTreePortFloat
-        constexpr QColor PortInt(0, 200, 100);          // BlendTreeVisualNode.cpp:100 TOKENIZE: BlendTreePortInt
-        constexpr QColor PortBool(0, 200, 200);         // BlendTreeVisualNode.cpp:102 TOKENIZE: BlendTreePortBool
-        constexpr QColor PortVector2(100, 0, 100);      // BlendTreeVisualNode.cpp:104 TOKENIZE: BlendTreePortVector2
-        constexpr QColor PortVector3(175, 0, 175);      // BlendTreeVisualNode.cpp:106 TOKENIZE: BlendTreePortVector3
-        constexpr QColor PortVector4(255, 0, 255);      // BlendTreeVisualNode.cpp:108 TOKENIZE: BlendTreePortVector4
-        constexpr QColor PortString(50, 75, 255);       // BlendTreeVisualNode.cpp:110 TOKENIZE: BlendTreePortString
-        constexpr QColor PortDefault(50, 250, 250);     // BlendTreeVisualNode.cpp:113 TOKENIZE: BlendTreePortDefault
-        constexpr QColor SelectedBorder(255, 128, 0);   // BlendTreeVisualNode.cpp:156 TOKENIZE: BlendTreeSelectedBorder
-        constexpr QColor ErrorBorder(255, 0, 0);        // BlendTreeVisualNode.cpp:167 TOKENIZE: BlendTreeErrorBorder
-        // QColor::fromRgbF is not constexpr. BlendTreeVisualNode.cpp:179 TOKENIZE: BlendTreeSelectedFill
+        constexpr QColor PortPose(150, 150, 255);  // BlendTreeVisualNode.cpp:96 (BlendTreeVisualNode::GetPortColor) $fill.view.idle.Alt6
+        constexpr QColor PortFloat(0, 200, 0);  // BlendTreeVisualNode.cpp:98 (BlendTreeVisualNode::GetPortColor) $fill.view.idle.Alt7
+        constexpr QColor PortInt(0, 200, 100);  // BlendTreeVisualNode.cpp:100 (BlendTreeVisualNode::GetPortColor) $fill.view.idle.Alt8
+        constexpr QColor PortBool(0, 200, 200);  // BlendTreeVisualNode.cpp:102 (BlendTreeVisualNode::GetPortColor) $fill.view.idle.Alt9
+        constexpr QColor PortVector2(100, 0, 100);  // BlendTreeVisualNode.cpp:104 (BlendTreeVisualNode::GetPortColor) $fill.view.idle.Alt10
+        constexpr QColor PortVector3(175, 0, 175);  // BlendTreeVisualNode.cpp:106 (BlendTreeVisualNode::GetPortColor) $fill.view.idle.Alt11
+        constexpr QColor PortVector4(255, 0, 255);  // BlendTreeVisualNode.cpp:108 (BlendTreeVisualNode::GetPortColor) $fill.view.idle.Alt12
+        constexpr QColor PortString(50, 75, 255);  // BlendTreeVisualNode.cpp:110 (BlendTreeVisualNode::GetPortColor) $fill.view.idle.Alt13
+        // BlendTreeVisualNode.cpp:113 (BlendTreeVisualNode::GetPortColor) $fill.view.idle.Alt14
+        constexpr QColor PortDefault(50, 250, 250);
+        // BlendTreeVisualNode.cpp:156 (BlendTreeVisualNode::Render) $line.view.selected.color.Alt2
+        constexpr QColor SelectedBorder(255, 128, 0);
+        constexpr QColor ErrorBorder(255, 0, 0);  // BlendTreeVisualNode.cpp:167 (BlendTreeVisualNode::Render) $line.view.error.color.Alt1
+        // QColor::fromRgbF is not constexpr. BlendTreeVisualNode.cpp:179 $fill.view.selected.Alt4
         const QColor SelectedFill = QColor::fromRgbF(0.93f, 0.547f, 0.0f, 1.0f);
-        constexpr QColor UnprocessedFill(100, 100, 100);   // BlendTreeVisualNode.cpp:191 TOKENIZE: BlendTreeUnprocessedFill
-        // QColor::fromRgbF is not constexpr. BlendTreeVisualNode.cpp:197 TOKENIZE: BlendTreeDisabledFill
+        constexpr QColor UnprocessedFill(100, 100, 100);  // BlendTreeVisualNode.cpp:191 (BlendTreeVisualNode::Render) $fill.view.idle.Alt15
+        // QColor::fromRgbF is not constexpr. BlendTreeVisualNode.cpp:197 $fill.view.disabled.Alt2
         const QColor DisabledFill = QColor::fromRgbF(0.3f, 0.3f, 0.3f, 1.0f);
-        const QColor ErrorBlinkBorder(Qt::red);         // BlendTreeVisualNode.cpp:210 TOKENIZE: BlendTreeErrorBlinkBorder
-        const QColor EnabledText(Qt::white);            // BlendTreeVisualNode.cpp:228 TOKENIZE: BlendTreeEnabledText
-        constexpr QColor DisabledText(100, 100, 100);   // BlendTreeVisualNode.cpp:232 TOKENIZE: BlendTreeDisabledText
-        constexpr QColor BodyFill(40, 40, 40);          // BlendTreeVisualNode.cpp:256 TOKENIZE: BlendTreeBodyFill
-        constexpr QColor BodyHoverFill(50, 50, 50);     // BlendTreeVisualNode.cpp:260 TOKENIZE: BlendTreeBodyHoverFill
-        const QColor ArrowOutline(Qt::black);           // BlendTreeVisualNode.cpp:377 TOKENIZE: BlendTreeArrowOutline
-        constexpr QColor ArrowFill(175, 175, 175);      // BlendTreeVisualNode.cpp:378 TOKENIZE: BlendTreeArrowFill
-        constexpr QColor InfoText(255, 128, 0);         // BlendTreeVisualNode.cpp:442 TOKENIZE: BlendTreeInfoText
+        const QColor ErrorBlinkBorder(Qt::red);  // BlendTreeVisualNode.cpp:210 (BlendTreeVisualNode::Render) $line.view.error.color.Alt1
+        const QColor EnabledText(Qt::white);            // BlendTreeVisualNode.cpp:228 (BlendTreeVisualNode::Render) $text.view.idle.Alt1
+        constexpr QColor DisabledText(100, 100, 100);  // BlendTreeVisualNode.cpp:232 (BlendTreeVisualNode::Render) $text.view.disabled.Alt1
+        constexpr QColor BodyFill(40, 40, 40);          // BlendTreeVisualNode.cpp:256 (BlendTreeVisualNode::Render) $fill.view.idle.Alt16
+        constexpr QColor BodyHoverFill(50, 50, 50);     // BlendTreeVisualNode.cpp:260 (BlendTreeVisualNode::Render) $fill.view.hover.Alt3
+        const QColor ArrowOutline(Qt::black);  // BlendTreeVisualNode.cpp:377 (BlendTreeVisualNode::Render) $line.view.idle.color.Alt1
+        constexpr QColor ArrowFill(175, 175, 175);      // BlendTreeVisualNode.cpp:378 (BlendTreeVisualNode::Render) $fill.view.idle.Alt17
+        constexpr QColor InfoText(255, 128, 0);         // BlendTreeVisualNode.cpp:442 (BlendTreeVisualNode::Render) $text.view.idle.Alt5
     } // namespace BlendTreeVisualNodeFlat
 
     // the constructor

@@ -72,18 +72,18 @@ namespace AzQtComponents
         constexpr QSize ContextMenuPlusMaxSize(18, 18);
 
         // ---- The widgets below a card header that no rule of their own names, and the tips of a modified header
-        const QColor HeaderBodyFill(0x55, 0x55, 0x55);              // Card.qss:88 TOKENIZE: CardHeaderBodyFill
-        const QColor ModifiedTextColor(0xE5, 0x78, 0x29);           // Card.qss:174 TOKENIZE: CardModifiedTextColor
-        constexpr int ToolTipTextSize = 12;                         // ToolTip.qss:16 TOKENIZE: CardModifiedToolTipTextSize
+        const QColor HeaderBodyFill = Foundations::Highest;         // Card.qss:88 $fill.surface.idle.Highest
+        const QColor ModifiedTextColor(0xE5, 0x78, 0x29);           // Card.qss:174 $text.card.modified.Alt1
+        constexpr int ToolTipTextSize = 12;                         // ToolTip.qss:16 $size.tooltip.modified.size.Alt1
 
         // ---- The notification of a card: a block holding a header frame, which holds the icon and the message in a rounded pill
-        const QColor NotificationFill(0x55, 0x55, 0x55);            // Card.qss:53 TOKENIZE: CardNotificationFill
-        // Card.qss:54, :60 TOKENIZE: CardNotificationSpacing (a frame has nothing to space: the rule only gets a box of it)
+        const QColor NotificationFill = Foundations::Highest;       // Card.qss:53 $fill.card.idle.Highest
+        // Card.qss:54, :60 $space.card.idle.spacing.Alt1 (a frame has nothing to space: the rule only gets a box of it)
         constexpr int NotificationSpacing = 4;
-        // Card.qss:59 TOKENIZE: CardNotificationHeaderPadding
+        // Card.qss:59 $space.header.idle.padding.Alt1
         constexpr QMargins NotificationHeaderPadding(8, 0, 8, 0);
-        const QColor NotificationPillFill(0x44, 0x44, 0x44);        // Card.qss:67 TOKENIZE: CardNotificationPillFill
-        constexpr int NotificationPillRadius = 3;                   // Card.qss:68 TOKENIZE: CardNotificationPillRadius
+        const QColor NotificationPillFill = Foundations::Mid;       // Card.qss:67 $fill.card.idle.Mid
+        constexpr int NotificationPillRadius = 3;                   // Card.qss:68 $radius.card.idle.Alt1
 
         // ------------------------------------------------------------------------------
         // Elements

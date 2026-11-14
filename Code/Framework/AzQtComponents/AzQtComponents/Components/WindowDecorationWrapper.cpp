@@ -909,7 +909,7 @@ namespace AzQtComponents
     namespace WindowDecorationWrapperFlatInternal
     {
         //! The line WindowDecorationWrapper::drawFrame draws around the window. WindowDecorationWrapper.cpp:910.
-        //! TOKENIZE: WindowDecorationFrameLine
+        //! $line.surface.idle.color.Alt8
         constexpr QColor FrameLine(33, 34, 35);
 
         //! `AzQtComponents--WindowDecorationWrapper { border: 1px solid black }` (WindowDecorationWrapper.qss:11): the colour of the

@@ -27,7 +27,7 @@ namespace AzToolsFramework::ViewportUi::Internal
     const static int HighlightBorderSize = ViewportUiLeftRightBottomBorderSize;
     //! The colour of the highlight border and of the label on its top edge: the sheets of CreateViewportBorder and InitializeUiOverlay
     //! are built from it, and so is the fill the flattened GUI's elements read (ViewportUiDisplayFlatInternal::HighlightBorderFill).
-    //! ViewportUiDisplay.cpp:24. TOKENIZE: ViewportUiHighlightBorderFill
+    //! ViewportUiDisplay.cpp:24 $fill.viewport.hover.Alt1
     const static char* const HighlightBorderColor = "#4A90E2";
     const static int HighlightBorderBackButtonIconSize = 20;
     const static char* const HighlightBorderBackButtonIconFile = "X_axis.svg";
@@ -118,11 +118,11 @@ namespace AzToolsFramework::ViewportUi::Internal
         const QColor HighlightBorderFill(HighlightBorderColor);
 
         //! `border: %1px solid %2` of CreateViewportBorder: the left, right and bottom edges, HighlightBorderSize wide
-        //! (ViewportUiLeftRightBottomBorderSize, ViewportUiDisplayLayout.h:29). TOKENIZE: ViewportUiHighlightBorderSideSize
+        //! (ViewportUiLeftRightBottomBorderSize, ViewportUiDisplayLayout.h:29)
         const AzQtComponents::BoxElement::Edge BorderSideLine{ HighlightBorderSize, HighlightBorderFill };
 
         //! `border-top: %3px solid %4` of CreateViewportBorder: the top edge, ViewportUiTopBorderSize wide
-        //! (ViewportUiDisplayLayout.h:27). TOKENIZE: ViewportUiHighlightBorderTopSize
+        //! (ViewportUiDisplayLayout.h:27)
         const AzQtComponents::BoxElement::Edge BorderTopLine{ ViewportUiTopBorderSize, HighlightBorderFill };
 
         // ------------------------------------------------------------------------------

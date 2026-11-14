@@ -56,7 +56,7 @@ namespace AzToolsFramework
 
             //! `font-weight: bold` of that sheet (AssetBrowserListView.cpp:50, the line before the flattening) over the family the
             //! universal rule gives every widget (BaseStyleSheet.qss:19-20): no size, as no rule of the header's sets one (the sections'
-            //! size is the section rule's, TableView.qss:72). TOKENIZE: AssetBrowserListHeaderWeight
+            //! size is the section rule's, TableView.qss:72)
             const AzQtComponents::TextElement ListHeaderText{
                 .m_name = "Editor.Text.AssetBrowserListHeader",
                 .m_weight = QFont::Bold,                // font-weight: bold, AssetBrowserListView.cpp:50 (before the flattening)

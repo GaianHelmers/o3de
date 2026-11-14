@@ -39,7 +39,8 @@ namespace AzToolsFramework
     //! one translation unit, where anonymous namespaces merge.
     namespace SliceOverridesNotificationWindowFlatInternal
     {
-        constexpr QColor Background(0, 0, 0);   // SliceOverridesNotificationWindow.cpp:88. TOKENIZE: SliceNotificationBackground
+        // SliceOverridesNotificationWindow.cpp:88 (SliceOverridesNotificationWindow::paintEvent) $fill.view.idle.Alt5
+        constexpr QColor Background(0, 0, 0);
     }
 
     // constructor

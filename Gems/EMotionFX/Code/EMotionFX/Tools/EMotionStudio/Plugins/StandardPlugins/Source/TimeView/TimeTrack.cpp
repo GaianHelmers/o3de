@@ -22,10 +22,10 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace TimeTrackFlat
     {
-        constexpr QColor DataBackground(60, 65, 70);           // TimeTrack.cpp:34 TOKENIZE: TimeTrackDataBackground
-        constexpr QColor DataDisabledBackground(50, 50, 50);   // TimeTrack.cpp:35 TOKENIZE: TimeTrackDataDisabledBackground
-        constexpr QColor HeaderBackground(30, 30, 30);         // TimeTrack.cpp:36 TOKENIZE: TimeTrackHeaderBackground
-        constexpr QColor NameText(255, 255, 255);              // TimeTrack.cpp:37 TOKENIZE: TimeTrackNameText
+        constexpr QColor DataBackground(60, 65, 70);           // TimeTrack.cpp:34 (TimeTrack::TimeTrack) $fill.timeline.idle.Alt4
+        constexpr QColor DataDisabledBackground(50, 50, 50);   // TimeTrack.cpp:35 (TimeTrack::TimeTrack) $fill.timeline.disabled.Alt1
+        constexpr QColor HeaderBackground(30, 30, 30);         // TimeTrack.cpp:36 (TimeTrack::TimeTrack) $fill.header.idle.Alt6
+        constexpr QColor NameText(255, 255, 255);              // TimeTrack.cpp:37 (TimeTrack::TimeTrack) $text.timeline.idle.Alt2
     } // namespace TimeTrackFlat
 
     // the constructor

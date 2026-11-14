@@ -35,8 +35,8 @@ namespace EMStudio
     namespace NodeGraphFlat
     {
         // The error blink: red swings from the base's red up by ErrorBlinkSwing, green and blue stay at the base's.
-        inline constexpr QColor ErrorBlinkBase(160, 0, 0);   // NodeGraph.h:72 TOKENIZE: NodeGraphErrorBlinkBase
-        inline constexpr int ErrorBlinkSwing = 96;           // NodeGraph.h:72 TOKENIZE: NodeGraphErrorBlinkSwing
+        inline constexpr QColor ErrorBlinkBase(160, 0, 0);   // NodeGraph.h:72 (NodeGraph::GetErrorBlinkColor) $fill.node.error.Alt1
+        inline constexpr int ErrorBlinkSwing = 96;           // NodeGraph.h:72 (NodeGraph::GetErrorBlinkColor) $size.node.error.size.Alt1
     } // namespace NodeGraphFlat
 
     // forward declarations

@@ -27,7 +27,7 @@ namespace GraphCanvas
     //=========================================================================
     namespace GraphCanvasCheckBoxFlat
     {
-        // GraphCanvasCheckBox.cpp:122 (the check mark with no style line colour). TOKENIZE: CheckBoxCheckMarkFallback
+        // GraphCanvasCheckBox.cpp:122 (the check mark with no style line colour) (GraphCanvasCheckBox::paint) $fill.check.idle.Alt2
         constexpr QColor CheckMarkFallback(0, 0, 0);
     } // namespace GraphCanvasCheckBoxFlat
 

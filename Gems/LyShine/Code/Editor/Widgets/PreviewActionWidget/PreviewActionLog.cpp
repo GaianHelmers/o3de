@@ -11,6 +11,7 @@
 #include <QScrollBar>
 
 #include <AzQtComponents/Components/Widgets/ScrollBar.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 
 #include <LyShine/Bus/UiAnimationBus.h>
 #include <LyShine/Bus/UiElementBus.h>
@@ -24,17 +25,18 @@
 //////////////////////////////////////////////////////////////////////////
 namespace PreviewActionLogFlat
 {
-    // PreviewActionLog.cpp:85 (QColor("lightGray"): a repeated message, the odd repeats). TOKENIZE: ActionLogRepeatOddText
+    // PreviewActionLog.cpp:85 (QColor("lightGray"): a repeated message, the odd repeats) (PreviewActionLog::OnAction)
+    // $text.console.idle.Alt16
     constexpr QColor RepeatOddText(211, 211, 211);
 
-    // PreviewActionLog.cpp:89 (QColor("gray"): a repeated message, the even repeats). TOKENIZE: ActionLogRepeatEvenText
+    // PreviewActionLog.cpp:89 (QColor("gray"): a repeated message, the even repeats) (PreviewActionLog::OnAction) $text.console.idle.Alt10
     constexpr QColor RepeatEvenText(128, 128, 128);
 
-    // PreviewActionLog.cpp:96 (QColor("white"): a new message). TOKENIZE: ActionLogNewText
+    // PreviewActionLog.cpp:96 (QColor("white"): a new message) (PreviewActionLog::OnAction) $text.console.idle.Alt2
     constexpr QColor NewText(255, 255, 255);
 
-    // PreviewActionLog.cpp:28 (background-color of the log, set as its sheet). TOKENIZE: ActionLogFill
-    constexpr QColor Fill(0x22, 0x22, 0x22);
+    // PreviewActionLog.cpp:28 (background-color of the log, set as its sheet) (PreviewActionLog::PreviewActionLog) $fill.console.idle.BG
+    constexpr QColor Fill = AzQtComponents::Foundations::BG;
 } // namespace PreviewActionLogFlat
 
 PreviewActionLog::PreviewActionLog([[maybe_unused]] EditorWindow* editorWindow)

@@ -57,7 +57,7 @@ namespace ScriptCanvasEditor
         namespace ControllerFlat
         {
             //! `background-color: rgb(47, 47, 47)`: View.ui:199 (before the flattening), the fill of the progress frame and, as the
-            //! declaration reached it, the track of its bar. TOKENIZE: UpgradeProgressFrameFill
+            //! declaration reached it, the track of its bar $fill.progress.idle.Alt4
             constexpr QColor ProgressFrameFill(47, 47, 47);
 
             //! The frame: its rect in the fill. The frame is a QFrame with no frame shape and no autofill (View.ui:195-203).

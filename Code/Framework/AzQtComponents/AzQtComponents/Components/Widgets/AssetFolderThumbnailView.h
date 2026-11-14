@@ -32,8 +32,10 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
         // The drag selection rectangle (shown only while drag-selecting)
         // ------------------------------------------------------------------------------
-        inline constexpr QColor DragSelectFill(255, 255, 255, 20);  // AssetFolderThumbnailView.h:192. TOKENIZE: ThumbnailDragSelectFill
-        inline constexpr QColor DragSelectBorder(255, 255, 255);    // AssetFolderThumbnailView.h:193. TOKENIZE: ThumbnailDragSelectBorder
+        // AssetFolderThumbnailView.h:192 (AssetFolderThumbnailView::m_dragSelectRectColor) $fill.view.selected.Alt2
+        inline constexpr QColor DragSelectFill(255, 255, 255, 20);
+        // AssetFolderThumbnailView.h:193 (AssetFolderThumbnailView::m_dragSelectBorderColor) $line.view.selected.color.Alt1
+        inline constexpr QColor DragSelectBorder(255, 255, 255);
     } // namespace AssetFolderThumbnailViewFlat
 
     class AZ_QT_COMPONENTS_API AssetFolderThumbnailView

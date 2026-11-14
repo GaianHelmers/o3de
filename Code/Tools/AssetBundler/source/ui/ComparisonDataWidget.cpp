@@ -25,7 +25,8 @@ namespace AssetBundler
     //=========================================================================
     namespace ComparisonDataWidgetFlat
     {
-        constexpr QColor LineEditFill(0xCC, 0xCC, 0xCC); // ComparisonDataWidget.cpp:48. TOKENIZE: ComparisonDataLineEditFill
+        // ComparisonDataWidget.cpp:48 (ComparisonDataWidget::ComparisonDataWidget) $fill.field.idle.Alt18
+        constexpr QColor LineEditFill(0xCC, 0xCC, 0xCC);
     } // namespace ComparisonDataWidgetFlat
 
     //////////////////////////////////////////////////////////////////////////////////////////////////

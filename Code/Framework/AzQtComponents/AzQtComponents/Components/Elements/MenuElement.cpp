@@ -65,13 +65,15 @@ namespace AzQtComponents
         // ---- The popup of the status bar's source control item
         // MainStatusBar.cpp (SourceControlItem::InitMenu) tags its menu SourceControlMenu, the `QMenu.SourceControlMenu` of Menu.qss:36
         constexpr const char* SourceControlTag = "SourceControlMenu";
-        // Menu.qss:38-39 `margin-left: 8px; margin-right: 8px`. TOKENIZE: SourceControlMenuMargin
+        // Menu.qss:38-39 `margin-left: 8px; margin-right: 8px` $space.menu.idle.margin.Alt1
         constexpr int SourceControlMarginH = 8;
-        // Menu.qss:44 `QMenu.SourceControlMenu::item { margin-left: 41px }`. TOKENIZE: SourceControlMenuItemIndent
+        // Menu.qss:44 `QMenu.SourceControlMenu::item { margin-left: 41px }` $space.menu.idle.margin.Alt2
         constexpr int SourceControlItemMarginLeft = 41;
         // QCommonStyle's room for a shortcut after the text, which the sheet's own item size added (QStyleSheetStyle::sizeFromContents)
+        // $size.tab.idle.width.Alt1
         constexpr int BoxedItemTabWidth = 12;
         // The gap the sheet's own item size left after the check column (QStyleSheetStyle::sizeFromContents, CT_MenuItem)
+        // $space.check.idle.gap.Alt1
         constexpr int BoxedItemCheckGap = 4;
 
         // ---- The menu bar

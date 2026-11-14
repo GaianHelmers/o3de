@@ -26,7 +26,8 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
         // The rounded toast: the fill ToastNotification::paintEvent paints when the toast has a border radius
         // ------------------------------------------------------------------------------
-        constexpr QColor Fill(0, 0, 0);     // ToastNotification.cpp:99 (setRgbF(0, 0, 0, 1)). TOKENIZE: ToastNotificationFill
+        // ToastNotification.cpp:99 (setRgbF(0, 0, 0, 1)) (ToastNotification::paintEvent) $fill.toast.idle.Alt2
+        constexpr QColor Fill(0, 0, 0);
 
         // ------------------------------------------------------------------------------
         // The sheets the form gave the icon frame and its label (ToastNotification.ui:59, :98 before the flattening)

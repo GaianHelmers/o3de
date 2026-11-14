@@ -69,10 +69,10 @@ namespace AtomToolsFramework
         //! `::item:selected` rule outranks the role (TableView.qss:42-50). The same rule, with the same value, is in Editor.qss:109-113
         //! for the Editor's node palettes (EditorFlatSheet.cpp, NodePaletteTree): the Editor links neither this library nor GraphCanvas,
         //! so each holds the value, and both carry the id of one token. OPEN ITEM: one definition in the AzQtComponents Foundations (the
-        //! two literals are then deleted). TOKENIZE: NodePaletteSearchHighlight
+        //! two literals are then deleted)
         const AzQtComponents::ItemViewElement NodePaletteTree{
             .m_name = "AtomTools.ItemView.NodePaletteTree",
-            .m_selection = QColor(255, 255, 255, 41),               // selection-background-color: GraphView.qss:11
+            .m_selection = QColor(255, 255, 255, 41),  // selection-background-color: GraphView.qss:11 $fill.view.idle.selection-fill.Alt2
         };
 
         //! `GraphCanvas--NodePaletteTreeView`, below where the sheet was set: a palette of a view's menus (GraphView), or any widget of a

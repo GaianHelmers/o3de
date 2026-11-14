@@ -52,10 +52,12 @@ namespace AzQtComponents
         // Constant for the percentage to scale down the center tab drop zone for the center tab icon
         static constexpr qreal centerTabIconScale  = 0.5;
 
-        // Constant for the drop zone hotspot default color. FancyDockingDropZoneWidget.h:56. TOKENIZE: DockingDropZoneFill
+        // Constant for the drop zone hotspot default color. FancyDockingDropZoneWidget.h:56 (FancyDockingDropZoneConstants::dropZoneColor)
+        // $fill.dock.idle.Alt1
         static const QColor dropZoneColor = QColor(155, 155, 155);
 
-        // Constant for the drop zone border color. FancyDockingDropZoneWidget.h:59. TOKENIZE: DockingDropZoneBorder
+        // Constant for the drop zone border color. FancyDockingDropZoneWidget.h:59 (FancyDockingDropZoneConstants::dropZoneBorderColor)
+        // $line.dock.idle.color.Alt1
         static const QColor dropZoneBorderColor = Qt::black;
 
         // Constant for the border width in pixels separating the drop zones

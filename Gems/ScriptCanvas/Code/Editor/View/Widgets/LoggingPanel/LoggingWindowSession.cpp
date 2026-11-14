@@ -31,7 +31,8 @@ namespace ScriptCanvasEditor
     //=========================================================================
     namespace LoggingWindowSessionFlat
     {
-        constexpr QColor HighlightGlow(243, 129, 29); // LoggingWindowSession.cpp:411. TOKENIZE: ScriptCanvasHighlightGlow
+        // LoggingWindowSession.cpp:411 (LoggingWindowSession::HighlightElement) $fill.surface.hover.Alt3
+        constexpr QColor HighlightGlow(243, 129, 29);
     } // namespace LoggingWindowSessionFlat
 
     /////////////////////////////

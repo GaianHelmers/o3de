@@ -77,10 +77,9 @@ namespace OpenParticleSystemEditor
         // ---- The values the elements add to the sites' (ParticleEditorFlat.h)
         //! The box of a check box's indicator: the image's size is the style's (IndicatorElement::ImageSize, CheckBox.qss:25-26) and
         //! its margin (CheckBox.qss:27) is restated, as an element takes the place of the Global one.
-        //! TOKENIZE: ParticleCheckIndicatorMargin
+        //! $space.check-indicator.idle.margin.Alt1
         constexpr int CheckIndicatorMargin = 2;
         //! The line of the name edit's field: `border-width: 2px` (LineEdit.qss:16, $line.field.idle.width.Alt2).
-        //! TOKENIZE: ParticleNameEditBorderWidth
         constexpr int NameEditBorderWidth = 2;
 
         // ----------------------------------------------------------------------------------
@@ -89,7 +88,6 @@ namespace OpenParticleSystemEditor
 
         //! The graph view (`background-color`, ParticleGraphicsView.cpp:52): the fill of the whole view, under the grid the scene paints.
         //! Its viewport draws the view's element (BoxElement::containerOf). A margin of 0 as every scroll area has (QDockWidget.qss:35).
-        //! TOKENIZE: ParticleGraphViewFill
         const BoxElement GraphView{
             .m_name = "OpenParticle.Box.GraphView",
             .m_hasBox = true,                                   // margin: 0, QDockWidget.qss:35 (QAbstractScrollArea)
@@ -100,7 +98,7 @@ namespace OpenParticleSystemEditor
         //! translucent top-level window of a class with Q_OBJECT whose paint hook is misspelled (painEvent), and a translucent window's
         //! own background is never painted (QWidget::setAttribute sets WA_NoSystemBackground), so the fill the user sees is the form's
         //! plain container below it (ParticleItemWidget.ui:28, `verticalLayoutWidget`), which the sheet reached as a descendant: a
-        //! rounded rect, whose corners show the translucent window through. TOKENIZE: ParticleItemWindowFill
+        //! rounded rect, whose corners show the translucent window through
         const BoxElement ItemContainer{
             .m_name = "OpenParticle.Box.ItemContainer",
             .m_nativeBorder = false,                                                // border-radius: ParticleItemWidget.cpp:54
@@ -109,7 +107,7 @@ namespace OpenParticleSystemEditor
         };
 
         //! The icon beside the name (`background-color: qlineargradient`, EffectorInspector.ui:46), a plain widget 23 x 22 px:
-        //! a vertical gradient. TOKENIZE: ParticleNameIconFill
+        //! a vertical gradient
         const BoxElement NameIcon{
             .m_name = "OpenParticle.Box.NameIcon",
             .m_idle = {
@@ -119,7 +117,6 @@ namespace OpenParticleSystemEditor
 
         //! The title row (ParticleItemWidget.ui:59-63): a vertical gradient with round top corners. The sheet has no selector, so the
         //! gradient is laid again over each tool button and check box of the row, a tile of its own on each (the same element, below).
-        //! TOKENIZE: ParticleItemTitleFill
         const BoxElement Title{
             .m_name = "OpenParticle.Box.Title",
             .m_nativeBorder = false,                            // border-radius: ParticleItemWidget.ui:60-63
@@ -136,7 +133,7 @@ namespace OpenParticleSystemEditor
 
         //! A row, idle (`background-color: #474747; border-radius: 1px`, ParticleLineWidget.cpp:18, :55 and the form's twelve sheets of
         //! the same text), and the tile the same sheet lays over each tool button of the row (a label and a check box of the row
-        //! have the row's colour already, which is no change). TOKENIZE: ParticleLineIdleFill
+        //! have the row's colour already, which is no change)
         const BoxElement Line{
             .m_name = "OpenParticle.Box.Line",
             .m_nativeBorder = false,                            // border-radius: ParticleLineWidget.cpp:18
@@ -144,7 +141,7 @@ namespace OpenParticleSystemEditor
             .m_idle = { .m_fill = QBrush(ParticleLineWidgetFlat::LineIdleFill) },   // ParticleLineWidget.cpp:18
         };
 
-        //! A row while it is pressed (ParticleLineWidget.cpp:40), and the tile on its tool buttons. TOKENIZE: ParticleLinePressedFill
+        //! A row while it is pressed (ParticleLineWidget.cpp:40), and the tile on its tool buttons
         const BoxElement LinePressed{
             .m_name = "OpenParticle.Box.LinePressed",
             .m_nativeBorder = false,                            // border-radius: ParticleLineWidget.cpp:40
@@ -156,13 +153,12 @@ namespace OpenParticleSystemEditor
         //! every line edit (LineEdit.qss:11-20 over BaseStyleSheet.qss:68-84, drawn as LineEditFlat::Frame) with no fill. An element is
         //! the whole definition of its frame, so it restates the field's box: the 2px line, the padding, the height and the radius.
         //! The widget's sheet outranks the application's :disabled rule (LineEdit.qss:31-35), so no state changes the fill or the text.
-        //! TOKENIZE: ParticleNameEditInitialFill
         const BoxElement NameEditInitial{
             .m_name = "OpenParticle.Box.NameEditInitial",
             .m_padding = QMargins(Foundations::Field::PaddingLeft, Foundations::Field::PaddingTop, 0, Foundations::Field::PaddingBottom),
             .m_nativeBorder = false,                            // border-style: solid, LineEdit.qss:17
             .m_radius = Foundations::Field::Radius,             // BaseStyleSheet.qss:79
-            .m_size = QSize(-1, Foundations::Field::Height),    // height: 16px, LineEdit.qss:12
+            .m_size = QSize(-1, Foundations::Field::Height),    // height: 16px, LineEdit.qss:12 $size.field.idle.height.Alt1
             .m_idle = {
                 .m_fill = QBrush(EffectorInspectorFlat::NameEditIdleFill),                          // EffectorInspector.cpp:31
                 .m_edges = BoxElement::border(NameEditBorderWidth, Foundations::Field::Line),   // LineEdit.qss:16, BaseStyleSheet.qss:81
@@ -170,13 +166,13 @@ namespace OpenParticleSystemEditor
         };
 
         //! The name edit after it lost the focus (`background:#444444; border-width:0; border-style:outset`, EffectorInspector.cpp:58):
-        //! a flat fill and no line; the field's padding, height and radius stay. TOKENIZE: ParticleNameEditBlurredFill
+        //! a flat fill and no line; the field's padding, height and radius stay
         const BoxElement NameEditBlurred{
             .m_name = "OpenParticle.Box.NameEditBlurred",
             .m_padding = QMargins(Foundations::Field::PaddingLeft, Foundations::Field::PaddingTop, 0, Foundations::Field::PaddingBottom),
             .m_nativeBorder = false,                            // border-style: outset, border-width: 0, EffectorInspector.cpp:58
             .m_radius = Foundations::Field::Radius,             // BaseStyleSheet.qss:79
-            .m_size = QSize(-1, Foundations::Field::Height),    // height: 16px, LineEdit.qss:12
+            .m_size = QSize(-1, Foundations::Field::Height),    // height: 16px, LineEdit.qss:12 $size.field.idle.height.Alt1
             .m_idle = { .m_fill = QBrush(EffectorInspectorFlat::NameEditBlurredFill) },             // EffectorInspector.cpp:58
         };
 
@@ -186,7 +182,7 @@ namespace OpenParticleSystemEditor
 
         //! `color:white` of the name edit before it has had the focus and after it lost it (EffectorInspector.cpp:31, :58), over the
         //! entry field's own text: the family and the size (BaseStyleSheet.qss:78, :82), which an element restates. The widget's sheet
-        //! outranks the application's disabled colour, so the colour is the same disabled. TOKENIZE: ParticleNameEditText
+        //! outranks the application's disabled colour, so the colour is the same disabled
         const TextElement NameEditWhite{
             .m_name = "OpenParticle.Text.NameEditWhite",
             .m_family = Foundations::Field::Family,             // BaseStyleSheet.qss:78
@@ -195,7 +191,7 @@ namespace OpenParticleSystemEditor
         };
 
         //! `color:rgb(68,68,68)` of the name edit while it has the focus (EffectorInspector.cpp:54); its field is the entry field's, with
-        //! the fill of every line edit. TOKENIZE: ParticleNameEditFocusedText
+        //! the fill of every line edit
         const TextElement NameEditFocused{
             .m_name = "OpenParticle.Text.NameEditFocused",
             .m_family = Foundations::Field::Family,             // BaseStyleSheet.qss:78
@@ -210,7 +206,7 @@ namespace OpenParticleSystemEditor
         //! The check boxes of a row and of a property editor (`QCheckBox::indicator:unchecked { image: off.svg }` and `:checked
         //! { image: on.svg }`, ParticleItemWidget.ui:141-142, PropertyEditorWidget.cpp:55-56): the images of CheckBox.qss:50-73 for
         //! every state of the two (the widget's sheet outranks the application's :focus and :disabled rules), in the box of
-        //! CheckBox.qss:23-28. TOKENIZE: ParticleItemFixedCheckImages
+        //! CheckBox.qss:23-28
         const IndicatorElement FixedCheck{
             .m_name = "OpenParticle.Indicator.FixedCheck",
             .m_imageSize = IndicatorElement::ImageSize,
@@ -224,7 +220,6 @@ namespace OpenParticleSystemEditor
         };
 
         //! The solo check box of the title row (ParticleItemWidget.ui:120-121): the same, with the images of the solo mark.
-        //! TOKENIZE: ParticleItemSoloCheckImages
         const IndicatorElement SoloCheck{
             .m_name = "OpenParticle.Indicator.SoloCheck",
             .m_imageSize = IndicatorElement::ImageSize,
@@ -245,7 +240,7 @@ namespace OpenParticleSystemEditor
         //! `order-top` is no property, so only the fill applies. The window's sheet has no selector and reached the lines with its
         //! `border-radius: 8px` (ParticleItemWidget.cpp:54), which gives a line a border of its own (no line is drawn, and the contents
         //! are the whole rect), not the style's frame; the radius is wider than the 2px of a line, so its corners are square. A box
-        //! element, as the frame element is for a frame with a border-less rule. TOKENIZE: ParticleItemSelectionLine
+        //! element, as the frame element is for a frame with a border-less rule
         const BoxElement SelectionLine{
             .m_name = "OpenParticle.Box.SelectionLine",
             .m_nativeBorder = false,                                // border-radius: ParticleItemWidget.cpp:54
@@ -261,7 +256,7 @@ namespace OpenParticleSystemEditor
         //! parents (ParticleGraphicsView::ShowMenu) as a descendant, and a sheet of an ancestor outranks the application's: the legacy
         //! menu's surface is the view's fill, not `QMenu { background-color: #222222 }` (Menu.qss:12). Everything else of the menu is the
         //! application sheet's, which the Global popup element carries, so this element is a copy of it with the surface (a copy made
-        //! when first needed, as the Global element is private to MenuElement.cpp). TOKENIZE: ParticleGraphMenuSurface
+        //! when first needed, as the Global element is private to MenuElement.cpp)
         const MenuElement& graphMenu()
         {
             static const MenuElement menu = []

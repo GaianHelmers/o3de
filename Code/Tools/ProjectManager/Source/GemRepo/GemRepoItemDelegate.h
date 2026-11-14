@@ -27,10 +27,13 @@ namespace O3DE::ProjectManager
         // ------------------------------------------------------------------------------
         // The rows of the Gem Repos list (GemRepoItemDelegate::paint)
         // ------------------------------------------------------------------------------
-        inline constexpr QColor ItemText(0xFF, 0xFF, 0xFF);         // GemRepoItemDelegate.h:35. TOKENIZE: GemRepoItemText
-        inline constexpr QColor ListSurface(0x33, 0x33, 0x33);      // GemRepoItemDelegate.h:36 (outside). TOKENIZE: GemRepoListSurface
-        inline constexpr QColor ItemFill(0x40, 0x40, 0x40);         // GemRepoItemDelegate.h:37 (item). TOKENIZE: GemRepoItemFill
-        inline constexpr QColor SelectedBorder(0x1E, 0x70, 0xEB);   // GemRepoItemDelegate.h:38. TOKENIZE: GemRepoSelectedBorder
+        inline constexpr QColor ItemText(0xFF, 0xFF, 0xFF);  // GemRepoItemDelegate.h:35 (GemRepoItemDelegate::paint) $text.item.idle.Alt2
+        // GemRepoItemDelegate.h:36 (outside) (GemRepoItemDelegate::m_backgroundColor) $fill.view.idle.Low
+        inline constexpr QColor ListSurface(0x33, 0x33, 0x33);
+        // GemRepoItemDelegate.h:37 (item) (GemRepoItemDelegate::m_itemBackgroundColor) $fill.item.idle.Alt5
+        inline constexpr QColor ItemFill(0x40, 0x40, 0x40);
+        // GemRepoItemDelegate.h:38 (GemRepoItemDelegate::m_borderColor) $line.gemlist.selected.color.Alt1
+        inline constexpr QColor SelectedBorder(0x1E, 0x70, 0xEB);
     } // namespace GemRepoItemDelegateFlat
 
     class GemRepoItemDelegate

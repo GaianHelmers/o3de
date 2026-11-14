@@ -23,24 +23,25 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace GraphNodeFlat
     {
-        constexpr QColor PortHighlight(255, 128, 0);                   // GraphNode.cpp:19 TOKENIZE: GraphNodePortHighlight
-        constexpr QColor PortHighlightBackground(128, 64, 0);          // GraphNode.cpp:20 TOKENIZE: GraphNodePortHighlightBackground
-        constexpr QColor Base(74, 63, 238);                            // GraphNode.cpp:28 TOKENIZE: GraphNodeBase
-        constexpr QColor Visualize(0, 255, 0);                         // GraphNode.cpp:29 TOKENIZE: GraphNodeVisualize
-        constexpr QColor SelectedBorder(255, 128, 0);                  // GraphNode.cpp:354 TOKENIZE: GraphNodeSelectedBorder
-        // QColor::fromRgbF is not constexpr. GraphNode.cpp:366 TOKENIZE: GraphNodeSelectedFill
+        constexpr QColor PortHighlight(255, 128, 0);  // GraphNode.cpp:19 (GraphNode::s_portHighlightColo) $fill.node.hover.Alt1
+        constexpr QColor PortHighlightBackground(128, 64, 0);  // GraphNode.cpp:20 (GraphNode::s_portHighlightBGColor) $fill.node.hover.Alt2
+        constexpr QColor Base(74, 63, 238);                            // GraphNode.cpp:28 (GraphNode::GraphNode) $fill.node.idle.Alt8
+        constexpr QColor Visualize(0, 255, 0);                         // GraphNode.cpp:29 (GraphNode::GraphNode) $fill.node.idle.Alt9
+        constexpr QColor SelectedBorder(255, 128, 0);  // GraphNode.cpp:354 (GraphNode::Render) $line.node.selected.color.Alt1
+        // QColor::fromRgbF is not constexpr. GraphNode.cpp:366 $fill.node.selected.Alt1
         const QColor SelectedFill = QColor::fromRgbF(0.93f, 0.547f, 0.0f, 1.0f);
-        // QColor::fromRgbF is not constexpr. GraphNode.cpp:376 TOKENIZE: GraphNodeDisabledFill
+        // QColor::fromRgbF is not constexpr. GraphNode.cpp:376 $fill.node.disabled.Alt1
         const QColor DisabledFill = QColor::fromRgbF(0.3f, 0.3f, 0.3f, 1.0f);
-        const QColor EnabledText(Qt::white);                           // GraphNode.cpp:391 TOKENIZE: GraphNodeEnabledText
-        constexpr QColor DisabledText(100, 100, 100);                  // GraphNode.cpp:395 TOKENIZE: GraphNodeDisabledText
-        constexpr QColor InfoText(255, 128, 0);                        // GraphNode.cpp:450 TOKENIZE: GraphNodeInfoText
-        const QColor ArrowOutline(Qt::black);                          // GraphNode.cpp:556 TOKENIZE: GraphNodeArrowOutline
-        constexpr QColor ArrowFill(175, 175, 175);                     // GraphNode.cpp:557 TOKENIZE: GraphNodeArrowFill
-        constexpr QColor Shadow(0, 0, 0, 70);                          // GraphNode.cpp:675 TOKENIZE: GraphNodeShadow
-        const QColor VisualizeBorder(Qt::black);                       // GraphNode.cpp:739 TOKENIZE: GraphNodeVisualizeBorder
-        constexpr QColor VisualizeHighlightedBorder(255, 128, 0);      // GraphNode.cpp:746 TOKENIZE: GraphNodeVisualizeHighlightedBorder
-        constexpr QColor VisualizeSelectedFill(255, 128, 0);           // GraphNode.cpp:753 TOKENIZE: GraphNodeVisualizeSelectedFill
+        const QColor EnabledText(Qt::white);                           // GraphNode.cpp:391 (GraphNode::Render) $text.node.idle.Alt6
+        constexpr QColor DisabledText(100, 100, 100);                  // GraphNode.cpp:395 (GraphNode::Render) $text.node.disabled.Alt2
+        constexpr QColor InfoText(255, 128, 0);                        // GraphNode.cpp:450 (GraphNode::Render) $text.node.idle.Alt7
+        const QColor ArrowOutline(Qt::black);                          // GraphNode.cpp:556 (GraphNode::Render) $line.node.idle.color.Alt6
+        constexpr QColor ArrowFill(175, 175, 175);                     // GraphNode.cpp:557 (GraphNode::Render) $fill.node.idle.Alt10
+        constexpr QColor Shadow(0, 0, 0, 70);                          // GraphNode.cpp:675 (GraphNode::RenderShadow) $fill.node.idle.Alt11
+        const QColor VisualizeBorder(Qt::black);  // GraphNode.cpp:739 (GraphNode::RenderVisualizeRect) $line.node.idle.color.Alt6
+        // GraphNode.cpp:746 (GraphNode::RenderVisualizeRect) $line.node.idle.color.Alt7
+        constexpr QColor VisualizeHighlightedBorder(255, 128, 0);
+        constexpr QColor VisualizeSelectedFill(255, 128, 0);  // GraphNode.cpp:753 (GraphNode::RenderVisualizeRect) $fill.node.selected.Alt2
     } // namespace GraphNodeFlat
 
     // statics

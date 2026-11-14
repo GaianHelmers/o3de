@@ -46,7 +46,8 @@ namespace ScriptCanvasEditor
     //=========================================================================
     namespace GraphValidationDockWidgetFlat
     {
-        const QColor ValidationGlow(Qt::red); // GraphValidationDockWidget.cpp:53. TOKENIZE: ScriptCanvasValidationGlow
+        // GraphValidationDockWidget.cpp:53 (HighlightElementValidationEffect::HighlightElementValidationEffect) $fill.graph.idle.Alt2
+        const QColor ValidationGlow(Qt::red);
     } // namespace GraphValidationDockWidgetFlat
 
     /////////////////////////////////////

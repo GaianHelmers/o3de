@@ -28,22 +28,24 @@
 //////////////////////////////////////////////////////////////////////////
 namespace UiAnimViewCurveEditorFlat
 {
-    // UiAnimViewCurveEditor.cpp:236 (the colour of a sub-track whose index is not 0 to 3). TOKENIZE: CurveAxisFallback
+    // UiAnimViewCurveEditor.cpp:236 (the colour of a sub-track whose index is not 0 to 3) (CUiAnimViewCurveEditor::AddSpline)
+    // $line.curve.idle.color.Alt5
     constexpr QColor AxisFallback(255, 0, 0);
 
-    // UiAnimViewCurveEditor.cpp:240, :258 (the X curve). TOKENIZE: CurveAxisX
+    // UiAnimViewCurveEditor.cpp:240, :258 (the X curve) (CUiAnimViewCurveEditor::AddSpline) $line.curve.idle.color.Alt5
     constexpr QColor AxisX(255, 0, 0);
 
-    // UiAnimViewCurveEditor.cpp:243, :259 (the Y curve). TOKENIZE: CurveAxisY
+    // UiAnimViewCurveEditor.cpp:243, :259 (the Y curve) (CUiAnimViewCurveEditor::AddSpline) $line.curve.idle.color.Alt6
     constexpr QColor AxisY(0, 255, 0);
 
-    // UiAnimViewCurveEditor.cpp:246, :260 (the Z curve). TOKENIZE: CurveAxisZ
+    // UiAnimViewCurveEditor.cpp:246, :260 (the Z curve) (CUiAnimViewCurveEditor::AddSpline) $line.curve.idle.color.Alt7
     constexpr QColor AxisZ(0, 0, 255);
 
-    // UiAnimViewCurveEditor.cpp:249 (the W curve). TOKENIZE: CurveAxisW
+    // UiAnimViewCurveEditor.cpp:249 (the W curve) (CUiAnimViewCurveEditor::AddSpline) $line.curve.idle.color.Alt8
     constexpr QColor AxisW(255, 255, 0);
 
-    // UiAnimViewCurveEditor.cpp:261 (the fourth curve of a multi-curve track, pink "so you know it's wrong"). TOKENIZE: CurveAxisUnknown
+    // UiAnimViewCurveEditor.cpp:261 (the fourth curve of a multi-curve track, pink "so you know it's wrong")
+    // (CUiAnimViewCurveEditor::AddSpline) $line.curve.idle.color.Alt9
     constexpr QColor AxisUnknown(255, 0, 255);
 } // namespace UiAnimViewCurveEditorFlat
 

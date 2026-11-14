@@ -48,7 +48,7 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
         // The drop frame: the ring painted while a file is dragged over the field
         // ------------------------------------------------------------------------------
-        constexpr QColor DropFrame(0xFF, 0xFF, 0xFF);   // BrowseEdit.cpp:499 (Qt::white). TOKENIZE: BrowseEditDropFrame
+        constexpr QColor DropFrame(0xFF, 0xFF, 0xFF);   // BrowseEdit.cpp:499 (Qt::white) $line.field.idle.color.Alt7
 
         //! QRenderRule::borderClip of that rule: a path along the box with the arcs of its two left corners (no border, so none of the
         //! half-widths the arcs lose); QRenderRule::drawBackground fills it antialiased, so at a fractional device ratio the rows at the
@@ -129,6 +129,7 @@ namespace AzQtComponents
         }
         boxLayout->addWidget(m_data->m_attachedButton);
         connect(m_data->m_attachedButton, &QPushButton::clicked, this, &BrowseEdit::attachedButtonTriggered);
+        // BrowseEdit::BrowseEdit $asset.field.idle.image.Alt1
         setAttachedButtonIcon(CachedIcon(QStringLiteral(":/stylesheet/img/UI20/browse-edit.svg")));
 
         AzQtComponents::Style::addClass(this, "AzQtComponentsBrowseEdit");

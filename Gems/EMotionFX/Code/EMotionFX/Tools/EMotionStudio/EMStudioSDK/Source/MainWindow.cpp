@@ -94,10 +94,12 @@ namespace EMStudio
     namespace MainWindowFlat
     {
         // The HTML colour name green is rgb(0, 128, 0), unlike Qt::green
-        constexpr QColor SaveSuccessText(0, 128, 0);         // MainWindow.cpp:1510, :1542, :2740 TOKENIZE: MainWindowSaveSuccessText
-        constexpr QColor SaveFailureText(255, 0, 0);         // MainWindow.cpp:1515, :1547, :2745 TOKENIZE: MainWindowSaveFailureText
-        constexpr QColor ErrorNumberText(244, 156, 28);      // MainWindow.cpp:147 TOKENIZE: MainWindowErrorNumberText
-        constexpr QColor ErrorMessageText(203, 203, 203);    // MainWindow.cpp:148 TOKENIZE: MainWindowErrorMessageText
+        // MainWindow.cpp:1510, :1542, :2740 (MainWindow::OnFileSaveWorkspaceAs) $text.surface.idle.Alt18
+        constexpr QColor SaveSuccessText(0, 128, 0);
+        // MainWindow.cpp:1515, :1547, :2745 (MainWindow::OnFileSaveWorkspaceAs) $text.surface.idle.Alt10
+        constexpr QColor SaveFailureText(255, 0, 0);
+        constexpr QColor ErrorNumberText(244, 156, 28);      // MainWindow.cpp:147 (ErrorWindow::Init) $text.surface.error.Alt2
+        constexpr QColor ErrorMessageText(203, 203, 203);    // MainWindow.cpp:148 (ErrorWindow::Init) $text.surface.error.Alt3
     } // namespace MainWindowFlat
 
     class UndoMenuCallback

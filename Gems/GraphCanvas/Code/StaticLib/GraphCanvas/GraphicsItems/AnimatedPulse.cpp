@@ -27,7 +27,8 @@ namespace GraphCanvas
     //=========================================================================
     namespace AnimatedPulseFlat
     {
-        // AnimatedPulse.cpp:45 (the draw colour of a pulse configuration before a caller sets one). TOKENIZE: PulseDefault
+        // AnimatedPulse.cpp:45 (the draw colour of a pulse configuration before a caller sets one)
+        // (AnimatedPulseConfiguration::AnimatedPulseConfiguration) $fill.graph.idle.Alt3
         constexpr QColor PulseDefault(0, 0, 0);
     } // namespace AnimatedPulseFlat
 

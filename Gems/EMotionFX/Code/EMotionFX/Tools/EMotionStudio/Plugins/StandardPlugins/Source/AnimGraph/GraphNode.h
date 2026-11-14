@@ -36,8 +36,8 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace GraphNodeFlat
     {
-        inline constexpr QColor PortDefault(50, 150, 250);   // GraphNode.h:45 TOKENIZE: GraphNodePortDefault
-        inline constexpr QColor Border(0, 0, 0);             // GraphNode.h:198 TOKENIZE: GraphNodeDefaultBorder
+        inline constexpr QColor PortDefault(50, 150, 250);   // GraphNode.h:45 (NodePort::m_isHighlighted) $fill.node.idle.Alt12
+        inline constexpr QColor Border(0, 0, 0);             // GraphNode.h:198 (GraphNode::ResetBorderColor) $line.node.idle.color.Alt6
     } // namespace GraphNodeFlat
 
     // forward declarations

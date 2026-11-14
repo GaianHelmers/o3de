@@ -35,13 +35,16 @@
 //////////////////////////////////////////////////////////////////////////
 namespace SceneSettingsCardFlat
 {
-    // SceneSettingsCard.cpp:342 (the header underline of a card that completed with errors). TOKENIZE: SceneCardUnderlineError
+    // SceneSettingsCard.cpp:342 (the header underline of a card that completed with errors) (SceneSettingsCard::SetState)
+    // $line.card.error.color.Alt1
     constexpr QColor UnderlineError(226, 82, 67);
 
-    // SceneSettingsCard.cpp:346 (the header underline of a card that completed with warnings). TOKENIZE: SceneCardUnderlineWarning
+    // SceneSettingsCard.cpp:346 (the header underline of a card that completed with warnings) (SceneSettingsCard::SetState)
+    // $line.card.warning.color.Alt1
     constexpr QColor UnderlineWarning(240, 195, 45);
 
-    // SceneSettingsCard.cpp:350 (the header underline of a card that completed without problems). TOKENIZE: SceneCardUnderlineSuccess
+    // SceneSettingsCard.cpp:350 (the header underline of a card that completed without problems) (SceneSettingsCard::SetState)
+    // $line.card.idle.color.Alt1
     constexpr QColor UnderlineSuccess(88, 188, 97);
 } // namespace SceneSettingsCardFlat
 

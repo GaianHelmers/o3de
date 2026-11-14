@@ -48,7 +48,8 @@ namespace AzToolsFramework
     //! A named namespace, not an anonymous one: a unity build joins files into one translation unit, where anonymous namespaces merge.
     namespace PropertyRowWidgetFlatInternal
     {
-        constexpr QColor ReorderLine(0x3B, 0x3E, 0x3F);   // PropertyRowWidget.cpp:131. TOKENIZE: PropertyRowReorderLine
+        // PropertyRowWidget.cpp:131 (PropertyRowWidget::paintEvent) $line.item.idle.color.Alt2
+        constexpr QColor ReorderLine(0x3B, 0x3E, 0x3F);
 
         // ===================================================================
         // Scene Settings Rows
@@ -71,24 +72,27 @@ namespace AzToolsFramework
         constexpr const char* DividerTag = "SceneDividerRow";
 
         // ---- The values of the sheets
-        const QColor SettingFill(0x55, 0x55, 0x55);     // PropertyRowWidget.cpp:64. TOKENIZE: SceneSettingRowFill
-        const QColor DividerFill(0x33, 0x33, 0x33);     // PropertyRowWidget.cpp:66. TOKENIZE: SceneDividerRowFill
-        constexpr int DividerMarginTop = 5;             // PropertyRowWidget.cpp:66. TOKENIZE: SceneDividerRowMarginTop
-        constexpr int DividerRadius = 2;                // PropertyRowWidget.cpp:66. TOKENIZE: SceneDividerRowRadius
+        // PropertyRowWidget.cpp:64 (PropertyRowWidget::Initialize) $fill.item.idle.Highest
+        const QColor SettingFill = AzQtComponents::Foundations::Highest;
+        // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $fill.separator.idle.Low
+        const QColor DividerFill = AzQtComponents::Foundations::Low;
+        // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $space.separator.idle.margin.Alt1
+        constexpr int DividerMarginTop = 5;
+        constexpr int DividerRadius = 2;  // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $radius.separator.idle.Alt1
 
         // ---- The boxes of the labels of a row, which the sheets lie over (restated: an element is the whole definition of its box)
-        // ReflectedPropertyEditor.qss:14 (left), :13 (the others) TOKENIZE: PropertyRowNameMargin
+        // ReflectedPropertyEditor.qss:14 (left), :13 (the others) $space.item.idle.margin.Alt2
         constexpr QMargins NameMargin(4, 0, 0, 0);
-        constexpr int LabelHeight = 16;                 // ReflectedPropertyEditor.qss:11-12, :19-20. TOKENIZE: PropertyRowLabelHeight
-        constexpr QSize LabelMinSize(-1, LabelHeight);
-        constexpr QSize LabelMaxSize(-1, LabelHeight);
+        constexpr int LabelHeight = 16;                 // ReflectedPropertyEditor.qss:11-12, :19-20 $size.item.idle.height.Alt1
+        constexpr QSize LabelMinSize(-1, LabelHeight);  // ReflectedPropertyEditor.qss:11, :19 $size.item.idle.height.Alt1
+        constexpr QSize LabelMaxSize(-1, LabelHeight);  // ReflectedPropertyEditor.qss:12, :20 $size.item.idle.height.Alt1
         // Text.qss:93-94 (QLabel { margin-top: 1px; margin-bottom: 1px }), what ReflectedPropertyEditor.qss:19-20 leaves alone
-        constexpr int LabelMarginV = AzQtComponents::Foundations::Label::MarginV;   // Text.qss:93-94. TOKENIZE: PropertyRowLabelMarginV
+        constexpr int LabelMarginV = AzQtComponents::Foundations::Label::MarginV;   // Text.qss:93-94 $space.item.idle.margin.Alt3
 
         // ---- The box of the coordinate label of a vector below a setting row: VectorInput.qss:9-16, which the fill of the row's sheet
         // lies over in place of the colour of the coordinate (VectorInput.qss:37-55)
-        constexpr int VectorLabelMarginV = 2;           // VectorInput.qss:11-12. TOKENIZE: VectorLabelMargin
-        constexpr int VectorLabelRadius = 2;            // VectorInput.qss:13-14. TOKENIZE: VectorLabelRadius
+        constexpr int VectorLabelMarginV = 2;           // VectorInput.qss:11-12 $space.item.idle.margin.Alt4
+        constexpr int VectorLabelRadius = 2;            // VectorInput.qss:13-14 $radius.item.idle.Alt1
 
         // ---- The elements
         //! `QFrame {background-color: #555555}` on a frame below a row of a scene setting. The frame has no box of its own: the fill

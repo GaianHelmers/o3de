@@ -32,10 +32,12 @@ namespace GraphCanvas
     //=========================================================================
     namespace GeneralNodeTitleComponentFlat
     {
-        // GeneralNodeTitleComponent.cpp:550 (the black shade at the bottom of a title, 40 percent). TOKENIZE: NodeTitleShadeBottom
+        // GeneralNodeTitleComponent.cpp:550 (the black shade at the bottom of a title, 40 percent) (GeneralNodeTitleGraphicsWidget::paint)
+        // $fill.node.idle.bottom.Alt1
         constexpr QColor TitleShadeBottom(0, 0, 0, 102);
 
-        // GeneralNodeTitleComponent.cpp:551 (the black shade at the top of a title, 30 percent). TOKENIZE: NodeTitleShadeTop
+        // GeneralNodeTitleComponent.cpp:551 (the black shade at the top of a title, 30 percent) (GeneralNodeTitleGraphicsWidget::paint)
+        // $fill.node.idle.top.Alt1
         constexpr QColor TitleShadeTop(0, 0, 0, 77);
     } // namespace GeneralNodeTitleComponentFlat
 

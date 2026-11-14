@@ -30,11 +30,11 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
         // The loupe: the colours Eyedropper::paintEvent paints (shown only while a colour is picked)
         // ------------------------------------------------------------------------------
-        constexpr QColor GridLine(0x80, 0x80, 0x80, 0x80);  // Eyedropper.cpp:130. TOKENIZE: EyedropperGridLine
-        constexpr QColor ContrastDark(0, 0, 0);             // Eyedropper.cpp:147, :148 (Qt::black). TOKENIZE: EyedropperContrastDark
-        constexpr QColor ContrastLight(255, 255, 255);      // Eyedropper.cpp:147, :148 (Qt::white). TOKENIZE: EyedropperContrastLight
-        constexpr QColor RingOuter(0, 0, 0);                // Eyedropper.cpp:177 (Qt::black). TOKENIZE: EyedropperRingOuter
-        constexpr QColor RingInner(255, 255, 255);          // Eyedropper.cpp:182 (Qt::white). TOKENIZE: EyedropperRingInner
+        constexpr QColor GridLine(0x80, 0x80, 0x80, 0x80);  // Eyedropper.cpp:130 (Eyedropper::paintEvent) $line.picker.idle.color.Alt3
+        constexpr QColor ContrastDark(0, 0, 0);             // Eyedropper.cpp:147, :148 (Qt::black) $fill.picker.idle.Alt1
+        constexpr QColor ContrastLight(255, 255, 255);      // Eyedropper.cpp:147, :148 (Qt::white) $fill.picker.idle.Alt2
+        constexpr QColor RingOuter(0, 0, 0);                // Eyedropper.cpp:177 (Qt::black) $line.picker.idle.color.Alt2
+        constexpr QColor RingInner(255, 255, 255);          // Eyedropper.cpp:182 (Qt::white) $line.picker.idle.color.Alt1
     } // namespace EyedropperFlat
 
     Eyedropper::Config Eyedropper::loadConfig(QSettings& settings)

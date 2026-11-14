@@ -34,25 +34,29 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace NodeGraphFlat
     {
-        constexpr QColor DebugBackground(0, 0, 0);                 // NodeGraph.cpp:233 (alpha at use) TOKENIZE: NodeGraphDebugBackground
-        const QColor DebugBorder(Qt::black);                       // NodeGraph.cpp:235 TOKENIZE: NodeGraphDebugBorder
-        constexpr QColor DebugTextHighlighted(0, 255, 0);          // NodeGraph.cpp:238 TOKENIZE: NodeGraphDebugTextHighlighted
-        constexpr QColor DebugText(255, 255, 0);                   // NodeGraph.cpp:238 TOKENIZE: NodeGraphDebugText
-        constexpr QColor ConnectionValueBackground(30, 30, 30);    // NodeGraph.cpp:465 TOKENIZE: NodeGraphConnectionValueBackground
-        const QColor ConnectionValueBorder(Qt::black);             // NodeGraph.cpp:469 TOKENIZE: NodeGraphConnectionValueBorder
-        constexpr QColor EntryPoint(150, 150, 150);                // NodeGraph.cpp:491 TOKENIZE: NodeGraphEntryPoint
-        constexpr QColor TitlebarBackground(0, 0, 0);              // NodeGraph.cpp:824 TOKENIZE: NodeGraphTitlebarBackground
-        constexpr QColor TitlebarText(233, 233, 233);              // NodeGraph.cpp:832 TOKENIZE: NodeGraphTitlebarText
-        constexpr QColor Grid(61, 61, 61);                         // NodeGraph.cpp:1007 (alpha at use) TOKENIZE: NodeGraphGrid
-        constexpr QColor Subgrid(55, 55, 55);                      // NodeGraph.cpp:1008 (alpha at use) TOKENIZE: NodeGraphSubgrid
-        constexpr QColor TransitionHeadTail(0, 255, 0);            // NodeGraph.cpp:1598 TOKENIZE: NodeGraphTransitionHeadTail
-        constexpr QColor ConnectionHelperLine(100, 100, 100);      // NodeGraph.cpp:1655, :1730 TOKENIZE: NodeGraphConnectionHelperLine
-        constexpr QColor ConnectionDragValid(0, 255, 0);           // NodeGraph.cpp:1698, :1796 TOKENIZE: NodeGraphConnectionDragValid
-        constexpr QColor ConnectionDragInvalid(255, 0, 0);         // NodeGraph.cpp:1702, :1800 TOKENIZE: NodeGraphConnectionDragInvalid
-        constexpr QColor ConnectionDragFree(255, 255, 0);          // NodeGraph.cpp:1707, :1805 TOKENIZE: NodeGraphConnectionDragFree
-        constexpr QColor VirtualFinalNodeBorder(0, 255, 0);        // NodeGraph.cpp:2417 TOKENIZE: NodeGraphVirtualFinalNodeBorder
+        constexpr QColor DebugBackground(0, 0, 0);  // NodeGraph.cpp:233 (alpha at use) (NodeGraph::DrawOverlay) $fill.node.idle.Alt13
+        const QColor DebugBorder(Qt::black);                       // NodeGraph.cpp:235 (NodeGraph::DrawOverlay) $line.node.idle.color.Alt6
+        constexpr QColor DebugTextHighlighted(0, 255, 0);          // NodeGraph.cpp:238 (NodeGraph::DrawOverlay) $text.node.idle.Alt8
+        constexpr QColor DebugText(255, 255, 0);                   // NodeGraph.cpp:238 (NodeGraph::DrawOverlay) $text.node.idle.Alt9
+        constexpr QColor ConnectionValueBackground(30, 30, 30);    // NodeGraph.cpp:465 (NodeGraph::DrawOverlay) $fill.node.idle.Alt14
+        const QColor ConnectionValueBorder(Qt::black);             // NodeGraph.cpp:469 (NodeGraph::DrawOverlay) $line.node.idle.color.Alt6
+        constexpr QColor EntryPoint(150, 150, 150);                // NodeGraph.cpp:491 (NodeGraph::RenderEntryPoint) $fill.node.idle.Alt15
+        constexpr QColor TitlebarBackground(0, 0, 0);              // NodeGraph.cpp:824 (NodeGraph::RenderTitlebar) $fill.node.idle.Alt13
+        constexpr QColor TitlebarText(233, 233, 233);              // NodeGraph.cpp:832 (NodeGraph::RenderTitlebar) $text.node.idle.Alt10
+        constexpr QColor Grid(61, 61, 61);  // NodeGraph.cpp:1007 (alpha at use) (NodeGraph::RenderBackground) $line.node.idle.color.Alt5
+        constexpr QColor Subgrid(55, 55, 55);  // NodeGraph.cpp:1008 (alpha at use) (NodeGraph::RenderBackground) $fill.node.idle.Alt2
+        constexpr QColor TransitionHeadTail(0, 255, 0);  // NodeGraph.cpp:1598 (NodeGraph::RenderReplaceTransition) $fill.node.idle.Alt9
+        // NodeGraph.cpp:1655, :1730 (NodeGraph::RenderCreateConnection) $line.node.idle.color.Alt10
+        constexpr QColor ConnectionHelperLine(100, 100, 100);
+        // NodeGraph.cpp:1698, :1796 (NodeGraph::RenderCreateConnection) $line.node.drag.color.Alt1
+        constexpr QColor ConnectionDragValid(0, 255, 0);
+        // NodeGraph.cpp:1702, :1800 (NodeGraph::RenderCreateConnection) $line.node.error.color.Alt1
+        constexpr QColor ConnectionDragInvalid(255, 0, 0);
+        // NodeGraph.cpp:1707, :1805 (NodeGraph::RenderCreateConnection) $line.node.drag.color.Alt2
+        constexpr QColor ConnectionDragFree(255, 255, 0);
+        constexpr QColor VirtualFinalNodeBorder(0, 255, 0);        // NodeGraph.cpp:2417 (NodeGraph::Reinit) $line.node.idle.color.Alt2
         // The group name text was AZ::Colors::Black converted with ToQColor
-        constexpr QColor GroupNameText(0, 0, 0);                   // NodeGraph.cpp:2585 TOKENIZE: NodeGraphGroupNameText
+        constexpr QColor GroupNameText(0, 0, 0);                   // NodeGraph.cpp:2585 (AZ::Colors) $text.node.idle.Alt11
     } // namespace NodeGraphFlat
 
     static const int sGroupRectContentPadding = 10;

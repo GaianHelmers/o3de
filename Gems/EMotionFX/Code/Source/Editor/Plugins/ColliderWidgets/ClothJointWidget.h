@@ -25,7 +25,7 @@ namespace EMotionFX
     //////////////////////////////////////////////////////////////////////////
     namespace ClothJointWidgetFlat
     {
-        inline const QColor Underline{ "#a675ff" };   // ClothJointWidget.h:39 TOKENIZE: ClothColliderCardUnderline
+        inline const QColor Underline{ "#a675ff" };   // ClothJointWidget.h:39 (ClothJointWidget::GetColor) $line.card.idle.color.Alt2
     } // namespace ClothJointWidgetFlat
 
     class AddColliderButton;

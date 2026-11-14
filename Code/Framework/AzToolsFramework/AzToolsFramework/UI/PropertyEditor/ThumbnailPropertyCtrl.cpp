@@ -31,7 +31,8 @@ namespace AzToolsFramework
     //! named namespace, not an anonymous one: a unity build joins files into one translation unit, where anonymous namespaces merge.
     namespace ThumbnailPropertyCtrlFlatInternal
     {
-        constexpr QColor Background(0x11, 0x11, 0x11);   // ThumbnailPropertyCtrl.cpp:132. TOKENIZE: ThumbnailPropertyCtrlBackground
+        // ThumbnailPropertyCtrl.cpp:132 (ThumbnailPropertyCtrl::paintEvent) $fill.view.idle.FarBG
+        constexpr QColor Background(0x11, 0x11, 0x11);
     }
 
     ThumbnailPropertyCtrl::ThumbnailPropertyCtrl(QWidget* parent)

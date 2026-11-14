@@ -28,16 +28,17 @@ namespace AzToolsFramework
     //! anonymous one: a unity build joins files into one translation unit, where anonymous namespaces merge.
     namespace PropertyCurveCtrlFlatInternal
     {
-        constexpr QColor GridLine(43, 43, 43);          // PropertyCurveCtrl.cpp:232. TOKENIZE: CurveGridLine
-        const QColor AxisText(Qt::gray);                // PropertyCurveCtrl.cpp:251. TOKENIZE: CurveAxisText
-        constexpr QColor PlotFill(56, 56, 56);          // PropertyCurveCtrl.cpp:269. TOKENIZE: CurvePlotFill
-        const QColor CurveLine(Qt::red);                // PropertyCurveCtrl.cpp:275. TOKENIZE: CurveLine
-        const QColor KeyOutline(Qt::gray);              // PropertyCurveCtrl.cpp:276. TOKENIZE: CurveKeyOutline
-        const QColor KeySelectedOutline(Qt::yellow);    // PropertyCurveCtrl.cpp:277. TOKENIZE: CurveKeySelectedOutline
-        const QColor KeyFill(Qt::gray);                 // PropertyCurveCtrl.cpp:286. TOKENIZE: CurveKeyFill
-        const QColor PresetPressedFill(Qt::darkYellow); // PropertyCurveCtrl.cpp:485. TOKENIZE: CurvePresetPressedFill
-        const QColor PresetFill(Qt::black);             // PropertyCurveCtrl.cpp:485. TOKENIZE: CurvePresetFill
-        const QColor PresetCurveLine(Qt::white);        // PropertyCurveCtrl.cpp:488. TOKENIZE: CurvePresetLine
+        constexpr QColor GridLine(43, 43, 43);          // PropertyCurveCtrl.cpp:232 (CurveEditor::DrawGrid) $line.curve.idle.color.Alt10
+        const QColor AxisText(Qt::gray);                // PropertyCurveCtrl.cpp:251 (CurveEditor::DrawGrid) $text.curve.idle.Alt1
+        constexpr QColor PlotFill(56, 56, 56);          // PropertyCurveCtrl.cpp:269 (CurveEditor::paintEvent) $fill.curve.idle.Alt4
+        const QColor CurveLine(Qt::red);                // PropertyCurveCtrl.cpp:275 (CurveEditor::paintEvent) $line.curve.idle.color.Alt5
+        const QColor KeyOutline(Qt::gray);              // PropertyCurveCtrl.cpp:276 (CurveEditor::paintEvent) $line.curve.idle.color.Alt11
+        const QColor KeySelectedOutline(Qt::yellow);  // PropertyCurveCtrl.cpp:277 (CurveEditor::paintEvent) $line.curve.selected.color.Alt1
+        const QColor KeyFill(Qt::gray);                 // PropertyCurveCtrl.cpp:286 (CurveEditor::paintEvent) $fill.curve.idle.Alt5
+        // PropertyCurveCtrl.cpp:485 (PresetCurveWidget::paintEvent) $fill.curve.pressed.Alt1
+        const QColor PresetPressedFill(Qt::darkYellow);
+        const QColor PresetFill(Qt::black);             // PropertyCurveCtrl.cpp:485 (PresetCurveWidget::paintEvent) $fill.curve.idle.Alt6
+        const QColor PresetCurveLine(Qt::white);  // PropertyCurveCtrl.cpp:488 (PresetCurveWidget::paintEvent) $line.curve.idle.color.Alt12
     }
 
     constexpr AZStd::string_view INTERPMODE_LINEAR = "Linear";

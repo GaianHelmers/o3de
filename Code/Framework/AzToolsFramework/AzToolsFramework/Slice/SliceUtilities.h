@@ -521,17 +521,17 @@ namespace AzToolsFramework
             const AZ::Data::Asset<AZ::SliceAsset>& targetSlice,
             WillPushEntityCallback willPushEntityCallback);
 
-        // SliceUtilities.h:524. TOKENIZE: SliceSplitterColor
+        // SliceUtilities.h:524 (SliceUtilities::splitterColor) $fill.separator.idle.Alt1
         static constexpr const char* splitterColor = "black";
-        // SliceUtilities.h:525. TOKENIZE: SliceDetachMenuItemHover
+        // SliceUtilities.h:525 (SliceUtilities::detachMenuItemHoverColor) $fill.menu.hover.Alt1
         static constexpr const char* detachMenuItemHoverColor = "#4285F4";
-        // SliceUtilities.h:526. TOKENIZE: SliceDetachMenuItemText
+        // SliceUtilities.h:526 (SliceUtilities::detachMenuItemDefaultColor) $text.menu.idle.Alt1
         static constexpr const char* detachMenuItemDefaultColor = "#ffffff";
-        // SliceUtilities.h:527. TOKENIZE: SliceDetailBackground
+        // SliceUtilities.h:527 (SliceUtilities::detailWidgetBackgroundColor) $fill.surface.idle.Alt15
         static constexpr const char* detailWidgetBackgroundColor = "#303030";
-        // SliceUtilities.h:528. TOKENIZE: SliceUnsavableChangesText
+        // SliceUtilities.h:528 (SliceUtilities::unsavableChangesTextColor) $text.surface.idle.Alt9
         static constexpr const char* unsavableChangesTextColor = "#ff3f3f";
-        // SliceUtilities.h:529. TOKENIZE: SliceConflictedChangesText
+        // SliceUtilities.h:529 (SliceUtilities::conflictedChangesTextColor) $text.surface.idle.Alt10
         static constexpr const char* conflictedChangesTextColor = "red";
 
     } // namespace SliceUtilities

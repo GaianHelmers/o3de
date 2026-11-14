@@ -208,7 +208,8 @@ namespace AzToolsFramework
     //! anonymous namespaces merge.
     namespace EntityPropertyEditorOverlayFlatInternal
     {
-        const QColor DropIndicatorLine(Qt::white);   // EntityPropertyEditor.cpp:432. TOKENIZE: InspectorDropIndicatorLine
+        // EntityPropertyEditor.cpp:432 (EntityPropertyEditorOverlay::paintMovedRow) $line.surface.idle.color.Alt10
+        const QColor DropIndicatorLine(Qt::white);
     }
 
     //we require an overlay widget to act as a canvas to draw on top of everything in the inspector
@@ -562,8 +563,8 @@ namespace AzToolsFramework
     namespace EntityPropertyEditorFlatInternal
     {
         //! background-color: EntityPropertyEditor.ui:193 (the box), :381, :536, :750, :905, :943, :1141 (its six widgets), the
-        //! form before the flattening. TOKENIZE: InspectorDarkBoxFill
-        const QColor DarkBoxFill(0x33, 0x33, 0x33);
+        //! form before the flattening $fill.surface.idle.Low
+        const QColor DarkBoxFill = AzQtComponents::Foundations::Low;
 
         //! The sheets the form gave them (EntityPropertyEditor.ui), which the legacy GUI sets, as the form wrote them: the fill is the
         //! three numbers of the constant the elements read
@@ -573,9 +574,11 @@ namespace AzToolsFramework
                                              .arg(DarkBoxFill.red()).arg(DarkBoxFill.green()).arg(DarkBoxFill.blue());
 
         //! The tints of the image dragged for a reordered component's row (createDragImage): its fill and its border.
-        //! EntityPropertyEditor.cpp:5298 and :5400. TOKENIZE: InspectorDragImageFill
+        //! EntityPropertyEditor.cpp:5298 and :5400 (EntityPropertyEditor::StartDrag, EntityPropertyEditor::SetRowWidgetHighlighted)
+        //! $fill.surface.drag.Alt1
         constexpr QColor DragImageFill(0x8E, 0x86, 0x3E);
-        //! EntityPropertyEditor.cpp:5298 and :5400. TOKENIZE: InspectorDragImageBorder
+        //! EntityPropertyEditor.cpp:5298 and :5400 (EntityPropertyEditor::StartDrag, EntityPropertyEditor::SetRowWidgetHighlighted)
+        //! $line.surface.drag.color.Alt1
         constexpr QColor DragImageBorder(0xEA, 0xEC, 0xAA);
 
         // ------------------------------------------------------------------------------
@@ -590,17 +593,17 @@ namespace AzToolsFramework
 
         //! The text of a header label, WindowText in the groups Active and Inactive. EntityPropertyEditor.ui:81, :92 (m_entityNameLabel),
         //! :259, :297 (m_entityIdLabel), :405, :443 (m_entityIdText), :622, :660 (m_prefabContainerLabel), :768, :806
-        //! (m_prefabContainerText), :998, :1036 (m_statusLabel). TOKENIZE: InspectorHeaderPaletteText
+        //! (m_prefabContainerText), :998, :1036 (m_statusLabel) $text.header.idle.Alt1
         constexpr QColor HeaderPaletteText(255, 153, 0);
         //! The text of a header label, WindowText in the group Disabled. EntityPropertyEditor.ui:103 (m_entityNameLabel), :335
         //! (m_entityIdLabel), :481 (m_entityIdText), :698 (m_prefabContainerLabel), :844 (m_prefabContainerText), :1074 (m_statusLabel).
-        //! TOKENIZE: InspectorHeaderPaletteDisabledText
+        //! $text.header.disabled.Alt1
         constexpr QColor HeaderPaletteDisabledText(120, 120, 120);
         //! The fill of the five labels in the dark box, the roles Button, Base and Window in each group. EntityPropertyEditor.ui:268-294,
         //! :306-332, :344-370 (m_entityIdLabel), :414-440, :452-478, :490-516 (m_entityIdText), :631-657, :669-695, :707-733
         //! (m_prefabContainerLabel), :777-803, :815-841, :853-879 (m_prefabContainerText), :1007-1033, :1045-1071, :1083-1109
-        //! (m_statusLabel). TOKENIZE: InspectorHeaderPaletteFill
-        constexpr QColor HeaderPaletteFill(51, 51, 51);
+        //! (m_statusLabel) $fill.header.idle.Low
+        constexpr QColor HeaderPaletteFill = AzQtComponents::Foundations::Low;
 
         //! The palette the form gave a header label: the text colour in each group, and for the five labels in the dark box the fill
         QPalette headerLabelPalette(bool inDarkBox)

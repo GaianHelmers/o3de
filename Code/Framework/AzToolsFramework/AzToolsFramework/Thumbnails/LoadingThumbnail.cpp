@@ -24,7 +24,7 @@ namespace AzToolsFramework
         //! named namespace, not an anonymous one: a unity build joins files into one translation unit, where anonymous namespaces merge.
         namespace LoadingThumbnailFlatInternal
         {
-            const QColor Fill(Qt::black);   // LoadingThumbnail.cpp:26. TOKENIZE: LoadingThumbnailFill
+            const QColor Fill(Qt::black);   // LoadingThumbnail.cpp:26 (LoadingThumbnail::LoadingThumbnail) $fill.view.idle.Alt5
         }
 
         //////////////////////////////////////////////////////////////////////////

@@ -115,7 +115,7 @@ namespace AzQtComponents
 
     static const char g_removeAllStylingProperty[] = {"RemoveAllStyling"};
 
-    // Constant for the docking drop zone hotspot color when hovered over. Style.cpp:116. TOKENIZE: DockingDropZoneHover
+    // Constant for the docking drop zone hotspot color when hovered over. Style.cpp:116 (Style::dropZoneColorOnHover) $fill.dock.hover.Alt1
     static const QColor g_dropZoneColorOnHover(23, 163, 205);
 
 
@@ -404,7 +404,6 @@ namespace AzQtComponents
     static constexpr int g_scrollBarExtent = 8;
     static constexpr int g_scrollBarBorder = 2;                            // ScrollBar.qss:12 $line.scroll.idle.width
     //! ScrollBar.qss:78, :85 $line.scroll.hover.width: the border of a lane under the pointer, which the handle lies inside.
-    //! TOKENIZE: ScrollBarHoverBorder
     static constexpr int g_scrollBarHoverBorder = 1;
     //! ScrollBar.qss:42, :46 $size.scroll-handle.idle.min-height $size.scroll-handle.idle.min-width
     static constexpr int g_scrollHandleMin = 32;
@@ -488,12 +487,12 @@ namespace AzQtComponents
     // PM_ToolBarIconSize; the buttons the toolbar makes for its actions follow the toolbar's size through QToolBar::iconSizeChanged, so
     // what this reaches are the buttons a toolbar hosts with addWidget and the extension button at its end.
     //////////////////////////////////////////////////////////////////////////
-    //! ToolBar.qss:50 `QToolBar.IconNormal QToolButton`. TOKENIZE: ToolBarIconNormalSize
+    //! ToolBar.qss:50 `QToolBar.IconNormal QToolButton` $size.bar.idle.size.Alt1
     static constexpr int g_iconNormalButtonExtent = 16;
     //! ToolBar.qss:56 `QToolBar.MainToolBar.IconNormal QToolButton` and :62 `QToolBar.IconLarge QToolButton`.
-    //! TOKENIZE: ToolBarIconMediumSize
+    //! $size.bar.idle.size.Alt2
     static constexpr int g_iconMediumButtonExtent = 20;
-    //! ToolBar.qss:68 `QToolBar.MainToolBar.IconLarge QToolButton`. TOKENIZE: ToolBarIconLargeSize
+    //! ToolBar.qss:68 `QToolBar.MainToolBar.IconLarge QToolButton` $size.bar.idle.size.Alt3
     static constexpr int g_iconLargeMainButtonExtent = 32;
 
     //! The icon size ToolBar.qss gives the tool buttons below this toolbar, 0 for a toolbar with neither IconNormal nor IconLarge (no
@@ -1577,11 +1576,11 @@ namespace AzQtComponents
     // after them, so the image is the same at rest, focused and disabled. No rule of the mode reaches a partially checked box: it
     // keeps the check box's partial images (CheckBox.qss:30-43). The images are the EMotionFX gem's resources, and the names go after
     // ":/" (":/%1.svg").
-    // CheckBox.qss:167 TOKENIZE: VisibilityModeCheckedImage
+    // CheckBox.qss:167 $asset.surface.checked.image.Alt1
     static constexpr const char* g_visibilityChecked = "EMotionFX/Visualization";
-    // CheckBox.qss:172 TOKENIZE: VisibilityModeUncheckedImage
+    // CheckBox.qss:172 $asset.surface.idle.image.Alt4
     static constexpr const char* g_visibilityUnchecked = "EMotionFX/VisualizationHidden";
-    static constexpr FlatIndicator g_visibilityModeImages{ ":/%1.svg",
+    static constexpr FlatIndicator g_visibilityModeImages{ ":/%1.svg",  // CheckBox.qss:167, :172 $asset.surface.idle.image.Alt5
         { g_visibilityUnchecked, g_visibilityUnchecked, g_visibilityUnchecked },
         { g_visibilityChecked, g_visibilityChecked, g_visibilityChecked },
         { "stylesheet/img/UI20/checkbox/partial-selected", "stylesheet/img/UI20/checkbox/partial-selected-focus",
@@ -1684,6 +1683,7 @@ namespace AzQtComponents
             painter->drawRoundedRect(box, g_mixedTogglePadRadius, g_mixedTogglePadRadius);
             painter->restore();
         }
+        // AzQtComponents::drawFlatOutlinerToggle $asset.surface.idle.image.Alt6
         const QString image = QStringLiteral(":/Outliner/%1.svg").arg(QLatin1String(checked ? toggle.m_checked : toggle.m_unchecked));
         drawSvg(painter, image, g_toggleImage.translated(box.topLeft()));
     }
@@ -1840,7 +1840,7 @@ namespace AzQtComponents
     //! The idle field is left square, as the flattened GUI has drawn it (judged in earlier A/Bs). The legacy field is rounded by
     //! Foundations::Field::Radius (BaseStyleSheet.qss:79, which `border-width: 0px` keeps). Not a sheet's value, the absence of one.
     //! The Python Console's output is square by a sheet's value (Editor.qss:187-201, `border-radius: 0px`), which its element
-    //! (Editor.Box.PythonConsoleOutput) carries.
+    //! (Editor.Box.PythonConsoleOutput) carries. $radius.field.idle.all.Alt1
     static constexpr int g_textEditIdleRadius = 0;
 
     //! A text edit: a QTextEdit or a QPlainTextEdit, or a class derived from them, not the viewport inside it
@@ -1903,7 +1903,6 @@ namespace AzQtComponents
     // none }` gave the tree of the filter menu no outline, so the item that has the keyboard focus drew no frame
     // (QStyleSheetStyle::drawPrimitive, PE_FrameFocusRect: a rule with an outline of its own draws that outline, and a style of none
     // draws nothing). Every other item view draws the frame of TableView::drawFrameFocusRect.
-    // TOKENIZE: SearchTypeSelectorTreeOutline
     //////////////////////////////////////////////////////////////////////////
 
     //! The view a focus frame is drawn for (the option's style object is the view), if its rule has no outline
@@ -2245,8 +2244,9 @@ namespace AzQtComponents
                     {
                         painter->fillRect(option->rect, g_tabCloseHoverFill);
                     }
-                    QRect glyphRect(0, 0, 12, 12);
+                    QRect glyphRect(0, 0, 12, 12);  // Style::drawPrimitive $size.surface.idle.size.Alt5
                     glyphRect.moveCenter(option->rect.center());
+                    // Style::drawPrimitive $asset.surface.idle.image.Alt3
                     drawSvg(painter, QStringLiteral(":/Application/titlebar-close.svg"), glyphRect);
                     return;
                 }
@@ -3596,7 +3596,7 @@ namespace AzQtComponents
         {
             for (const QPalette::ColorRole role : { QPalette::Base, QPalette::Button, QPalette::Window })
             {
-                sliderPalette.setColor(group, role, Foundations::Surface::Fill);    // BaseStyleSheet.qss:17. TOKENIZE: SliderFill
+                sliderPalette.setColor(group, role, Foundations::Surface::Fill);    // BaseStyleSheet.qss:17 $fill.surface.idle.Clear
             }
         }
         widget->setPalette(sliderPalette);
@@ -3829,7 +3829,7 @@ namespace AzQtComponents
 
     //////////////////////////////////////////////////////////////////////////
     // Flattened progress bar height: ProgressBar.qss:15 `height: 5px` is the height of the track, and the bar is no taller than its hint
-    // (TOKENIZE: ProgressBarHeight; the value is ProgressBarConfig.ini Height). The hint is the track, or the height the bar's element
+    // (; the value is ProgressBarConfig.ini Height). The hint is the track, or the height the bar's element
     // declares, within the box of the element (QStyleSheetStyle::sizeFromContents, CT_ProgressBar: the rule's size is the contents size
     // within its box), so a padding or margin above and below the track makes the bar taller by as much. A bar whose element declares a
     // maximum height has the limit BoxElement::resolve set from it (QStyleSheetStyle::setGeometry).
@@ -4249,29 +4249,30 @@ namespace AzQtComponents
             case QStyle::SP_TitleBarCloseButton:
                 // TitleBar.qss:142-145 `AzQtComponents--DockBarButton:disabled { titlebar-close-icon: none }`: a disabled button has an
                 // empty icon, a valid style hint (QStyleSheetStyle::standardIcon). A missing option reads as disabled to the sheet
-                // (QStyleSheetStyle::renderRule). TOKENIZE: DockBarButtonDisabledCloseIcon
+                // (QStyleSheetStyle::renderRule)
                 if (StyleManager::stylesheetsDisabled() && qobject_cast<const DockBarButton*>(widget)
                     && (!option || !option->state.testFlag(QStyle::State_Enabled)))
                 {
                     return QIcon();
                 }
-                return QIcon(QStringLiteral(":/Application/titlebar-close.svg"));
+                return QIcon(QStringLiteral(":/Application/titlebar-close.svg"));  // Style::standardIcon $asset.surface.idle.image.Alt3
 
             case QStyle::SP_TitleBarMinButton:
-                return QIcon(QStringLiteral(":/Application/titlebar-minimize.svg"));
+                return QIcon(QStringLiteral(":/Application/titlebar-minimize.svg"));  // Style::standardIcon $asset.surface.idle.image.Alt1
 
             case QStyle::SP_TitleBarNormalButton:
                 // QDockWidget.qss:17 titlebar-normal-icon: the float button of a plain dock widget shows the pop-out glyph
                 if (StyleManager::stylesheetsDisabled() && isFlattenedPlainDockWidget(widget))
                 {
+                    // Style::standardIcon $asset.surface.idle.image.Alt7
                     return QIcon(QStringLiteral(":/Application/titlebar-popout-small.svg"));
                 }
-                return QIcon(QStringLiteral(":/Application/titlebar-restore.svg"));
+                return QIcon(QStringLiteral(":/Application/titlebar-restore.svg"));  // Style::standardIcon $asset.surface.idle.image.Alt8
 
             case QStyle::SP_TitleBarMaxButton:
                 return QIcon(Style::hasClass(widget, QStringLiteral("restore"))
-                    ? QStringLiteral(":/Application/titlebar-restore.svg")
-                    : QStringLiteral(":/Application/titlebar-maximize.svg"));
+                    ? QStringLiteral(":/Application/titlebar-restore.svg")  // Style::standardIcon $asset.surface.idle.image.Alt8
+                    : QStringLiteral(":/Application/titlebar-maximize.svg"));  // Style::standardIcon $asset.surface.idle.image.Alt2
 
             default:
                 break;

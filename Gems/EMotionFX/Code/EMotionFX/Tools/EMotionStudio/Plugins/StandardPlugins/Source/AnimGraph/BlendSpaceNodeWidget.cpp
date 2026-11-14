@@ -21,8 +21,10 @@ namespace EMStudio
 //////////////////////////////////////////////////////////////////////////
 namespace BlendSpaceNodeWidgetFlat
 {
-    constexpr QColor CurrentSamplePoint(0xCF, 0x02, 0x1B);   // BlendSpaceNodeWidget.cpp:19 TOKENIZE: BlendSpaceCurrentSamplePoint
-    constexpr QColor MotionPoint(245, 166, 35);              // BlendSpaceNodeWidget.cpp:26 TOKENIZE: BlendSpaceMotionPoint
+    // BlendSpaceNodeWidget.cpp:19 (BlendSpaceNodeWidget::s_currentSamplePointColor) $fill.node.active.Alt1
+    constexpr QColor CurrentSamplePoint(0xCF, 0x02, 0x1B);
+    // BlendSpaceNodeWidget.cpp:26 (BlendSpaceNodeWidget::s_motionPointColor) $fill.node.idle.Alt7
+    constexpr QColor MotionPoint(245, 166, 35);
 } // namespace BlendSpaceNodeWidgetFlat
 
 // Current sample point

@@ -23,20 +23,23 @@ namespace AzToolsFramework
     namespace EntityOutlinerFlat
     {
         //! The wash over a selected row: EntityOutlinerTreeView.hxx:99 (m_selectedColor), EntityOutlinerListModel.hxx:373
-        //! (s_selectedColor). TOKENIZE: OutlinerSelectedWash
+        //! (s_selectedColor) EntityOutlinerTreeView::m_selectedColor $fill.view.selected.Alt3
         inline constexpr QColor SelectedWash(255, 255, 255, 45);
 
         //! The wash over the row the pointer is on: EntityOutlinerTreeView.hxx:100 (m_hoverColor), EntityOutlinerListModel.hxx:374
-        //! (s_hoverColor). TOKENIZE: OutlinerHoverWash
+        //! (s_hoverColor) EntityOutlinerTreeView::m_hoverColor $fill.view.hover.Alt2
         inline constexpr QColor HoverWash(255, 255, 255, 30);
 
-        //! The fill of the rectangle a drag selection draws: EntityOutlinerTreeView.hxx:101. TOKENIZE: OutlinerDragSelectFill
+        //! The fill of the rectangle a drag selection draws: EntityOutlinerTreeView.hxx:101 (EntityOutlinerTreeView::m_dragSelectRectColor)
+        //! $fill.view.selected.Alt2
         inline constexpr QColor DragSelectFill(255, 255, 255, 20);
 
-        //! The outline of the rectangle a drag selection draws: EntityOutlinerTreeView.hxx:102. TOKENIZE: OutlinerDragSelectBorder
+        //! The outline of the rectangle a drag selection draws: EntityOutlinerTreeView.hxx:102
+        //! (EntityOutlinerTreeView::m_dragSelectBorderColor) $line.view.selected.color.Alt1
         inline constexpr QColor DragSelectBorder(255, 255, 255);
 
-        //! The disc behind the read-only badge of a row: EntityOutlinerListModel.hxx:376. TOKENIZE: OutlinerReadOnlyBadgeBackground
+        //! The disc behind the read-only badge of a row: EntityOutlinerListModel.hxx:376
+        //! (EntityOutlinerItemDelegate::s_readOnlyBackgroundColor) $fill.view.idle.Mid
         inline constexpr QColor ReadOnlyBadgeBackground(0x44, 0x44, 0x44);
     } // namespace EntityOutlinerFlat
 } // namespace AzToolsFramework
