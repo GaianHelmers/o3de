@@ -26,11 +26,11 @@ namespace AtomToolsFramework
     {
         //! background-color: InspectorGroupHeaderWidget.cpp:74 (the fill of the header: the legacy sheet reads it, and the flat element
         //! below). InspectorGroupHeaderWidget::InspectorGroupHeaderWidget $fill.surface.idle.Low
-        constexpr QColor HeaderFill = AzQtComponents::Foundations::Low;
+        const QColor& HeaderFill = AzQtComponents::Foundations::Low;
 
         //! border-color: InspectorGroupHeaderWidget.cpp:74 (the line above and below the header: the legacy sheet reads it, and the
         //! flat element below). InspectorGroupHeaderWidget::InspectorGroupHeaderWidget $line.surface.idle.color.Alt3
-        constexpr QColor HeaderBorder = AzQtComponents::Foundations::Line::Frame;
+        const QColor& HeaderBorder = AzQtComponents::Foundations::Line::Frame;
 
         // ------------------------------------------------------------------------------
         // Flattened GUI: the box of the header. The legacy sheets gave it, together, the vertical margin of every label
@@ -40,7 +40,7 @@ namespace AtomToolsFramework
         // carries both and the constructor sets no sheet. The widget draws its icon and text itself (paintEvent).
         // ------------------------------------------------------------------------------
 
-        const AzQtComponents::BoxElement GroupHeader{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> GroupHeader = [] { return AzQtComponents::BoxElement{
             .m_name = "AtomTools.Box.InspectorGroupHeader",
             // Text.qss:93-94 $space.surface.idle.margin-top.Alt2 $space.surface.idle.margin-bottom.Alt2
             .m_margin = QMargins(0, 1, 0, 1),
@@ -51,7 +51,7 @@ namespace AtomToolsFramework
                 // InspectorGroupHeaderWidget::InspectorGroupHeaderWidget) $line.surface.idle.width.Alt1
                 .m_edges = { { 1, HeaderBorder }, {}, { 1, HeaderBorder }, {} },
             },
-        };
+        }; };
 
         bool isGroupHeader(const QWidget*)
         {

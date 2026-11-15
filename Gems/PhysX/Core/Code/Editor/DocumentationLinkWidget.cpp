@@ -33,18 +33,18 @@ namespace PhysX
         {
             //! background-color: DocumentationLinkWidget.cpp:24, the form before the flattening
             //! (DocumentationLinkWidget::DocumentationLinkWidget) $fill.surface.idle.Low
-            const QColor LinkFill = AzQtComponents::Foundations::Low;
+            const QColor& LinkFill = AzQtComponents::Foundations::Low;
 
             //! The `background-color` of the link, over the box of every label (`QLabel { margin-top: 1px; margin-bottom: 1px }`,
             //! Text.qss:93-94): an element is the whole definition of its frame, so it carries that margin, which Style gives a label
             //! without one (Style::subElementRect, SE_ShapedFrameContents)
-            const AzQtComponents::BoxElement Link{
+            AzQtComponents::Themed<AzQtComponents::BoxElement> Link = [] { return AzQtComponents::BoxElement{
                 .m_name = "PhysX.Box.DocumentationLink",
                 .m_margin = QMargins(0, AzQtComponents::Foundations::Label::MarginV, 0, AzQtComponents::Foundations::Label::MarginV),
                 .m_idle = {
                     .m_fill = QBrush(LinkFill),
                 },
-            };
+            }; };
 
             //! The widgets of the class the element is registered for: the link itself (the menu it pops up is isLinkMenu's)
             bool isLink(const QWidget*)
@@ -60,13 +60,13 @@ namespace PhysX
             //! surface (a copy made when first needed, as the Global element is private to MenuElement.cpp)
             const AzQtComponents::MenuElement& linkMenu()
             {
-                static const AzQtComponents::MenuElement menu = []
+                static AzQtComponents::Themed<AzQtComponents::MenuElement> menu = []
                 {
                     AzQtComponents::MenuElement element = AzQtComponents::MenuElement::forWidget(nullptr);
                     element.m_name = "PhysX.Menu.DocumentationLink";
                     element.m_surface = LinkFill;
                     return element;
-                }();
+                };
                 return menu;
             }
 

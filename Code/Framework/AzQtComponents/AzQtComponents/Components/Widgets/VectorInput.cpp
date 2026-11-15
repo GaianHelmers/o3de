@@ -36,15 +36,16 @@ namespace VectorInputFlat
     //! VectorInput.qss:9-16 `AzQtComponents--VectorElement QLabel { margin-top: 2px; margin-bottom: 2px; border-top-left-radius: 2px;
     //! border-bottom-left-radius: 2px }`: the label's fill lies 2px inside its rect above and below, with its two left corners rounded.
     constexpr int LabelMargin = 2;      // VectorInput.qss:11-12 $space.label.idle.margin-top.Alt2 $space.label.idle.margin-bottom.Alt2
-    constexpr int LabelRadius = 2;      // VectorInput.qss:13-14 $radius.label.idle.top-left $radius.label.idle.bottom-left
+    // VectorInput.qss:13-14 $radius.label.idle.top-left $radius.label.idle.bottom-left
+    const int& LabelRadius = Foundations::Field::Radius;
 
     //! `AzQtComponents--VectorElement[Coordinate="X"] QLabel { background-color }`, VectorInput.qss:37-40. VectorInput.cpp:47.
     //! $fill.label.idle.Alt1
-    constexpr QColor XColor = Foundations::Accent::Error;
+    const QColor& XColor = Foundations::Accent::Error;
     //! The same rule for [Coordinate="Y"], VectorInput.qss:42-45. VectorInput.cpp:51. $fill.label.idle.Alt2
-    constexpr QColor YColor = Foundations::Accent::Success;
+    const QColor& YColor = Foundations::Accent::Success;
     //! The same rule for [Coordinate="Z"], VectorInput.qss:47-50. VectorInput.cpp:55. $fill.label.idle.Alt3
-    constexpr QColor ZColor = Foundations::Accent::Info;
+    const QColor& ZColor = Foundations::Accent::Info;
     //! The same rule for [Coordinate="W"], VectorInput.qss:52-55. VectorInput.cpp:59. $fill.label.idle.Alt4
     constexpr QColor WColor(0xE5, 0x78, 0x29);
 

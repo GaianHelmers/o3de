@@ -8,6 +8,7 @@
 
 #include <AzQtComponents/Components/DockMainWindow.h>
 #include <AzQtComponents/Components/StyledDockWidget.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/DockMainWindow.h>
 #include <AzQtComponents/Components/Titlebar.h>
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
@@ -223,7 +224,7 @@ namespace AzQtComponents
     namespace StyledDockWidgetFlatInternal
     {
         //! The line StyledDockWidget::drawFrame draws around the dock widget. StyledDockWidget.cpp:225 $line.dock.idle.color.Alt2
-        constexpr QColor FrameLine(33, 34, 35);
+        const QColor& FrameLine = Foundations::Window::FrameLine;
     } // namespace StyledDockWidgetFlatInternal
 
     /** static */

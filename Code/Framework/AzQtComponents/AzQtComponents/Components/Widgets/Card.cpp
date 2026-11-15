@@ -49,18 +49,18 @@ namespace AzQtComponents
     {
         // ---- The body of a card: #contentContainer, Card.qss:21-33 and :41-44, and its selected state, :35-39
         // Card.qss:23, :25, :43 background-color, border-color $fill.surface.idle.Highest
-        constexpr QColor BodyColor = Foundations::Highest;
-        constexpr QColor BodySelectedBorderColor = Foundations::Accent::Focus;     // Card.qss:37 $line.card.selected.color
+        const QColor& BodyColor = Foundations::Card::Fill;
+        const QColor& BodySelectedBorderColor = Foundations::Accent::Focus;     // Card.qss:37 $line.card.selected.color
         constexpr int BodyBorderWidth = 1;                  // Card.qss:25, :37 (no top edge: :26, :38) $line.surface.idle.width.Alt1
-        constexpr int BodyBottomRadius = 2;                             // Card.qss:31-32 $radius.surface.idle.bottom-left
+        const int& BodyBottomRadius = Foundations::Card::Radius;  // Card.qss:31-32 $radius.surface.idle.bottom-left
 
         // ---- The title of a header (flattened GUI)
         // Card.qss:172-175 CardHeader[contentModified=true] * { color: #E57829 }. Card.cpp:443
         // $text.card.modified
-        constexpr QColor TitleModifiedColor(0xE5, 0x78, 0x29);
+        const QColor& TitleModifiedColor = Foundations::Card::ModifiedText;
         // Card.qss:272 AzQtComponents--Card QLabel:disabled { color: #999999 }. Card.cpp:454
         // $text.label.disabled.Alt1
-        constexpr QColor TitleDisabledColor = Foundations::Text::Disabled;
+        const QColor& TitleDisabledColor = Foundations::Text::Disabled;
 
         //! The body of a card (flattened GUI), in `body`, the rect of its container, as the container's own rule painted it
         //! (QRenderRule::drawRule, from QStyleSheetStyle::drawPrimitive PE_Widget): the fill of the path through the middle of the border,

@@ -97,8 +97,9 @@ namespace AzToolsFramework
         int m_expandOnlyDelay = -1;
         QBasicTimer m_expandTimer;
 
-        const QColor m_selectedColor = EntityOutlinerFlat::SelectedWash;
-        const QColor m_hoverColor = EntityOutlinerFlat::HoverWash;
+        // References: the two follow the theme (EntityOutlinerFlat names tokens)
+        const QColor& m_selectedColor = EntityOutlinerFlat::SelectedWash;
+        const QColor& m_hoverColor = EntityOutlinerFlat::HoverWash;
         const QColor m_dragSelectRectColor = EntityOutlinerFlat::DragSelectFill;
         const QColor m_dragSelectBorderColor = EntityOutlinerFlat::DragSelectBorder;
 

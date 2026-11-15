@@ -23,6 +23,7 @@
 #include <QSettings>
 
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
 #include <AzCore/Settings/SettingsRegistryMergeUtils.h>
 #include <AzCore/Utils/Utils.h>
@@ -193,6 +194,8 @@ bool GUIApplicationManager::Run()
     }
     AzQtComponents::StyleManager* styleManager = new AzQtComponents::StyleManager(qApp);
     styleManager->initialize(qApp, engineRootPath);
+    // Flattened GUI: the theme the user chose last
+    AzQtComponents::ThemeManager::restoreSavedTheme();
 
     QDir engineRoot;
     AssetUtilities::ComputeAssetRoot(engineRoot);

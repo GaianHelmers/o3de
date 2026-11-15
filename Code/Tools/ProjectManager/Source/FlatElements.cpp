@@ -144,32 +144,32 @@ namespace O3DE::ProjectManager
         // The root's tokens (AzQtComponents Foundations), where a value of this sheet is one of them; the values only this sheet has
         // are its own tokens
         const QColor Transparent = Foundations::Clear;                  // BaseStyleSheet.qss:17 $fill.surface.idle.Clear
-        const QColor White = Foundations::Text::Primary;                // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
-        const QColor OutlineWhite = Foundations::Line::Light;           // ProjectManager.qss:631, :687 $line.button.idle.color.Alt2
+        const QColor& White = Foundations::Text::Primary;                // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
+        const QColor& OutlineWhite = Foundations::Line::Light;           // ProjectManager.qss:631, :687 $line.button.idle.color.Alt2
         const QColor HeaderBandFill(0x13, 0x13, 0x13);                  // ProjectManager.qss:3 $fill.surface.idle.Alt1
-        const QColor HeaderFill = Foundations::FarBG;                   // ProjectManager.qss:403 $fill.surface.idle.FarBG
+        const QColor& HeaderFill = Foundations::FarBG;                   // ProjectManager.qss:403 $fill.surface.idle.FarBG
         const QColor TopBarFill(0x1E, 0x25, 0x2F);                      // ProjectManager.qss:607, :981, :1037 $fill.surface.idle.Alt4
         //! The grey body of a page: ProjectManager.qss:102, :227, :448, :803, :863, :891, :920, :999 $fill.surface.idle.Low
         //! $fill.label.idle.Low
-        const QColor PageFill = Foundations::Low;
+        const QColor& PageFill = Foundations::Low;
         //! A lighter panel: ProjectManager.qss:210, :452, :515, :869, :942, :977, :1084 $fill.surface.idle.Mid
-        const QColor PanelFill = Foundations::Mid;
-        const QColor WizardFooterFill = Foundations::Fill::Deepest;     // ProjectManager.qss:463 $fill.surface.idle.Alt7
+        const QColor& PanelFill = Foundations::Mid;
+        const QColor& WizardFooterFill = Foundations::Fill::Deepest;     // ProjectManager.qss:463 $fill.surface.idle.Alt7
         const QColor CardFill(0x00, 0x00, 0x00, 0xB4);                  // ProjectManager.qss:649 $fill.button.idle.fill.Alt2
         const QColor ScrimFill(0x00, 0x00, 0x00, 0xB2);                 // ProjectManager.qss:738 (0.7: 178) $fill.button.overlay
-        const QColor CountBadgeFill = Foundations::Accent::Info;        // ProjectManager.qss:816 $fill.label.idle.Alt3
-        const QColor ChipFill = Foundations::Highest;                   // ProjectManager.qss:233 $fill.check.idle.Highest
-        const QColor SummaryLine = Foundations::Highest;                // ProjectManager.qss:538 $line.label.idle.color.Highest
+        const QColor& CountBadgeFill = Foundations::Accent::Info;        // ProjectManager.qss:816 $fill.label.idle.Alt3
+        const QColor& ChipFill = Foundations::Highest;                   // ProjectManager.qss:233 $fill.check.idle.Highest
+        const QColor& SummaryLine = Foundations::Highest;                // ProjectManager.qss:538 $line.label.idle.color.Highest
         const QColor FormBorder(0xDD, 0xDD, 0xDD);                      // ProjectManager.qss:211 $line.surface.idle.color.Alt4
         const QColor FormBorderDisabled(0x95, 0x95, 0x95);              // ProjectManager.qss:262 $line.surface.disabled.color
         const QColor FormBorderInvalid(0xFF, 0x00, 0x00);               // ProjectManager.qss:258 red $line.surface.invalid.color
-        const QColor ToastFill = Foundations::Fill::Deepest;            // ProjectManager.qss:182 black $fill.toast.idle
+        const QColor& ToastFill = Foundations::Fill::Deepest;            // ProjectManager.qss:182 black $fill.toast.idle
         const QColor ToastBorder = FormBorder;                          // ProjectManager.qss:184 $line.toast.idle.color
         //! ProjectManager.qss:635, :693, :1004 $line.button.hover.color $line.button.focus.color $line.button.pressed.color.Alt1
-        const QColor AccentBlue = Foundations::Accent::Primary;
+        const QColor& AccentBlue = Foundations::Accent::Primary;
         const QColor AccentBluePressed(0x0E, 0x60, 0xEB);               // ProjectManager.qss:644 $line.button.pressed.color.Alt2
         //! ProjectManager.qss:239, :1024 $text.check.idle $line.tab.selected.color.Alt3
-        const QColor LinkBlue = Foundations::Accent::Focus;
+        const QColor& LinkBlue = Foundations::Accent::Focus;
         //! ProjectManager.qss:722, :852, :935, :1110 (the light body text of labels and the gem inspector) $text.label.idle.Alt7
         const QColor BodyText(0xDD, 0xDD, 0xDD);
         const QColor FormLabelTextColor(0xCC, 0xCC, 0xCC);              // ProjectManager.qss:268 $text.label.idle.Alt2
@@ -193,7 +193,7 @@ namespace O3DE::ProjectManager
             QBrush m_disabled;                                //!< no brush: no rule
         };
         //! QPushButton[primary="true"] (ProjectManager.qss:15-31): idle, hover, pressed and disabled, each row under the rule of its stops
-        const ButtonRole Primary{
+        AzQtComponents::Themed<ButtonRole> Primary = [] { return ButtonRole{
             // ProjectManager.qss:17-18 $fill.button.primary
             BoxElement::vertical(Foundations::Accent::PrimaryLight, Foundations::Accent::Primary),
             // ProjectManager.qss:21-22 $fill.button.hover+primary
@@ -202,16 +202,16 @@ namespace O3DE::ProjectManager
             BoxElement::vertical(QColor(0x00, 0x85, 0xE2), QColor(0x0E, 0x60, 0xDB)),
             // ProjectManager.qss:29-30 $fill.button.disabled+primary
             BoxElement::vertical(Foundations::Fill::ButtonLight, Foundations::Mid),
-        };
+        }; };
         //! QPushButton[secondary="true"] (ProjectManager.qss:33-45): idle, hover and pressed, each row under the rule of its stops
-        const ButtonRole Secondary{
+        AzQtComponents::Themed<ButtonRole> Secondary = [] { return ButtonRole{
             // ProjectManager.qss:35-36 $fill.button.secondary
             BoxElement::vertical(Foundations::Fill::ButtonHighlight, Foundations::Highest),
             // ProjectManager.qss:39-40 $fill.button.hover+secondary
             BoxElement::vertical(QColor(0x99, 0x99, 0x99), Foundations::Fill::Disabled),
             // ProjectManager.qss:43-44 $fill.button.pressed+secondary
             BoxElement::vertical(Foundations::Highest, Foundations::Fill::ButtonLight),
-        };
+        }; };
         //! QPushButton[danger="true"] (ProjectManager.qss:47-59): idle, hover and pressed, each row under the rule of its stops
         const ButtonRole Danger{
             // ProjectManager.qss:49-50 $fill.button.danger
@@ -246,18 +246,18 @@ namespace O3DE::ProjectManager
         // { color: #888888 }`: the QFrame dividers of the dialogs and of the Gem catalog (HLine, VLine; Plain, line width 1).
         // The rules only set the color: the frames have no class tag, so `.QFrame[frameShape]` fills them as it fills
         // every divider (BaseStyleSheet.qss:41-48).
-        const FrameElement HorizontalSeparator{
+        AzQtComponents::Themed<FrameElement> HorizontalSeparator = [] { return FrameElement{
             .m_name = "ProjectManager.Frame.HorizontalSeparator",
             .m_fill = PanelFill,                                                // BaseStyleSheet.qss:47 $fill.surface.idle.Mid
             .m_fillShapes = FrameElement::PanelShapes,                          // BaseStyleSheet.qss:41-45
             .m_foreground = QColor(0x66, 0x66, 0x66),                           // ProjectManager.qss:482 $text.surface.idle.Alt4
-        };
-        const FrameElement VerticalSeparator{
+        }; };
+        AzQtComponents::Themed<FrameElement> VerticalSeparator = [] { return FrameElement{
             .m_name = "ProjectManager.Frame.VerticalSeparator",
             .m_fill = PanelFill,                                                // BaseStyleSheet.qss:47 $fill.surface.idle.Mid
             .m_fillShapes = FrameElement::PanelShapes,                          // BaseStyleSheet.qss:41-45
             .m_foreground = QColor(0x88, 0x88, 0x88),                           // ProjectManager.qss:486 $text.surface.idle.Alt3
-        };
+        }; };
 
         void registerFrames()
         {
@@ -327,8 +327,12 @@ namespace O3DE::ProjectManager
             // $size.button.idle.min-width.Alt8
             return roleButton({ .m_name = name, .m_margin = QMargins(0, 0, 30, 0), .m_radius = 3, .m_minSize = QSize(150, 28) }, role);
         }
-        const BoxElement FooterButtonPrimary = footerButton("ProjectManager.Box.FooterButtonPrimary", Primary);
-        const BoxElement FooterButtonSecondary = footerButton("ProjectManager.Box.FooterButtonSecondary", Secondary);
+        AzQtComponents::Themed<BoxElement> FooterButtonPrimary = [] {
+            return footerButton("ProjectManager.Box.FooterButtonPrimary", Primary);
+        };
+        AzQtComponents::Themed<BoxElement> FooterButtonSecondary = [] {
+            return footerButton("ProjectManager.Box.FooterButtonSecondary", Secondary);
+        };
         const BoxElement FooterButtonDanger = footerButton("ProjectManager.Box.FooterButtonDanger", Danger);     // the uninstall dialog's
 
         //! The back arrow of a screen header (#header QPushButton): its arrow, in a 24x24 box.
@@ -374,12 +378,12 @@ namespace O3DE::ProjectManager
         };
 
         //! The header of a wizard or settings screen (#header): an 80px dark band.
-        const BoxElement Header{
+        AzQtComponents::Themed<BoxElement> Header = [] { return BoxElement{
             .m_name = "ProjectManager.Box.Header",
             .m_minSize = QSize(-1, 80),                       // ProjectManager.qss:404 (#header) $size.surface.idle.min-height.Alt2
             .m_maxSize = QSize(-1, 80),                       // ProjectManager.qss:405 (#header) $size.surface.idle.max-height.Alt1
             .m_idle = { .m_fill = QBrush(HeaderFill) },       // ProjectManager.qss:403 (#header)
-        };
+        }; };
 
         //! The footer of a screen or dialog (#footer): 54px tall.
         const BoxElement Footer{
@@ -391,11 +395,11 @@ namespace O3DE::ProjectManager
         };
 
         //! The grey body of a screen (#body, #GemCatalogScreen, #createAGemRHS).
-        const BoxElement Body{
+        AzQtComponents::Themed<BoxElement> Body = [] { return BoxElement{
             .m_name = "ProjectManager.Box.Body",
             // ProjectManager.qss:102 (QStackedWidget#createAGemRHS), :448 (#body), :803 (#GemCatalogScreen)
             .m_idle = { .m_fill = QBrush(PageFill) },
-        };
+        }; };
 
         //! The dark blue bar over a tab page (#engineTopFrame, #projectSettingsTopFrame, #GemCatalogHeaderWidget).
         const BoxElement TopBar{
@@ -441,13 +445,19 @@ namespace O3DE::ProjectManager
         }
         // #createProjectButton: ProjectManager.qss:649 $asset.button.idle.background-image.Alt7,
         // :653 $asset.button.hover.Alt5 $asset.button.pressed.Alt4
-        const BoxElement StartCardCreate = startCard("ProjectManager.Box.StartCardCreate", ":/AddOffset.svg", ":/AddOffset_Hover.svg");
+        AzQtComponents::Themed<BoxElement> StartCardCreate = [] {
+            return startCard("ProjectManager.Box.StartCardCreate", ":/AddOffset.svg", ":/AddOffset_Hover.svg");
+        };
         // #addProjectButton: ProjectManager.qss:657 $asset.button.idle.background-image.Alt5,
         // :661 $asset.button.hover.Alt3 $asset.button.pressed.Alt2
-        const BoxElement StartCardOpen = startCard("ProjectManager.Box.StartCardOpen", ":/FolderOffset.svg", ":/FolderOffset_Hover.svg");
+        AzQtComponents::Themed<BoxElement> StartCardOpen = [] {
+            return startCard("ProjectManager.Box.StartCardOpen", ":/FolderOffset.svg", ":/FolderOffset_Hover.svg");
+        };
         // #addRemoteProjectButton: ProjectManager.qss:665 $asset.button.idle.background-image.Alt6,
         // :669 $asset.button.hover.Alt4 $asset.button.pressed.Alt3
-        const BoxElement StartCardRemote = startCard("ProjectManager.Box.StartCardRemote", ":/Cloud.svg", ":/Cloud_Hover.svg");
+        AzQtComponents::Themed<BoxElement> StartCardRemote = [] {
+            return startCard("ProjectManager.Box.StartCardRemote", ":/Cloud.svg", ":/Cloud_Hover.svg");
+        };
 
         //! The big title of the start page: 73px above it, no indent.
         const BoxElement StartTitle{
@@ -551,7 +561,7 @@ namespace O3DE::ProjectManager
         };
 
         //! The face of a project card (#projectButton > #labelButton): a white outline, blue while hovered, pressed or focused.
-        const BoxElement ProjectCardOutline{
+        AzQtComponents::Themed<BoxElement> ProjectCardOutline = [] { return BoxElement{
             .m_name = "ProjectManager.Box.ProjectCardOutline",
             .m_hasBox = true,                                 // a margin or padding of 0: ProjectManager.qss:711 (#projectButton QLabel)
             .m_nativeBorder = false,                          // border: ProjectManager.qss:687 (#projectButton > #labelButton)
@@ -571,7 +581,7 @@ namespace O3DE::ProjectManager
                 { BoxElement::Focus, { .m_fill = QBrush(Transparent), .m_edges = BoxElement::border(1, AccentBlue) } },
             },
             .m_properties = { { "indent", 0 } },              // ProjectManager.qss:710 (#projectButton QLabel)
-        };
+        }; };
 
         //! The buttons over a project card (#labelButton QPushButton): 140x24.
         const BoxElement ProjectCardAction{
@@ -641,7 +651,7 @@ namespace O3DE::ProjectManager
         };
 
         //! The browse button of a form field (#formFrame QPushButton): its folder icon.
-        const BoxElement FormBrowseButton{
+        AzQtComponents::Themed<BoxElement> FormBrowseButton = [] { return BoxElement{
             .m_name = "ProjectManager.Box.FormBrowseButton",
             // ProjectManager.qss:277 (#formFrame QPushButton) $fill.button.idle.fill.Clear $asset.button.idle.background-image.Alt1
             .m_idle = { .m_fill = QBrush(Transparent), .m_image = ":/Select_Folder.svg" },
@@ -651,7 +661,7 @@ namespace O3DE::ProjectManager
             },
             .m_imageAlign = Qt::AlignCenter,                  // ProjectManager.qss:277 (#formFrame QPushButton)
             .m_properties = { { "flat", true } },             // ProjectManager.qss:278 (#formFrame QPushButton)
-        };
+        }; };
 
         //! The entry of a form field (#formFrame QLineEdit): no border, clear, 24px of contents. `height: 1em` (ProjectManager.qss:305) is
         //! the height of the entry's font: Qt reads an em as QFontMetrics::height() of the rule's font (lengthValueFromData), the 18px Open
@@ -676,7 +686,7 @@ namespace O3DE::ProjectManager
         //! away, give it a border and round it more, so each carries its own margin and radius (Face::m_margin, m_radius); the twin tests of
         //! AzQtComponents.Tests (BoxElementFaceTests.ComboBox_*) hold the faces against the legacy rules. An open popup is the state the combo
         //! box reports as Checked (QComboBox::initStyleOption): the declarations of :focus. The rows of its popup are ComboPopupElement's.
-        const BoxElement FormComboBox{
+        AzQtComponents::Themed<BoxElement> FormComboBox = [] { return BoxElement{
             .m_name = "ProjectManager.Box.FormComboBox",
             .m_margin = QMargins(1, 1, 1, 1),                 // ComboBox.qss:17 (QComboBox) $space.field.idle.margin.Alt2
             // ProjectManager.qss:157,158 (#formFrame QComboBox padding-left, padding-right) $space.surface.idle.padding.Alt17
@@ -721,7 +731,7 @@ namespace O3DE::ProjectManager
                     // ComboBox.qss:35 (the margin of :focus) $space.field.focus.margin.Alt2
                     .m_text = Field::DisabledText, .m_margin = QMargins(0, 0, 0, 0), .m_radius = Field::FocusRadius } },
             },
-        };
+        }; };
 
         //! The card around a form field (#formFrame, ProjectManager.qss:208-216): a rounded, bordered panel, its border grey when
         //! disabled (:262). Where it sits sets its left margin, the state of its entry the colour of its border.
@@ -751,23 +761,35 @@ namespace O3DE::ProjectManager
         // #formFrame :397). The border: the frame's (:211), a focused entry's ([Focus="true"] :254), an invalid value's ([Valid="false"]
         // :258).
         // ProjectManager.qss:215 $space.surface.idle.margin-left.Alt1, border :211 $line.surface.idle.color.Alt4
-        const BoxElement FormFrame = formFrame("ProjectManager.Box.FormFrame", 50, FormBorder);
+        AzQtComponents::Themed<BoxElement> FormFrame = [] { return formFrame("ProjectManager.Box.FormFrame", 50, FormBorder); };
         // ProjectManager.qss:215 $space.surface.idle.margin-left.Alt1, border :254 $line.surface.focus.color
-        const BoxElement FormFrameFocused = formFrame("ProjectManager.Box.FormFrameFocused", 50, AccentBlue);
+        AzQtComponents::Themed<BoxElement> FormFrameFocused = [] {
+            return formFrame("ProjectManager.Box.FormFrameFocused", 50, AccentBlue);
+        };
         // ProjectManager.qss:215 $space.surface.idle.margin-left.Alt1, border :258 $line.surface.invalid.color
-        const BoxElement FormFrameInvalid = formFrame("ProjectManager.Box.FormFrameInvalid", 50, FormBorderInvalid);
+        AzQtComponents::Themed<BoxElement> FormFrameInvalid = [] {
+            return formFrame("ProjectManager.Box.FormFrameInvalid", 50, FormBorderInvalid);
+        };
         // ProjectManager.qss:107 $space.surface.idle.margin-left.Alt2, border :211 $line.surface.idle.color.Alt4
-        const BoxElement FormFrameWizard = formFrame("ProjectManager.Box.FormFrameWizard", 0, FormBorder);
+        AzQtComponents::Themed<BoxElement> FormFrameWizard = [] { return formFrame("ProjectManager.Box.FormFrameWizard", 0, FormBorder); };
         // ProjectManager.qss:107 $space.surface.idle.margin-left.Alt2, border :254 $line.surface.focus.color
-        const BoxElement FormFrameWizardFocused = formFrame("ProjectManager.Box.FormFrameWizardFocused", 0, AccentBlue);
+        AzQtComponents::Themed<BoxElement> FormFrameWizardFocused = [] {
+            return formFrame("ProjectManager.Box.FormFrameWizardFocused", 0, AccentBlue);
+        };
         // ProjectManager.qss:107 $space.surface.idle.margin-left.Alt2, border :258 $line.surface.invalid.color
-        const BoxElement FormFrameWizardInvalid = formFrame("ProjectManager.Box.FormFrameWizardInvalid", 0, FormBorderInvalid);
+        AzQtComponents::Themed<BoxElement> FormFrameWizardInvalid = [] {
+            return formFrame("ProjectManager.Box.FormFrameWizardInvalid", 0, FormBorderInvalid);
+        };
         // ProjectManager.qss:397 $space.surface.idle.margin-left.Alt4, border :211 $line.surface.idle.color.Alt4
-        const BoxElement FormFrameNested = formFrame("ProjectManager.Box.FormFrameNested", 23, FormBorder);
+        AzQtComponents::Themed<BoxElement> FormFrameNested = [] { return formFrame("ProjectManager.Box.FormFrameNested", 23, FormBorder); };
         // ProjectManager.qss:397 $space.surface.idle.margin-left.Alt4, border :254 $line.surface.focus.color
-        const BoxElement FormFrameNestedFocused = formFrame("ProjectManager.Box.FormFrameNestedFocused", 23, AccentBlue);
+        AzQtComponents::Themed<BoxElement> FormFrameNestedFocused = [] {
+            return formFrame("ProjectManager.Box.FormFrameNestedFocused", 23, AccentBlue);
+        };
         // ProjectManager.qss:397 $space.surface.idle.margin-left.Alt4, border :258 $line.surface.invalid.color
-        const BoxElement FormFrameNestedInvalid = formFrame("ProjectManager.Box.FormFrameNestedInvalid", 23, FormBorderInvalid);
+        AzQtComponents::Themed<BoxElement> FormFrameNestedInvalid = [] {
+            return formFrame("ProjectManager.Box.FormFrameNestedInvalid", 23, FormBorderInvalid);
+        };
 
         //! The frame of the wizard's options (#createAGemRHS #formOptionsFrame): 2px in.
         const BoxElement FormOptionsFrameWizard{
@@ -819,31 +841,31 @@ namespace O3DE::ProjectManager
         };
 
         //! The tag list under the wizard's tags field (#createAGemRHS #formTagField).
-        const BoxElement FormTagFieldWizard{
+        AzQtComponents::Themed<BoxElement> FormTagFieldWizard = [] { return BoxElement{
             .m_name = "ProjectManager.Box.FormTagFieldWizard",
             .m_padding = QMargins(6, 0, 10, 2),               // ProjectManager.qss:228 (#formTagField) $space.surface.idle.padding.Alt2
             .m_maxSize = QSize(840, -1),                      // ProjectManager.qss:226 (#formTagField) $size.surface.idle.max-width.Alt1
             .m_idle = { .m_fill = QBrush(PageFill) },         // ProjectManager.qss:227 (#formTagField)
-        };
+        }; };
 
         //! The tag list under a tags field (#formTagField): 50px in.
-        const BoxElement FormTagField{
+        AzQtComponents::Themed<BoxElement> FormTagField = [] { return BoxElement{
             .m_name = "ProjectManager.Box.FormTagField",
             .m_margin = QMargins(50, 0, 0, 0),                // ProjectManager.qss:229 (#formTagField) $space.surface.idle.margin-left.Alt1
             .m_padding = QMargins(6, 0, 10, 2),               // ProjectManager.qss:228 (#formTagField) $space.surface.idle.padding.Alt2
             .m_maxSize = QSize(840, -1),                      // ProjectManager.qss:226 (#formTagField) $size.surface.idle.max-width.Alt1
             .m_idle = { .m_fill = QBrush(PageFill) },         // ProjectManager.qss:227 (#formTagField)
-        };
+        }; };
 
         //! A tag of that list (#formTagField QCheckBox): a chip. The mark at its end is its indicator (FormTagChipIndicator).
-        const BoxElement FormTagChip{
+        AzQtComponents::Themed<BoxElement> FormTagChip = [] { return BoxElement{
             .m_name = "ProjectManager.Box.FormTagChip",
             // ProjectManager.qss:234, :235 (#formTagField QCheckBox) $space.check.idle.padding-left $space.check.idle.padding-top
             // ProjectManager.qss:237, :236 (#formTagField QCheckBox) $space.check.idle.padding-right $space.check.idle.padding-bottom
             .m_padding = QMargins(7, 2, 5, 2),
             .m_spacing = 0,                                   // $space.surface.idle.spacing.Alt1; ProjectManager.qss:238
             .m_idle = { .m_fill = QBrush(ChipFill) },         // ProjectManager.qss:233 (#formTagField QCheckBox)
-        };
+        }; };
 
         //! The title of a settings form (#formTitleLabel): 50px in, 24px above, 10px below.
         const BoxElement FormTitle{
@@ -859,7 +881,7 @@ namespace O3DE::ProjectManager
         //! rule (:93): Qt reads the spacing of the state of the option for the size of the button and the one of the rule with no pseudo-class
         //! for where the label sits (SE_RadioButtonContents asks with no option, qstylesheetstyle.cpp:6200), so a checked step is 20px wider than
         //! the others and its label never moves. The indicator of a step is the box with nothing in it (WizardStepIndicator).
-        const BoxElement WizardStepRadio{
+        AzQtComponents::Themed<BoxElement> WizardStepRadio = [] { return BoxElement{
             .m_name = "ProjectManager.Box.WizardStepRadio",
             // spacing: ProjectManager.qss:83 (#createAGemLHS QRadioButton) $space.check.idle.spacing.Alt2
             .m_spacing = 10,
@@ -872,7 +894,7 @@ namespace O3DE::ProjectManager
                 // ProjectManager.qss:93 (spacing) $space.check.checked, :94 (color) $text.check.checked
                 { BoxElement::Checked, { .m_fill = QBrush(PageFill), .m_text = White, .m_spacing = 30 } },
             },
-        };
+        }; };
 
         // ---- Indicators: the box of a check box or radio button, with its image
 
@@ -916,11 +938,11 @@ namespace O3DE::ProjectManager
         //! header), `#adjustableHeaderWidget QHeaderView::section { background-color: transparent }` (ProjectManager.qss:872-874): the sections
         //! are clear and the page shows through them, where the global section is #2d2d2d (TableView.qss:69); the height, font and padding
         //! of the section rule are TableView.qss's (:62-76) and the item view element's.
-        const ItemViewElement AdjustableHeader{
+        AzQtComponents::Themed<ItemViewElement> AdjustableHeader = [] { return ItemViewElement{
             .m_name = "ProjectManager.ItemView.AdjustableHeader",
             // background-color: ProjectManager.qss:873 (#adjustableHeaderWidget QHeaderView::section) $fill.header.idle.Clear
             .m_headerFill = QColor(0, 0, 0, 0),
-        };
+        }; };
 
         //! The scroll area of the wizard's right pane (#createAGemRightPane): 60px and 25px of padding, at least 660px wide.
         const BoxElement WizardRightPane{
@@ -957,17 +979,17 @@ namespace O3DE::ProjectManager
         };
 
         //! The body of a create or edit gem screen (#createAGemBody).
-        const BoxElement WizardBody{
+        AzQtComponents::Themed<BoxElement> WizardBody = [] { return BoxElement{
             .m_name = "ProjectManager.Box.WizardBody",
             .m_idle = { .m_fill = QBrush(PanelFill) },        // ProjectManager.qss:452 (#createAGemBody)
-        };
+        }; };
 
         //! The black strip under it (#createAGemFooter).
-        const BoxElement WizardFooter{
+        AzQtComponents::Themed<BoxElement> WizardFooter = [] { return BoxElement{
             .m_name = "ProjectManager.Box.WizardFooter",
             // ProjectManager.qss:463 (#createAGemFooter)
             .m_idle = { .m_fill = QBrush(WizardFooterFill) },
-        };
+        }; };
 
         // ---- Project settings and templates
 
@@ -975,15 +997,16 @@ namespace O3DE::ProjectManager
         //! a 170 x 26 secondary button, its label centered
         // ProjectManager.qss:594, :596, :595 (#projectSettingsTab::tab-bar > QPushButton) $space.button.idle.margin-right.Alt3
         // $space.button.idle.margin-top.Alt3 $space.button.idle.margin-bottom
-        const BoxElement SettingsTabButton = roleButton({ .m_name = "ProjectManager.Box.SettingsTabButton", .m_margin = QMargins(0, 0, 30, 12),
+        AzQtComponents::Themed<BoxElement> SettingsTabButton = [] {
+            return roleButton({ .m_name = "ProjectManager.Box.SettingsTabButton", .m_margin = QMargins(0, 0, 30, 12),
             // ProjectManager.qss:601, :602 (#projectSettingsTab::tab-bar > QPushButton) $radius.button.idle.all.Alt2
             // $other.button.idle.text-align.Alt2
             // ProjectManager.qss:597, :599, :598, :600 (#projectSettingsTab::tab-bar > QPushButton) $size.button.idle.min-width.Alt13
             // $size.button.idle.min-height.Alt2 $size.button.idle.max-width.Alt12 $size.button.idle.max-height.Alt2
-            .m_radius = 3, .m_minSize = QSize(170, 26), .m_maxSize = QSize(170, 26), .m_textAlign = Qt::AlignCenter }, Secondary);
+            .m_radius = 3, .m_minSize = QSize(170, 26), .m_maxSize = QSize(170, 26), .m_textAlign = Qt::AlignCenter }, Secondary); };
 
         //! A project template's button (#projectTemplate QPushButton): 96x160, flat, a lighter panel under the pointer.
-        const BoxElement TemplateButton{
+        AzQtComponents::Themed<BoxElement> TemplateButton = [] { return BoxElement{
             .m_name = "ProjectManager.Box.TemplateButton",
             // ProjectManager.qss:549 (#projectTemplate QPushButton) $size.button.idle.min-width.Alt15
             // ProjectManager.qss:551 (#projectTemplate QPushButton) $size.button.idle.min-height.Alt10
@@ -997,10 +1020,10 @@ namespace O3DE::ProjectManager
                 { BoxElement::Hover, { .m_fill = QBrush(PanelFill) } },
             },
             .m_properties = { { "flat", true } },             // ProjectManager.qss:548 (#projectTemplate QPushButton)
-        };
+        }; };
 
         //! The picture of the checked template (#projectTemplate QPushButton[Checked="true"] #templateImage): a blue frame.
-        const BoxElement TemplateImageChecked{
+        AzQtComponents::Themed<BoxElement> TemplateImageChecked = [] { return BoxElement{
             .m_name = "ProjectManager.Box.TemplateImageChecked",
             // Text.qss:93,94 (QLabel) $space.surface.idle.margin-top.Alt2 $space.label.idle.margin-top.Alt1
             // $space.surface.idle.margin-bottom.Alt2 $space.label.idle.margin-bottom.Alt1
@@ -1012,7 +1035,7 @@ namespace O3DE::ProjectManager
             // BaseStyleSheet.qss:17 (*); ProjectManager.qss:562 (#projectTemplate QPushButton[Checked="true"] #templateImage)
             // ProjectManager.qss:562 $line.label.checked.width $line.label.checked.color
             .m_idle = { .m_fill = QBrush(Transparent), .m_edges = BoxElement::border(3, AccentBlue) },
-        };
+        }; };
 
         //! The picture of a template (#projectTemplate QPushButton #templateImage): a clear frame at radius 4px.
         const BoxElement TemplateImage{
@@ -1076,7 +1099,7 @@ namespace O3DE::ProjectManager
         };
 
         //! The template details panel (#projectTemplateDetails): a lighter panel, 30px in.
-        const BoxElement TemplateDetails{
+        AzQtComponents::Themed<BoxElement> TemplateDetails = [] { return BoxElement{
             .m_name = "ProjectManager.Box.TemplateDetails",
             // ProjectManager.qss:518 (#projectTemplateDetails) $space.surface.idle.margin-left.Alt5
             .m_margin = QMargins(30, 0, 0, 0),
@@ -1087,10 +1110,10 @@ namespace O3DE::ProjectManager
             // `max-width: 20%` (ProjectManager.qss:516) is 20px to Qt: a % length is read as its number (qcssparser.cpp:2960-2963,
             // 439-467): the legacy widget is 50 wide at most and 270 at least with its 30px margin, and the minimum wins.
             .m_idle = { .m_fill = QBrush(PanelFill) },        // ProjectManager.qss:515 (#projectTemplateDetails)
-        };
+        }; };
 
         //! The summary of the chosen template (#projectTemplateDetails #summary): a line under it.
-        const BoxElement TemplateSummary{
+        AzQtComponents::Themed<BoxElement> TemplateSummary = [] { return BoxElement{
             .m_name = "ProjectManager.Box.TemplateSummary",
             // Text.qss:93,94 (QLabel) $space.surface.idle.margin-top.Alt2 $space.label.idle.margin-top.Alt1
             // $space.surface.idle.margin-bottom.Alt2 $space.label.idle.margin-bottom.Alt1
@@ -1103,7 +1126,7 @@ namespace O3DE::ProjectManager
             .m_idle = { .m_fill = QBrush(Transparent), .m_edges = { {}, {}, { 2, SummaryLine }, {} } },
             // ProjectManager.qss:540 (#projectTemplateDetails #summary)
             .m_properties = { { "alignment", QString("AlignTop") } },
-        };
+        }; };
 
         //! The title of its gem list (#includedGemsTitle).
         const BoxElement TemplateGemsTitle{
@@ -1145,11 +1168,15 @@ namespace O3DE::ProjectManager
         }
         // 'Use Version' (#GemCatalogVersion QPushButton: a margin above and below, ProjectManager.qss:970), 'Download Gem', 'Uninstall
         // Gem', and the repository's 'Remove' (10px below the details, :1126)
-        const BoxElement InspectorVersionButton =
-            // ProjectManager.qss:970 (#GemCatalogVersion QPushButton) $space.button.idle.margin.Alt4
-            inspectorButton("ProjectManager.Box.InspectorVersionButton", Secondary, QMargins(0, 5, 0, 5));
-        const BoxElement InspectorButtonSecondary = inspectorButton("ProjectManager.Box.InspectorButtonSecondary", Secondary);
-        const BoxElement InspectorButtonPrimary = inspectorButton("ProjectManager.Box.InspectorButtonPrimary", Primary);
+        AzQtComponents::Themed<BoxElement> InspectorVersionButton = [] {
+            return // ProjectManager.qss:970 (#GemCatalogVersion QPushButton) $space.button.idle.margin.Alt4
+            inspectorButton("ProjectManager.Box.InspectorVersionButton", Secondary, QMargins(0, 5, 0, 5)); };
+        AzQtComponents::Themed<BoxElement> InspectorButtonSecondary = [] {
+            return inspectorButton("ProjectManager.Box.InspectorButtonSecondary", Secondary);
+        };
+        AzQtComponents::Themed<BoxElement> InspectorButtonPrimary = [] {
+            return inspectorButton("ProjectManager.Box.InspectorButtonPrimary", Primary);
+        };
         const BoxElement InspectorButtonDanger = inspectorButton("ProjectManager.Box.InspectorButtonDanger", Danger);
         const BoxElement RepoInspectorButtonDanger =
             // ProjectManager.qss:1126 (#gemRepoInspector QPushButton) $space.button.idle.margin-top.Alt2
@@ -1160,11 +1187,12 @@ namespace O3DE::ProjectManager
         //! and its text 4px apart, where the base style puts the text 2px after the icon.
         // ProjectManager.qss:1061 (#gemRepoAddButton) $radius.button.idle.all.Alt2
         // ProjectManager.qss:1063 (#gemRepoAddButton font-size, GemRepoAddButtonText) $type.button.idle.size.Alt1
-        const BoxElement GemRepoAddButton = roleButton({ .m_name = "ProjectManager.Box.GemRepoAddButton", .m_radius = 3,
+        AzQtComponents::Themed<BoxElement> GemRepoAddButton = [] {
+            return roleButton({ .m_name = "ProjectManager.Box.GemRepoAddButton", .m_radius = 3,
             // ProjectManager.qss:1057, :1059 (#gemRepoAddButton) $size.button.idle.min-width.Alt11 $size.button.idle.min-height.Alt4
             // ProjectManager.qss:1058, :1060 (#gemRepoAddButton) $size.button.idle.max-width.Alt10 $size.button.idle.max-height.Alt4
             // ProjectManager.qss:1062 (#gemRepoAddButton) $other.button.idle.text-align.Alt2
-            .m_minSize = QSize(120, 24), .m_maxSize = QSize(120, 24), .m_textAlign = Qt::AlignCenter }, Secondary);
+            .m_minSize = QSize(120, 24), .m_maxSize = QSize(120, 24), .m_textAlign = Qt::AlignCenter }, Secondary); };
 
         //! The requirements notice of the gem inspector (#GemCatalogInspector #GemCatalogRequirements): its info icon.
         const BoxElement InspectorNoticeInfo{
@@ -1211,16 +1239,16 @@ namespace O3DE::ProjectManager
         };
 
         //! A tag in an inspector (#TagWidget): a rounded chip with no margin.
-        const BoxElement InspectorTag{
+        AzQtComponents::Themed<BoxElement> InspectorTag = [] { return BoxElement{
             .m_name = "ProjectManager.Box.InspectorTag",
             .m_padding = QMargins(3, 3, 3, 3),                // ProjectManager.qss:921 (#TagWidget) $space.surface.idle.padding.Alt4
             .m_nativeBorder = false,                          // border-radius: ProjectManager.qss:924 (#TagWidget)
             .m_radius = 3,                                    // ProjectManager.qss:924 (#TagWidget) $radius.surface.idle.all.Alt2
             .m_idle = { .m_fill = QBrush(PageFill) },         // ProjectManager.qss:920 (#TagWidget)
-        };
+        }; };
 
         //! A tag anywhere else (the cart, the template details): the chip with the label margins.
-        const BoxElement Tag{
+        AzQtComponents::Themed<BoxElement> Tag = [] { return BoxElement{
             .m_name = "ProjectManager.Box.Tag",
             // Text.qss:93,94 (QLabel) $space.surface.idle.margin-top.Alt2 $space.label.idle.margin-top.Alt1
             // $space.surface.idle.margin-bottom.Alt2 $space.label.idle.margin-bottom.Alt1
@@ -1229,7 +1257,7 @@ namespace O3DE::ProjectManager
             .m_nativeBorder = false,                          // border-radius: ProjectManager.qss:924 (#TagWidget)
             .m_radius = 3,                                    // ProjectManager.qss:924 (#TagWidget) $radius.surface.idle.all.Alt2
             .m_idle = { .m_fill = QBrush(PageFill) },         // ProjectManager.qss:920 (#TagWidget)
-        };
+        }; };
 
         //! Every other label of an inspector (#GemCatalogInspector QLabel, #gemRepoInspector QLabel): no margin.
         const BoxElement InspectorLabel{
@@ -1240,12 +1268,12 @@ namespace O3DE::ProjectManager
         };
 
         //! The side panes of the gem pages (#GemCatalogInspector, #GemCatalogFilterWidget, #gemRepoInspector): a lighter panel.
-        const BoxElement Inspector{
+        AzQtComponents::Themed<BoxElement> Inspector = [] { return BoxElement{
             .m_name = "ProjectManager.Box.Inspector",
             .m_hasBox = true,                                 // a margin or padding of 0: QDockWidget.qss:35 (QAbstractScrollArea)
             // ProjectManager.qss:942 (#GemCatalogInspector), :977 (#GemCatalogFilterWidget), :1084 (#gemRepoInspector)
             .m_idle = { .m_fill = QBrush(PanelFill) },
-        };
+        }; };
 
         //! A tag container of the gem inspector (#GemCatalogInspector #TagWidgetContainer): 210px wide.
         const BoxElement InspectorTagContainer{
@@ -1270,7 +1298,7 @@ namespace O3DE::ProjectManager
         };
 
         //! The count beside a filter (#GemCatalogFilterWidget #CountLabel): a rounded badge.
-        const BoxElement FilterCount{
+        AzQtComponents::Themed<BoxElement> FilterCount = [] { return BoxElement{
             .m_name = "ProjectManager.Box.FilterCount",
             // Text.qss:93,94 (QLabel) $space.surface.idle.margin-top.Alt2 $space.label.idle.margin-top.Alt1
             // $space.surface.idle.margin-bottom.Alt2 $space.label.idle.margin-bottom.Alt1
@@ -1280,10 +1308,10 @@ namespace O3DE::ProjectManager
             // ProjectManager.qss:1000 (#GemCatalogFilterWidget #CountLabel) $radius.label.idle.all
             .m_radius = 3,
             .m_idle = { .m_fill = QBrush(PageFill) },         // ProjectManager.qss:999 (#GemCatalogFilterWidget #CountLabel)
-        };
+        }; };
 
         //! The number on the cart button (#GemCatalogCartCountLabel): a blue badge.
-        const BoxElement CartCount{
+        AzQtComponents::Themed<BoxElement> CartCount = [] { return BoxElement{
             .m_name = "ProjectManager.Box.CartCount",
             // Text.qss:93,94 (QLabel) $space.surface.idle.margin-top.Alt2 $space.label.idle.margin-top.Alt1
             // $space.surface.idle.margin-bottom.Alt2 $space.label.idle.margin-bottom.Alt1
@@ -1291,52 +1319,52 @@ namespace O3DE::ProjectManager
             .m_nativeBorder = false,                          // border-radius: ProjectManager.qss:817 (#GemCatalogCartCountLabel)
             .m_radius = 3,                                    // ProjectManager.qss:817 (#GemCatalogCartCountLabel) $radius.label.idle.all
             .m_idle = { .m_fill = QBrush(CountBadgeFill) },   // ProjectManager.qss:816 (#GemCatalogCartCountLabel)
-        };
+        }; };
 
         //! The cart popup (#GemCatalogCart): a lighter panel.
-        const BoxElement GemCart{
+        AzQtComponents::Themed<BoxElement> GemCart = [] { return BoxElement{
             .m_name = "ProjectManager.Box.GemCart",
             .m_hasBox = true,                                 // a margin or padding of 0: QDockWidget.qss:35 (QAbstractScrollArea)
             .m_idle = { .m_fill = QBrush(CartFill) },         // ProjectManager.qss:811 (#GemCatalogCart)
-        };
+        }; };
 
         //! The list of downloads in the cart (#GemCatalogCartOverlayGemDownloadBG).
-        const BoxElement CartDownloadList{
+        AzQtComponents::Themed<BoxElement> CartDownloadList = [] { return BoxElement{
             .m_name = "ProjectManager.Box.CartDownloadList",
             // a margin or padding of 0: ProjectManager.qss:867 (#GemCatalogCartOverlayGemDownloadBG); ProjectManager.qss:868
             // (#GemCatalogCartOverlayGemDownloadBG)
             .m_hasBox = true,
             .m_idle = { .m_fill = QBrush(PanelFill) },        // ProjectManager.qss:869 (#GemCatalogCartOverlayGemDownloadBG)
-        };
+        }; };
 
         //! The header of that list (#GemCatalogCartOverlayGemDownloadHeader).
-        const BoxElement CartDownloadHeader{
+        AzQtComponents::Themed<BoxElement> CartDownloadHeader = [] { return BoxElement{
             .m_name = "ProjectManager.Box.CartDownloadHeader",
             // a margin or padding of 0: ProjectManager.qss:861 (#GemCatalogCartOverlayGemDownloadHeader); ProjectManager.qss:862
             // (#GemCatalogCartOverlayGemDownloadHeader)
             .m_hasBox = true,
             .m_idle = { .m_fill = QBrush(PageFill) },         // ProjectManager.qss:863 (#GemCatalogCartOverlayGemDownloadHeader)
-        };
+        }; };
 
         //! The gem list (#GemCatalogListView): the grey page fill, no frame.
-        const BoxElement GemList{
+        AzQtComponents::Themed<BoxElement> GemList = [] { return BoxElement{
             .m_name = "ProjectManager.Box.GemList",
             .m_hasBox = true,                                 // a margin or padding of 0: QDockWidget.qss:35 (QAbstractScrollArea)
             .m_nativeBorder = false,                          // border: TableView.qss:28 (QListView)
             .m_idle = { .m_fill = QBrush(PageFill) },         // ProjectManager.qss:883 (#GemCatalogListView)
-        };
+        }; };
 
         //! The count over the gem list (#GemCatalogHeaderShowCountLabel); its fill is the list header's inline sheet.
-        const BoxElement GemListCount{
+        AzQtComponents::Themed<BoxElement> GemListCount = [] { return BoxElement{
             .m_name = "ProjectManager.Box.GemListCount",
             // Text.qss:93,94 (QLabel) $space.surface.idle.margin-top.Alt2 $space.label.idle.margin-top.Alt1
             // $space.surface.idle.margin-bottom.Alt2 $space.label.idle.margin-bottom.Alt1
             .m_margin = QMargins(0, 1, 0, 1),
             .m_idle = { .m_fill = QBrush(GemListHeaderFill) },    // GemListHeaderWidget.cpp:31 (*)
-        };
+        }; };
 
         //! The refresh button over the gem list (#RefreshButton): 24x24, its icon.
-        const BoxElement GemListRefreshButton{
+        AzQtComponents::Themed<BoxElement> GemListRefreshButton = [] { return BoxElement{
             .m_name = "ProjectManager.Box.GemListRefreshButton",
             // ProjectManager.qss:828,830 (#RefreshButton) $size.button.idle.min-width.Alt6 $size.button.idle.min-height.Alt4
             .m_minSize = QSize(24, 24),
@@ -1350,7 +1378,7 @@ namespace O3DE::ProjectManager
             },
             .m_imageAlign = Qt::AlignCenter,                  // ProjectManager.qss:825 (#RefreshButton)
             .m_properties = { { "flat", true } },             // ProjectManager.qss:826 (#RefreshButton)
-        };
+        }; };
 
         //! The menu button of the catalog header (#gemCatalogMenuButton): 36x24.
         const BoxElement GemCatalogMenuButton{
@@ -1383,7 +1411,7 @@ namespace O3DE::ProjectManager
         };
 
         //! A check box of that dialog (#GemDependenciesDialog QCheckBox): a chip.
-        const BoxElement DependencyCheckBox{
+        AzQtComponents::Themed<BoxElement> DependencyCheckBox = [] { return BoxElement{
             .m_name = "ProjectManager.Box.DependencyCheckBox",
             // ProjectManager.qss:896, :894 (#GemDependenciesDialog QCheckBox) $space.check.idle.margin-top $space.check.idle.margin-right
             .m_margin = QMargins(0, 5, 5, 0),
@@ -1393,10 +1421,10 @@ namespace O3DE::ProjectManager
             // ProjectManager.qss:892 (#GemDependenciesDialog QCheckBox) $radius.check.idle.all
             .m_radius = 3,
             .m_idle = { .m_fill = QBrush(PageFill) },         // ProjectManager.qss:891 (#GemDependenciesDialog QCheckBox)
-        };
+        }; };
 
         //! A toast notification (#ToastNotification): black, a light rounded outline.
-        const BoxElement Toast{
+        AzQtComponents::Themed<BoxElement> Toast = [] { return BoxElement{
             .m_name = "ProjectManager.Box.Toast",
             .m_nativeBorder = false,                          // border: ProjectManager.qss:184 (#ToastNotification)
             .m_radius = 20,                                   // ProjectManager.qss:183 (#ToastNotification) $radius.toast.idle.all
@@ -1405,7 +1433,7 @@ namespace O3DE::ProjectManager
             .m_idle = { .m_fill = QBrush(ToastFill), .m_edges = BoxElement::border(1, ToastBorder) },
             // ProjectManager.qss:185 (#ToastNotification) $size.toast.idle.minimumsize
             .m_properties = { { "minimumSize", QSize(100, 50) } },
-        };
+        }; };
 
         //! The frame of a toast's icon (#ToastNotification #icon_frame).
         const BoxElement ToastIconFrame{
@@ -1731,233 +1759,233 @@ namespace O3DE::ProjectManager
         // ---- Screen chrome: headers, footers and surfaces
 
         //! The title of a screen (#headerSubTitle, and the projects page's #titleLabel).
-        const TextElement PageTitleText{
+        AzQtComponents::Themed<TextElement> PageTitleText = [] { return TextElement{
             .m_name = "ProjectManager.Text.PageTitle",
             // ProjectManager.qss:439 (#headerSubTitle), :677 (#projectsContent > QFrame > #titleLabel) $type.label.idle.size.Alt6
             .m_pixelSize = 24,
-        };
+        }; };
 
         //! The lines under a title.
-        const TextElement SubtitleText{
+        AzQtComponents::Themed<TextElement> SubtitleText = [] { return TextElement{
             .m_name = "ProjectManager.Text.Subtitle",
             // ProjectManager.qss:374 (#rightPaneSubheader), :430 (#headerTitle), :509 (#projectTemplateDetailsLabel), :527
             // (#projectTemplateDetails #moreGems), :618 (#firstTimeContent > #introLabel) $type.label.idle.size.Alt2
             .m_pixelSize = 14,
-        };
+        }; };
 
         // ---- The start page
 
         //! The big title of the start page.
-        const TextElement HeroTitleText{
+        AzQtComponents::Themed<TextElement> HeroTitleText = [] { return TextElement{
             .m_name = "ProjectManager.Text.HeroTitle",
             // ProjectManager.qss:612 (#firstTimeContent > #titleLabel) $type.label.idle.size.Alt10
             .m_pixelSize = 60,
-        };
+        }; };
 
         //! The label of a start card.
-        const TextElement StartCardLabelText{
+        AzQtComponents::Themed<TextElement> StartCardLabelText = [] { return TextElement{
             .m_name = "ProjectManager.Text.StartCardLabel",
             // ProjectManager.qss:630 (#firstTimeContent > QPushButton) $type.button.idle.size.Alt2
             .m_pixelSize = 14,
-        };
+        }; };
 
         // ---- The projects page and its cards
 
         //! The name of this engine on a project card (#projectButton QLabel#thisEngineLabel).
-        const TextElement ProjectCardThisEngineText{
+        AzQtComponents::Themed<TextElement> ProjectCardThisEngineText = [] { return TextElement{
             .m_name = "ProjectManager.Text.ProjectCardThisEngine",
             // ProjectManager.qss:717 (#projectButton QLabel#thisEngineLabel) $type.label.idle.size.Alt1
             .m_pixelSize = 12,
             // ProjectManager.qss:718 (#projectButton QLabel#thisEngineLabel) $text.label.idle.Alt8
             .m_color = QColor(0xEE, 0xEE, 0xEE),
-        };
+        }; };
 
         //! The name of another engine on a project card, and the repository inspector's body text.
-        const TextElement ProjectCardOtherEngineText{
+        AzQtComponents::Themed<TextElement> ProjectCardOtherEngineText = [] { return TextElement{
             .m_name = "ProjectManager.Text.ProjectCardOtherEngine",
             // ProjectManager.qss:717, :1109 $type.label.idle.size.Alt1 (#projectButton QLabel#otherEngineLabel, #gemRepoInspectorBodyLabel)
             .m_pixelSize = 12,
             // ProjectManager.qss:722 (#projectButton QLabel#otherEngineLabel), :1110 (#gemRepoInspectorBodyLabel) $text.label.idle.Alt7
             .m_color = BodyText,
-        };
+        }; };
 
         //! The message over a project card (#labelButton #projectMessageOverlay).
-        const TextElement ProjectCardMessageText{
+        AzQtComponents::Themed<TextElement> ProjectCardMessageText = [] { return TextElement{
             .m_name = "ProjectManager.Text.ProjectCardMessage",
             // ProjectManager.qss:749 (#labelButton #projectMessageOverlay) $type.label.idle.size.Alt5
             .m_pixelSize = 16,
             // ProjectManager.qss:708 (#projectButton QLabel) $type.button.idle.weight.Alt1
             .m_weight = 700,
-        };
+        }; };
 
         //! The second message over a project card.
-        const TextElement ProjectCardSubMessageText{
+        AzQtComponents::Themed<TextElement> ProjectCardSubMessageText = [] { return TextElement{
             .m_name = "ProjectManager.Text.ProjectCardSubMessage",
             // ProjectManager.qss:753 (#labelButton #projectSubMessageOverlay) $type.label.idle.size.Alt1
             .m_pixelSize = 12,
             // ProjectManager.qss:708 (#projectButton QLabel) $type.button.idle.weight.Alt1
             .m_weight = 700,
-        };
+        }; };
 
         //! A label of a project card (#projectButton QLabel): bold.
-        const TextElement ProjectCardLabelText{
+        AzQtComponents::Themed<TextElement> ProjectCardLabelText = [] { return TextElement{
             .m_name = "ProjectManager.Text.ProjectCardLabel",
             .m_pixelSize = 14,                                // ProjectManager.qss:709 (#projectButton QLabel) $type.button.idle.size.Alt2
             // ProjectManager.qss:708 (#projectButton QLabel) $type.button.idle.weight.Alt1
             .m_weight = 700,
-        };
+        }; };
 
         // ---- Form fields
 
         //! The label in a form field (#formFrame QLabel).
-        const TextElement FormLabelText{
+        AzQtComponents::Themed<TextElement> FormLabelText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FormLabel",
             .m_pixelSize = 13,                                // ProjectManager.qss:267 (#formFrame QLabel) $type.label.idle.size.Alt4
             // ProjectManager.qss:268 (#formFrame QLabel) $text.label.idle.Alt2
             .m_color = FormLabelTextColor,
             // ProjectManager.qss:272 (#formFrame QLabel:disabled) $text.label.disabled.Alt2
             .m_disabledColor = QColor(0x88, 0x88, 0x88),
-        };
+        }; };
 
         //! The label over the wizard's options (#formOptionsFrame QLabel).
-        const TextElement FormOptionsLabelText{
+        AzQtComponents::Themed<TextElement> FormOptionsLabelText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FormOptionsLabel",
             // ProjectManager.qss:267 (#formOptionsFrame QLabel) $type.label.idle.size.Alt4
             .m_pixelSize = 13,
             // ProjectManager.qss:268 (#formOptionsFrame QLabel) $text.label.idle.Alt2
             .m_color = FormLabelTextColor,
-        };
+        }; };
 
         //! The error under a form field (#formErrorLabel).
-        const TextElement FormErrorLabelText{
+        AzQtComponents::Themed<TextElement> FormErrorLabelText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FormErrorLabel",
             .m_pixelSize = 14,                                // ProjectManager.qss:342 (#formErrorLabel) $type.label.idle.size.Alt2
             .m_color = QColor(0xEC, 0x30, 0x30),              // ProjectManager.qss:341 (#formErrorLabel) $text.label.idle.Alt12
-        };
+        }; };
 
         //! The header of a pane or a form.
-        const TextElement PaneHeaderText{
+        AzQtComponents::Themed<TextElement> PaneHeaderText = [] { return TextElement{
             .m_name = "ProjectManager.Text.PaneHeader",
             // ProjectManager.qss:359 (#formTitleLabel), :365 (#rightPaneHeader), :370 (#rightPaneDetailsHeader) $type.label.idle.size.Alt9
             .m_pixelSize = 21,
-        };
+        }; };
 
         //! The text of a form entry (#formFrame QLineEdit).
-        const TextElement FormLineEditText{
+        AzQtComponents::Themed<TextElement> FormLineEditText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FormLineEdit",
             .m_pixelSize = 18,                                // ProjectManager.qss:301 (#formFrame QLineEdit) $type.field.idle.size.Alt2
             // ProjectManager.qss:302 (#formFrame QLineEdit) $text.field.idle.Alt3
             .m_color = White,
             // ProjectManager.qss:310 (#formFrame QLineEdit:disabled) $text.field.disabled.Alt2
             .m_disabledColor = FormDisabledText,
-        };
+        }; };
 
         //! The text of a form combo box (#formFrame QComboBox).
-        const TextElement FormComboBoxText{
+        AzQtComponents::Themed<TextElement> FormComboBoxText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FormComboBox",
             .m_pixelSize = 18,                                // ProjectManager.qss:319 (#formFrame QComboBox) $type.field.idle.size.Alt2
-        };
+        }; };
 
         //! A check box of the wizard's options.
-        const TextElement FormOptionsCheckBoxText{
+        AzQtComponents::Themed<TextElement> FormOptionsCheckBoxText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FormOptionsCheckBox",
             .m_pixelSize = 16,                                // ProjectManager.qss:177 (#formOptionsWidget QCheckBox) $type.check.idle.Alt2
-        };
+        }; };
 
         //! A tag chip of the tags field (#formTagField QCheckBox): light blue, disabled too: the window's sheet outranks the
         //! application's whatever the specificity (qstylesheetstyle.cpp:1689, qcssparser.cpp:2220-2222), so the grey of CheckBox.qss:19
         //! (QCheckBox:disabled) does not reach it.
-        const TextElement FormTagChipText{
+        AzQtComponents::Themed<TextElement> FormTagChipText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FormTagChip",
             .m_color = LinkBlue,                              // ProjectManager.qss:239 (#formTagField QCheckBox) $text.check.idle
-        };
+        }; };
 
         // ---- The create-a-gem wizard
 
         //! A step of the wizard's list: grey, white while checked.
-        const TextElement WizardStepRadioText{
+        AzQtComponents::Themed<TextElement> WizardStepRadioText = [] { return TextElement{
             .m_name = "ProjectManager.Text.WizardStepRadio",
             .m_pixelSize = 16,                                // ProjectManager.qss:80 (#createAGemLHS QRadioButton) $type.check.idle.Alt2
             // ProjectManager.qss:88 (#createAGemLHS QRadioButton:enabled) $text.check.idle.Alt1
             .m_color = QColor(0xAA, 0xAA, 0xAA),
             // ProjectManager.qss:84 (#createAGemLHS QRadioButton) $text.check.idle.Alt2
             .m_disabledColor = QColor(0x6B, 0x6B, 0x6B),
-        };
+        }; };
 
         // ---- Project settings and templates
 
         //! The small note under a project's preview (#projectSmallInfoLabel).
-        const TextElement SmallInfoText{
+        AzQtComponents::Themed<TextElement> SmallInfoText = [] { return TextElement{
             .m_name = "ProjectManager.Text.SmallInfo",
             .m_pixelSize = 10,                                // ProjectManager.qss:582 (#projectSmallInfoLabel) $type.label.idle.size.Alt8
-        };
+        }; };
 
         //! The label over the template chooser (#projectTemplateLabel): thin.
-        const TextElement ProjectTemplateLabelText{
+        AzQtComponents::Themed<TextElement> ProjectTemplateLabelText = [] { return TextElement{
             .m_name = "ProjectManager.Text.ProjectTemplateLabel",
             .m_pixelSize = 16,                                // ProjectManager.qss:504 (#projectTemplateLabel) $type.label.idle.size.Alt5
             .m_weight = 100,                                  // ProjectManager.qss:505 (#projectTemplateLabel) $type.label.idle.weight.Alt6
-        };
+        }; };
 
         //! The name of the checked template: bold.
-        const TextElement TemplateLabelCheckedText{
+        AzQtComponents::Themed<TextElement> TemplateLabelCheckedText = [] { return TextElement{
             .m_name = "ProjectManager.Text.TemplateLabelChecked",
             .m_pixelSize = 12,                                // Text.qss:92 (QLabel) $type.surface.idle.size $type.label.idle.size.Alt1
             // ProjectManager.qss:565 (#projectTemplate QPushButton[Checked="true"] #templateLabel) $type.label.idle.weight.Alt1
             .m_weight = 700,
-        };
+        }; };
 
         //! The label of the settings tab button.
-        const TextElement SettingsTabButtonText{
+        AzQtComponents::Themed<TextElement> SettingsTabButtonText = [] { return TextElement{
             .m_name = "ProjectManager.Text.SettingsTabButton",
             // ProjectManager.qss:603 (#projectSettingsTab::tab-bar > QPushButton) $type.button.idle.size.Alt3
             .m_pixelSize = 13,
-        };
+        }; };
 
         // ---- The gem catalog and the gem repositories
         // The header label of the gem repositories page (#gemRepoHeaderLabel { font-size: 12px }, ProjectManager.qss:1042-1044) states
         // the size every QLabel has (Text.qss:92), so no element names it.
 
         //! The count beside a filter.
-        const TextElement FilterCountText{
+        AzQtComponents::Themed<TextElement> FilterCountText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FilterCount",
             // ProjectManager.qss:998 (#GemCatalogFilterWidget #CountLabel) $type.label.idle.size.Alt1
             .m_pixelSize = 12,
             // ProjectManager.qss:1001 (#GemCatalogFilterWidget #CountLabel) $text.label.idle.Alt3
             .m_color = LinkBlue,
-        };
+        }; };
 
         //! The title of a filter category (#GemCatalogFilterCategoryTitle). Its white is the flat palette's WindowText (Style.cpp), as
         //! for every label of the filter pane: #GemCatalogFilterWidget #FilterByLabel and QLabel (ProjectManager.qss:990-995, color
         //! #ffffff) restate it, so no element carries them. The count (FilterCountText) and the links set their own.
-        const TextElement FilterCategoryTitleText{
+        AzQtComponents::Themed<TextElement> FilterCategoryTitleText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FilterCategoryTitle",
             // ProjectManager.qss:985 (#GemCatalogFilterCategoryTitle) $type.label.idle.size.Alt1
             .m_pixelSize = 12,
             // ProjectManager.qss:986 (#GemCatalogFilterCategoryTitle) $type.label.idle.weight.Alt4
             .m_weight = 600,
-        };
+        }; };
 
         //! The text of a filter tag (#FilterTagWidgetTextLabel).
-        const TextElement FilterTagTextText{
+        AzQtComponents::Themed<TextElement> FilterTagTextText = [] { return TextElement{
             .m_name = "ProjectManager.Text.FilterTagText",
             // ProjectManager.qss:916 (#FilterTagWidgetTextLabel) $type.label.idle.size.Alt8
             .m_pixelSize = 10,
             // ProjectManager.qss:915 (#FilterTagWidgetTextLabel) $text.label.idle.Alt3
             .m_color = LinkBlue,
-        };
+        }; };
 
         //! The count over the gem list: italic.
-        const TextElement GemListCountText{
+        AzQtComponents::Themed<TextElement> GemListCountText = [] { return TextElement{
             .m_name = "ProjectManager.Text.GemListCount",
             // ProjectManager.qss:877 (#GemCatalogHeaderShowCountLabel), Text.qss:92 (QLabel) $type.label.idle.size.Alt1
             .m_pixelSize = 12,
             // ProjectManager.qss:878 (#GemCatalogHeaderShowCountLabel) $type.label.idle.font.Alt2
             .m_italic = 1,
-        };
+        }; };
 
         //! The notices of the gem inspector.
-        const TextElement InspectorNoticeText{
+        AzQtComponents::Themed<TextElement> InspectorNoticeText = [] { return TextElement{
             .m_name = "ProjectManager.Text.InspectorNotice",
             // ProjectManager.qss:851 $type.label.idle.size.Alt8 (#GemCatalogInspector #GemCatalogCompatibilityWarning),
             // :851 (#GemCatalogInspector #GemCatalogRequirements)
@@ -1965,43 +1993,43 @@ namespace O3DE::ProjectManager
             // ProjectManager.qss:852 $text.label.idle.Alt7 (#GemCatalogInspector #GemCatalogCompatibilityWarning),
             // :852 (#GemCatalogInspector #GemCatalogRequirements)
             .m_color = BodyText,
-        };
+        }; };
 
         //! The small text of a gem sub-widget (#gemSubWidgetTextLabel).
-        const TextElement InspectorSubTextText{
+        AzQtComponents::Themed<TextElement> InspectorSubTextText = [] { return TextElement{
             .m_name = "ProjectManager.Text.InspectorSubText",
             // ProjectManager.qss:936 (#gemSubWidgetTextLabel) $type.label.idle.size.Alt8
             .m_pixelSize = 10,
             // ProjectManager.qss:935 (#gemSubWidgetTextLabel) $text.label.idle.Alt7
             .m_color = BodyText,
-        };
+        }; };
 
         //! A section title of the cart (#GemCatalogCartOverlaySectionLabel).
-        const TextElement CartSectionLabelText{
+        AzQtComponents::Themed<TextElement> CartSectionLabelText = [] { return TextElement{
             .m_name = "ProjectManager.Text.CartSectionLabel",
             .m_pixelSize = 12,                                // Text.qss:92 (QLabel) $type.surface.idle.size $type.label.idle.size.Alt1
             // ProjectManager.qss:821 (#GemCatalogCartOverlaySectionLabel) $type.label.idle.weight.Alt4
             .m_weight = 600,
-        };
+        }; };
 
         //! The title of an item or a section.
-        const TextElement ItemTitleText{
+        AzQtComponents::Themed<TextElement> ItemTitleText = [] { return TextElement{
             .m_name = "ProjectManager.Text.ItemTitle",
             // ProjectManager.qss:523 (#projectTemplateDetails #displayName), :523 (#projectTemplateDetails #includedGemsTitle), :577
             // (#projectSettingsSectionTitle), :807 (#GemCatalogTitle), :1104 (#gemRepoInspectorNameLabel) $type.label.idle.size.Alt3
             .m_pixelSize = 18,
-        };
+        }; };
 
         //! The title of a group in an inspector.
-        const TextElement SectionTitleText{
+        AzQtComponents::Themed<TextElement> SectionTitleText = [] { return TextElement{
             .m_name = "ProjectManager.Text.SectionTitle",
             // ProjectManager.qss:931 (#gemSubWidgetTitleLabel), :961 (#GemCatalogInspector QLabel[class="title"]), :1047
             // (#gemRepoNoReposLabel), :1114 (#gemRepoInspectorAddInfoTitleLabel) $type.label.idle.size.Alt5
             .m_pixelSize = 16,
-        };
+        }; };
 
         //! The buttons of the gem pages: semi-bold.
-        const TextElement GemRepoAddButtonText{
+        AzQtComponents::Themed<TextElement> GemRepoAddButtonText = [] { return TextElement{
             .m_name = "ProjectManager.Text.GemRepoAddButton",
             // ProjectManager.qss:907, :1063, :1124 $type.button.idle.size.Alt1 (#GemCatalogInspector QPushButton, #gemRepoAddButton,
             // #gemRepoInspector QPushButton)
@@ -2009,30 +2037,30 @@ namespace O3DE::ProjectManager
             // ProjectManager.qss:908, :1064, :1125 $type.button.idle.weight.Alt3 (#GemCatalogInspector QPushButton, #gemRepoAddButton,
             // #gemRepoInspector QPushButton)
             .m_weight = 600,
-        };
+        }; };
 
         // ---- Dialogs and the toast
 
         //! The sub-title of a dialog (#dialogSubTitle).
-        const TextElement DialogSubtitleText{
+        AzQtComponents::Themed<TextElement> DialogSubtitleText = [] { return TextElement{
             .m_name = "ProjectManager.Text.DialogSubtitle",
             // ProjectManager.qss:477 (#dialogSubTitle) $type.label.idle.size.Alt2
             .m_pixelSize = 14,
             // ProjectManager.qss:478 (#dialogSubTitle) $type.label.idle.weight.Alt4
             .m_weight = 600,
-        };
+        }; };
 
         //! The address in the external link dialog.
-        const TextElement ExternalLinkText{
+        AzQtComponents::Themed<TextElement> ExternalLinkText = [] { return TextElement{
             .m_name = "ProjectManager.Text.ExternalLink",
             // ProjectManager.qss:492 (#ExternalLinkDialog #externalLink) $type.label.idle.size.Alt1
             .m_pixelSize = 12,
             // ProjectManager.qss:490 (#ExternalLinkDialog #externalLink) $text.label.idle.Alt3
             .m_color = LinkBlue,
-        };
+        }; };
 
         //! The instruction titles of the remote project dialog.
-        const TextElement RemoteInstructionText{
+        AzQtComponents::Themed<TextElement> RemoteInstructionText = [] { return TextElement{
             .m_name = "ProjectManager.Text.RemoteInstruction",
             // ProjectManager.qss:786 $type.label.idle.size.Alt2 (#remoteProjectDialogDownloadProjectLabel,
             // #remoteProjectDialogInstructionTitleLabel)
@@ -2042,10 +2070,10 @@ namespace O3DE::ProjectManager
             .m_weight = 600,
             // ProjectManager.qss:797 (#addRemoteProjectDialog > QLabel:disabled) $text.label.disabled.Alt3
             .m_disabledColor = FormDisabledText,
-        };
+        }; };
 
         //! The section titles of the remote project dialog: light.
-        const TextElement RemoteSectionText{
+        AzQtComponents::Themed<TextElement> RemoteSectionText = [] { return TextElement{
             .m_name = "ProjectManager.Text.RemoteSection",
             // ProjectManager.qss:792 $type.label.idle.size.Alt5 (#remoteProjectDialogLicensesTitleLabel,
             // #remoteProjectDialogRequirementsTitleLabel)
@@ -2055,47 +2083,47 @@ namespace O3DE::ProjectManager
             .m_weight = 300,
             // ProjectManager.qss:797 (#addRemoteProjectDialog > QLabel:disabled) $text.label.disabled.Alt3
             .m_disabledColor = FormDisabledText,
-        };
+        }; };
 
         //! Any other label of the remote project dialog: grey while disabled (#addRemoteProjectDialog > QLabel:disabled).
-        const TextElement RemoteLabelText{
+        AzQtComponents::Themed<TextElement> RemoteLabelText = [] { return TextElement{
             .m_name = "ProjectManager.Text.RemoteLabel",
             .m_pixelSize = 12,                                // Text.qss:92 (QLabel) $type.surface.idle.size $type.label.idle.size.Alt1
             // ProjectManager.qss:797 (#addRemoteProjectDialog > QLabel:disabled) $text.label.disabled.Alt3
             .m_disabledColor = FormDisabledText,
-        };
+        }; };
 
         //! The instruction of the add repository dialog.
-        const TextElement RepoInstructionText{
+        AzQtComponents::Themed<TextElement> RepoInstructionText = [] { return TextElement{
             .m_name = "ProjectManager.Text.RepoInstruction",
             // ProjectManager.qss:1068 (#gemRepoAddDialogInstructionTitleLabel) $type.label.idle.size.Alt2
             .m_pixelSize = 14,
             // ProjectManager.qss:1069 (#gemRepoAddDialogInstructionTitleLabel) $type.label.idle.weight.Alt1
             .m_weight = 700,
-        };
+        }; };
 
         //! The warning of the add repository dialog: italic.
-        const TextElement RepoWarningText{
+        AzQtComponents::Themed<TextElement> RepoWarningText = [] { return TextElement{
             .m_name = "ProjectManager.Text.RepoWarning",
             // ProjectManager.qss:1073 (#gemRepoAddDialogWarningLabel) $type.label.idle.size.Alt1
             .m_pixelSize = 12,
             // ProjectManager.qss:1074 (#gemRepoAddDialogWarningLabel) $type.label.idle.style
             .m_italic = 1,
-        };
+        }; };
 
         // ---- The tabs
 
         //! The tabs of the engine page (#engineTabBar::tab).
-        const TextElement TabBarEngineText{
+        AzQtComponents::Themed<TextElement> TabBarEngineText = [] { return TextElement{
             .m_name = "ProjectManager.Text.TabBarEngine",
             .m_pixelSize = 18,                                // ProjectManager.qss:1019 (#engineTabBar::tab) $type.tab.idle.size.Alt3
-        };
+        }; };
 
         //! The big tabs (QTabBar::tab, #projectSettingsTabBar::tab).
-        const TextElement TabBarText{
+        AzQtComponents::Themed<TextElement> TabBarText = [] { return TextElement{
             .m_name = "ProjectManager.Text.TabBar",
             .m_pixelSize = 24,                                // ProjectManager.qss:70 (QTabBar::tab) $type.tab.idle.size.Alt2
-        };
+        }; };
 
         void registerTexts()
         {
@@ -2245,7 +2273,7 @@ namespace O3DE::ProjectManager
         const QColor EngineTabPressedText(0x66, 0xBC, 0xFA);
 
         //! QTabBar::tab: the tabs of the window (Projects, Gems, Engine)
-        const TabElement HeaderTab{
+        AzQtComponents::Themed<TabElement> HeaderTab = [] { return TabElement{
             .m_name = "ProjectManager.Tab.Header",
             // ProjectManager.qss:69 $fill.tab.idle.Clear, :73 $line.tab.idle.width.Alt3 $line.tab.idle.color.Clear (QTabBar::tab)
             // the text colour is BaseStyleSheet.qss:18 $text.surface.idle.Alt1
@@ -2280,10 +2308,10 @@ namespace O3DE::ProjectManager
             .m_paneFill = PageFill,
             // ProjectManager.qss:65 (QTabWidget::tab-bar left) $other.tab.idle.left.Alt2
             .m_barLeft = 78,
-        };
+        }; };
 
         //! #projectSettingsTabBar::tab: the same tabs, 50px tall, the bar 60px in
-        const TabElement SettingsTab{
+        AzQtComponents::Themed<TabElement> SettingsTab = [] { return TabElement{
             .m_name = "ProjectManager.Tab.Settings",
             // ProjectManager.qss:69 $fill.tab.idle.Clear, :73 $line.tab.idle.width.Alt3 $line.tab.idle.color.Clear (QTabBar::tab)
             // the text colour is BaseStyleSheet.qss:18 $text.surface.idle.Alt1
@@ -2318,10 +2346,10 @@ namespace O3DE::ProjectManager
             .m_paneFill = PageFill,
             // ProjectManager.qss:586 (#projectSettingsTab::tab-bar left) $other.tab.idle.left.Alt3
             .m_barLeft = 60,
-        };
+        }; };
 
         //! #engineTabBar::tab: the sub-tabs of the engine page, in light blue, with no focus face
-        const TabElement EngineTab{
+        AzQtComponents::Themed<TabElement> EngineTab = [] { return TabElement{
             .m_name = "ProjectManager.Tab.Engine",
             // ProjectManager.qss:1017 $fill.tab.idle.Clear, :1018 $type.tab.idle.weight (#engineTabBar::tab)
             // ProjectManager.qss:73 $line.tab.idle.width.Alt3 $line.tab.idle.color.Clear (the edge)
@@ -2354,7 +2382,7 @@ namespace O3DE::ProjectManager
             .m_paneFill = PageFill,
             // ProjectManager.qss:1012 (#engineTab::tab-bar left) $other.tab.idle.left.Alt3
             .m_barLeft = 60,
-        };
+        }; };
 
         void registerTabs()
         {
@@ -2390,28 +2418,28 @@ namespace O3DE::ProjectManager
         //! The header (GemListHeaderWidget): the fill of its sheet. A plain widget in it (the tags' container) has no element: the fill
         //! it had is this one's, and the header shows through. The count and the refresh button have their own (GemListCount,
         //! GemListRefreshButton); the line below them is the next element.
-        const BoxElement GemListHeader{
+        AzQtComponents::Themed<BoxElement> GemListHeader = [] { return BoxElement{
             .m_name = "ProjectManager.Box.GemListHeader",
             .m_idle = { .m_fill = QBrush(GemListHeaderFill) },    // GemListHeaderWidget.cpp:31
-        };
+        }; };
 
         //! The line under the header's widgets (a QFrame HLine named #horizontalSeparatingLine): the fill of the header's sheet, over
         //! the divider's own (BaseStyleSheet.qss:41-48: the inline sheet outranks the application's), in the divider's colour, which
         //! the header's sheet leaves alone (ProjectManager.qss:482). The sheet's rule names no shape; the shapes below are the divider's
         //! list (BaseStyleSheet.qss:41-45), which holds the HLine the matcher names, and the line is the only widget it reaches.
-        const FrameElement GemListHeaderSeparator{
+        AzQtComponents::Themed<FrameElement> GemListHeaderSeparator = [] { return FrameElement{
             .m_name = "ProjectManager.Frame.GemListHeaderSeparator",
             .m_fill = GemListHeaderFill,                          // GemListHeaderWidget.cpp:31
             .m_fillShapes = FrameElement::PanelShapes,            // the divider's shapes, with the HLine (BaseStyleSheet.qss:41-45)
             // $text.surface.idle.Alt4 (the divider's own; ProjectManager.qss:482 #horizontalSeparatingLine)
             .m_foreground = QColor(0x66, 0x66, 0x66),
-        };
+        }; };
 
         //! A tag of the filter (FilterTagWidget): the fill of its sheet, which also reached its label, on the same fill.
-        const BoxElement FilterTag{
+        AzQtComponents::Themed<BoxElement> FilterTag = [] { return BoxElement{
             .m_name = "ProjectManager.Box.FilterTag",
             .m_idle = { .m_fill = QBrush(FilterTagFill) },        // GemFilterTagWidget.cpp:29
-        };
+        }; };
 
         //! The button that removes a tag, a flat push button with no border and no fill of its own, which Qt sizes by its icon alone.
         const BoxElement FilterTagClose{
@@ -2423,28 +2451,28 @@ namespace O3DE::ProjectManager
         // ---- The popup of the tags field's completer
 
         // $fill.surface.idle.Low (ProjectManagerCompleterPopup.qss:2 `background: #333333;`)
-        const QColor CompleterPopupFill = AzQtComponents::Foundations::Low;
+        const QColor& CompleterPopupFill = AzQtComponents::Foundations::Low;
         // $fill.surface.selected.Mid (ProjectManagerCompleterPopup.qss:4 `selection-background-color:#444444;`)
-        const QColor CompleterPopupSelection = AzQtComponents::Foundations::Mid;
+        const QColor& CompleterPopupSelection = AzQtComponents::Foundations::Mid;
 
         //! The list the completer pops up (a QListView with no parent, named #formCompleterPopup, FormLineEditTagsWidget.cpp): the
         //! fill of its sheet over the margin and the border an item view has (QDockWidget.qss:35, TableView.qss:28).
-        const BoxElement CompleterPopup{
+        AzQtComponents::Themed<BoxElement> CompleterPopup = [] { return BoxElement{
             .m_name = "ProjectManager.Box.CompleterPopup",
             .m_hasBox = true,                                     // a margin or padding of 0: QDockWidget.qss:35 (QAbstractScrollArea)
             .m_nativeBorder = false,                              // border: TableView.qss:28 (QListView)
             .m_idle = { .m_fill = QBrush(CompleterPopupFill) },   // ProjectManagerCompleterPopup.qss:2
-        };
+        }; };
 
         //! The roles of its items: the selection colours of the sheet, over the item rules of every list (TableView.qss:31-60, which the
         //! sheet's `QListView` rule does not reach: a selected row is filled by the item's rule). `color: #ffffff` (:3) is the
         //! application's own (BaseStyleSheet.qss:18).
-        const ItemViewElement CompleterPopupItems{
+        AzQtComponents::Themed<ItemViewElement> CompleterPopupItems = [] { return ItemViewElement{
             .m_name = "ProjectManager.ItemView.CompleterPopup",
             .m_selection = CompleterPopupSelection,               // ProjectManagerCompleterPopup.qss:4
             // $text.surface.selected.Alt1 (ProjectManagerCompleterPopup.qss:5 `selection-color: #ffffff;`)
             .m_selectionText = QColor(0xFF, 0xFF, 0xFF),
-        };
+        }; };
 
         // ---- The text of the links and of the gem inspector's labels: sheets built from a size and a colour
 
@@ -2467,7 +2495,7 @@ namespace O3DE::ProjectManager
         constexpr StyledLabelValues InspectorBodyValues{ GemInspector::s_baseFontSize, GemInspector::s_textColor };
 
         // (GemInspector::s_headerColor) $text.header.idle.Alt2 (GemInspector.h:65 s_headerColor)
-        const QColor InspectorHeaderColor(0xFF, 0xFF, 0xFF);
+        const QColor& InspectorHeaderColor = AzQtComponents::Foundations::Text::Primary;
         // (GemInspector::s_textColor) $text.surface.idle.Alt12 (GemInspector.h:66 s_textColor)
         const QColor InspectorBodyColor(0xDD, 0xDD, 0xDD);
 
@@ -2507,41 +2535,41 @@ namespace O3DE::ProjectManager
         //! A link of 10px, the size LinkLabel's constructor defaults to (LinkWidget.h:28): the filter's "see all", the inspector's
         //! directory, documentation and download links, the repository inspector's copy link. A font keeps what an element set, so
         //! the link that leaves its hover state (LinkLabel10HoverText) is told to end the underline.
-        const TextElement LinkLabel10Text{
+        AzQtComponents::Themed<TextElement> LinkLabel10Text = [] { return TextElement{
             .m_name = "ProjectManager.Text.LinkLabel10",
             .m_pixelSize = LinkSizeDefault,                       // font-size: LinkWidget.cpp:76, the size of LinkWidget.h:28
             // LinkWidget.cpp:76 sets none (the hover sheet, :56, does) (LinkLabel::SetDefaultStyle) $type.surface.idle.decoration.Alt2
             .m_underline = 0,
             .m_color = LinkLabelColor,                            // LinkWidget.cpp:76
-        };
+        }; };
 
         //! A link of 12px: the license link (GemInspector.cpp:466, s_baseFontSize GemInspector.h:62) and the repository link
         //! (GemRepoInspector.cpp:137).
-        const TextElement LinkLabel12Text{
+        AzQtComponents::Themed<TextElement> LinkLabel12Text = [] { return TextElement{
             .m_name = "ProjectManager.Text.LinkLabel12",
             // font-size: LinkWidget.cpp:76, with the size of GemInspector.h:62 and of GemRepoInspector.cpp:137
             .m_pixelSize = LinkSizeBase,
             // LinkWidget.cpp:76 sets none (the hover sheet, :56, does) (LinkLabel::SetDefaultStyle) $type.surface.idle.decoration.Alt2
             .m_underline = 0,
             .m_color = LinkLabelColor,                            // LinkWidget.cpp:76
-        };
+        }; };
 
         //! A link of 10px under the pointer: the hover sheet of LinkLabel::enterEvent is the idle one with `text-decoration:
         //! underline` (LinkWidget.cpp:56)
-        const TextElement LinkLabel10HoverText{
+        AzQtComponents::Themed<TextElement> LinkLabel10HoverText = [] { return TextElement{
             .m_name = "ProjectManager.Text.LinkLabel10Hover",
             .m_pixelSize = LinkSizeDefault,                       // font-size: LinkWidget.cpp:56
             .m_underline = 1,  // text-decoration: LinkWidget.cpp:56 (LinkLabel::enterEvent) $type.surface.idle.decoration.Alt1
             .m_color = LinkLabelColor,                            // LinkWidget.cpp:56
-        };
+        }; };
 
         //! A link of 12px under the pointer (LinkWidget.cpp:56)
-        const TextElement LinkLabel12HoverText{
+        AzQtComponents::Themed<TextElement> LinkLabel12HoverText = [] { return TextElement{
             .m_name = "ProjectManager.Text.LinkLabel12Hover",
             .m_pixelSize = LinkSizeBase,                          // font-size: LinkWidget.cpp:56
             .m_underline = 1,  // text-decoration: LinkWidget.cpp:56 (LinkLabel::enterEvent) $type.surface.idle.decoration.Alt1
             .m_color = LinkLabelColor,                            // LinkWidget.cpp:56
-        };
+        }; };
 
         //! The tooltip of a link (ElidingLabel::elide sets the full text where it is elided): the sheet of the link had no selector
         //! and so reached it. Qt resolved the tip through the link, which is under the pointer at the time of the tip: the text of the
@@ -2557,26 +2585,26 @@ namespace O3DE::ProjectManager
         };
 
         //! The gem's name over its inspector: 18px in the header colour (GemInspector.cpp:385).
-        const TextElement InspectorNameText{
+        AzQtComponents::Themed<TextElement> InspectorNameText = [] { return TextElement{
             .m_name = "ProjectManager.Text.InspectorName",
             .m_pixelSize = InspectorNameSize,                     // font-size: GemInspector.cpp:385
             .m_color = InspectorHeaderColor,                      // color: GemInspector.cpp:385
-        };
+        }; };
 
         //! The creator, the summary and the license label of the inspector: the base size in the header colour (GemInspector.cpp:386,
         //! :449, :463).
-        const TextElement InspectorHeaderText{
+        AzQtComponents::Themed<TextElement> InspectorHeaderText = [] { return TextElement{
             .m_name = "ProjectManager.Text.InspectorHeader",
             .m_pixelSize = GemInspector::s_baseFontSize,          // font-size: GemInspector.h:62 (s_baseFontSize)
             .m_color = InspectorHeaderColor,                      // color: GemInspector.h:65 (s_headerColor)
-        };
+        }; };
 
         //! The last update and the binary size of the inspector: the base size in the text colour (GemInspector.cpp:513, :514).
-        const TextElement InspectorBodyText{
+        AzQtComponents::Themed<TextElement> InspectorBodyText = [] { return TextElement{
             .m_name = "ProjectManager.Text.InspectorBody",
             .m_pixelSize = GemInspector::s_baseFontSize,          // font-size: GemInspector.h:62 (s_baseFontSize)
             .m_color = InspectorBodyColor,                        // color: GemInspector.h:66 (s_textColor)
-        };
+        }; };
 
         void registerInlineSheets()
         {

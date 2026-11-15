@@ -20,6 +20,7 @@
 #include <AzFramework/IO/LocalFileIO.h>
 #include <AzFramework/Network/AssetProcessorConnection.h>
 #include <AzFramework/StringFunc/StringFunc.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <AzToolsFramework/API/EditorPythonConsoleBus.h>
 #include <AzToolsFramework/API/EditorPythonRunnerRequestsBus.h>
 #include <AzToolsFramework/ActionManager/ActionManagerSystemComponent.h>
@@ -70,6 +71,8 @@ namespace AtomToolsFramework
             GetSettingsValue(AZ::SettingsRegistryMergeUtils::FilePathKey_EngineRootFolder, AZStd::string()));
         m_styleManager.reset(new AzQtComponents::StyleManager(this));
         m_styleManager->initialize(this, engineRootPath);
+        // Flattened GUI: the theme the user chose last
+        AzQtComponents::ThemeManager::restoreSavedTheme();
     }
 
     AtomToolsApplication ::~AtomToolsApplication()

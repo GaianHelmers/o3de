@@ -470,19 +470,19 @@ namespace AzQtComponents
         // Card.qss:103 `border: 1px solid #94D2FF; border-bottom: none` (:111 on the four edges)
         // $line.card.selected.width.Alt1
         constexpr int SelectedBorderWidth = 1;
-        constexpr QColor SelectedBorderColor = Foundations::Accent::Focus;         // Card.qss:103 $line.card.selected.color
+        const QColor& SelectedBorderColor = Foundations::Accent::Focus;         // Card.qss:103 $line.card.selected.color
         // Card.qss:179-180 (warning) and :105-106 (selected) `border-top-left-radius: 2px; border-top-right-radius: 2px`, and :112
         // `border-radius: 2px` on the four corners
         // $radius.card.selected
-        constexpr int TopCornerRadius = 2;
+        const int& TopCornerRadius = Foundations::Card::Radius;
 
         // ---- The fill of the box of #Background by the class of the header
         // Card.qss:153-158 (.primaryCardHeader) and :127-132 (ContainerCardHeader) `background-color: #333333`. CardHeader.cpp:501
         // $fill.card.idle.Low $fill.surface.idle.Low
-        constexpr QColor HeaderColor = Foundations::Low;
+        const QColor& HeaderColor = Foundations::Card::HeaderFill;
         // Card.qss:160-164 (.secondaryCardHeader) `background-color: #555555`. CardHeader.cpp:501
         // $fill.card.idle.Highest
-        constexpr QColor SecondaryHeaderColor = Foundations::Highest;
+        const QColor& SecondaryHeaderColor = Foundations::Card::Fill;
 
         // ---- The warning tile: Card.qss:184
         // $asset.surface.idle.background-image.Alt3
@@ -593,7 +593,7 @@ namespace AzQtComponents
         const bool secondaryHeader = Style::hasClass(this, QStringLiteral("secondaryCardHeader"));
         // ColorPicker.qss:51-54 PaletteCardBase CardHeader { background-color: transparent }
         const bool paletteHeader = Selectors::childOfClass(this, "AzQtComponents::PaletteCardBase");
-        const qreal radius = (sectionHeader || containerHeader || secondaryHeader) ? 0.0 : 2.0;
+        const qreal radius = (sectionHeader || containerHeader || secondaryHeader) ? 0.0 : CardHeaderInternal::TopCornerRadius;
         const QRectF box(m_backgroundFrame->geometry());
 
         QPainter painter(this);

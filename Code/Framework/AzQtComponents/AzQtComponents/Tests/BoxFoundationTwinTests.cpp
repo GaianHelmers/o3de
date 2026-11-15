@@ -99,7 +99,7 @@ namespace AzQtComponents
         };
 
         // ---- F-reresolve. PropertyColorCtrl.cpp:338 `color: red;`
-        const TextElement InvalidHexText{ .m_name = "Test.Text.InvalidHex", .m_color = QColor(Qt::red) };
+        Themed<TextElement> InvalidHexText = [] { return TextElement{ .m_name = "Test.Text.InvalidHex", .m_color = QColor(Qt::red) }; };
 
         // #m_labelMotion { border: 1px solid red; } (BlendSpaceMotionContainerHandler.cpp:152) over Text.qss:93-94 (the margin of a label)
         const BoxElement MotionInvalid{
@@ -113,15 +113,19 @@ namespace AzQtComponents
 
         // The element of each family a widget of its class can have, for the test that every family resolves again
         const BoxElement ProbeBox{ .m_name = "Test.Box.Probe", .m_minSize = QSize(41, 17) };
-        const FrameElement ProbeFrame{ .m_name = "Test.Frame.Probe", .m_fill = QColor(0x12, 0x34, 0x56), .m_fillShapes = 0x3F };
+        Themed<FrameElement> ProbeFrame = [] {
+            return FrameElement{ .m_name = "Test.Frame.Probe", .m_fill = QColor(0x12, 0x34, 0x56), .m_fillShapes = 0x3F };
+        };
         const IndicatorElement ProbeIndicator{ .m_name = "Test.Indicator.Probe", .m_imageSize = QSize(11, 11) };
         const TabElement ProbeTab{ .m_name = "Test.Tab.Probe", .m_barFill = QColor(0x65, 0x43, 0x21) };
         const MenuElement ProbeMenu{ .m_name = "Test.Menu.Probe", .m_surface = QColor(0x21, 0x43, 0x65) };
-        const ItemViewElement ProbeView{ .m_name = "Test.ItemView.Probe", .m_itemHeight = 37 };
-        const TextElement ProbeText{ .m_name = "Test.Text.Probe", .m_color = QColor(0x11, 0x99, 0x33) };
+        Themed<ItemViewElement> ProbeView = [] { return ItemViewElement{ .m_name = "Test.ItemView.Probe", .m_itemHeight = 37 }; };
+        Themed<TextElement> ProbeText = [] { return TextElement{ .m_name = "Test.Text.Probe", .m_color = QColor(0x11, 0x99, 0x33) }; };
         //! The probe label's look without the state. The flattened Style gives no palette back when a text element's colour ends (HEAD's
         //! keep-or-forget), so a state that ends on a colour of its own gives that colour a static element too (plan D.25)
-        const TextElement ProbeTextIdle{ .m_name = "Test.Text.ProbeIdle", .m_color = QColor(0x33, 0x44, 0x55) };
+        Themed<TextElement> ProbeTextIdle = [] {
+            return TextElement{ .m_name = "Test.Text.ProbeIdle", .m_color = QColor(0x33, 0x44, 0x55) };
+        };
 
         // ---- F-dashed-edge. ParameterCreateEditWidget.cpp:83
         // QFrame#previewFrame { border: 2px dashed #979797; background-color: #85858580; }
@@ -264,7 +268,7 @@ namespace AzQtComponents
         };
 
         // color: black; of the same rule
-        const TextElement InsetText{ .m_name = "Test.Text.InsetText", .m_color = QColor(Qt::black) };
+        Themed<TextElement> InsetText = [] { return TextElement{ .m_name = "Test.Text.InsetText", .m_color = QColor(Qt::black) }; };
 
         // ---- F-groupbox-frame. KinematicDescriptionDialog.cpp:82-94
         // `background-color: rgb(51, 51, 51); border: 1px solid rgb(30, 112, 235);`

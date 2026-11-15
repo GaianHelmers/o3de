@@ -8,6 +8,7 @@
 
 #include <AzToolsFramework/UI/Logging/LogLine.h>
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzCore/XML/rapidxml.h>
 #include <AzCore/std/containers/list.h>
 #include <AzFramework/Logging/LogFile.h>
@@ -37,7 +38,8 @@ namespace AzToolsFramework
             constexpr QColor ContextBackground(32, 0, 32);    // LogLine.cpp:471 (LogLine::data) $fill.console.idle.Alt2
 
             // The text of the row
-            constexpr QColor MessageText(255, 255, 255);      // LogLine.cpp:480 (LogLine::data) $text.console.idle.Alt2
+            // LogLine.cpp:480 (LogLine::data) $text.console.idle.Alt2
+            const QColor& MessageText = AzQtComponents::Foundations::Text::Primary;
             constexpr QColor ErrorText(255, 192, 192);        // LogLine.cpp:482 (LogLine::data) $text.console.error.Alt3
             constexpr QColor WarningText(255, 255, 192);      // LogLine.cpp:484 (LogLine::data) $text.console.warning.Alt3
             constexpr QColor DebugText(128, 128, 128);        // LogLine.cpp:486 (LogLine::data) $text.console.idle.Alt10

@@ -26,9 +26,9 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
 
         // Splitter.qss:10 $fill.scroll-handle.idle.BG
-        const QColor HandleFill = Foundations::BG;
+        const QColor& HandleFill = Foundations::BG;
         // Splitter.qss:23 $fill.scroll-handle.hover
-        const QColor HandleHoverFill = Foundations::Accent::Primary;
+        const QColor& HandleHoverFill = Foundations::Accent::Primary;
         // Splitter.qss:18 $size.scroll-handle.idle.height
         constexpr int HandleThickness = 1;
 
@@ -38,12 +38,12 @@ namespace AzQtComponents
 
         //! `QSplitter::handle`, `::handle:vertical` and `::handle:hover` (Splitter.qss). The `:horizontal` rule's width (Splitter.qss:14)
         //! is never read: the width of a handle is asked with no option, in the state of a vertical one.
-        const SplitterElement GlobalHandle{
+        Themed<SplitterElement> GlobalHandle = [] { return SplitterElement{
             .m_name = "Global.Splitter.Handle",
             .m_thickness = HandleThickness,
             .m_fill = HandleFill,
             .m_hoverFill = HandleHoverFill,
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Helpers

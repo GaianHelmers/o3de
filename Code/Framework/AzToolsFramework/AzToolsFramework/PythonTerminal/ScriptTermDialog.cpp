@@ -27,6 +27,7 @@
 // AzQtComponents
 #include <AzQtComponents/Components/Widgets/ScrollBar.h>
 #include <AzQtComponents/Components/Elements/Foundations.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 
 // Editor
 #include "ScriptHelpDialog.h"
@@ -51,12 +52,13 @@ namespace AzToolsFramework
         const QColor LightBackground(Qt::white);  // ScriptTermDialog.cpp:100 (CScriptTermDialog::RefreshStyle) $fill.console.idle.Alt1
 
         // The dark console colour theme
-        const QColor DarkText(Qt::white);  // ScriptTermDialog.cpp:87 (CScriptTermDialog::RefreshStyle) $text.console.idle.Alt2
+        // ScriptTermDialog.cpp:87 (CScriptTermDialog::RefreshStyle) $text.console.idle.Alt2
+        const QColor& DarkText = AzQtComponents::Foundations::Console::Text;
         constexpr QColor DarkError(0xfa, 0x27, 0x27);  // ScriptTermDialog.cpp:88 (CScriptTermDialog::RefreshStyle) $text.console.error.Alt2
         // ScriptTermDialog.cpp:89 (CScriptTermDialog::RefreshStyle) $text.console.warning.Alt2
         constexpr QColor DarkWarning(0xff, 0xaa, 0x22);
         // ScriptTermDialog.cpp:95 (CScriptTermDialog::RefreshStyle) $fill.console.idle.BG
-        constexpr QColor DarkBackground = AzQtComponents::Foundations::BG;
+        const QColor& DarkBackground = AzQtComponents::Foundations::Console::Fill;
     }
 
     static constexpr const char* OtherCategory = "Other";
@@ -79,6 +81,22 @@ namespace AzToolsFramework
 
         InitCompleter();
         RefreshStyle();
+
+        // A change of theme that moves the console's colours shows at once (RefreshStyle writes the text again in them)
+        if (auto* themes = AzQtComponents::ThemeManager::instance())
+        {
+            using namespace ScriptTermDialogFlatInternal;
+            const auto refresh = [this, fill = QColor(DarkBackground), text = QColor(DarkText)]() mutable
+            {
+                if (fill != DarkBackground || text != DarkText)
+                {
+                    fill = DarkBackground;
+                    text = DarkText;
+                    RefreshStyle();
+                }
+            };
+            connect(themes, &AzQtComponents::ThemeManager::themeApplied, this, refresh);
+        }
 
         EditorPreferencesNotificationBus::Handler::BusConnect();
     }

@@ -6,6 +6,7 @@
  *
  */
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <EMotionFX/Source/AnimGraphNodeGroup.h>
 #include <MCore/Source/LogManager.h>
 #include <EMotionFX/CommandSystem/Source/AnimGraphConnectionCommands.h>
@@ -37,7 +38,8 @@ namespace EMStudio
     //////////////////////////////////////////////////////////////////////////
     namespace NodeGraphWidgetFlat
     {
-        constexpr QColor Background(47, 47, 47);  // NodeGraphWidget.cpp:251 (NodeGraphWidget::paintEvent) $fill.node.idle.Alt16
+        // NodeGraphWidget.cpp:251 (NodeGraphWidget::paintEvent) $fill.node.idle.Alt16
+        const QColor& Background = AzQtComponents::Foundations::Graph::AnimationFill;
         // NodeGraphWidget.cpp:270 (NodeGraphWidget::paintEvent) $fill.node.selected.Alt3
         constexpr QColor SelectionAltFill(0, 100, 200, 75);
         // NodeGraphWidget.cpp:271 (NodeGraphWidget::paintEvent) $line.node.selected.color.Alt2

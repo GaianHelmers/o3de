@@ -225,6 +225,9 @@
     <file>Widgets/VectorInput.qss</file>
     <file>Widgets/TreeViewConfig.ini</file>
 </qresource>
+<qresource prefix="/AzQtComponents/Themes">
+    <file alias="ModernBlueSteel.theme.json">../Themes/ModernBlueSteel.theme.json</file>
+</qresource>
 <qresource prefix="/stylesheet">
     <file>img/UI20/add-16.svg</file>
     <file>img/UI20/browse-edit.svg</file>

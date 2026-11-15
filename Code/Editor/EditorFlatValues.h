@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
+
 #include <QColor>
 #include <QString>
 
@@ -23,11 +25,11 @@ namespace EditorFlatValues
 
     // The line of the dividers by the Create button (framePreCreate, framePostCreate), a sheet on each:
     // `QFrame { color : rgb(34, 34, 34);}` (AzAssetBrowserWindow.ui:132, :206) $line.separator.idle.color.BG
-    inline constexpr QColor AssetBrowserCreateDividerLine(34, 34, 34);
+    inline const QColor& AssetBrowserCreateDividerLine = AzQtComponents::Foundations::BG;
 
     // The fill of the thumbnails (m_thumbnailView), a sheet on the view: `{ background-color: #333333; }`
     // (AzAssetBrowserWindow.ui:567) $fill.view.idle.Low
-    inline constexpr QColor AssetBrowserThumbnailsFill(0x33, 0x33, 0x33);
+    inline const QColor& AssetBrowserThumbnailsFill = AzQtComponents::Foundations::Low;
 
     // ------------------------------------------------------------------------------
     // The asset importer's root display (ImporterRootDisplay.ui, the form before the flattening)
@@ -35,7 +37,7 @@ namespace EditorFlatValues
 
     // The fill of the python builder frame (m_pythonBuilderLayout), a sheet on the frame: `background-color: #333333`
     // (ImporterRootDisplay.ui:79) $fill.surface.idle.Low
-    inline constexpr QColor AssetImporterPythonBuilderFill(0x33, 0x33, 0x33);
+    inline const QColor& AssetImporterPythonBuilderFill = AzQtComponents::Foundations::Low;
 
     // ------------------------------------------------------------------------------
     // The startup logo dialog (StartupLogoDialog.cpp, the splash screen and the About box). The lines cited are those of the file before
@@ -54,7 +56,7 @@ namespace EditorFlatValues
     // The text colour of the link of the About box (Terms of Use), a rule of its sheet:
     // `QLabel#link { text-decoration: underline; color: #94D2FF; }` (StartupLogoDialog.cpp:66 before the flattening).
     // CStartupLogoDialog::CStartupLogoDialog $text.surface.idle.Alt7
-    inline constexpr QColor StartupLinkText(0x94, 0xD2, 0xFF);
+    inline const QColor& StartupLinkText = AzQtComponents::Foundations::Accent::Focus;
 
     // ------------------------------------------------------------------------------
     // The text of the sheets the legacy GUI sets (StyleManager::setLegacyStyleSheet), byte for byte as the forms had them

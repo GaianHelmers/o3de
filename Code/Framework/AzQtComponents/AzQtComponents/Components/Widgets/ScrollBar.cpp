@@ -8,6 +8,7 @@
 
 #include <AzQtComponents/Components/Widgets/ScrollBar.h>
 #include <AzQtComponents/Components/Widgets/ScrollBarProperties.h>
+#include <AzQtComponents/Components/Theme/ThemeTokens.h>
 #include <AzQtComponents/Components/Style.h>
 #include <AzQtComponents/Components/StyleManager.h>
 #include <AzQtComponents/Components/ConfigHelpers.h>
@@ -65,9 +66,15 @@ namespace AzQtComponents
                     scrollArea->setAttribute(Qt::WA_Hover);
                     scrollArea->installEventFilter(this);
                     m_widgets.insert(widget, data);
-                    auto cornerWidget = new QWidget();
-                    cornerWidget->setProperty(ScrollBarProperties::ShowBackground, false);
-                    scrollArea->setCornerWidget(cornerWidget);
+                    // One corner per area, however often the area is polished: setCornerWidget hides the corner before and
+                    // keeps it, so a corner this watcher made at an earlier polish is used again
+                    QWidget* cornerWidget = scrollArea->cornerWidget();
+                    if (!cornerWidget || !cornerWidget->property(ScrollBarProperties::ShowBackground).isValid())
+                    {
+                        cornerWidget = new QWidget();
+                        cornerWidget->setProperty(ScrollBarProperties::ShowBackground, false);
+                        scrollArea->setCornerWidget(cornerWidget);
+                    }
                     cornerWidget->installEventFilter(this);
 
                     return true;
@@ -246,6 +253,9 @@ namespace AzQtComponents
         }
 
         scrollArea->setProperty(ScrollBarProperties::BackgroundColor, color);
+        // A token's colour is kept by the token's key too: an area made before the application has its theme, or one that
+        // lives through a change of theme, has the theme's value at its next polish (applyBackgroundColor)
+        scrollArea->setProperty(ScrollBarProperties::BackgroundToken, ThemeTokens::keyOf(&color));
         applyBackgroundColor(scrollArea);
     }
 
@@ -256,10 +266,20 @@ namespace AzQtComponents
             return;
         }
 
-        const QVariant background = widget->property(ScrollBarProperties::BackgroundColor);
+        QVariant background = widget->property(ScrollBarProperties::BackgroundColor);
         if (!background.isValid())
         {
             return;
+        }
+        // The colour was a token's: the theme's value of it now (the style draws the lanes and the corner from the property)
+        if (const QByteArray token = widget->property(ScrollBarProperties::BackgroundToken).toByteArray(); !token.isEmpty())
+        {
+            const QVariant themed = ThemeTokens::info(token).m_value;
+            if (themed.isValid() && themed != background)
+            {
+                background = themed;
+                widget->setProperty(ScrollBarProperties::BackgroundColor, background);
+            }
         }
 
         // The inline sheet's `background` filled the area, its viewport and the lanes of its scroll bars, in every state of the widget:

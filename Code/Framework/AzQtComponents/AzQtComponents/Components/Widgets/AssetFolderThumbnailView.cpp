@@ -105,11 +105,11 @@ namespace AzQtComponents
         // The thumbnails: what the delegate and the drag image paint outside the Config
         // ------------------------------------------------------------------------------
         // AssetFolderThumbnailView.cpp:192, :1469 (AssetFolderThumbnailView::CreateDragImage) $fill.view.idle.BG
-        constexpr QColor StatusSquare = Foundations::BG;
+        const QColor& StatusSquare = Foundations::BG;
         // AssetFolderThumbnailView.cpp:235 (white) (AssetFolderThumbnailViewDelegate::paint) $text.item.idle.Alt2
-        constexpr QColor ItemRichText(0xFF, 0xFF, 0xFF);
+        const QColor& ItemRichText = Foundations::Text::Primary;
         // AssetFolderThumbnailView.cpp:1415 (AssetFolderThumbnailView::CreateDragImage) $fill.view.drag.Highest
-        constexpr QColor DragStack = Foundations::Highest;
+        const QColor& DragStack = Foundations::Highest;
     } // namespace AssetFolderThumbnailViewFlat
 
     static void paintExpandButton(QPainter* painter, const QRect& rect, bool closed, const AssetFolderThumbnailView::Config::ExpandButton& config)

@@ -94,30 +94,30 @@ namespace SpinBoxPageFlat
     // ---- The elements
     //! `font: bold; color: <colour>;` as a label's own sheet: the shorthand sets the style to normal and the weight to bold and leaves
     //! the family and the size to the label rule of the application (Text.qss:91-92), so the element states those too
-    const TextElement SampleRedText{
+    AzQtComponents::Themed<TextElement> SampleRedText = [] { return TextElement{
         .m_name = "Gallery.Text.VectorSampleRed",
         .m_family = AzQtComponents::Foundations::Label::Family,
         .m_pixelSize = AzQtComponents::Foundations::Label::Size,
         .m_weight = SampleWeight,
         .m_italic = 0,  // SpinBoxPage::SpinBoxPage $type.field.idle.style.Alt1
         .m_color = SampleRed,
-    };
-    const TextElement SampleGreenText{
+    }; };
+    AzQtComponents::Themed<TextElement> SampleGreenText = [] { return TextElement{
         .m_name = "Gallery.Text.VectorSampleGreen",
         .m_family = AzQtComponents::Foundations::Label::Family,
         .m_pixelSize = AzQtComponents::Foundations::Label::Size,
         .m_weight = SampleWeight,
         .m_italic = 0,  // SpinBoxPage::SpinBoxPage $type.field.idle.style.Alt1
         .m_color = SampleGreen,
-    };
-    const TextElement SampleBlueText{
+    }; };
+    AzQtComponents::Themed<TextElement> SampleBlueText = [] { return TextElement{
         .m_name = "Gallery.Text.VectorSampleBlue",
         .m_family = AzQtComponents::Foundations::Label::Family,
         .m_pixelSize = AzQtComponents::Foundations::Label::Size,
         .m_weight = SampleWeight,
         .m_italic = 0,  // SpinBoxPage::SpinBoxPage $type.field.idle.style.Alt1
         .m_color = SampleBlue,
-    };
+    }; };
 
     // ---- The matchers
     //! The label of the vector element that has this coordinate, in the page's styleVectorInput: the label's own name first (the name

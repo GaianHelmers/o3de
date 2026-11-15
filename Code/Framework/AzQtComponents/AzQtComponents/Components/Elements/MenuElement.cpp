@@ -38,13 +38,13 @@ namespace AzQtComponents
 
         // ---- A popup menu
         // A menu below a TabWidget has the same fill: TabWidget.qss:31-34 `QMenu { background-color: #222222 }`
-        const QColor MenuFill = Foundations::BG;                    // Menu.qss:12 $fill.menu.idle
+        const QColor& MenuFill = Foundations::Menu::Fill;                    // Menu.qss:12 $fill.menu.idle
         constexpr int MenuPaddingV = 4;                             // Menu.qss:13 $space.menu.idle (top and bottom)
         constexpr int MenuPaddingH = 2;                             // Menu.qss:13 $space.menu.idle (left and right)
-        const QColor SelectedItemFill = Foundations::Mid;           // Menu.qss:20 $fill.item.selected.Mid
-        const QColor DisabledItemText = Foundations::Text::DisabledItem; // Menu.qss:25 $text.item.disabled.Highest
+        const QColor& SelectedItemFill = Foundations::Menu::SelectedFill;           // Menu.qss:20 $fill.item.selected.Mid
+        const QColor& DisabledItemText = Foundations::Text::DisabledItem; // Menu.qss:25 $text.item.disabled.Highest
         constexpr int SeparatorLineWidth = 1;                       // Menu.qss:31 $line.separator.idle.width
-        const QColor SeparatorLine(0x45, 0x45, 0x45);               // Menu.qss:31 $line.separator.idle.color
+        const QColor& SeparatorLine = Foundations::Menu::Separator;               // Menu.qss:31 $line.separator.idle.color
         constexpr int SeparatorMarginTop = 2;                       // Menu.qss:32 $space.separator.idle.margin-top
         constexpr int SeparatorMarginBottom = 3;                    // Menu.qss:33 $space.separator.idle.margin-bottom
 
@@ -59,7 +59,7 @@ namespace AzQtComponents
         // SearchAssetTypeSelectorWidget.cpp:87 sets the second sheet too, but nothing constructs that class (abandoned): no part here.
         // The fill of the sites above, the first EntityPropertyEditor.cpp:753 (EntityPropertyEditor::OnSearchContextMenu)
         // $fill.menu.FilledPopup.Low
-        const QColor FilledMenuFill = Foundations::Low;
+        const QColor& FilledMenuFill = Foundations::Low;
         constexpr const char* FilledPopupTag = "FilledPopup";       // the class tag markFilledPopup gives a menu, `.FilledPopup`
 
         // ---- The popup of the status bar's source control item
@@ -80,11 +80,11 @@ namespace AzQtComponents
         // MenuBar.qss:11-12 $size.menubar.idle.min-height $size.menubar.idle.height
         constexpr int BarHeight = 28;
         constexpr int BarLineWidth = 2;                             // MenuBar.qss:17 $line.menubar.idle.width
-        const QColor BarLine = Foundations::FarBG;                  // MenuBar.qss:18 $line.menubar.idle.color
+        const QColor& BarLine = Foundations::FarBG;                  // MenuBar.qss:18 $line.menubar.idle.color
         // MenuBar.qss:24-25 $space.item.idle.padding-left.Alt2 $space.item.idle.padding-right.Alt1
         constexpr int BarItemPadding = 14;
-        const QColor BarSelectedItemFill = Foundations::Highest;    // MenuBar.qss:30 $fill.item.selected.Highest
-        const QColor BarPressedItemFill = Foundations::BG;          // MenuBar.qss:35 $fill.item.pressed
+        const QColor& BarSelectedItemFill = Foundations::Menu::BarSelectedFill;    // MenuBar.qss:30 $fill.item.selected.Highest
+        const QColor& BarPressedItemFill = Foundations::Menu::BarPressedFill;          // MenuBar.qss:35 $fill.item.pressed
 
         // ------------------------------------------------------------------------------
         // Elements
@@ -92,7 +92,7 @@ namespace AzQtComponents
 
         //! QMenu, its ::item:selected and :disabled, and ::separator (Menu.qss), over the colour of the universal rule. The
         //! separator's `height: 0px` (Menu.qss:30) leaves its box to its margins and its border.
-        const MenuElement GlobalPopup{
+        Themed<MenuElement> GlobalPopup = [] { return MenuElement{
             .m_name = "Global.Menu.Popup",
             .m_surface = MenuFill,
             .m_paddingH = MenuPaddingH,
@@ -104,12 +104,12 @@ namespace AzQtComponents
             .m_separatorBorder = SeparatorLineWidth,
             .m_separatorMarginBottom = SeparatorMarginBottom,
             .m_separatorLine = SeparatorLine,
-        };
+        }; };
 
         //! The popup of the status bar's source control item: the popup in a margin of 8px on the left and right (Menu.qss:36-40), its
         //! text items 41px from the left (Menu.qss:42-45). The sheet style laid out the items of a menu whose item rule has a box itself
         //! (QStyleSheetStyle::sizeFromContents and drawControl, CT_MenuItem and CE_MenuItem), not the base style.
-        const MenuElement SourceControlPopup{
+        Themed<MenuElement> SourceControlPopup = [] { return MenuElement{
             .m_name = "Global.Menu.SourceControlPopup",
             .m_surface = MenuFill,
             .m_margin = QMargins(SourceControlMarginH, 0, SourceControlMarginH, 0),
@@ -123,13 +123,13 @@ namespace AzQtComponents
             .m_separatorBorder = SeparatorLineWidth,
             .m_separatorMarginBottom = SeparatorMarginBottom,
             .m_separatorLine = SeparatorLine,
-        };
+        }; };
 
         //! The popup on the fill of the four inline sheets: their `* { background-color }`, a menu's own sheet, outranks
         //! `QMenu { background-color }` (Menu.qss:12), whatever the specificity. Everything else is the popup's own: a rule with no
         //! pseudo-element does not reach the menu's ::item or ::separator (QStyleSheetStyle declarations: rules with pseudo elements
         //! do not cascade), and the menu rule has no border for `border: none` to replace.
-        const MenuElement FilledPopup{
+        Themed<MenuElement> FilledPopup = [] { return MenuElement{
             .m_name = "Global.Menu.FilledPopup",
             .m_surface = FilledMenuFill,
             .m_paddingH = MenuPaddingH,
@@ -141,11 +141,11 @@ namespace AzQtComponents
             .m_separatorBorder = SeparatorLineWidth,
             .m_separatorMarginBottom = SeparatorMarginBottom,
             .m_separatorLine = SeparatorLine,
-        };
+        }; };
 
         //! QMenuBar, its ::item, :selected and :pressed (MenuBar.qss), over the colour of the universal rule. The bar's font is the
         //! QMenuBar class font (TextElement.cpp).
-        const MenuBarElement GlobalBar{
+        Themed<MenuBarElement> GlobalBar = [] { return MenuBarElement{
             .m_name = "Global.Menu.Bar",
             .m_height = BarHeight,
             .m_borderWidth = BarLineWidth,
@@ -154,7 +154,7 @@ namespace AzQtComponents
             .m_text = Foundations::Surface::Text,
             .m_selectedFill = BarSelectedItemFill,
             .m_pressedFill = BarPressedItemFill,
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Helpers

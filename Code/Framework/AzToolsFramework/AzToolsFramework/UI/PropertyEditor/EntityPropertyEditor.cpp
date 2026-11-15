@@ -564,14 +564,14 @@ namespace AzToolsFramework
     {
         //! background-color: EntityPropertyEditor.ui:193 (the box), :381, :536, :750, :905, :943, :1141 (its six widgets), the
         //! form before the flattening $fill.surface.idle.Low
-        const QColor DarkBoxFill = AzQtComponents::Foundations::Low;
+        const QColor& DarkBoxFill = AzQtComponents::Foundations::Low;
 
         //! The sheets the form gave them (EntityPropertyEditor.ui), which the legacy GUI sets, as the form wrote them: the fill is the
         //! three numbers of the constant the elements read
-        const QString DarkBoxSheet = QStringLiteral("QWidget#m_darkBox { background-color:rgb(%1, %2, %3) }")
-                                         .arg(DarkBoxFill.red()).arg(DarkBoxFill.green()).arg(DarkBoxFill.blue());
-        const QString DarkBoxPartSheet = QStringLiteral("background-color:rgb(%1, %2, %3)")
-                                             .arg(DarkBoxFill.red()).arg(DarkBoxFill.green()).arg(DarkBoxFill.blue());
+        AzQtComponents::Themed<QString> DarkBoxSheet = [] { return QStringLiteral("QWidget#m_darkBox { background-color:rgb(%1, %2, %3) }")
+                                         .arg(DarkBoxFill.red()).arg(DarkBoxFill.green()).arg(DarkBoxFill.blue()); };
+        AzQtComponents::Themed<QString> DarkBoxPartSheet = [] { return QStringLiteral("background-color:rgb(%1, %2, %3)")
+                                             .arg(DarkBoxFill.red()).arg(DarkBoxFill.green()).arg(DarkBoxFill.blue()); };
 
         //! The tints of the image dragged for a reordered component's row (createDragImage): its fill and its border.
         //! EntityPropertyEditor.cpp:5298 and :5400 (EntityPropertyEditor::StartDrag, EntityPropertyEditor::SetRowWidgetHighlighted)
@@ -603,7 +603,7 @@ namespace AzToolsFramework
         //! :306-332, :344-370 (m_entityIdLabel), :414-440, :452-478, :490-516 (m_entityIdText), :631-657, :669-695, :707-733
         //! (m_prefabContainerLabel), :777-803, :815-841, :853-879 (m_prefabContainerText), :1007-1033, :1045-1071, :1083-1109
         //! (m_statusLabel) $fill.header.idle.Low
-        constexpr QColor HeaderPaletteFill = AzQtComponents::Foundations::Low;
+        const QColor& HeaderPaletteFill = AzQtComponents::Foundations::Low;
 
         //! The palette the form gave a header label: the text colour in each group, and for the five labels in the dark box the fill
         QPalette headerLabelPalette(bool inDarkBox)
@@ -625,41 +625,41 @@ namespace AzToolsFramework
         }
 
         //! `QWidget#m_darkBox { background-color }`
-        const AzQtComponents::BoxElement DarkBox{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> DarkBox = [] { return AzQtComponents::BoxElement{
             .m_name = "Editor.Box.InspectorDarkBox",
             .m_idle = {
                 .m_fill = QBrush(DarkBoxFill),
             },
-        };
+        }; };
 
         //! The `background-color` of the five labels in the box, over the box of every label (`QLabel { margin-top: 1px;
         //! margin-bottom: 1px }`, Text.qss:93-94): an element is the whole definition of its frame, so it carries that margin, which
         //! Style gives a label without one (Style::subElementRect, SE_ShapedFrameContents)
-        const AzQtComponents::BoxElement DarkBoxLabel{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> DarkBoxLabel = [] { return AzQtComponents::BoxElement{
             .m_name = "Editor.Box.InspectorDarkBoxLabel",
             .m_margin = QMargins(0, AzQtComponents::Foundations::Label::MarginV, 0, AzQtComponents::Foundations::Label::MarginV),
             .m_idle = {
                 .m_fill = QBrush(DarkBoxFill),
             },
-        };
+        }; };
 
         //! The `background-color` of the line in the box: the fill, and the line's frame, which the style draws
-        const AzQtComponents::BoxElement DarkBoxLine{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> DarkBoxLine = [] { return AzQtComponents::BoxElement{
             .m_name = "Editor.Box.InspectorDarkBoxLine",
             .m_idle = {
                 .m_fill = QBrush(DarkBoxFill),
             },
-        };
+        }; };
 
         //! The tooltip of each of the five labels (m_entityIdLabel, m_prefabContainerLabel and m_statusLabel set one in the form;
         //! m_prefabContainerText, an ElidingLabel, shows its full text in one when it elides): `background-color:rgb(51, 51, 51)`
         //! (DarkBoxPartSheet) has no selector, so it reached the tip of the label it was set on (Qt resolves a tooltip through the
         //! widget it is shown for), and its declaration outranks `QToolTip { background-color: black }` (ToolTip.qss:13). The same
         //! fill as the label's: DarkBoxFill. The text keeps the tip's own (the sheet had no `color` or `font`).
-        const AzQtComponents::ToolTipElement DarkBoxToolTip{
+        AzQtComponents::Themed<AzQtComponents::ToolTipElement> DarkBoxToolTip = [] { return AzQtComponents::ToolTipElement{
             .m_name = "Editor.ToolTip.InspectorDarkBox",
             .m_fill = DarkBoxFill,
-        };
+        }; };
 
         //! In the box (m_darkBox) of an inspector
         bool inDarkBox(const QWidget* widget)

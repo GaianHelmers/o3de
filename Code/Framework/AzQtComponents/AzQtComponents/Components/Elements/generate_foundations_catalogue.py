@@ -25,13 +25,21 @@ REPORT = os.path.join(HERE, "Foundations.md")
 # ------------------------------------------------------------------------------
 
 TOKEN_ID = re.compile(r"\$[a-z]+\.[A-Za-z0-9_+\-]+(?:\.[A-Za-z0-9_+\-]+)*")
-DECLARATION = re.compile(r"^\s*inline constexpr (?P<type>const char\*|QColor|QMargins|int)\s+(?P<name>\w+)\s*"
-                         r"(?:\((?P<args>[^)]*)\)|=\s*(?P<expr>[^;]+));\s*(?://\s*(?P<comment>.*))?$")
+# A token: inline ThemeColor Name{ value or the token it follows, "key", Level, "label" }; or the same line ending in a comma,
+# with the sentence on where the token shows on the next line
+TOKEN = re.compile(r'^\s*inline (?P<type>ThemeColor|ThemeInt|ThemeMargins|ThemeText)\s+(?P<name>\w+)\{ (?P<value>.+), '
+                   r'"(?P<key>[\w.]+)", (?P<level>Basic|Standard|Advanced), "(?P<label>[^"]*)"(?: \};|,)\s*$')
+# A constant, which no theme changes: inline constexpr QColor Name(r, g, b, a); or = Other;
+CONSTANT = re.compile(r"^\s*inline constexpr (?P<type>QColor)\s+(?P<name>\w+)\s*"
+                      r"(?:\((?P<args>[^)]*)\)|=\s*(?P<expr>[^;]+));\s*(?://\s*(?P<comment>.*))?$")
+LITERAL = re.compile(r"^(?:QColor|QMargins)\((?P<args>[^)]*)\)$")
 NAMESPACE_OPEN = re.compile(r"^\s*namespace (\w+)\s*$")
 NAMESPACE_CLOSE = re.compile(r"^\s*\} // namespace (\w+)\s*$")
 RULE = re.compile(r"^\s*// -{20,}\s*$")
 DOC = re.compile(r"^\s*//! ?(.*)$")
 FRAGMENT = re.compile(r"^Fragment of (\w+): (.*)$")
+# A comment line that is a citation and nothing else: File.qss:12, :14 ...
+CITATION = re.compile(r"^[\w/.\-]+\.(?:qss|ini|svg|json|cpp|hxx|h|ui):\d")
 DERIVED_ENTRY = re.compile(r"^\s*//   (\$\S+) \| (.*)$")
 DERIVED_MORE = re.compile(r"^\s*//     (\S.*)$")
 COMMENT = re.compile(r"^\s*// ?(.*)$")
@@ -43,10 +51,13 @@ class Token:
 
     def __init__(self, name, kind, section):
         self.name = name                # qualified below Foundations: "Text::Primary", "Mid"
-        self.kind = kind
+        self.kind = kind                # ThemeColor, ThemeInt, ThemeMargins, ThemeText, or QColor for a constant
         self.section = section
         self.value = ""
-        self.reads = ""                 # the token it takes its value from, if any
+        self.reads = ""                 # the token it follows, if any
+        self.key = ""                   # its key in a theme file; empty: a constant
+        self.level = ""
+        self.label = ""
         self.ids = []
         self.source = ""
         self.note = ""
@@ -73,10 +84,10 @@ class Derived:
 # Reading the header
 # ------------------------------------------------------------------------------
 
-def literal_value(kind, args):
+def literal_value(is_color, args):
     """The value a constructor writes: #RRGGBB[AA] for a colour, the four sides of margins."""
     numbers = [int(a.strip(), 0) for a in args.split(",") if a.strip()]
-    if kind == "QColor":
+    if is_color:
         return "#" + "".join("%02X" % n for n in numbers)
     return ", ".join(str(n) for n in numbers)
 
@@ -105,7 +116,7 @@ def read_header(path):
             index += 1
             continue
         opened, closed = NAMESPACE_OPEN.match(line), NAMESPACE_CLOSE.match(line)
-        declaration, doc_line = DECLARATION.match(line), DOC.match(line)
+        declaration, constant, doc_line = TOKEN.match(line), CONSTANT.match(line), DOC.match(line)
         entry, more = DERIVED_ENTRY.match(line), DERIVED_MORE.match(line)
         if opened and opened.group(1) == "Foundations":
             intro, doc = doc, []
@@ -115,11 +126,14 @@ def read_header(path):
             scope.pop()
         elif doc_line:
             doc.append(doc_line.group(1))
-        elif declaration:
-            token = read_declaration(declaration, scope, doc, sections[-1][0] if sections else "")
+        elif declaration or constant:
+            # The comment lines right above a declaration are its own: its source and its ids
+            section = sections[-1][0] if sections else ""
+            token = (read_token(declaration, scope, doc + pending, section) if declaration
+                     else read_constant(constant, scope, doc + pending, section))
             tokens[token.name] = token
             sections[-1][1].append(token.name)
-            doc = []
+            doc, pending = [], []
         elif entry:
             # The comment block right above a run of entries is their group's title
             if pending:
@@ -128,7 +142,9 @@ def read_header(path):
         elif more and derived:
             derived[-1].text += " " + more.group(1)
         elif COMMENT.match(line):
-            pending.append(COMMENT.match(line).group(1))
+            text = COMMENT.match(line).group(1)
+            if not text.startswith("----"):     # a sub-heading inside a namespace is nobody's comment
+                pending.append(text)
         else:
             doc, pending = [], []
         index += 1
@@ -136,15 +152,8 @@ def read_header(path):
     return intro, sections, tokens, derived
 
 
-def read_declaration(match, scope, doc, section):
-    token = Token("::".join(scope + [match.group("name")]), match.group("type"), section)
-    if match.group("args") is not None:
-        token.value = literal_value(token.kind, match.group("args"))
-    else:
-        expr = match.group("expr").strip()
-        token.value = expr if expr.startswith('"') or re.match(r"^-?\d+$", expr) else ""
-        token.reads = "" if token.value else expr
-    comment = match.group("comment") or ""
+def describe(token, doc, comment):
+    """The ids, the source and the note of a declaration from the comment lines above it and the comment behind it."""
     notes = []
     for text in doc:
         fragment = FRAGMENT.match(text)
@@ -154,8 +163,34 @@ def read_declaration(match, scope, doc, section):
         else:
             notes.append(text)
     token.ids = TOKEN_ID.findall(" ".join(doc) + " " + comment)
-    token.source = strip_ids(comment) or strip_ids(" ".join(n for n in notes if ".qss" in n or "::" in n))
-    token.note = strip_ids(" ".join(n for n in notes if not (".qss" in n and not token.fragment_of)))
+    cited = [n for n in notes if CITATION.match(n)]
+    token.source = strip_ids(comment) or strip_ids(" ".join(n for n in notes if n in cited or ".qss" in n or "::" in n or "BJDS" in n))
+    token.note = strip_ids(" ".join(n for n in notes
+                                    if n not in cited and not ((".qss" in n or "BJDS" in n) and not token.fragment_of)))
+
+
+def read_token(match, scope, doc, section):
+    token = Token("::".join(scope + [match.group("name")]), match.group("type"), section)
+    token.key, token.level, token.label = match.group("key"), match.group("level"), match.group("label")
+    value = match.group("value").strip()
+    literal = LITERAL.match(value)
+    if literal:
+        token.value = literal_value(value.startswith("QColor"), literal.group("args"))
+    elif value.startswith('"') or re.match(r"^-?\d+$", value):
+        token.value = value
+    else:
+        token.reads = value
+    describe(token, doc, "")
+    return token
+
+
+def read_constant(match, scope, doc, section):
+    token = Token("::".join(scope + [match.group("name")]), match.group("type"), section)
+    if match.group("args") is not None:
+        token.value = literal_value(True, match.group("args"))
+    else:
+        token.reads = match.group("expr").strip()
+    describe(token, [text for text in doc if not text.startswith("No paint")], match.group("comment") or "")
     return token
 
 
@@ -217,25 +252,26 @@ def write_catalogue(intro, sections, tokens, derived):
            "",
            "# Foundations: the token catalogue of the flattened GUI",
            ""] + render_doc(intro) + [
-           "The sections follow the header, from the primitive tiers down to the values derived from them.",
+           "The sections follow the header, from the primitive tiers down to the values derived from them. Key, Level and Label are",
+           "what a theme file and the theme editor use; a row without a key is a constant, which no theme changes.",
            ""]
     for heading, names in sections:
         if not names:
             continue
-        out += heading_block(heading) + ["| Token | Root name | Value | Reads | Purpose ids | Source | Note |",
-                                         "|---|---|---|---|---|---|---|"]
+        out += heading_block(heading) + ["| Token | Root name | Key | Level | Label | Value | Follows | Purpose ids | Source | Note |",
+                                         "|---|---|---|---|---|---|---|---|---|---|"]
         for name in names:
             t = tokens[name]
             note = ("Fragment of %s: " % t.fragment_of if t.fragment_of else "") + t.note
-            out.append("| `%s` | `%s` | %s | %s | %s | %s | %s |" % (name, t.root(), cell(t.value), "`%s`" % t.reads if t.reads else "",
-                                                                    cell(" ".join(t.purpose_ids())), cell(t.source),
-                                                                    cell(note.strip())))
+            out.append("| `%s` | `%s` | %s | %s | %s | %s | %s | %s | %s | %s |" % (
+                name, t.root(), "`%s`" % t.key if t.key else "", t.level, cell(t.label), cell(t.value),
+                "`%s`" % t.reads if t.reads else "", cell(" ".join(t.purpose_ids())), cell(t.source), cell(note.strip())))
         out.append("")
     fragments = [t for t in tokens.values() if t.fragment_of]
     if fragments:
         out += ["## Fragments", "",
-                "A fragment equals a tier's value but serves another purpose, so it is a token of its own: a theme that changes the",
-                "tier leaves it as it is.", "",
+                "A fragment equals a tier's value but serves another purpose, so it is a token of its own. It follows its tier until a",
+                "theme gives it a value: a scheme that moves the tiers moves it with them, and a theme may set it apart.", "",
                 "| Token | Value | Fragment of | Purpose |", "|---|---|---|---|"]
         for t in fragments:
             out.append("| `%s` | %s | `%s` | %s |" % (t.name, t.value, t.fragment_of, cell(t.note)))
@@ -265,14 +301,18 @@ def main():
     parser.add_argument("--check", action="store_true", help="exit 1 when Foundations.md is not what the header generates")
     args = parser.parse_args()
     intro, sections, tokens, derived = read_header(HEADER)
-    # The convention holds or nothing is written: every token carries its root name in the header
+    # The convention holds or nothing is written: every token carries its root name in the header, and its key is that name
     missing = [t.name for t in tokens.values() if t.root() not in t.ids]
     if missing:
         print("tokens without their root name in Foundations.h: " + ", ".join(missing))
         return 1
+    miskeyed = [t.name for t in tokens.values() if t.key and "$" + t.key != t.root()]
+    if miskeyed:
+        print("tokens whose key is not their root name: " + ", ".join(miskeyed))
+        return 1
     text = write_catalogue(intro, sections, tokens, derived)
     if args.check:
-        current = open(REPORT, encoding="utf-8").read() if os.path.exists(REPORT) else ""
+        current = open(REPORT, encoding="utf-8").read().replace("\r\n", "\n") if os.path.exists(REPORT) else ""
         if current != text:
             print("Foundations.md is not what Foundations.h generates: run generate_foundations_catalogue.py")
             return 1

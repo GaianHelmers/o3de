@@ -26,21 +26,25 @@ namespace AzQtComponents
         // Values
         // ------------------------------------------------------------------------------
 
-        const QColor PanelFill = Foundations::Mid;          // BaseStyleSheet.qss:47 $fill.surface.idle.Mid
-        const QColor SeparatorLine = Foundations::Text::Disabled;  // Card.qss:262 $text.surface.idle.Alt5
+        const QColor& PanelFill = Foundations::Mid;          // BaseStyleSheet.qss:47 $fill.surface.idle.Mid
+        const QColor& SeparatorLine = Foundations::Text::Disabled;  // Card.qss:262 $text.surface.idle.Alt5
 
         // ------------------------------------------------------------------------------
         // Elements
         // ------------------------------------------------------------------------------
 
         //! A frame no rule gave a background: a scroll area's, or a QFrame with a class tag no element names
-        const FrameElement ClearFrame{ .m_name = "Global.Frame.Clear" };
+        Themed<FrameElement> ClearFrame = [] { return FrameElement{ .m_name = "Global.Frame.Clear" }; };
 
         //! `.QFrame[frameShape]`: the dividers, boxes and panels a QFrame draws itself
-        const FrameElement PanelFrame{ .m_name = "Global.Frame.Panel", .m_fill = PanelFill, .m_fillShapes = FrameElement::PanelShapes };
+        Themed<FrameElement> PanelFrame = [] {
+            return FrameElement{ .m_name = "Global.Frame.Panel", .m_fill = PanelFill, .m_fillShapes = FrameElement::PanelShapes };
+        };
 
         //! `.separator`: the separator line of a Card
-        const FrameElement SeparatorFrame{ .m_name = "Global.Frame.Separator", .m_foreground = SeparatorLine };
+        Themed<FrameElement> SeparatorFrame = [] {
+            return FrameElement{ .m_name = "Global.Frame.Separator", .m_foreground = SeparatorLine };
+        };
 
         // ------------------------------------------------------------------------------
         // Helpers

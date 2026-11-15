@@ -10,6 +10,7 @@
 #include <AtomToolsFramework/PerformanceMonitor/PerformanceMonitorRequestBus.h>
 #include <AtomToolsFramework/Util/Util.h>
 #include <AtomToolsFramework/Window/AtomToolsMainWindow.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzCore/Name/Name.h>
 #include <AzCore/Utils/Utils.h>
 #include <AzCore/std/containers/map.h>
@@ -37,7 +38,7 @@ namespace AtomToolsFramework
     namespace AtomToolsMainWindowFlat
     {
         // AtomToolsMainWindow.cpp:193 (AtomToolsMainWindow::SetStatusMessage) $text.surface.idle.Alt8
-        constexpr QColor StatusMessageText(255, 255, 255);
+        const QColor& StatusMessageText = AzQtComponents::Foundations::Text::Primary;
         // AtomToolsMainWindow.cpp:198 (AtomToolsMainWindow::SetStatusWarning) $text.surface.warning.Alt1
         constexpr QColor StatusWarningText(255, 255, 0);
         // AtomToolsMainWindow.cpp:203 (AtomToolsMainWindow::SetStatusError) $text.surface.error.Alt1

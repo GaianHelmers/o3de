@@ -47,10 +47,13 @@ namespace AzQtComponents
     //! for the device ratio of the painter, not of the widget's screen
     static void drawFlattenedComboArrow(QPainter* painter, const QPoint& topLeft, bool enabled)
     {
-        CachedIcon(enabled
+        // The image as it is in O3DE Original; in the colour of the field's marks once a theme changes that (ThemedIcon)
+        const QString image = enabled
             ? QStringLiteral(":/stylesheet/img/UI20/combobox-arrow.svg")                     // ComboBox.qss:69 $asset.arrow.idle
             // ComboBox.qss:74 $asset.arrow.disabled, :66-67 $size.arrow.idle.width $size.arrow.idle.height
-            : QStringLiteral(":/stylesheet/img/UI20/combobox-arrow-disabled.svg")).paint(painter, QRect(topLeft, QSize(16, 16)));
+            : QStringLiteral(":/stylesheet/img/UI20/combobox-arrow-disabled.svg");
+        const ThemeColor& tint = enabled ? Foundations::Field::Glyph : Foundations::Field::DisabledText;
+        ThemedIcon(image, tint, tint).paint(painter, QRect(topLeft, QSize(16, 16)));
     }
 
     //! Everything private to this file that the flattened GUI adds. A named namespace, not an anonymous one: a unity build joins
@@ -77,18 +80,18 @@ namespace AzQtComponents
         //! ComboBox.qss:24, :35 $space.field.hover.margin.Alt2 $space.field.focus.margin.Alt2
         constexpr QMargins NoMargin(0, 0, 0, 0);
         const QColor HoverLine(0, 0, 0, 50);                // ComboBox.qss:28 $line.field.hover.color.Alt1
-        const BoxElement::Edges ErrorEdges = BoxElement::border(Field::ErrorLineWidth, Field::ErrorLine);
+        Themed<BoxElement::Edges> ErrorEdges = [] { return BoxElement::border(Field::ErrorLineWidth, Field::ErrorLine); };
 
         //! :focus, and an open popup (ComboBox.qss:31-42)
-        const BoxElement::Face FocusFace{ .m_fill = QBrush(Field::FocusFill),
+        Themed<BoxElement::Face> FocusFace = [] { return BoxElement::Face{ .m_fill = QBrush(Field::FocusFill),
             .m_edges = BoxElement::border(Field::FocusLineWidth, Field::FocusLine), .m_text = Field::Text, .m_margin = NoMargin,
-            .m_radius = Field::FocusRadius };
+            .m_radius = Field::FocusRadius }; };
 
         //! QComboBox, and :hover, :focus, an open popup and :disabled of it: a margin, the field's padding, height and radius, and no
         //! border (BaseStyleSheet.qss:79-80: a radius is a border of the rule's own); :hover and :focus take the margin away for a border
         //! and a larger radius. An open popup is `QComboBox[HasPopupOpen=true]` (:32-33), a property the combo box keeps while it shows
         //! its popup, which the style sees as QStyle::State_On (QComboBox::initStyleOption).
-        const BoxElement Combo{
+        Themed<BoxElement> Combo = [] { return BoxElement{
             .m_name = "Global.Box.ComboBox",
             .m_margin = QMargins(1, 1, 1, 1),               // ComboBox.qss:17 $space.field.idle.margin.Alt2
             .m_padding = Padding,
@@ -104,12 +107,12 @@ namespace AzQtComponents
                 { BoxElement::Checked, FocusFace },
                 { BoxElement::Disabled, { .m_fill = QBrush(Field::DisabledFill), .m_text = Field::DisabledText } },   // :53-57
             },
-        };
+        }; };
 
         //! QComboBox[HasError=true] (ComboBox.qss:44-51): the field's error margin, border and radius, over the box above. The rules of
         //! the other states set no margin, border or radius that outranks it (:22-42 come before it), so the border holds in them, with
         //! the fill of :focus and :disabled; an open popup (`[HasPopupOpen=true][HasPopupOpen=true]`, :33, one attribute more) outranks it.
-        const BoxElement ComboError{
+        Themed<BoxElement> ComboError = [] { return BoxElement{
             .m_name = "Global.Box.ComboBox.Error",
             .m_margin = Field::ErrorMargin,
             .m_padding = Padding,
@@ -123,7 +126,7 @@ namespace AzQtComponents
                 { BoxElement::Checked, FocusFace },
                 { BoxElement::Disabled, { .m_fill = QBrush(Field::DisabledFill), .m_edges = ErrorEdges, .m_text = Field::DisabledText } },
             },
-        };
+        }; };
 
         //! The look of a combo box that has no element of a module: the error one while it is in error
         const BoxElement* lookOf(const QWidget* comboBox)

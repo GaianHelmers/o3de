@@ -12,6 +12,7 @@
 #include <QStyleOptionGraphicsItem>
 
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/Theme/ThemeTokens.h>
 
 #include <Components/GridVisualComponent.h>
 #include <Components/GridVisualFlat.h>
@@ -235,6 +236,14 @@ namespace GraphCanvas
     void GridGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* /*widget*/)
     {
         GRAPH_CANVAS_DETAILED_PROFILE_FUNCTION();
+
+        // The tiles hold the colours of the theme they were made under (GridVisualFlat names tokens)
+        if (const int generation = AzQtComponents::ThemeTokens::generation(); generation != m_themeGeneration)
+        {
+            m_themeGeneration = generation;
+            CacheStencils();
+        }
+
         int lod = 0;
 
         qreal width = option->exposedRect.width();

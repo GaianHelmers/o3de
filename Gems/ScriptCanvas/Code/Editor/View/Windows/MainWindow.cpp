@@ -176,7 +176,7 @@ namespace ScriptCanvasEditor
         namespace Foundations = AzQtComponents::Foundations;
 
         // Sources: AzQtComponents Components/Widgets/ stylesheets as file:line, and Editor.qss.
-        const AzQtComponents::TabElement GraphTabs{
+        AzQtComponents::Themed<AzQtComponents::TabElement> GraphTabs = [] { return AzQtComponents::TabElement{
             .m_name = "ScriptCanvas.Tab.Graph",
             .m_barFill = Foundations::Mid,                                          // TabWidget.qss:28 $fill.surface.idle.Mid
             .m_barMinHeight = 28,                                                   // TabWidget.qss:46 $size.tab.idle.min-height.Alt1
@@ -221,7 +221,7 @@ namespace ScriptCanvasEditor
             .m_cornerMarginBottom = 9,                                              // TabWidgetActionToolBar.qss:1
             // TabWidget.qss:46 $other.tab.idle.widget-animation-duration
             .m_moveAnimationDuration = 0,                                           // TabWidget.qss:46
-        };
+        }; };
 
         void RegisterGraphTabElement()
         {

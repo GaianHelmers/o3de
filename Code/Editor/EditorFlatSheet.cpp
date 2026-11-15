@@ -64,7 +64,7 @@ namespace EditorFlatSheet
 
         //! The status bar of the Asset Editor (AssetEditorWidget.cpp:205 names it), a plain QWidget: a line on its top edge
         //! (`#AssetEditorStatusBar`, Editor.qss:180-183) over the transparent background of '*' (BaseStyleSheet.qss:17).
-        const BoxElement AssetEditorStatusBar{
+        AzQtComponents::Themed<BoxElement> AssetEditorStatusBar = [] { return BoxElement{
             .m_name = "Editor.Box.AssetEditorStatusBar",
             .m_nativeBorder = false,                                                // border-top is a border of its own (Editor.qss:182)
             .m_idle = {
@@ -72,7 +72,7 @@ namespace EditorFlatSheet
                 // Editor.qss:182 $line.surface.idle.width.Alt2 $line.surface.idle.color.FarBG
                 .m_edges = { { 2, Foundations::FarBG }, {}, {}, {} },
             },
-        };
+        }; };
 
         //! The row of the asset browser that holds the selection chip (AzAssetBrowserWindow.ui:377), a QFrame without a frame:
         //! a dark fill and no border (`AzAssetBrowserWindow #searchButtonContainer`, Editor.qss:20-24).
@@ -86,12 +86,12 @@ namespace EditorFlatSheet
 
         //! The 1px line under that row (AzAssetBrowserWindow.ui:411), a plain QWidget: a dark fill
         //! (`AzAssetBrowserWindow #m_separator`, Editor.qss:26-29).
-        const BoxElement AssetBrowserSeparator{
+        AzQtComponents::Themed<BoxElement> AssetBrowserSeparator = [] { return BoxElement{
             .m_name = "Editor.Box.AssetBrowserSeparator",
             .m_idle = {
                 .m_fill = QBrush(Foundations::BG),                                  // Editor.qss:28 $fill.surface.idle.BG
             },
-        };
+        }; };
 
         //! The tree of the Add Component popup (`AzToolsFramework--ComponentPaletteWidget > QTreeView { background-color: #222222 }`,
         //! Editor.qss:38-41), a QTreeView named Tree (ComponentPaletteWidget.ui). The rule fills the whole scroll area, so the lane of its scroll
@@ -99,24 +99,24 @@ namespace EditorFlatSheet
         //! the tree's right edge) where f5 shows the popup's #383a3b through it, the viewport only having the fill by the palette that
         //! ComponentPaletteWidget.cpp:88-107 gives the tree. A margin of 0 as every scroll area has (QDockWidget.qss:35), no border
         //! (TableView.qss:28).
-        const BoxElement ComponentPaletteTree{
+        AzQtComponents::Themed<BoxElement> ComponentPaletteTree = [] { return BoxElement{
             .m_name = "Editor.Box.ComponentPaletteTree",
             .m_hasBox = true,                                                       // margin: 0, QDockWidget.qss:35 (QAbstractScrollArea)
             .m_nativeBorder = false,                                                // border: none, TableView.qss:28 (QTreeView)
             .m_idle = {
                 .m_fill = QBrush(Foundations::BG),                                  // Editor.qss:40 $fill.view.idle.fill.BG
             },
-        };
+        }; };
 
         //! The node palettes of the Script Canvas and the Landscape Canvas (`GraphCanvas--NodePaletteTreeView { selection-background-color:
         //! rgba(255, 255, 255, 41) }`, Editor.qss:109-113: "Set the Script Canvas search highlight color"): the role of the tree's selection,
         //! which the highlight of a search match is drawn with. The fill of a selected item stays the Global one, rgb(101,101,101), whose
         //! `::item:selected` rule outranks the role (TableView.qss:42-50). The role is Native's (the n2 palette dumps of both node palettes hold
         //! Highlight #29ffffff, the sheet's rgba(255,255,255,41)).
-        const ItemViewElement NodePaletteTree{
+        AzQtComponents::Themed<ItemViewElement> NodePaletteTree = [] { return ItemViewElement{
             .m_name = "Editor.ItemView.NodePaletteTree",
             .m_selection = QColor(255, 255, 255, 41),                               // Editor.qss:112 $fill.view.idle.selection-fill.Alt2
-        };
+        }; };
 
         //! The template list of the New Level dialog: the dialog sets `QListWidget::item { height: 148px; padding-left: 0px;
         //! padding-right: 0px; background-color: transparent }` on itself in the legacy GUI (NewLevelDialog.cpp:84,
@@ -125,7 +125,7 @@ namespace EditorFlatSheet
         //! specificity: QCss::StyleSelector::matchRule), so the items are 148px high with no padding and no fill in any state: the
         //! transparent background beats the application's `::item:selected` and `::item:hover` rules (TableView.qss:42-60). The Global
         //! list's items have 4px of padding at the left (TableView.qss:31-40), which this rule took away.
-        const ItemViewElement NewLevelTemplateList{
+        AzQtComponents::Themed<ItemViewElement> NewLevelTemplateList = [] { return ItemViewElement{
             .m_name = "Editor.ItemView.NewLevelTemplateList",
             .m_itemHeight = 148,  // height: NewLevelDialog.cpp:84 (CNewLevelDialog::CNewLevelDialog) $size.item.idle.Alt2
             // padding-left, padding-right: NewLevelDialog.cpp:84 (CNewLevelDialog::CNewLevelDialog) $space.item.idle.padding.Alt1
@@ -136,7 +136,7 @@ namespace EditorFlatSheet
                 // CNewLevelDialog::CNewLevelDialog, and over ::item:hover $fill.item.hover.Clear
                 { ItemViewElement::Hover, { Foundations::Clear, QColor(), QColor() } },
             },
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Matchers: the selectors that gave each rule its widgets
@@ -199,8 +199,8 @@ namespace EditorFlatSheet
 
         //! The box of every label (`QLabel { margin-top: 1px; margin-bottom: 1px }`, Text.qss:93-94), which the labels below the
         //! header keep under its rules
-        constexpr QMargins HeaderLabelMargin(
-            0, AzQtComponents::Foundations::Label::MarginV, 0, AzQtComponents::Foundations::Label::MarginV);
+        AzQtComponents::Themed<QMargins> HeaderLabelMargin = [] { return QMargins(
+            0, AzQtComponents::Foundations::Label::MarginV, 0, AzQtComponents::Foundations::Label::MarginV); };
 
         //! `Ui--AssetEditorHeader { margin: 0px; padding: 0px }` (:57-61): the header, a box with nothing around its contents, over
         //! the transparent background of '*' (BaseStyleSheet.qss:17). It has no frame, so its contents fill it, as Qt had them.
@@ -233,36 +233,36 @@ namespace EditorFlatSheet
 
         //! `Ui--AssetEditorHeader #Name` (:79-84): the name, and the label it measures its hint with. The transparent background
         //! (:83) outranks the header's fill of :66, so the bar shows through; the box is every label's.
-        const BoxElement AssetEditorHeaderName{
+        AzQtComponents::Themed<BoxElement> AssetEditorHeaderName = [] { return BoxElement{
             .m_name = "Editor.Box.AssetEditorHeaderName",
             .m_margin = HeaderLabelMargin,                                          // Text.qss:93-94
             .m_size = QSize(-1, 16),  // height: Editor.qss:81 (not applied) $size.surface.idle.size.Alt1
             .m_idle = {
                 .m_fill = QBrush(AzQtComponents::Foundations::Clear),  // background-color: Editor.qss:83 $fill.surface.idle.Clear
             },
-        };
+        }; };
 
         //! `Ui--AssetEditorHeader *` (:63-67) on the icon label, the one widget below the header that no rule of its own names: the
         //! header's fill, drawn over the bar's same fill, in the box of every label
-        const BoxElement AssetEditorHeaderLabel{
+        AzQtComponents::Themed<BoxElement> AssetEditorHeaderLabel = [] { return BoxElement{
             .m_name = "Editor.Box.AssetEditorHeaderLabel",
             .m_margin = HeaderLabelMargin,                                          // Text.qss:93-94
             .m_size = QSize(-1, 16),  // height: Editor.qss:65 (not applied) $size.surface.idle.size.Alt1
             .m_idle = {
                 .m_fill = QBrush(QColor(0x27, 0x27, 0x27)),                         // Editor.qss:66 $fill.header.idle.Alt4
             },
-        };
+        }; };
 
         //! The font of the name: `font: italic` (:82) over the label rule's family and size (Text.qss:91-92). The shorthand sets the
         //! weight too, to normal (QCss::ValueExtractor::extractFont): the universal rule's 400 (BaseStyleSheet.qss:20). The bold of
         //! "Asset location: " is the text's own (AssetEditorTab::SetupHeader)
-        const TextElement AssetEditorHeaderNameText{
+        AzQtComponents::Themed<TextElement> AssetEditorHeaderNameText = [] { return TextElement{
             .m_name = "Editor.Text.AssetEditorHeaderName",
             .m_family = AzQtComponents::Foundations::Label::Family,                 // Text.qss:91
             .m_pixelSize = AzQtComponents::Foundations::Label::Size,                // Text.qss:92
             .m_weight = 400,  // QFont::Normal, by `font: italic` (Editor.qss:82) $type.surface.idle.weight.Alt1
             .m_italic = 1,  // font: italic (Editor.qss:82) $type.surface.idle.style.Alt1
-        };
+        }; };
 
         //! `Ui--AssetEditorHeader *` (:63-67) on a tooltip. The sheet style resolves a tip's rules through the widget it is shown for
         //! (the tip's `_q_stylesheet_parent`, which QStyleSheetStyleSelector reads for its parent), so the rule reached the tip of the
@@ -340,7 +340,7 @@ namespace EditorFlatSheet
 
         //! The row whose name has no row above it with a name (`PropertyRowWidget[isTopLevel="true"]`, Editor.qss:93-96) that is
         //! not also a group at level 1: the property alone
-        const BoxElement AssetEditorTopLevelRow{
+        AzQtComponents::Themed<BoxElement> AssetEditorTopLevelRow = [] { return BoxElement{
             .m_name = "Editor.Box.AssetEditorTopLevelRow",
             .m_idle = {
                 .m_fill = QBrush(AzQtComponents::Foundations::Surface::Fill),       // BaseStyleSheet.qss:17
@@ -348,11 +348,11 @@ namespace EditorFlatSheet
             .m_properties = {
                 { "appendDefaultLabelToName", true },                               // qproperty-appendDefaultLabelToName: 1: Editor.qss:95
             },
-        };
+        }; };
 
         //! A row that groups other rows at level 1, below a row with a name (`[getLevel="1"][hasChildRows="true"]`, Editor.qss:103-107):
         //! the line above it alone. The rule's border is the row's own, so the row's contents sit under it, 1px lower.
-        const BoxElement AssetEditorGroupRow{
+        AzQtComponents::Themed<BoxElement> AssetEditorGroupRow = [] { return BoxElement{
             .m_name = "Editor.Box.AssetEditorGroupRow",
             .m_nativeBorder = false,                                                // border-top is a border of its own (Editor.qss:106)
             .m_idle = {
@@ -360,11 +360,11 @@ namespace EditorFlatSheet
                 // border-top: 1px solid rgba(...): Editor.qss:106 $line.item.idle.color.Alt1
                 .m_edges = { { 1, QColor(255, 255, 255, 51) }, {}, {}, {} },
             },
-        };
+        }; };
 
         //! A top-level row that groups other rows at level 1, which has no named row above it: both rules reach it, the property of
         //! Editor.qss:95 and the line of Editor.qss:106
-        const BoxElement AssetEditorTopLevelGroupRow{
+        AzQtComponents::Themed<BoxElement> AssetEditorTopLevelGroupRow = [] { return BoxElement{
             .m_name = "Editor.Box.AssetEditorTopLevelGroupRow",
             .m_nativeBorder = false,                                                // border-top is a border of its own (Editor.qss:106)
             .m_idle = {
@@ -375,7 +375,7 @@ namespace EditorFlatSheet
             .m_properties = {
                 { "appendDefaultLabelToName", true },                               // qproperty-appendDefaultLabelToName: 1: Editor.qss:95
             },
-        };
+        }; };
 
         // The rows of the Asset Editor (Editor.qss:93-106). Each test reads the row's attributes first, through the getters that
         // their properties read when the row is polished (PropertyRowWidget.hxx:42-44, DocumentPropertyEditor.h:100-101), and walks to
@@ -494,7 +494,7 @@ namespace EditorFlatSheet
         //! `EditorWindow QToolBar { border-bottom: 2px solid #111111 }` (Editor.qss:145-148) over
         //! `QToolBar { background-color; border: 0 none }` (ToolBar.qss:15-29): the panel of the toolbar, a fill and the line on its
         //! bottom edge. An element is the whole definition of its widget's box, so it repeats the fill.
-        const BoxElement UiEditorToolBar{
+        AzQtComponents::Themed<BoxElement> UiEditorToolBar = [] { return BoxElement{
             .m_name = "Editor.Box.UiEditorToolBar",
             .m_nativeBorder = false,                                                // border: 0 none (ToolBar.qss:22)
             .m_idle = {
@@ -502,11 +502,11 @@ namespace EditorFlatSheet
                 // top, right, bottom, left; border-bottom: Editor.qss:147 $line.bar.idle.color.FarBG
                 .m_edges = { {}, {}, { 2, AzQtComponents::Foundations::FarBG }, {} },
             },
-        };
+        }; };
 
         //! `#EMFX_Menu { border-bottom-width: 2px; border-bottom-color: #111111; border-bottom-style: solid }` (Editor.qss:160-165): the
         //! line on the bottom edge of the menu widget, over the transparent background of '*' (BaseStyleSheet.qss:17)
-        const BoxElement AnimationEditorMenu{
+        AzQtComponents::Themed<BoxElement> AnimationEditorMenu = [] { return BoxElement{
             .m_name = "Editor.Box.AnimationEditorMenu",
             .m_nativeBorder = false,                                                // a solid border-bottom is one of its own (:164)
             .m_idle = {
@@ -514,7 +514,7 @@ namespace EditorFlatSheet
                 // top, right, bottom, left; border-bottom-width, -color: Editor.qss:162-163 $line.menu.idle.color.FarBG
                 .m_edges = { {}, {}, { 2, AzQtComponents::Foundations::FarBG }, {} },
             },
-        };
+        }; };
 
         //! The margin of the combo box in its idle state (left, top, right, bottom): ComboBox.qss:17 on the left and the top,
         //! Editor.qss:169-170 at the right and below $space.field.idle.margin.Alt3
@@ -531,17 +531,17 @@ namespace EditorFlatSheet
         const QColor ModeComboHoverLine(0, 0, 0, 50);
 
         //! :focus, and an open popup (ComboBox.qss:31-42)
-        const BoxElement::Face ModeComboFocusFace{
+        AzQtComponents::Themed<BoxElement::Face> ModeComboFocusFace = [] { return BoxElement::Face{
             .m_fill = QBrush(Field::FocusFill),
             .m_edges = BoxElement::border(Field::FocusLineWidth, Field::FocusLine),
             .m_text = Field::Text,
             .m_margin = ModeComboStateMargin,
             .m_radius = Field::FocusRadius,
-        };
+        }; };
 
         //! `#EMFX_Menu QComboBox { margin-right: 4px; margin-bottom: 2px }` (Editor.qss:167-171) over the combo box of ComboBox.qss:13-57
         //! and BaseStyleSheet.qss:68-84, which ComboBoxFlat::Combo carries: the application mode combo box of the Animation Editor.
-        const BoxElement AnimationEditorModeCombo{
+        AzQtComponents::Themed<BoxElement> AnimationEditorModeCombo = [] { return BoxElement{
             .m_name = "Editor.Box.AnimationEditorModeCombo",
             .m_margin = ModeComboMargin,
             .m_padding = ModeComboPadding,
@@ -561,7 +561,7 @@ namespace EditorFlatSheet
                 { BoxElement::Checked, ModeComboFocusFace },                        // [HasPopupOpen=true]: ComboBox.qss:32-33
                 { BoxElement::Disabled, { .m_fill = QBrush(Field::DisabledFill), .m_text = Field::DisabledText } },    // ComboBox.qss:53-57
             },
-        };
+        }; };
 
         //! `EditorWindow QToolBar` (Editor.qss:145): a toolbar below a window of the class EditorWindow, at any depth
         bool isUiEditorToolBar(const QWidget* widget)
@@ -600,13 +600,13 @@ namespace EditorFlatSheet
         //! (`.QFrame[frameShape]`, BaseStyleSheet.qss:41-48): an element is the whole definition of its frame, so it repeats it.
         //! The fill and the shapes are those of PanelFrame (FrameElement.cpp, Global.Frame.Panel), copied by value: when that element
         //! changes, this one changes with it. The line is the constant the legacy sheet's text is written from (EditorFlatValues.h).
-        const FrameElement AssetBrowserCreateDivider{
+        AzQtComponents::Themed<FrameElement> AssetBrowserCreateDivider = [] { return FrameElement{
             .m_name = "Editor.Frame.AssetBrowserCreateDivider",
             .m_fill = AzQtComponents::Foundations::Mid,                             // background-color: BaseStyleSheet.qss:47
             .m_fillShapes = FrameElement::PanelShapes,                              // BaseStyleSheet.qss:41-45
             .m_foreground = EditorFlatValues::AssetBrowserCreateDividerLine,        // color: AzAssetBrowserWindow.ui:132, :206
                                                                                     // (the form before the flattening)
-        };
+        }; };
 
         //! The thumbnails (AzQtComponents::AssetFolderThumbnailView, a QAbstractItemView of its own, not a tree, list or table) of the
         //! thumbnail view the window holds (m_thumbnailView). The form gave that view the sheet `AzToolsFramework--AssetBrowser--
@@ -615,14 +615,14 @@ namespace EditorFlatSheet
         //! the thumbnails cover whole; the second reaches the thumbnails, and fills them and the viewport inside them. The area keeps
         //! the native frame Qt's default sheet gave every QFrame, and the margin of 0 every scroll area has (QDockWidget.qss:33-36).
         //! The fill is the constant the legacy sheet's text is written from (EditorFlatValues.h).
-        const BoxElement AssetBrowserThumbnails{
+        AzQtComponents::Themed<BoxElement> AssetBrowserThumbnails = [] { return BoxElement{
             .m_name = "Editor.Box.AssetBrowserThumbnails",
             .m_hasBox = true,                                                       // margin: 0, QDockWidget.qss:35
             .m_idle = {
                 .m_fill = QBrush(EditorFlatValues::AssetBrowserThumbnailsFill),     // background-color: AzAssetBrowserWindow.ui:567
                                                                                     // (the form before the flattening)
             },
-        };
+        }; };
 
         //! `QFrame#framePreCreate` and `QFrame#framePostCreate` of the form: those two names, in the asset browser window
         bool isAssetBrowserCreateDivider(const QWidget* widget)
@@ -673,7 +673,7 @@ namespace EditorFlatSheet
         //!
         //! The sheet rounded the top two corners and gave the bottom two no radius, so they are square: the radii of each corner.
         //! The fill is the constant the legacy sheet's text is written from (EditorFlatValues.h).
-        const BoxElement AssetImporterPythonBuilder{
+        AzQtComponents::Themed<BoxElement> AssetImporterPythonBuilder = [] { return BoxElement{
             .m_name = "Editor.Box.AssetImporterPythonBuilder",
             .m_margin = QMargins(0, 0, 0, 6),  // margin-bottom: ImporterRootDisplay.ui:79 $space.surface.idle.margin.Alt7
             // padding-top, padding-bottom: :79 ImporterRootDisplay.ui:79 $space.surface.idle.padding.Alt11
@@ -684,7 +684,7 @@ namespace EditorFlatSheet
             .m_idle = {
                 .m_fill = QBrush(EditorFlatValues::AssetImporterPythonBuilderFill), // background-color: ImporterRootDisplay.ui:79
             },
-        };
+        }; };
 
         //! `QFrame#m_pythonBuilderLayout` of the form: that name, in the importer's root display (the only form that builds it)
         bool isAssetImporterPythonBuilder(const QWidget* widget)
@@ -705,13 +705,13 @@ namespace EditorFlatSheet
         //! frame draws in the foreground; Qt reads the quoted name as a colour (QCss::ValueExtractor::extractPalette). The fill behind
         //! the line is the one every frame of these shapes has (`.QFrame[frameShape]`, BaseStyleSheet.qss:41-48): an element is the whole
         //! definition of its frame, so it repeats it, as the dividers of the asset browser do (AssetBrowserCreateDivider).
-        const FrameElement WelcomeDivider{
+        AzQtComponents::Themed<FrameElement> WelcomeDivider = [] { return FrameElement{
             .m_name = "Editor.Frame.WelcomeDivider",
             .m_fill = AzQtComponents::Foundations::Mid,                             // background-color: BaseStyleSheet.qss:47
             .m_fillShapes = FrameElement::PanelShapes,                              // BaseStyleSheet.qss:41-45
             // color: "black": WelcomeScreenDialog.ui:613 $text.separator.idle.Alt1
             .m_foreground = QColor(Qt::black),
-        };
+        }; };
 
         //! `Line#line_4` of the form: that name, in the welcome dialog
         bool isWelcomeDivider(const QWidget* widget)
@@ -749,7 +749,7 @@ namespace EditorFlatSheet
         //! filled with #444444 as every QDialog is (`QMainWindow, QDialog, QDockWidget`, BaseStyleSheet.qss:60-66). The margin of 0 and
         //! the padding `-4px -5px -4px -5px` make it a box, but the box of a widget that is not a frame only places its fill (the
         //! sheet style has no layout case for it); `border-color` alone is a border of its own with no width.
-        const BoxElement PreferencesDialog{
+        AzQtComponents::Themed<BoxElement> PreferencesDialog = [] { return BoxElement{
             .m_name = "Editor.Box.PreferencesDialog",
             // padding: -4px -5px -4px -5px (top right bottom left): EditorPreferencesDialog.qss:13 $space.surface.idle.padding.Alt12
             .m_padding = QMargins(-5, -4, -5, -4),
@@ -759,13 +759,13 @@ namespace EditorFlatSheet
                 // background-color: EditorPreferencesDialog.qss:14 $fill.surface.idle.Mid
                 .m_fill = QBrush(AzQtComponents::Foundations::Mid),
             },
-        };
+        }; };
 
         //! `QWidget#EditorPreferencesDialog QTreeWidget#pageTree` (EditorPreferencesDialog.qss:18-24): the list of pages. A line of its
         //! own, 1px of #111111 (:21) instead of TableView.qss:28's none, and #333333 (:22) where the application's rule left a view in a
         //! widget transparent (BaseStyleSheet.qss:32-38), with the margin of 0 every scroll area has (:23, QDockWidget.qss:33-36). Its
         //! items are PreferencesPageTreeItems, its text PreferencesPageTreeText.
-        const BoxElement PreferencesPageTree{
+        AzQtComponents::Themed<BoxElement> PreferencesPageTree = [] { return BoxElement{
             .m_name = "Editor.Box.PreferencesPageTree",
             .m_hasBox = true,                                       // margin: 0px (:23)
             .m_nativeBorder = false,                                // border: 1px solid (:21)
@@ -775,31 +775,31 @@ namespace EditorFlatSheet
                 // border: 1px solid #111111: EditorPreferencesDialog.qss:21 $line.view.idle.color.FarBG
                 .m_edges = BoxElement::border(1, AzQtComponents::Foundations::FarBG),
             },
-        };
+        }; };
 
         //! `QTreeWidget#pageTree { font-size: 11px }` (EditorPreferencesDialog.qss:20), over the family and weight of the universal rule
         //! (BaseStyleSheet.qss:19-20) that the element carries as every text element does. The custom delegate of the tree
         //! (EditorPreferencesTreeWidgetItemDelegate) measures and draws its text with the font of the view, so the 11px reaches both.
-        const TextElement PreferencesPageTreeText{
+        AzQtComponents::Themed<TextElement> PreferencesPageTreeText = [] { return TextElement{
             .m_name = "Editor.Text.PreferencesPageTree",
             .m_pixelSize = 11,  // font-size: EditorPreferencesDialog.qss:20 $type.surface.idle.size.Alt1
-        };
+        }; };
 
         //! `QTreeWidget#pageTree::item { margin-top: 3px; margin-bottom: 2px }` (EditorPreferencesDialog.qss:26-30), over
         //! `QTreeView::item` (TableView.qss:31-40: a height of 24px, 4px of padding at the left, no border), which the Global tree element
         //! keeps. The delegate's own colours for a selected and a hovered page are upstream paint
         //! (EditorPreferencesTreeWidgetItemDelegate.cpp:23-24: I.5's).
-        const ItemViewElement PreferencesPageTreeItems{
+        AzQtComponents::Themed<ItemViewElement> PreferencesPageTreeItems = [] { return ItemViewElement{
             .m_name = "Editor.ItemView.PreferencesPageTree",
             // margin-top, margin-bottom: :28-29 EditorPreferencesDialog.qss:26-30 $space.item.idle.margin.Alt1
             .m_itemMargin = QMargins(0, 3, 0, 2),
-        };
+        }; };
 
         //! `QWidget#EditorPreferencesDialog AzToolsFramework--ReflectedPropertyEditor#propertyEditor`
         //! (EditorPreferencesDialog.qss:32-37): the editor of the page, a QFrame (StyledPanel, Raised: EditorPreferencesDialog.ui:107-112)
         //! whose native frame the rule's own border replaces: 1px of #111111 (:35) around #222222 (:34), 5px from the pages at the left and
         //! 2px at the right (:36, margin: top right bottom left).
-        const BoxElement PreferencesPropertyEditor{
+        AzQtComponents::Themed<BoxElement> PreferencesPropertyEditor = [] { return BoxElement{
             .m_name = "Editor.Box.PreferencesPropertyEditor",
             .m_margin = QMargins(5, 0, 2, 0),  // margin: 0px 2px 0px 5px: EditorPreferencesDialog.qss:36 $space.surface.idle.margin.Alt8
             .m_nativeBorder = false,                                // border: 1px solid (:35)
@@ -809,7 +809,7 @@ namespace EditorFlatSheet
                 // border: 1px solid #111111: EditorPreferencesDialog.qss:35 $line.surface.idle.color.FarBG
                 .m_edges = BoxElement::border(1, AzQtComponents::Foundations::FarBG),
             },
-        };
+        }; };
 
         //! `#EditorPreferencesDialog AzToolsFramework--PropertyRowWidget[isTopLevel="true"][hasChildRows="true"]`
         //! (EditorPreferencesDialog.qss:52-57): the row of a group, which has a line under it, 1px of white at a fifth of its alpha
@@ -817,7 +817,7 @@ namespace EditorFlatSheet
         //! (padding: 4px 0 6px: :55) and 4px of space after (:56), over the transparent fill of the universal rule (BaseStyleSheet.qss:17).
         //! The row paints no frame of its own (its paintEvent draws only the reorder line), so the rule is drawn once, with the styled
         //! background
-        const BoxElement PreferencesGroupRow{
+        AzQtComponents::Themed<BoxElement> PreferencesGroupRow = [] { return BoxElement{
             .m_name = "Editor.Box.PreferencesGroupRow",
             .m_margin = QMargins(0, 0, 0, 4),  // margin-bottom: EditorPreferencesDialog.qss:56 $space.surface.idle.margin.Alt9
             // padding: 4px 0 6px (top, left and right, bottom): EditorPreferencesDialog.qss:55 $space.surface.idle.padding.Alt13
@@ -828,14 +828,14 @@ namespace EditorFlatSheet
                 // border-bottom: 1px solid rgba(...): EditorPreferencesDialog.qss:54 $line.item.idle.color.Alt1
                 .m_edges = { {}, {}, { 1, QColor(255, 255, 255, 51) }, {} },
             },
-        };
+        }; };
 
         //! `AzToolsFramework--PropertyRowWidget QLabel#Name` (:39-43) over the rule of every row (ReflectedPropertyEditor.qss:9-15, which
         //! PropertyEditorElements.cpp carries as Global.Box.PropertyRowName, copied here by value: when that changes, this changes with
         //! it): 4px at the left to match a card header (:13-14), 16px high whatever the text needs (:11-12), no margin above or below
         //! where Text.qss:93-94 gave every label 1px, and the dialog's 5px of padding at the left (:42). The row's name is an
         //! ElidingLabel, which measures its hint with a hidden QLabel of the same name: the rule reached both
-        const BoxElement PreferencesRowName{
+        AzQtComponents::Themed<BoxElement> PreferencesRowName = [] { return BoxElement{
             .m_name = "Editor.Box.PreferencesRowName",
             // margin: 0px, margin-left: 4px: ReflectedPropertyEditor.qss:13-14 $space.surface.idle.margin.Alt10
             .m_margin = QMargins(4, 0, 0, 0),
@@ -845,27 +845,27 @@ namespace EditorFlatSheet
             .m_idle = {
                 .m_fill = QBrush(AzQtComponents::Foundations::Surface::Fill),       // BaseStyleSheet.qss:17
             },
-        };
+        }; };
 
         //! The text of that label: #eeeeee (:41) over the label rule's family and size (Text.qss:91-92)
-        const TextElement PreferencesRowNameText{
+        AzQtComponents::Themed<TextElement> PreferencesRowNameText = [] { return TextElement{
             .m_name = "Editor.Text.PreferencesRowName",
             .m_family = AzQtComponents::Foundations::Label::Family,             // Text.qss:91
             .m_pixelSize = AzQtComponents::Foundations::Label::Size,            // Text.qss:92
             // color: EditorPreferencesDialog.qss:41 $text.item.idle.Alt1
             .m_color = QColor(0xEE, 0xEE, 0xEE),
-        };
+        }; };
 
         //! The same for the name of a group row, bold by `[isTopLevel="true"][hasChildRows="true"] QLabel#Name`
         //! (EditorPreferencesDialog.qss:59-62).
-        const TextElement PreferencesGroupNameText{
+        AzQtComponents::Themed<TextElement> PreferencesGroupNameText = [] { return TextElement{
             .m_name = "Editor.Text.PreferencesGroupName",
             .m_family = AzQtComponents::Foundations::Label::Family,             // Text.qss:91
             .m_pixelSize = AzQtComponents::Foundations::Label::Size,            // Text.qss:92
             .m_weight = 700,  // font-weight: bold (QFont::Bold): EditorPreferencesDialog.qss:61 $type.surface.idle.weight.Alt2
             // color: EditorPreferencesDialog.qss:41 $text.item.idle.Alt1
             .m_color = QColor(0xEE, 0xEE, 0xEE),
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // The Editor Preferences dialog: the matchers
@@ -961,21 +961,21 @@ namespace EditorFlatSheet
         //! the family stays the label rule's (Text.qss:91); the weight is the universal rule's (BaseStyleSheet.qss:20), which the element
         //! carries as every text element does. The sheet gave the colour in every state, the disabled one too, which is what the element
         //! does without a colour of its own for it
-        const TextElement StartupCopyrightNotice{
+        AzQtComponents::Themed<TextElement> StartupCopyrightNotice = [] { return TextElement{
             .m_name = "Editor.Text.StartupCopyrightNotice",
             .m_family = AzQtComponents::Foundations::Label::Family,                 // Text.qss:91
             // font-size: StartupLogoDialog.cpp:55, :65 before the flattening
             .m_pixelSize = EditorFlatValues::StartupCopyrightNoticeSize,
             // color: StartupLogoDialog.cpp:55, :65 before the flattening
             .m_color = EditorFlatValues::StartupCopyrightNoticeText,
-        };
+        }; };
 
         //! `QLabel#link { text-decoration: underline; color: #94D2FF }` (StartupLogoDialog.cpp:66 before the flattening): the Terms of Use
         //! link of the About box.
         //! The label rule's family and size stay (Text.qss:91-92) as in the notice's element. The rule's underline is the label font's
         //! (QCss extractFont sets QFont::setUnderline). The label is a rich text label, and the sheet's colour is the one of its
         //! text roles; the colour of the anchor in it is the palette's link role, which no rule sets
-        const TextElement StartupLink{
+        AzQtComponents::Themed<TextElement> StartupLink = [] { return TextElement{
             .m_name = "Editor.Text.StartupLink",
             .m_family = AzQtComponents::Foundations::Label::Family,                 // Text.qss:91
             .m_pixelSize = AzQtComponents::Foundations::Label::Size,                // Text.qss:92
@@ -984,7 +984,7 @@ namespace EditorFlatSheet
             .m_underline = 1,
             // color: StartupLogoDialog.cpp:66 before the flattening
             .m_color = EditorFlatValues::StartupLinkText,
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Matchers: the selectors that gave each rule its widgets

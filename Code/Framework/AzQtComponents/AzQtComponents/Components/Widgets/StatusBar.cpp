@@ -26,8 +26,9 @@ namespace StatusBarFlat
     // ------------------------------------------------------------------------------
     // The Config defaults of StatusBar::defaultConfig: StatusBarConfig.ini holds no line, so these are the live values of both rungs
     // ------------------------------------------------------------------------------
-    constexpr QColor PanelFill = Foundations::Mid;  // StatusBar.cpp:36 (StatusBar::defaultConfig) $fill.bar.idle.Mid
-    constexpr QColor TopLine = Foundations::FarBG;  // StatusBar.cpp:37 (StatusBar::defaultConfig) $line.bar.idle.color.FarBG
+    // StatusBar.cpp:36 (StatusBar::defaultConfig) $fill.bar.idle.Mid
+    const QColor& PanelFill = Foundations::Window::StatusBarFill;
+    const QColor& TopLine = Foundations::FarBG;  // StatusBar.cpp:37 (StatusBar::defaultConfig) $line.bar.idle.color.FarBG
 } // namespace StatusBarFlat
 
 StatusBar::Config StatusBar::loadConfig(QSettings& settings)

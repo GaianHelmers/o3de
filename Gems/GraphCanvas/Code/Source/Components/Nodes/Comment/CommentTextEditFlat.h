@@ -80,12 +80,12 @@ namespace GraphCanvas
 
         //! The size of a group title's text: GetFont gives it the pixel size of the default font (StyleHelper.cpp:163-167), which is the
         //! application font's, Foundations::Surface::Size (StyleManager.cpp:352-354) $size.graph.idle.size.Alt1
-        inline constexpr int GroupTitleFontSize = AzQtComponents::Foundations::Surface::Size;
+        inline const int& GroupTitleFontSize = AzQtComponents::Foundations::Surface::Size;
 
         //! `font-size: 120%` of `comment > .commentText` (:258, +30 in Script Canvas's): 120% of the default font's pixel size, which is
         //! GroupTitleFontSize, cut to a whole pixel as Parser.cpp:776-777 does (int(12 * 1.2) is 14) (materialcanvas_style.json:258,
         //! Parser::ParseStyle) $size.graph.idle.size.Alt2
-        inline constexpr int CommentFontSize = static_cast<int>(GroupTitleFontSize * 1.2);
+        inline AzQtComponents::Themed<int> CommentFontSize = [] { return static_cast<int>(GroupTitleFontSize * 1.2); };
 
         // ---- The class tags the editor takes in the flattened GUI, which the matchers of the rows read: the ring, and the kind of text
 
@@ -100,8 +100,8 @@ namespace GraphCanvas
         extern const AzQtComponents::BoxElement OrangeRingBox;      //!< the 2px #f3811d ring
         extern const AzQtComponents::BoxElement BlueRingBox;        //!< the 2px #17A3CD ring
         extern const AzQtComponents::BoxElement FallbackRingBox;    //!< the 1px black ring
-        extern const AzQtComponents::TextElement CommentText;       //!< the text of a comment
-        extern const AzQtComponents::TextElement GroupTitleText;    //!< the text of a group title
+        extern AzQtComponents::Themed<AzQtComponents::TextElement> CommentText;     //!< the text of a comment
+        extern AzQtComponents::Themed<AzQtComponents::TextElement> GroupTitleText;  //!< the text of a group title
 
         // ---- The choice of the looks
 

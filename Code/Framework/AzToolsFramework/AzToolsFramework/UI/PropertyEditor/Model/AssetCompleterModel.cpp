@@ -7,6 +7,7 @@
  */
 
 #include <UI/PropertyEditor/Model/AssetCompleterModel.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzToolsFramework/AssetBrowser/AssetBrowserModel.h>
 #include <AzToolsFramework/AssetBrowser/AssetBrowserEntry.h>
 #include <AzToolsFramework/AssetBrowser/Search/Filter.h>
@@ -25,7 +26,7 @@ namespace AzToolsFramework
     namespace AssetCompleterModelFlatInternal
     {
         // AssetCompleterModel.cpp:105 (AssetCompleterModel::data) $text.surface.idle.Alt8
-        constexpr QColor SuggestionText(0xFF, 0xFF, 0xFF);
+        const QColor& SuggestionText = AzQtComponents::Foundations::Text::Primary;
         // AssetCompleterModel.cpp:106 (AssetCompleterModel::data) $fill.surface.idle.Alt16
         constexpr QColor MatchBackground(0x49, 0x8F, 0xE1);
     }

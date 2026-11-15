@@ -60,6 +60,7 @@ set(FILES
     Tests/StyleSheetCacheTests.cpp
     Tests/TabElementTests.cpp
     Tests/TextElementTests.cpp
+    Tests/ThemeTests.cpp
     Tests/TitleBarButtonFlatSheetTests.cpp
     Tests/ToolTipElementTests.cpp
     Tests/ToolTipTwins.h

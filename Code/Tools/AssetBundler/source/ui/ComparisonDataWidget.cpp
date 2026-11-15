@@ -11,6 +11,7 @@
 
 #include <source/ui/NewFileDialog.h>
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/StyleManager.h>
 
 #include <QColor>
@@ -26,7 +27,7 @@ namespace AssetBundler
     namespace ComparisonDataWidgetFlat
     {
         // ComparisonDataWidget.cpp:48 (ComparisonDataWidget::ComparisonDataWidget) $fill.field.idle.Alt18
-        constexpr QColor LineEditFill(0xCC, 0xCC, 0xCC);
+        const QColor& LineEditFill = AzQtComponents::Foundations::Field::Fill;
     } // namespace ComparisonDataWidgetFlat
 
     //////////////////////////////////////////////////////////////////////////////////////////////////

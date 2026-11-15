@@ -22,6 +22,7 @@
 #include <AzToolsFramework/Debug/TraceContextLogFormatter.h>
 #include <AzToolsFramework/Debug/TraceContextStack.h>
 #include <AzToolsFramework/UI/Logging/LogEntry.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/StyledDetailsTableView.h>
 #include <AzQtComponents/Components/StyleManager.h>
 #include <AzQtComponents/Components/Widgets/TableView.h>
@@ -37,7 +38,7 @@ namespace SceneSettingsCardFlat
 {
     // SceneSettingsCard.cpp:342 (the header underline of a card that completed with errors) (SceneSettingsCard::SetState)
     // $line.card.error.color.Alt1
-    constexpr QColor UnderlineError(226, 82, 67);
+    const QColor& UnderlineError = AzQtComponents::Foundations::Accent::Error;
 
     // SceneSettingsCard.cpp:346 (the header underline of a card that completed with warnings) (SceneSettingsCard::SetState)
     // $line.card.warning.color.Alt1
@@ -45,7 +46,7 @@ namespace SceneSettingsCardFlat
 
     // SceneSettingsCard.cpp:350 (the header underline of a card that completed without problems) (SceneSettingsCard::SetState)
     // $line.card.idle.color.Alt1
-    constexpr QColor UnderlineSuccess(88, 188, 97);
+    const QColor& UnderlineSuccess = AzQtComponents::Foundations::Accent::Success;
 } // namespace SceneSettingsCardFlat
 
 SceneSettingsCardHeader::SceneSettingsCardHeader(QWidget* parent /* = nullptr */)

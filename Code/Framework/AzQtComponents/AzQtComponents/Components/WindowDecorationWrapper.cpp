@@ -910,11 +910,11 @@ namespace AzQtComponents
     {
         //! The line WindowDecorationWrapper::drawFrame draws around the window. WindowDecorationWrapper.cpp:910.
         //! $line.surface.idle.color.Alt8
-        constexpr QColor FrameLine(33, 34, 35);
+        const QColor& FrameLine = Foundations::Window::FrameLine;
 
         //! `AzQtComponents--WindowDecorationWrapper { border: 1px solid black }` (WindowDecorationWrapper.qss:11): the colour of the
         //! gutter that paintEvent fills in the flattened GUI. $line.surface.idle.color.Alt1
-        constexpr QColor Border = Foundations::Line::Dark;
+        const QColor& Border = Foundations::Line::Dark;
     } // namespace WindowDecorationWrapperFlatInternal
 
     void WindowDecorationWrapper::drawFrame(const QStyleOption *option, QPainter *painter, const QWidget *widget)

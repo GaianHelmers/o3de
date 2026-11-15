@@ -543,12 +543,12 @@ namespace AzQtComponents
             .m_focusMargin = 1,
         };
 
-        const TextElement WizardStepText{
+        Themed<TextElement> WizardStepText = [] { return TextElement{
             .m_name = "Test.AppCarrier.WizardStepText",
             .m_pixelSize = 16,                                // font-size: ProjectManager.qss:80
             .m_color = QColor(0xAA, 0xAA, 0xAA),              // :enabled color: ProjectManager.qss:88
             .m_disabledColor = QColor(0x6B, 0x6B, 0x6B),      // color: ProjectManager.qss:84
-        };
+        }; };
 
         void registerWizardSteps()
         {

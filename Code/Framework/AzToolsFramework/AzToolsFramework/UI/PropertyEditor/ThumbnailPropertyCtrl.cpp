@@ -7,6 +7,7 @@
  */
 
 #include <AzCore/PlatformDef.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 
 // 4251: 'QRawFont::d': class 'QExplicitlySharedDataPointer<QRawFontPrivate>' needs to have dll-interface to be used by clients of class
 // 'QRawFont' 4800: 'QTextEngine *const ': forcing value to bool 'true' or 'false' (performance warning)
@@ -32,7 +33,7 @@ namespace AzToolsFramework
     namespace ThumbnailPropertyCtrlFlatInternal
     {
         // ThumbnailPropertyCtrl.cpp:132 (ThumbnailPropertyCtrl::paintEvent) $fill.view.idle.FarBG
-        constexpr QColor Background(0x11, 0x11, 0x11);
+        const QColor& Background = AzQtComponents::Foundations::FarBG;
     }
 
     ThumbnailPropertyCtrl::ThumbnailPropertyCtrl(QWidget* parent)

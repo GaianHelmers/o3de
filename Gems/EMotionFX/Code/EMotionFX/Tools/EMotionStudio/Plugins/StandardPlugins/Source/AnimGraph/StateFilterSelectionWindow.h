@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <MCore/Source/StandardHeaders.h>
 #include <EMotionFX/Source/AnimGraphStateMachine.h>
 #include <EMotionFX/Source/AnimGraphTransitionCondition.h>
@@ -28,7 +29,7 @@ namespace EMStudio
     namespace StateFilterFlat
     {
         // StateFilterSelectionWindow.h:63 (StateFilterSelectionWindow::AddRow) $text.item.idle.Alt2
-        inline constexpr QColor RowText(255, 255, 255);
+        inline const QColor& RowText = AzQtComponents::Foundations::Text::Primary;
     } // namespace StateFilterFlat
 
     // forward declarations

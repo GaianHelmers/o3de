@@ -124,13 +124,13 @@ namespace AzToolsFramework
         //! `color: #ffcc00; font-weight: bold;` of the sheet the constructor set on the banner (PropertyColorGradientCtrl.cpp:623,
         //! before the flattening), over the text of every label (Text.qss:91-92: the family and the size an element restates, as it
         //! takes the place of the Global one)
-        const AzQtComponents::TextElement MultiEditBanner{
+        AzQtComponents::Themed<AzQtComponents::TextElement> MultiEditBanner = [] { return AzQtComponents::TextElement{
             .m_name = "Editor.Text.GradientMultiEditBanner",
             .m_family = AzQtComponents::Foundations::Label::Family,         // Text.qss:91
             .m_pixelSize = AzQtComponents::Foundations::Label::Size,        // Text.qss:92
             .m_weight = QFont::Bold,                                        // PropertyColorGradientCtrl.cpp:623 (font-weight: bold)
             .m_color = MultiEditBannerText,                                 // PropertyColorGradientCtrl.cpp:623
-        };
+        }; };
 
         //! The sheet was the banner's own: the label the constructor tagged, in a gradient editor dialog. The parent's class first: one
         //! step, where the property read ran for every label of the Editor once the element was registered

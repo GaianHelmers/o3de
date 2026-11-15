@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
+
 #include <QColor>
 
 namespace AzToolsFramework
@@ -24,11 +26,11 @@ namespace AzToolsFramework
     {
         //! The wash over a selected row: EntityOutlinerTreeView.hxx:99 (m_selectedColor), EntityOutlinerListModel.hxx:373
         //! (s_selectedColor) EntityOutlinerTreeView::m_selectedColor $fill.view.selected.Alt3
-        inline constexpr QColor SelectedWash(255, 255, 255, 45);
+        inline const QColor& SelectedWash = AzQtComponents::Foundations::Outliner::SelectedWash;
 
         //! The wash over the row the pointer is on: EntityOutlinerTreeView.hxx:100 (m_hoverColor), EntityOutlinerListModel.hxx:374
         //! (s_hoverColor) EntityOutlinerTreeView::m_hoverColor $fill.view.hover.Alt2
-        inline constexpr QColor HoverWash(255, 255, 255, 30);
+        inline const QColor& HoverWash = AzQtComponents::Foundations::Outliner::HoverWash;
 
         //! The fill of the rectangle a drag selection draws: EntityOutlinerTreeView.hxx:101 (EntityOutlinerTreeView::m_dragSelectRectColor)
         //! $fill.view.selected.Alt2
@@ -40,6 +42,6 @@ namespace AzToolsFramework
 
         //! The disc behind the read-only badge of a row: EntityOutlinerListModel.hxx:376
         //! (EntityOutlinerItemDelegate::s_readOnlyBackgroundColor) $fill.view.idle.Mid
-        inline constexpr QColor ReadOnlyBadgeBackground(0x44, 0x44, 0x44);
+        inline const QColor& ReadOnlyBadgeBackground = AzQtComponents::Foundations::Mid;
     } // namespace EntityOutlinerFlat
 } // namespace AzToolsFramework

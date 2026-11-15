@@ -24,6 +24,7 @@
 
 // AzQtComponents
 #include <AzQtComponents/Components/O3DEStylesheet.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <AzQtComponents/Components/Titlebar.h>
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
 
@@ -262,6 +263,9 @@ namespace Editor
             settingsRegistry.Get(engineRootPath.Native(), AZ::SettingsRegistryMergeUtils::FilePathKey_EngineRootFolder);
         }
         m_stylesheet->initialize(this, engineRootPath);
+
+        // Flattened GUI: the theme the user chose last
+        AzQtComponents::ThemeManager::restoreSavedTheme();
     }
 
     void EditorQtApplication::Initialize()

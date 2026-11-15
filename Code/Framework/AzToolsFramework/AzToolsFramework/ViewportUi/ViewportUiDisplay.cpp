@@ -144,14 +144,14 @@ namespace AzToolsFramework::ViewportUi::Internal
         //! (`QLabel { margin-top: 1px; margin-bottom: 1px }`, Text.qss:93-94): an element is the whole definition of its frame, so it
         //! carries that margin, which Style gives a label without one (Style::subElementRect, SE_ShapedFrameContents). `border: none`
         //! is a border of its own, none.
-        const AzQtComponents::BoxElement HighlightBorderText{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> HighlightBorderText = [] { return AzQtComponents::BoxElement{
             .m_name = "Editor.Box.ViewportUiHighlightBorderText",
             .m_margin = QMargins(0, AzQtComponents::Foundations::Label::MarginV, 0, AzQtComponents::Foundations::Label::MarginV),
             .m_nativeBorder = false,
             .m_idle = {
                 .m_fill = QBrush(HighlightBorderFill),
             },
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Matchers: the selectors that gave each sheet its widgets

@@ -25,11 +25,11 @@ namespace AzQtComponents
         // Values
         // ------------------------------------------------------------------------------
 
-        const QColor PopupSurface = Foundations::BG;            // ComboBox.qss:81 $fill.field.idle.BG
-        const QColor ItemText = Foundations::Text::Primary;        // ComboBox.qss:89 $text.item.idle
-        const QColor SelectedItemFill = Foundations::Mid;       // ComboBox.qss:104 $fill.item.selected.Mid
-        const QColor SelectedItemText = Foundations::Text::Primary;        // ComboBox.qss:105 $text.item.selected
-        const QColor DisabledItemText = Foundations::Text::DisabledItem; // ComboBox.qss:110 $text.item.disabled.Highest
+        const QColor& PopupSurface = Foundations::Menu::Fill;            // ComboBox.qss:81 $fill.field.idle.BG
+        const QColor& ItemText = Foundations::Text::Primary;        // ComboBox.qss:89 $text.item.idle
+        const QColor& SelectedItemFill = Foundations::Menu::SelectedFill;       // ComboBox.qss:104 $fill.item.selected.Mid
+        const QColor& SelectedItemText = Foundations::Text::Primary;        // ComboBox.qss:105 $text.item.selected
+        const QColor& DisabledItemText = Foundations::Text::DisabledItem; // ComboBox.qss:110 $text.item.disabled.Highest
         constexpr int ItemPaddingLeft = 24;                     // ComboBox.qss:92 $space.item.idle.padding-left.Alt3
         constexpr int ItemPaddingRight = 24;                    // ComboBox.qss:90 $space.item.idle.padding-right.Alt2
 
@@ -38,7 +38,7 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
 
         //! `QComboBox QAbstractItemView`, with its `::item` rules
-        const ComboPopupElement Items{
+        Themed<ComboPopupElement> Items = [] { return ComboPopupElement{
             .m_name = "Global.ComboPopup.Items",
             .m_surface = PopupSurface,
             .m_text = ItemText,
@@ -47,7 +47,7 @@ namespace AzQtComponents
             .m_disabledText = DisabledItemText,
             .m_itemPaddingLeft = ItemPaddingLeft,
             .m_itemPaddingRight = ItemPaddingRight,
-        };
+        }; };
     } // namespace ComboPopupElementInternal
 
     // ----------------------------------------------------------------------------------

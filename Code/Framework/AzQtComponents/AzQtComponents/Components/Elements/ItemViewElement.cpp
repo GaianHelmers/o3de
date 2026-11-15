@@ -10,6 +10,7 @@
 #include <AzQtComponents/Components/Elements/BoxElement.h>
 #include <AzQtComponents/Components/Elements/ComboPopupElement.h>
 #include <AzQtComponents/Components/Elements/Foundations.h>
+#include <AzQtComponents/Components/Theme/ThemeTokens.h>
 #include <AzQtComponents/Components/Widgets/TableView.h>
 #include <AzQtComponents/Utilities/IconUtilities.h>
 
@@ -43,10 +44,10 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
 
         // ---- The faces of every view
-        const QColor SelectedItemFill = Foundations::Fill::ItemSelected;          // TableView.qss:49 $fill.item.selected.Alt1
-        const QColor SelectedBranchFill = Foundations::Fill::ItemSelected;          // TableView.qss:49 $fill.tree-branch.selected.Alt1
-        const QColor HoveredItemFill(0x5A, 0x5A, 0x5A);             // TableView.qss:59 $fill.item.hover.Alt1
-        const QColor HoveredBranchFill = HoveredItemFill;           // TableView.qss:59 $fill.tree-branch.hover.Alt1
+        const QColor& SelectedItemFill = Foundations::Fill::ItemSelected;          // TableView.qss:49 $fill.item.selected.Alt1
+        const QColor& SelectedBranchFill = Foundations::Fill::ItemSelected;          // TableView.qss:49 $fill.tree-branch.selected.Alt1
+        const QColor& HoveredItemFill = Foundations::View::HoverFill;             // TableView.qss:59 $fill.item.hover.Alt1
+        const QColor& HoveredBranchFill = HoveredItemFill;           // TableView.qss:59 $fill.tree-branch.hover.Alt1
 
         // ---- A tree: its check box, its carets, its disabled text and its indentation
         // TableView.qss:84, :81 $space.check-indicator.idle.margin-left $space.check-indicator.idle.margin.Alt2
@@ -57,7 +58,7 @@ namespace AzQtComponents
         constexpr QMargins ClosedBranchPadding(6, 8, 6, 8);
         constexpr const char* OpenBranchImage = ":/TreeView/open.svg";  // TableView.qss:95 $asset.tree-branch.open+branch
         constexpr QMargins OpenBranchPadding(4, 10, 4, 10);         // TableView.qss:96 $space.tree-branch.open+branch
-        const QColor DisabledItemText(0x77, 0x77, 0x77);            // TableView.qss:101 $text.item.disabled.Alt1
+        const QColor& DisabledItemText = Foundations::View::DisabledText;            // TableView.qss:101 $text.item.disabled.Alt1
         constexpr int TreeIndentation = 20;                         // TreeView::IndentationWidth $size.view.idle.indentation
 
         // ---- A header whose sections are declared transparent (TableViewPage::TableViewPage, the Gallery)
@@ -69,7 +70,7 @@ namespace AzQtComponents
 
         //! A plain QTreeView (the outliner, the asset browser, every tree of the engine): TableView.qss's item, header, colours, disabled
         //! text, check box margin and carets, and the indentation of TreeView::polish
-        const ItemViewElement TreeLook{
+        Themed<ItemViewElement> TreeLook = [] { return ItemViewElement{
             .m_name = "Global.ItemView.Tree",
             .m_indicatorMargin = TreeIndicatorMargin,
             .m_closed = { ClosedBranchImage, ClosedBranchPadding },
@@ -82,12 +83,12 @@ namespace AzQtComponents
                 { .m_states = ItemViewElement::Hover, .m_face = { .m_fill = HoveredBranchFill }, .m_scope = ItemViewElement::OnBranch },
                 { .m_states = ItemViewElement::Disabled, .m_face = { .m_text = DisabledItemText } },
             },
-        };
+        }; };
 
         //! An AzQtComponents::TableView (and the AssetFolderListView, a TableView): a tree with no indentation of its own. Its sheet's
         //! `image: none` for the branches never applies (the carets' rules above outrank it), so a row with children shows a caret.
         //! The AssetFolderListView's `icon-size: 16px` (AssetFolderListView.qss:9-12) is Fusion's PM_SmallIconSize, so nothing is carried.
-        const ItemViewElement TableViewLook{
+        Themed<ItemViewElement> TableViewLook = [] { return ItemViewElement{
             .m_name = "Global.ItemView.TableView",
             .m_indicatorMargin = TreeIndicatorMargin,
             .m_closed = { ClosedBranchImage, ClosedBranchPadding },
@@ -99,10 +100,10 @@ namespace AzQtComponents
                 { .m_states = ItemViewElement::Hover, .m_face = { .m_fill = HoveredBranchFill }, .m_scope = ItemViewElement::OnBranch },
                 { .m_states = ItemViewElement::Disabled, .m_face = { .m_text = DisabledItemText } },
             },
-        };
+        }; };
 
         //! A QTableView: TableView.qss's item and header, CheckBox.qss's check box, no caret
-        const ItemViewElement TableLook{
+        Themed<ItemViewElement> TableLook = [] { return ItemViewElement{
             .m_name = "Global.ItemView.Table",
             .m_faces = {
                 { .m_states = ItemViewElement::Selected, .m_face = { .m_fill = SelectedItemFill }, .m_scope = ItemViewElement::OnItem },
@@ -110,10 +111,10 @@ namespace AzQtComponents
                 { .m_states = ItemViewElement::Hover, .m_face = { .m_fill = HoveredItemFill }, .m_scope = ItemViewElement::OnItem },
                 { .m_states = ItemViewElement::Hover, .m_face = { .m_fill = HoveredBranchFill }, .m_scope = ItemViewElement::OnBranch },
             },
-        };
+        }; };
 
         //! A QListView (not a combo box popup's list, which ComboPopupElement owns): the same as a table
-        const ItemViewElement ListLook{
+        Themed<ItemViewElement> ListLook = [] { return ItemViewElement{
             .m_name = "Global.ItemView.List",
             .m_faces = {
                 { .m_states = ItemViewElement::Selected, .m_face = { .m_fill = SelectedItemFill }, .m_scope = ItemViewElement::OnItem },
@@ -121,7 +122,7 @@ namespace AzQtComponents
                 { .m_states = ItemViewElement::Hover, .m_face = { .m_fill = HoveredItemFill }, .m_scope = ItemViewElement::OnItem },
                 { .m_states = ItemViewElement::Hover, .m_face = { .m_fill = HoveredBranchFill }, .m_scope = ItemViewElement::OnBranch },
             },
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Helpers
@@ -171,27 +172,20 @@ namespace AzQtComponents
         }
 
         //! A module's element over the Global one of its view's kind: the module's members where they differ from the defaults, the
-        //! Global element's otherwise, and the faces of both, the module's last. One per pair, kept for the process's life.
-        const ItemViewElement* layered(const ItemViewElement* module, const ItemViewElement* global)
+        //! Global element's otherwise, and the faces of both, the module's last.
+        ItemViewElement mergedElement(const ItemViewElement* module, const ItemViewElement* global)
         {
-            static QHash<QPair<const ItemViewElement*, const ItemViewElement*>, const ItemViewElement*> cache;
-            static std::vector<std::unique_ptr<ItemViewElement>> owned;
-            static const ItemViewElement defaults{};
-            const auto key = qMakePair(module, global);
-            if (const auto found = cache.constFind(key); found != cache.constEnd())
-            {
-                return found.value();
-            }
-
-            auto merged = std::make_unique<ItemViewElement>(*global);
-            merged->m_name = module->m_name;
+            // The defaults of the theme in effect: some members default to a token (m_alternate, m_selection, m_headerFill)
+            const ItemViewElement defaults{};
+            ItemViewElement merged(*global);
+            merged.m_name = module->m_name;
 
             // a member that the module changed from the defaults is the module's, every other member is the Global element's
             const auto take = [&](auto ItemViewElement::*member)
             {
                 if (module->*member != defaults.*member)
                 {
-                    (*merged).*member = module->*member;
+                    merged.*member = module->*member;
                 }
             };
             take(&ItemViewElement::m_alternate);
@@ -210,7 +204,7 @@ namespace AzQtComponents
                 const ItemViewElement::Branch& unchanged = defaults.*member;
                 if (qstrcmp(changed.m_image, unchanged.m_image) != 0 || changed.m_padding != unchanged.m_padding)
                 {
-                    (*merged).*member = changed;
+                    merged.*member = changed;
                 }
             };
             takeBranch(&ItemViewElement::m_closed);
@@ -219,11 +213,11 @@ namespace AzQtComponents
             // the rule of the check box: a module's replaces the Global element's (which has none)
             if (module->m_check.declared())
             {
-                merged->m_check = module->m_check;
+                merged.m_check = module->m_check;
             }
 
             // the faces: the Global entries, then the module's; where they do not all fit the module's come first
-            constexpr int Capacity = static_cast<int>(sizeof(merged->m_faces) / sizeof(merged->m_faces[0]));
+            constexpr int Capacity = static_cast<int>(sizeof(merged.m_faces) / sizeof(merged.m_faces[0]));
             std::vector<ItemViewElement::StateFace> faces;
             for (const ItemViewElement* source : { global, module })
             {
@@ -243,13 +237,36 @@ namespace AzQtComponents
             }
             for (int i = 0; i < Capacity; ++i)
             {
-                merged->m_faces[i] = (i < static_cast<int>(faces.size())) ? faces[i] : ItemViewElement::StateFace();
+                merged.m_faces[i] = (i < static_cast<int>(faces.size())) ? faces[i] : ItemViewElement::StateFace();
+            }
+            return merged;
+        }
+
+        //! The merged element of a module's and a Global element (mergedElement): one per pair, kept for the process's life, as
+        //! the views keep its address. A change of theme gives the elements other values: every pair is then merged again,
+        //! where it is.
+        const ItemViewElement* layered(const ItemViewElement* module, const ItemViewElement* global)
+        {
+            static QHash<QPair<const ItemViewElement*, const ItemViewElement*>, ItemViewElement*> cache;
+            static std::vector<std::unique_ptr<ItemViewElement>> owned;
+            static int generation = ThemeTokens::generation();
+            if (generation != ThemeTokens::generation())
+            {
+                generation = ThemeTokens::generation();
+                for (auto pair = cache.constBegin(); pair != cache.constEnd(); ++pair)
+                {
+                    *pair.value() = mergedElement(pair.key().first, pair.key().second);
+                }
             }
 
-            const ItemViewElement* result = merged.get();
-            owned.push_back(std::move(merged));
-            cache.insert(key, result);
-            return result;
+            const auto key = qMakePair(module, global);
+            if (const auto found = cache.constFind(key); found != cache.constEnd())
+            {
+                return found.value();
+            }
+            owned.push_back(std::make_unique<ItemViewElement>(mergedElement(module, global)));
+            cache.insert(key, owned.back().get());
+            return owned.back().get();
         }
 
         //! The element of a view, or null: a module's over the Global one of its kind, else the Global one
@@ -620,9 +637,9 @@ namespace AzQtComponents
         {
             return ItemViewElementInternal::TransparentSectionFill;
         }
-        static const QColor tableViewFill = ItemViewElement().m_headerFill;
+        // No element: the table view rule's fill, which m_headerFill defaults to (TableView.qss:69)
         const ItemViewElement* element = forHeader(header);
-        return element ? element->m_headerFill : tableViewFill;
+        return element ? element->m_headerFill : QColor(Foundations::Fill::ItemHeader);
     }
 
     void ItemViewElement::showTree(QWidget* tree)

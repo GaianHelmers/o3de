@@ -91,7 +91,7 @@ namespace AzToolsFramework
         };
 
         //! `QFrame#frame`, ProgressShield.ui:56-61: a translucent fill and a line of its own around it, with round corners.
-        const AzQtComponents::BoxElement FrameBox{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> FrameBox = [] { return AzQtComponents::BoxElement{
             .m_name = "Editor.Box.ProgressShieldFrame",
             .m_nativeBorder = false,                    // ProgressShield.ui:59 a border of its own
             .m_radius = FrameRadius,                    // ProgressShield.ui:60
@@ -100,16 +100,16 @@ namespace AzToolsFramework
                 .m_edges = AzQtComponents::BoxElement::border(FrameLineWidth, FrameLine),   // ProgressShield.ui:59
             },
             .m_fillsPalette = true,                     // ProgressShield.ui:58: the fill is the frame's Base, Button and Window
-        };
+        }; };
 
         //! `QLabel { color }`, ProgressShield.ui:19-22, over the text of every label (Text.qss:91-92: the family and the size an element
         //! restates, as it takes the place of the Global one)
-        const AzQtComponents::TextElement ProgressLabel{
+        AzQtComponents::Themed<AzQtComponents::TextElement> ProgressLabel = [] { return AzQtComponents::TextElement{
             .m_name = "Editor.Text.ProgressShieldLabel",
             .m_family = AzQtComponents::Foundations::Label::Family,         // Text.qss:91
             .m_pixelSize = AzQtComponents::Foundations::Label::Size,        // Text.qss:92
             .m_color = LabelColor,                                          // ProgressShield.ui:21
-        };
+        }; };
 
         // ---- The selectors
         //! `QWidget #progressShield`: the shield, which has a parent (the descendant combinator wants a widget above it)

@@ -45,6 +45,16 @@ namespace AzQtComponents
         constexpr int PaddingLeft = 2;                  // BrowseEdit.qss:26 $space.field.idle.padding-left.Alt3
         constexpr int PaddingRight = -4;                // BrowseEdit.qss:28 $space.field.idle.padding-right.Alt2
 
+        //! The room of the rule's padding as the line edit's text margins: the BrowseEdit's own on the left and the right,
+        //! the entry field's above and below. The field's are a theme's: set when the BrowseEdit is made, and again when the
+        //! theme changes (BrowseEdit::event, StyleChange). Returns the margins set.
+        QMargins setFieldPadding(QLineEdit* lineEdit)
+        {
+            const QMargins padding(PaddingLeft, Foundations::Field::PaddingTop, PaddingRight, Foundations::Field::PaddingBottom);
+            lineEdit->setTextMargins(padding);
+            return padding;
+        }
+
         // ------------------------------------------------------------------------------
         // The drop frame: the ring painted while a file is dragged over the field
         // ------------------------------------------------------------------------------
@@ -75,6 +85,7 @@ namespace AzQtComponents
         QPushButton* m_attachedButton = nullptr;
         QString m_errorToolTip;
         bool m_hasAcceptableInput = true;
+        QMargins m_fieldPadding;            //!< the text margins the flattened constructor gave the line edit (setFieldPadding)
     };
 
     BrowseEdit::BrowseEdit(QWidget* parent /* = nullptr */)
@@ -124,8 +135,7 @@ namespace AzQtComponents
             // The padding of the rule (BrowseEdit.qss:26, :28; LineEdit.qss:18-19) is where the sheet put the text: inside the field's
             // rect, 2px from its left edge (and the rect that holds it 4px wider on the right, a line less above and a line more
             // below), which also sets the size hint of the field. A line edit keeps that room as text margins.
-            m_data->m_lineEdit->setTextMargins(BrowseEditFlat::PaddingLeft, Foundations::Field::PaddingTop,
-                BrowseEditFlat::PaddingRight, Foundations::Field::PaddingBottom);
+            m_data->m_fieldPadding = BrowseEditFlat::setFieldPadding(m_data->m_lineEdit);
         }
         boxLayout->addWidget(m_data->m_attachedButton);
         connect(m_data->m_attachedButton, &QPushButton::clicked, this, &BrowseEdit::attachedButtonTriggered);
@@ -365,6 +375,15 @@ namespace AzQtComponents
                 QToolTip::showText(he->globalPos(), tooltipText, this, QRect(), toolTipDuration());
                 return true;
             }
+            case QEvent::StyleChange:
+                // A change of theme (every widget is told, before it is polished again): the field's padding is the theme's.
+                // Only while the line edit has the margins that were set here: margins its owner gave it since stay.
+                if (StyleManager::flatStylingActive() && m_data && m_data->m_lineEdit
+                    && m_data->m_lineEdit->textMargins() == m_data->m_fieldPadding)
+                {
+                    m_data->m_fieldPadding = BrowseEditFlat::setFieldPadding(m_data->m_lineEdit);
+                }
+                break;
             default:
                 break;
         }

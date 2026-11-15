@@ -34,6 +34,7 @@ AZ_POP_DISABLE_WARNING
 #include <AzQtComponents/Components/Style.h>
 #include <AzQtComponents/Components/StyleSheetCache.h>
 #include <AzQtComponents/Components/StylesheetPreprocessor.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <AzQtComponents/Components/UiCaptureHarness.h>
 #include <AzQtComponents/Utilities/QtPluginPaths.h>
 
@@ -44,6 +45,7 @@ namespace AzQtComponents
     constexpr QStringView g_styleSheetResourcePath{ u":AzQtComponents/Widgets" };
     constexpr QStringView g_globalStyleSheetName{ u"BaseStyleSheet.qss" };
     constexpr QStringView g_searchPathPrefix{ u"AzQtComponentWidgets" };
+    constexpr QStringView g_themeRelativePath{ u"Code/Framework/AzQtComponents/AzQtComponents/Themes" };
 
     StyleManager* StyleManager::s_instance = nullptr;
 
@@ -348,8 +350,23 @@ namespace AzQtComponents
         initializeSearchPaths(application, engineRootPath);
         initializeFonts();
 
-        QFont defaultFont("Open Sans");
-        defaultFont.setPixelSize(12);
+        // Flattened GUI: the themes. The theme of this run (O3DE_THEME) takes effect here, before the style and any widget exist, so
+        // the application is polished with its values from the start; the theme the user chose is the application's to restore
+        // (ThemeManager::restoreSavedTheme). No theme reaches the legacy GUI.
+        if (areStyleSheetsDisabled())
+        {
+            const QString engineRoot =
+                QString::fromUtf8(engineRootPath.Native().data(), aznumeric_cast<int>(engineRootPath.Native().size()));
+            const QString themeFolder =
+                engineRoot.isEmpty() ? QString() : QDir(engineRoot).absoluteFilePath(g_themeRelativePath.toString());
+            new ThemeManager(themeFolder, QString(), this);
+        }
+
+        // The application font is the universal rule's (Foundations::Surface): "Open Sans" at 12px in the legacy GUI and in the O3DE
+        // Original theme
+        QFont defaultFont(
+            areStyleSheetsDisabled() ? QString::fromUtf8(Foundations::Surface::Family.text()) : QStringLiteral("Open Sans"));
+        defaultFont.setPixelSize(areStyleSheetsDisabled() ? static_cast<int>(Foundations::Surface::Size) : 12);
         QApplication::setFont(defaultFont);
 
         // The window decoration wrappers require the titlebar overdraw handler

@@ -8,6 +8,7 @@
 
 #include <AzQtComponents/Components/DockBarButton.h>
 #include <AzQtComponents/Components/ConfigHelpers.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/Elements/TabElement.h>
 #include <AzQtComponents/Components/Widgets/TabWidget.h>
 #include <AzQtComponents/Components/Style.h>
@@ -27,9 +28,9 @@ namespace AzQtComponents
 
     //! TitleBar.qss:100 `rgba(255,255,255,0.1)`: Qt reads an alpha of 1 or less as a fraction and truncates it, 0.1 * 255 = 25
     //! (QCss::parseColorValue) $fill.button.hover.Alt1
-    static constexpr QColor g_dockBarButtonHoverFill(255, 255, 255, 25);
+    static const QColor& g_dockBarButtonHoverFill = Foundations::Window::ButtonHoverFill;
     //! TitleBar.qss:104 `#B80D1C` $fill.button.hover.fill.Alt3
-    static constexpr QColor g_dockBarButtonCloseHoverFill(0xB8, 0x0D, 0x1C);
+    static const QColor& g_dockBarButtonCloseHoverFill = Foundations::Window::CloseHoverFill;
 
     DockBarButton::Config DockBarButton::loadConfig(QSettings& settings)
     {

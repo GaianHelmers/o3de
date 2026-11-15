@@ -1245,7 +1245,7 @@ namespace AzQtComponents
         // the #222222 fill and not a further full row, as BoxElement::drawFrame draws it.
         // TitleBar.qss:11, :22 $fill.bar.idle.FarBG $fill.bar.drawSimple
         QPainter painter(this);
-        const QColor background = drawSimple() ? Foundations::BG : Foundations::FarBG;
+        const QColor background = drawSimple() ? QColor(Foundations::BG) : QColor(Foundations::Window::TitleBarFill);
         BoxElement::Edges edges;
         if (drawSimple())
         {

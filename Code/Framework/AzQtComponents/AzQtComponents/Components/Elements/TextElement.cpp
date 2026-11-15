@@ -15,8 +15,10 @@
 #include <QAbstractScrollArea>
 #include <QAbstractSpinBox>
 #include <QApplication>
+#include <QByteArray>
 #include <QComboBox>
 #include <QFont>
+#include <QHash>
 #include <QLineEdit>
 #include <QPalette>
 #include <QVariant>
@@ -31,13 +33,15 @@ namespace AzQtComponents
         // Values
         // ------------------------------------------------------------------------------
 
-        constexpr const char* ToolTipFamily = "Open Sans";      // ToolTip.qss:19 $type.tooltip.idle.family
-        constexpr int ToolTipSize = 12;                         // ToolTip.qss:16 $type.tooltip.idle.size
-        constexpr const char* PushButtonFamily = "Open Sans";   // PushButton.qss:33 $type.button.idle.family
-        constexpr int PushButtonSize = 12;                      // PushButton.qss:34 $type.button.idle.size.Alt1
-        constexpr int CheckSize = 12;                           // CheckBox.qss:13, RadioButton.qss:12 $type.check.idle.Alt1
+        // The family and the size these rules restate are the universal rule's (Open Sans, 12): a theme's, so each follows the
+        // universal token. The menu bar's family is its own.
+        const ThemeText& ToolTipFamily = Foundations::Surface::Family;      // ToolTip.qss:19 $type.tooltip.idle.family
+        const int& ToolTipSize = Foundations::Surface::Size;                // ToolTip.qss:16 $type.tooltip.idle.size
+        const ThemeText& PushButtonFamily = Foundations::Surface::Family;   // PushButton.qss:33 $type.button.idle.family
+        const int& PushButtonSize = Foundations::Surface::Size;             // PushButton.qss:34 $type.button.idle.size.Alt1
+        const int& CheckSize = Foundations::Surface::Size;      // CheckBox.qss:13, RadioButton.qss:12 $type.check.idle.Alt1
         constexpr const char* MenuBarFamily = "Amazon Ember";   // MenuBar.qss:13 $type.menubar.idle.family
-        constexpr int MenuBarSize = 12;                         // MenuBar.qss:14 $type.menubar.idle.size
+        const int& MenuBarSize = Foundations::Surface::Size;    // MenuBar.qss:14 $type.menubar.idle.size
         constexpr int ProgressBarSize = 1;                      // ProgressBar.qss:16 $type.progress.idle
         constexpr int HeadlineSize = 24;                        // Text.qss:58 $type.label.idle.size.Alt6
         constexpr int TitleSize = 18;                           // Text.qss:67 $type.label.idle.size.Alt3
@@ -53,76 +57,86 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
 
         //! A widget no class rule reaches: '*' over the application font
-        const TextElement BaseText{ .m_name = "Global.Text.Base", .m_pixelSize = Foundations::Surface::Size };
+        Themed<TextElement> BaseText = [] {
+            return TextElement{ .m_name = "Global.Text.Base", .m_pixelSize = Foundations::Surface::Size };
+        };
         //! Only '*' reaches the widget: family and weight; the size stays the platform's or the code's
-        const TextElement AnyText{ .m_name = "Global.Text.Any" };
+        Themed<TextElement> AnyText = [] { return TextElement{ .m_name = "Global.Text.Any" }; };
         //! QLabel, and the .Menu, .Paragraph and .Tooltip tiers
-        const TextElement LabelText{
+        Themed<TextElement> LabelText = [] { return TextElement{
             .m_name = "Global.Text.Label",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = Foundations::Label::Size,
-        };
+        }; };
         //! QToolTip (Qt's QTipLabel)
-        const TextElement ToolTipText{ .m_name = "Global.Text.ToolTip", .m_family = ToolTipFamily, .m_pixelSize = ToolTipSize };
+        Themed<TextElement> ToolTipText = [] {
+            return TextElement{ .m_name = "Global.Text.ToolTip", .m_family = ToolTipFamily, .m_pixelSize = ToolTipSize };
+        };
         //! QPushButton
-        const TextElement PushButtonText{
+        Themed<TextElement> PushButtonText = [] { return TextElement{
             .m_name = "Global.Text.PushButton",
             .m_family = PushButtonFamily,
             .m_pixelSize = PushButtonSize,
-        };
+        }; };
         //! QCheckBox, QRadioButton
-        const TextElement CheckText{ .m_name = "Global.Text.Check", .m_pixelSize = CheckSize };
+        Themed<TextElement> CheckText = [] { return TextElement{ .m_name = "Global.Text.Check", .m_pixelSize = CheckSize }; };
         //! The entry fields: QTextEdit, QPlainTextEdit, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox
-        const TextElement FieldText{
+        Themed<TextElement> FieldText = [] { return TextElement{
             .m_name = "Global.Text.Field",
             .m_family = Foundations::Field::Family,
             .m_pixelSize = Foundations::Field::Size,
+        }; };
+        Themed<TextElement> MenuBarText = [] {
+            return TextElement{ .m_name = "Global.Text.MenuBar", .m_family = MenuBarFamily, .m_pixelSize = MenuBarSize };
         };
-        const TextElement MenuBarText{ .m_name = "Global.Text.MenuBar", .m_family = MenuBarFamily, .m_pixelSize = MenuBarSize };
         //! So that Qt sizes a progress bar for no text: its minimum size hint follows the font
-        const TextElement ProgressBarText{ .m_name = "Global.Text.ProgressBar", .m_pixelSize = ProgressBarSize };
+        Themed<TextElement> ProgressBarText = [] {
+            return TextElement{ .m_name = "Global.Text.ProgressBar", .m_pixelSize = ProgressBarSize };
+        };
 
         //! The Text.qss tiers
-        const TextElement HeadlineText{
+        Themed<TextElement> HeadlineText = [] { return TextElement{
             .m_name = "Global.Text.Headline",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = HeadlineSize,
             .m_weight = HeadingWeight,
+        }; };
+        Themed<TextElement> TitleText = [] {
+            return TextElement{ .m_name = "Global.Text.Title", .m_family = Foundations::Label::Family, .m_pixelSize = TitleSize };
         };
-        const TextElement TitleText{ .m_name = "Global.Text.Title", .m_family = Foundations::Label::Family, .m_pixelSize = TitleSize };
-        const TextElement SubtitleText{
+        Themed<TextElement> SubtitleText = [] { return TextElement{
             .m_name = "Global.Text.Subtitle",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = SubtitleSize,
             .m_weight = HeadingWeight,
-        };
-        const TextElement ButtonText{
+        }; };
+        Themed<TextElement> ButtonText = [] { return TextElement{
             .m_name = "Global.Text.Button",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = Foundations::Label::Size,
             .m_weight = ButtonWeight,
-        };
+        }; };
 
         //! `AzQtComponents--TitleBar #title`
-        const TextElement TitleBarTitleText{
+        Themed<TextElement> TitleBarTitleText = [] { return TextElement{
             .m_name = "Global.Text.TitleBarTitle",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = TitleBarTitleSize,
-        };
+        }; };
         //! `AzQtComponents--CardHeader #Title`
-        const TextElement CardTitleText{
+        Themed<TextElement> CardTitleText = [] { return TextElement{
             .m_name = "Global.Text.CardTitle",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = Foundations::Label::Size,
             .m_weight = CardTitleWeight,
-        };
+        }; };
         //! `AzQtComponents--PaletteCardBase AzQtComponents--CardHeader #Title`
-        const TextElement PaletteCardTitleText{
+        Themed<TextElement> PaletteCardTitleText = [] { return TextElement{
             .m_name = "Global.Text.PaletteCardTitle",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = Foundations::Label::Size,
             .m_weight = PaletteCardTitleWeight,
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Helpers
@@ -181,22 +195,78 @@ namespace AzQtComponents
         //! One class font: the element over the platform's font for the class. A class the platform supplies none for gets one of
         //! its own if `always`, never a copy of the application font: Qt tells a class font from it by identity
         //! (QWidgetPrivate::naturalWidgetFont).
-        void installClassFont(const char* className, const TextElement& element, bool always)
+        //! A class a rule sizes: the rule over the font the platform supplies for the class, or over a font of the rule's family
+        void installClassFont(const char* className, const TextElement& element)
         {
             QFont font = QApplication::font(className); // the platform's, else the application font
             const bool supplied = !font.isCopyOf(QApplication::font());
             if (!supplied)
             {
-                if (!always)
-                {
-                    return;
-                }
                 font = QFont(QString::fromUtf8(element.m_family));
             }
             if (element.overlay(font) || !supplied)
             {
                 QApplication::setFont(font, className);
             }
+        }
+
+        // ------------------------------------------------------------------------------
+        // The fonts the platform supplies
+        // ------------------------------------------------------------------------------
+
+        //! The font the platform supplies for each of PlatformClasses, as QApplication::setStyle left it, and what was set over
+        //! it last. Qt makes the platform's fonts in setStyle only, and QApplication::setFont without a class (a theme that
+        //! changes the application font) clears them with every other class font: they are remembered here, per application.
+        struct PlatformFonts
+        {
+            QHash<QByteArray, QFont> m_supplied;
+            QHash<QByteArray, QFont> m_installed;
+        };
+
+        constexpr const char* PlatformFontsRemembered = "_o3de_platformFontsRemembered";
+
+        PlatformFonts& platformFonts()
+        {
+            static PlatformFonts fonts;
+            // Another application (a test makes one per case) starts with nothing remembered
+            if (!qApp->property(PlatformFontsRemembered).isValid())
+            {
+                fonts = PlatformFonts();
+                qApp->setProperty(PlatformFontsRemembered, true);
+            }
+            return fonts;
+        }
+
+        //! A class no rule sizes: '*' (the family and the weight) over the font the platform supplies; no class font where it
+        //! supplies none. In O3DE Original the size is the platform's, as the '*' rule sets none; a theme that changes the
+        //! universal size sets it for these classes too (menus, item views, the status bar).
+        void installPlatformClassFont(const char* className)
+        {
+            PlatformFonts& fonts = platformFonts();
+            const QFont current = QApplication::font(className);
+            const bool supplied = !current.isCopyOf(QApplication::font());
+            // What is there and is not what was set here last is the platform's: at the first install, or after a setStyle
+            if (supplied && (!fonts.m_installed.contains(className) || current != fonts.m_installed.value(className)))
+            {
+                fonts.m_supplied.insert(className, current);
+            }
+            const auto platform = fonts.m_supplied.constFind(className);
+            if (platform == fonts.m_supplied.constEnd())
+            {
+                return;
+            }
+
+            QFont font = platform.value();
+            AnyText.overlay(font);
+            if (Foundations::Surface::Size.changed())
+            {
+                font.setPixelSize(Foundations::Surface::Size);
+            }
+            if (!supplied || font != current)
+            {
+                QApplication::setFont(font, className);
+            }
+            fonts.m_installed.insert(className, font);
         }
 
         //! Code set font attributes on the widget or on an ancestor: Qt keeps both in the mask of the widget's font, class fonts add
@@ -376,14 +446,14 @@ namespace AzQtComponents
 
         // Qt looks a class font up by the widget's class, then each base class up to QWidget (QApplication::font), and applies it
         // right after the style's polish (QWidget::event, QEvent::Polish)
-        installClassFont("QWidget", BaseText, true);
+        installClassFont("QWidget", BaseText);
         for (const Rule& rule : ClassRules)
         {
-            installClassFont(rule.m_key, *rule.m_element, true);
+            installClassFont(rule.m_key, *rule.m_element);
         }
         for (const char* className : PlatformClasses)
         {
-            installClassFont(className, AnyText, false);
+            installPlatformClassFont(className);
         }
     }
 

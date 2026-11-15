@@ -25,7 +25,7 @@ namespace ScriptCanvasEditor
     namespace ScriptCanvasColorDataInterfaceFlat
     {
         // ScriptCanvasColorDataInterface.h:78, was QColor("#333333") (ScriptCanvasColorDataInterface::GetIcon) $line.picker.idle.color.Low
-        inline constexpr QColor ColorSwatchOutline = AzQtComponents::Foundations::Low;
+        inline const QColor& ColorSwatchOutline = AzQtComponents::Foundations::Low;
     } // namespace ScriptCanvasColorDataInterfaceFlat
 
     class ScriptCanvasColorDataInterface

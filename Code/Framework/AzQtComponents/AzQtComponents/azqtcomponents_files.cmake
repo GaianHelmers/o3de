@@ -118,6 +118,13 @@ set(FILES
     Components/StyleSheetCache.h
     Components/StylesheetPreprocessor.cpp
     Components/StylesheetPreprocessor.h
+    Components/Theme/ThemeEditor.cpp
+    Components/Theme/ThemeEditor.h
+    Components/Theme/ThemeManager.cpp
+    Components/Theme/ThemeManager.h
+    Components/Theme/ThemeToken.h
+    Components/Theme/ThemeTokens.cpp
+    Components/Theme/ThemeTokens.h
     Components/GuiPerfCounters.cpp
     Components/GuiPerfCounters.h
     Components/GuiPerfFloor.cpp

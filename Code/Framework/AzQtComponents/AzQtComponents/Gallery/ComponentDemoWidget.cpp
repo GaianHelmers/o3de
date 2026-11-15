@@ -42,6 +42,8 @@
 #include "TreeViewPage.h"
 #include "TypographyPage.h"
 
+#include <AzQtComponents/Components/Theme/ThemeEditor.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <AzQtComponents/Components/UiCaptureHarness.h>
 #include <AzQtComponents/Components/Widgets/Card.h>
 
@@ -602,6 +604,16 @@ void ComponentDemoWidget::setupMenuBar()
 
     QAction* refreshAction = fileMenu->addAction("Refresh Stylesheet");
     QObject::connect(refreshAction, &QAction::triggered, this, &ComponentDemoWidget::refreshStyle);
+
+    // Flattened GUI: the theme editor, in a window beside the Gallery, where a theme shows on every control
+    if (AzQtComponents::ThemeManager::instance())
+    {
+        QAction* themeAction = fileMenu->addAction(tr(AzQtComponents::ThemeEditor::Title));
+        QObject::connect(themeAction, &QAction::triggered, this, [this]
+        {
+            AzQtComponents::ThemeEditor::showWindow(this);
+        });
+    }
     fileMenu->addSeparator();
 
     m_editMenu = menuBar()->addMenu("&Edit");

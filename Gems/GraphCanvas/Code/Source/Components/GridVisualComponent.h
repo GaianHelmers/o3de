@@ -144,6 +144,8 @@ namespace GraphCanvas
         Styling::StyleHelper m_style;
 
         AZStd::fixed_vector< QPixmap*, 4> m_levelOfDetails;
+        //! The theme the tiles were made under (ThemeTokens::generation): the flattened GUI makes them again after a change
+        int m_themeGeneration = 0;
 
         GridVisualComponent& m_gridVisual;
     };

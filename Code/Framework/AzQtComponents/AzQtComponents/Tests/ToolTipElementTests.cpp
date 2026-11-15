@@ -33,12 +33,12 @@ namespace AzQtComponents
 
         //! The text a sheet of `font-size: 10px; color: #94D2FF; text-decoration: underline` gave (LinkWidget.cpp:56 of the Project
         //! Manager, before the flattening, is one), and the fills of three sheets of `background-color`
-        const TextElement SmallLinkText{
+        Themed<TextElement> SmallLinkText = [] { return TextElement{
             .m_name = "Test.Text.SmallLink",
             .m_pixelSize = 10,
             .m_underline = 1,
             .m_color = QColor(0x94, 0xD2, 0xFF),
-        };
+        }; };
         const ToolTipElement FillAndText{
             .m_name = "Test.ToolTip.FillAndText",
             .m_fill = QColor(35, 35, 35),

@@ -73,9 +73,9 @@ namespace AzToolsFramework
 
         // ---- The values of the sheets
         // PropertyRowWidget.cpp:64 (PropertyRowWidget::Initialize) $fill.item.idle.Highest
-        const QColor SettingFill = AzQtComponents::Foundations::Highest;
+        const QColor& SettingFill = AzQtComponents::Foundations::Highest;
         // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $fill.separator.idle.Low
-        const QColor DividerFill = AzQtComponents::Foundations::Low;
+        const QColor& DividerFill = AzQtComponents::Foundations::Low;
         // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $space.separator.idle.margin.Alt1
         constexpr int DividerMarginTop = 5;
         constexpr int DividerRadius = 2;  // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $radius.separator.idle.Alt1
@@ -87,26 +87,26 @@ namespace AzToolsFramework
         constexpr QSize LabelMinSize(-1, LabelHeight);  // ReflectedPropertyEditor.qss:11, :19 $size.item.idle.height.Alt1
         constexpr QSize LabelMaxSize(-1, LabelHeight);  // ReflectedPropertyEditor.qss:12, :20 $size.item.idle.height.Alt1
         // Text.qss:93-94 (QLabel { margin-top: 1px; margin-bottom: 1px }), what ReflectedPropertyEditor.qss:19-20 leaves alone
-        constexpr int LabelMarginV = AzQtComponents::Foundations::Label::MarginV;   // Text.qss:93-94 $space.item.idle.margin.Alt3
+        const int& LabelMarginV = AzQtComponents::Foundations::Label::MarginV;   // Text.qss:93-94 $space.item.idle.margin.Alt3
 
         // ---- The box of the coordinate label of a vector below a setting row: VectorInput.qss:9-16, which the fill of the row's sheet
         // lies over in place of the colour of the coordinate (VectorInput.qss:37-55)
         constexpr int VectorLabelMarginV = 2;           // VectorInput.qss:11-12 $space.item.idle.margin.Alt4
-        constexpr int VectorLabelRadius = 2;            // VectorInput.qss:13-14 $radius.item.idle.Alt1
+        const int& VectorLabelRadius = AzQtComponents::Foundations::Field::Radius;  // VectorInput.qss:13-14 $radius.item.idle.Alt1
 
         // ---- The elements
         //! `QFrame {background-color: #555555}` on a frame below a row of a scene setting. The frame has no box of its own: the fill
         //! alone.
-        const AzQtComponents::BoxElement SettingFrame{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> SettingFrame = [] { return AzQtComponents::BoxElement{
             .m_name = "AzToolsFramework.Box.SceneSettingFrame",
             .m_idle = {
                 .m_fill = QBrush(SettingFill),
             },
-        };
+        }; };
 
         //! `AzToolsFramework--PropertyRowWidget QLabel#Name` (ReflectedPropertyEditor.qss:9-15) below a row of a scene setting: the name
         //! of Global.Box.PropertyRowName, over the fill of the sheet (the sheet's is deeper than the application's)
-        const AzQtComponents::BoxElement SettingRowName{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> SettingRowName = [] { return AzQtComponents::BoxElement{
             .m_name = "AzToolsFramework.Box.SceneSettingRowName",
             .m_margin = NameMargin,
             .m_minSize = LabelMinSize,
@@ -114,11 +114,11 @@ namespace AzToolsFramework
             .m_idle = {
                 .m_fill = QBrush(SettingFill),
             },
-        };
+        }; };
 
         //! `AzToolsFramework--PropertyRowWidget QLabel#DefaultLabel` (ReflectedPropertyEditor.qss:17-21) below a row of a scene setting:
         //! Global.Box.PropertyRowDefaultLabel, over the fill of the sheet
-        const AzQtComponents::BoxElement SettingRowDefaultLabel{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> SettingRowDefaultLabel = [] { return AzQtComponents::BoxElement{
             .m_name = "AzToolsFramework.Box.SceneSettingRowDefaultLabel",
             .m_margin = QMargins(0, LabelMarginV, 0, LabelMarginV),
             .m_minSize = LabelMinSize,
@@ -126,11 +126,11 @@ namespace AzToolsFramework
             .m_idle = {
                 .m_fill = QBrush(SettingFill),
             },
-        };
+        }; };
 
         //! `QFrame {background-color: #333333; margin-top: 5px; border-top-*-radius: 2px}` on the row of a group in the display divider
         //! style: a margin above, a border of the rule's own (a radius gives it a style), the fill in the border box
-        const AzQtComponents::BoxElement DividerRow{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> DividerRow = [] { return AzQtComponents::BoxElement{
             .m_name = "AzToolsFramework.Box.SceneDividerRow",
             .m_margin = QMargins(0, DividerMarginTop, 0, 0),
             .m_nativeBorder = false,
@@ -138,10 +138,10 @@ namespace AzToolsFramework
             .m_idle = {
                 .m_fill = QBrush(DividerFill),
             },
-        };
+        }; };
 
         //! The name label of a divider row: the label of Global.Box.PropertyRowName with the sheet's margin above, fill and corners
-        const AzQtComponents::BoxElement DividerRowName{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> DividerRowName = [] { return AzQtComponents::BoxElement{
             .m_name = "AzToolsFramework.Box.SceneDividerRowName",
             .m_margin = QMargins(NameMargin.left(), DividerMarginTop, 0, 0),
             .m_nativeBorder = false,
@@ -151,11 +151,11 @@ namespace AzToolsFramework
             .m_idle = {
                 .m_fill = QBrush(DividerFill),
             },
-        };
+        }; };
 
         //! The default label of a divider row: Global.Box.PropertyRowDefaultLabel with the sheet's margin above, fill and corners (the
         //! margin below stays the label rule's)
-        const AzQtComponents::BoxElement DividerRowDefaultLabel{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> DividerRowDefaultLabel = [] { return AzQtComponents::BoxElement{
             .m_name = "AzToolsFramework.Box.SceneDividerRowDefaultLabel",
             .m_margin = QMargins(0, DividerMarginTop, 0, LabelMarginV),
             .m_nativeBorder = false,
@@ -165,12 +165,12 @@ namespace AzToolsFramework
             .m_idle = {
                 .m_fill = QBrush(DividerFill),
             },
-        };
+        }; };
 
         //! `AzQtComponents--VectorElement QLabel` (VectorInput.qss:9-16) below a row of a scene setting: the label of a coordinate of a
         //! vector keeps its box (a margin above and below, the two left corners rounded), and the fill of the row's sheet is its fill in
         //! place of the colour of its coordinate (VectorInput.qss:37-55), as the sheet of the row is deeper than the application's.
-        const AzQtComponents::BoxElement SettingVectorLabel{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> SettingVectorLabel = [] { return AzQtComponents::BoxElement{
             .m_name = "AzToolsFramework.Box.SceneSettingVectorLabel",
             .m_margin = QMargins(0, VectorLabelMarginV, 0, VectorLabelMarginV),
             .m_nativeBorder = false,
@@ -178,7 +178,7 @@ namespace AzToolsFramework
             .m_idle = {
                 .m_fill = QBrush(SettingFill),
             },
-        };
+        }; };
 
         // ---- The matchers
         //! Whether the sheet a widget lies under is the one of `tag`: its own tag, else that of the nearest parent that has either

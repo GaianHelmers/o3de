@@ -57,7 +57,7 @@ namespace AzToolsFramework::EntityOutliner
         //! the role of the selection and the fills of an item and a branch transparent in every state that has one (:17, :24-31), over the
         //! fills of TableView.qss (:42-60) that would otherwise show under what the delegate draws. The caret, the indentation and the disabled
         //! text stay the Global tree's. n2 Editor 01_main_window: the rows of the outliner have no fill of their own.
-        const ItemViewElement OutlinerTree{
+        AzQtComponents::Themed<ItemViewElement> OutlinerTree = [] { return ItemViewElement{
             .m_name = "Editor.ItemView.OutlinerTree",
             .m_selection = AzQtComponents::Foundations::Clear,      // EntityOutliner.qss:17 $fill.view.idle.selection-fill.Clear
             .m_faces = {
@@ -68,7 +68,7 @@ namespace AzToolsFramework::EntityOutliner
                 // $fill.tree-branch.hover.Clear
                 { ItemViewElement::Hover, { AzQtComponents::Foundations::Clear, QColor(), QColor() } },
             },
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Matchers: the selectors that gave each rule its widgets

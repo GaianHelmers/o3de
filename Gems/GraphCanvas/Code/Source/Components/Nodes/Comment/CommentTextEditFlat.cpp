@@ -62,24 +62,24 @@ namespace GraphCanvas
         //! The text of a comment, at the lines of `comment > .commentText` (+30 in Script Canvas's sheet): black (`color`, :255), Open
         //! Sans (`font-family`, :257), 120% of the default size (`font-size`, :258), italic (`font-style`, :259) and the default weight
         //! (`font-weight`, :261), which is the application font's, Foundations::Surface::Weight.
-        const AzQtComponents::TextElement CommentText{
+        AzQtComponents::Themed<AzQtComponents::TextElement> CommentText = [] { return AzQtComponents::TextElement{
             .m_name = "GraphCanvas.Text.CommentEditorComment",
             .m_family = AzQtComponents::Foundations::Surface::Family,                   // font-family: :257
             .m_pixelSize = CommentFontSize,                                             // font-size: :258
             .m_weight = AzQtComponents::Foundations::Surface::Weight,                   // font-weight: :261
             .m_italic = 1,  // font-style: :259 materialcanvas_style.json:259 $type.graph.idle.style.Alt1
             .m_color = TextColor,                                                       // color: :255
-        };
+        }; };
 
         //! The text of a group title: black, in the default font, with no italic (the rules of `nodeGroup > .commentText` have no font
         //! or colour, so GetFont and GetFontStyleSheet give the defaults)
-        const AzQtComponents::TextElement GroupTitleText{
+        AzQtComponents::Themed<AzQtComponents::TextElement> GroupTitleText = [] { return AzQtComponents::TextElement{
             .m_name = "GraphCanvas.Text.CommentEditorGroupTitle",
             .m_family = AzQtComponents::Foundations::Surface::Family,                   // the default family: StyleHelper.cpp:166
             .m_pixelSize = GroupTitleFontSize,                                          // the default size: StyleHelper.cpp:167
             .m_weight = AzQtComponents::Foundations::Surface::Weight,                   // the default weight: StyleHelper.cpp:168
             .m_color = TextColor,                                                       // the unset colour: StyleHelper.cpp:178-182
-        };
+        }; };
 
         // ---- The choice of the looks
 

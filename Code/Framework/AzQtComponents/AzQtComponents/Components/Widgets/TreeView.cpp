@@ -32,7 +32,7 @@ namespace AzQtComponents
         // ------------------------------------------------------------------------------
         // The drag image of a tree item (shown only while dragging)
         // ------------------------------------------------------------------------------
-        constexpr QColor DragImageFill = Foundations::BG;   // TreeView.cpp:330 (StyledTreeView::CreateDragImage) $fill.view.drag.BG
+        const QColor& DragImageFill = Foundations::BG;   // TreeView.cpp:330 (StyledTreeView::CreateDragImage) $fill.view.drag.BG
     } // namespace TreeViewFlat
 
     class TreeViewWatcher

@@ -53,19 +53,19 @@ namespace AzToolsFramework
     {
         //! `ComponentPaletteWidget { border: 1px solid #4E4E4E }` (Editor.qss:34): the line of the frame, which a Box frame draws in
         //! the WindowText role. ComponentPaletteWidget.cpp:97. $line.surface.idle.color.Alt5
-        constexpr QColor Border(0x4E, 0x4E, 0x4E);
+        const QColor& Border = AzQtComponents::Foundations::Inspector::PaletteLine;
 
         //! `ComponentPaletteWidget { background-color: #383A3B }` (Editor.qss:35): the Window role. ComponentPaletteWidget.cpp:96.
         //! $fill.surface.idle.Alt10
-        constexpr QColor Background(0x38, 0x3A, 0x3B);
+        const QColor& Background = AzQtComponents::Foundations::Inspector::PaletteFill;
 
         //! `ComponentPaletteWidget > QTreeView { background-color: #222222 }` (Editor.qss:40): the Base role of the tree.
         //! ComponentPaletteWidget.cpp:102. $fill.view.idle.fill.BG
-        constexpr QColor TreeBackground = AzQtComponents::Foundations::BG;
+        const QColor& TreeBackground = AzQtComponents::Foundations::BG;
 
         //! The colour of the tree's text, the universal rule's white (BaseStyleSheet.qss:18): the Text and WindowText roles.
         //! ComponentPaletteWidget.cpp:103, :104. $text.surface.idle.Alt1
-        constexpr QColor TreeText = AzQtComponents::Foundations::Surface::Text;
+        const QColor& TreeText = AzQtComponents::Foundations::Surface::Text;
     } // namespace ComponentPaletteWidgetFlatInternal
 
     ComponentPaletteWidget::ComponentPaletteWidget(QWidget* parent, bool enableSearch)
@@ -116,20 +116,10 @@ namespace AzToolsFramework
         {
             // Editor.qss:32-36, ComponentPaletteWidget { border: 1px solid #4E4E4E; background-color:
             // #383A3B }, and Editor.qss:38-41, ComponentPaletteWidget > QTreeView { background-color: #222222 }.
-            // The colours are ComponentPaletteWidgetFlatInternal's, above.
             setFrameStyle(QFrame::Box | QFrame::Plain);
             setLineWidth(1);
-            QPalette palettePalette = palette();
-            palettePalette.setColor(QPalette::Window, ComponentPaletteWidgetFlatInternal::Background);
-            palettePalette.setColor(QPalette::WindowText, ComponentPaletteWidgetFlatInternal::Border);
-            setPalette(palettePalette);
             setAutoFillBackground(true);
-
-            QPalette treePalette = m_componentTree->palette();
-            treePalette.setColor(QPalette::Base, ComponentPaletteWidgetFlatInternal::TreeBackground);
-            treePalette.setColor(QPalette::Text, ComponentPaletteWidgetFlatInternal::TreeText);
-            treePalette.setColor(QPalette::WindowText, ComponentPaletteWidgetFlatInternal::TreeText);
-            m_componentTree->setPalette(treePalette);
+            ApplyFlatColors();
         }
 
         connect(m_searchText, &QLineEdit::textChanged, this, &ComponentPaletteWidget::QueueUpdateSearch);
@@ -350,8 +340,29 @@ namespace AzToolsFramework
     }
 
 
+    void ComponentPaletteWidget::ApplyFlatColors()
+    {
+        // The colours are ComponentPaletteWidgetFlatInternal's, above: tokens, read when the palette is built and each time it is
+        // presented, so that it has the colours of the theme in effect
+        QPalette palettePalette = palette();
+        palettePalette.setColor(QPalette::Window, ComponentPaletteWidgetFlatInternal::Background);
+        palettePalette.setColor(QPalette::WindowText, ComponentPaletteWidgetFlatInternal::Border);
+        setPalette(palettePalette);
+
+        QPalette treePalette = m_componentTree->palette();
+        treePalette.setColor(QPalette::Base, ComponentPaletteWidgetFlatInternal::TreeBackground);
+        treePalette.setColor(QPalette::Text, ComponentPaletteWidgetFlatInternal::TreeText);
+        treePalette.setColor(QPalette::WindowText, ComponentPaletteWidgetFlatInternal::TreeText);
+        m_componentTree->setPalette(treePalette);
+    }
+
     void ComponentPaletteWidget::Present()
     {
+        if (AzQtComponents::StyleManager::stylesheetsDisabled())
+        {
+            ApplyFlatColors();
+        }
+
         layout()->setEnabled(true);
         layout()->update();
         layout()->activate();

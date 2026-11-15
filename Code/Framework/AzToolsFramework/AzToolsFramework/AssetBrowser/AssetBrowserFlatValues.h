@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
+
 #include <QColor>
 
 namespace AzToolsFramework::AssetBrowser
@@ -24,6 +26,6 @@ namespace AzToolsFramework::AssetBrowser
         //! The fill of the row of a top-level entry (one with no parent index) that is neither hovered nor selected, and of the branch
         //! cell beside it: EntryDelegate.cpp:135, AssetBrowserTreeView.cpp:202, FavoritesEntryDelegate.cpp:97,
         //! AssetBrowserFavoritesView.cpp:219 (EntryDelegate::paint) $fill.item.idle.Low
-        inline constexpr QColor RootRowFill(0x33, 0x33, 0x33);
+        inline const QColor& RootRowFill = AzQtComponents::Foundations::Low;
     } // namespace AssetBrowserFlat
 } // namespace AzToolsFramework::AssetBrowser

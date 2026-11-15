@@ -36,7 +36,7 @@ namespace PreviewActionLogFlat
     constexpr QColor NewText(255, 255, 255);
 
     // PreviewActionLog.cpp:28 (background-color of the log, set as its sheet) (PreviewActionLog::PreviewActionLog) $fill.console.idle.BG
-    constexpr QColor Fill = AzQtComponents::Foundations::BG;
+    const QColor& Fill = AzQtComponents::Foundations::BG;
 } // namespace PreviewActionLogFlat
 
 PreviewActionLog::PreviewActionLog([[maybe_unused]] EditorWindow* editorWindow)

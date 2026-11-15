@@ -56,7 +56,7 @@ namespace LUAEditor
         //! 1px }`, Text.qss:93-94): an element is the whole definition of its box, so it carries that margin. An inset border has the
         //! colour of the rule on its top and left edges and that colour lightened on its bottom and right edges. The site fills the
         //! label itself (setAutoFillBackground), which the element takes over at polish, as the sheet did.
-        const BoxElement PerforceStatusBox{
+        AzQtComponents::Themed<BoxElement> PerforceStatusBox = [] { return BoxElement{
             .m_name = "LuaIDE.Box.PerforceStatus",
             .m_margin = QMargins(0, AzQtComponents::Foundations::Label::MarginV, 0, AzQtComponents::Foundations::Label::MarginV),
             .m_nativeBorder = false,
@@ -66,15 +66,15 @@ namespace LUAEditor
                 .m_edges = BoxElement::border(
                     PerforceStatusBorderWidth, LUAEditorMainWindowFlat::PerforceStatusBorder, BoxElement::LineStyle::Inset),
             },
-        };
+        }; };
 
         //! `color: black` of the same sheet, over the family and size of the label rule (Text.qss:91-92)
-        const TextElement PerforceStatusText{
+        AzQtComponents::Themed<TextElement> PerforceStatusText = [] { return TextElement{
             .m_name = "LuaIDE.Text.PerforceStatus",
             .m_family = AzQtComponents::Foundations::Label::Family,
             .m_pixelSize = AzQtComponents::Foundations::Label::Size,
             .m_color = LUAEditorMainWindowFlat::PerforceStatusText,
-        };
+        }; };
 
         //! The label the site names (LUAEditorMainWindow.cpp, OnOpenLUAView): the one label of the application that has the sheet
         bool isPerforceStatus(const QWidget* widget)

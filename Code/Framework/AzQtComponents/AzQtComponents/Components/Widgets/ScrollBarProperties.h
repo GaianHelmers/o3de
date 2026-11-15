@@ -23,5 +23,9 @@ namespace AzQtComponents
         //! The property ScrollBar::setBackgroundColor gives a scroll area in the flattened GUI, in place of the inline sheet
         //! `background: <colour>` of the legacy GUI
         inline constexpr const char* BackgroundColor = "_o3de_scrollAreaBackgroundColor";
+
+        //! The key of the token that colour was handed over as, if it was one (ScrollBar::setBackgroundColor): the area takes
+        //! the theme's value of it whenever it is polished
+        inline constexpr const char* BackgroundToken = "_o3de_scrollAreaBackgroundToken";
     } // namespace ScrollBarProperties
 } // namespace AzQtComponents

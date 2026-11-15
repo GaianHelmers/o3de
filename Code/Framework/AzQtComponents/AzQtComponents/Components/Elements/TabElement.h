@@ -66,6 +66,7 @@ namespace AzQtComponents
         TabFace m_focus;
         QMargins m_margin;                      //!< around the tab's box, inside its rect
         QMargins m_padding;
+        int m_topRadius = 0;                    //!< the radius of the tab's top corners (0: square, as every legacy rule had it)
         // The contents (0: unset): the minimum width wins over the maximum, and a height replaces the text's
         int m_minContentWidth = 0;
         int m_maxContentWidth = 0;

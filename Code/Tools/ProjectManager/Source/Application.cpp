@@ -16,6 +16,7 @@
 #include <AzFramework/Logging/LoggingComponent.h>
 #include <AzQtComponents/Utilities/HandleDpiAwareness.h>
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
 #include <ProjectManager_Traits_Platform.h>
 
@@ -234,6 +235,8 @@ namespace O3DE::ProjectManager
         // Set up the Style Manager
         AzQtComponents::StyleManager styleManager(qApp);
         styleManager.initialize(qApp, GetEngineRoot());
+        // Flattened GUI: the theme the user chose last
+        AzQtComponents::ThemeManager::restoreSavedTheme();
 
         // setup stylesheets and hot reloading 
         AZ::IO::FixedMaxPath engineRoot(GetEngineRoot());

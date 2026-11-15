@@ -43,10 +43,10 @@ namespace GraphCanvas
         // and LandscapeCanvas graphcanvas_style.json:3-13, the same lines in the four)
 
         //! `background-color` (materialcanvas_style.json:5): the BG tier of the grey ladder, which is #222222 $fill.graph.idle.BG
-        inline constexpr QColor Background = AzQtComponents::Foundations::BG;
+        inline const QColor& Background = AzQtComponents::Foundations::Graph::Fill;
 
         //! `grid-major-color` (materialcanvas_style.json:7) $line.graph.idle.grid-major-color
-        inline constexpr QColor MajorColor(0x28, 0x28, 0x28);
+        inline const QColor& MajorColor = AzQtComponents::Foundations::Graph::GridLine;
 
         //! `grid-major-width` (materialcanvas_style.json:8) $line.graph.idle.grid-major-width
         inline constexpr qreal MajorWidth = 1.0;
@@ -55,7 +55,7 @@ namespace GraphCanvas
         inline constexpr Qt::PenStyle MajorStyle = Qt::SolidLine;
 
         //! `grid-minor-color` (materialcanvas_style.json:11) $line.graph.idle.grid-minor-color
-        inline constexpr QColor MinorColor(0x28, 0x28, 0x28);
+        inline const QColor& MinorColor = AzQtComponents::Foundations::Graph::GridLine;
 
         //! `grid-minor-width` (materialcanvas_style.json:12) $line.graph.idle.grid-minor-width
         inline constexpr qreal MinorWidth = 0.5;

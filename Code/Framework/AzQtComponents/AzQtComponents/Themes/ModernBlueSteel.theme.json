@@ -1,0 +1,111 @@
+{
+    "name": "Modern Blue Steel",
+    "description": "A flat, modern blue-steel dark theme: dark entry fields, rounder corners, taller fields and tabs.",
+    "author": "Open 3D Engine",
+    "base": "O3DE Original",
+    "colors": {
+        "tier.FarBG": "#0F1014",
+        "tier.BG": "#1A1C24",
+        "tier.Low": "#1A1C24",
+        "tier.Mid": "#282B35",
+        "tier.Highest": "#32353F",
+
+        "text.Disabled": "#5A6170",
+        "text.Muted": "#8A92A0",
+        "text.TextArea": "#C8CDD6",
+        "text.Highlighted": "#5B9CFF",
+        "text.DisabledItem": "#5A6170",
+        "text.DisabledOnFill": "#8A92A0",
+
+        "accent.Primary": "#2680EB",
+        "accent.Focus": "#5B9CFF",
+        "accent.Selected": "#2680EB",
+
+        "fill.Disabled": "#2A2D36",
+        "fill.ItemSelected": "#2B63BE",
+        "fill.ItemHeader": "#1A1C24",
+        "fill.ItemView": "#1E2028",
+        "fill.FieldLight": "#20232C",
+        "fill.ButtonLight": "#3C3F4A",
+        "fill.ButtonHighlight": "#474B57",
+        "fill.ButtonLow": "#33363F",
+        "fill.ButtonPressed": "#3A4A5E",
+
+        "line.Frame": "#0F1014",
+        "line.TabPane": "#15161D",
+        "line.ColorPickerFrame": "#3C3F4A",
+
+        "field.Fill": "#232630",
+        "field.Text": "#E8EAED",
+        "field.Line": "#3C3F4A",
+        "field.HoverLine": "#3C3F4A",
+        "field.FocusFill": "#2A2D36",
+        "field.DisabledFill": "#232630",
+
+        "tab.SecondaryText": "#8A92A0",
+        "tab.Fill": "#1B1D25",
+
+        "window.StatusBarFill": "#07080A",
+        "window.DockTitleFill": "#15161D",
+        "window.TitleText": "#C8CDD6",
+        "window.FrameLine": "#0F1014",
+
+        "scroll.HoverLane": "#FFFFFF1F",
+
+        "menu.BarFill": "#15161D",
+        "menu.SelectedFill": "#2F3644",
+        "menu.Separator": "#2A2D36",
+        "menu.BarSelectedFill": "#2F3644",
+
+        "view.HoverFill": "#243A60",
+        "view.DisabledText": "#5A6170",
+
+        "card.ModifiedText": "#E5A24A",
+
+        "slider.Groove": "#3C3F4A",
+        "slider.GrooveHover": "#5B9CFF",
+        "slider.ProgressTrack": "#2A2D36",
+
+        "button.SegmentFill": "#2A2D36",
+        "button.SegmentCheckedFill": "#2F3644",
+
+        "chip.Fill": "#1F2129",
+        "chip.Line": "#3C3F4A",
+
+        "outliner.SelectedWash": "#2680EB6E",
+        "outliner.HoverWash": "#2B63BE82",
+        "outliner.PrefabHoverFill": "#2F3644",
+        "outliner.PrefabSelectedFill": "#3C3F4A",
+
+        "inspector.PaletteFill": "#1A1C24",
+        "inspector.PaletteLine": "#3C3F4A",
+
+        "console.Fill": "#15161D",
+
+        "graph.Fill": "#15161D",
+        "graph.GridLine": "#2A2D36",
+        "graph.AnimationFill": "#15161D"
+    },
+    "structure": {
+        "field.Radius": 4,
+        "field.HoverRadius": 4,
+        "field.FocusRadius": 4,
+        "field.ErrorRadius": 4,
+        "field.Height": 20,
+        "field.PaddingLeft": 2,
+        "field.PaddingTop": 0,
+        "field.PaddingBottom": 0,
+
+        "tab.TopRadius": 6,
+        "tab.Height": 32,
+        "tab.SecondaryHeight": 34,
+        "tab.Padding": "9 8 21 8",
+        "tab.SecondaryPadding": "14 9 14 7",
+        "tab.BorderedPadding": "14 8 14 8",
+
+        "button.Radius": 6,
+        "button.SmallIconRadius": 4,
+        "card.Radius": 4,
+        "chip.Radius": 4
+    }
+}

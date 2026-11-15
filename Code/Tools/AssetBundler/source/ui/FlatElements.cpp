@@ -65,15 +65,15 @@ namespace AssetBundler
         //! The #1B1B1B of the file tables: the fill of their header frames and of the labels in them (AssetBundler.qss:47, :52) and
         //! the line of the frames and of the log table (:22, :36). $fill.surface.idle.Alt2
         //! $fill.label.idle.Alt5 $line.view.idle.color $line.surface.idle.color.Alt3
-        const QColor TableLine = Foundations::Line::Frame;
+        const QColor& TableLine = Foundations::Line::Frame;
 
         //! `.QFrame[frameShape="6"] { background-color: #444444 }` (BaseStyleSheet.qss:47): the fill of a panel frame, which is what
         //! the .ui files make of both file frames of every tab (StyledPanel). $fill.surface.idle.Mid
-        const QBrush PanelFill(Foundations::Mid);
+        AzQtComponents::Themed<QBrush> PanelFill = [] { return QBrush(Foundations::Mid); };
 
         //! The surface of the dialogs' frames, labels and check boxes, #555555 (AssetBundler.qss:110, :147).
         //! $fill.check.idle.Highest $fill.label.idle.Highest
-        const QBrush DialogFill(Foundations::Highest);
+        AzQtComponents::Themed<QBrush> DialogFill = [] { return QBrush(Foundations::Highest); };
 
         // ------------------------------------------------------------------------------
         // Text
@@ -82,12 +82,12 @@ namespace AssetBundler
         //! `QLabel#activeProjectLabel { font-size: 18px; font-family: "Amazon Ember Light" }` (AssetBundler.qss:16-17): the heading of
         //! every tab, over the '*' rule's weight 400 (BaseStyleSheet.qss:20) and white text (BaseStyleSheet.qss:18). The family is not
         //! installed: the string reaches the font database as it did in Native, which drew Tahoma.
-        const TextElement ActiveProjectLabelText{
+        AzQtComponents::Themed<TextElement> ActiveProjectLabelText = [] { return TextElement{
             .m_name = "AssetBundler.Text.ActiveProjectLabel",
             .m_family = "Amazon Ember Light",                                       // AssetBundler.qss:17 $type.label.idle.family.Alt3
             .m_pixelSize = 18,                                                      // AssetBundler.qss:16 $type.label.idle.size.Alt3
             .m_color = Foundations::Text::Primary,                                  // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Boxes: the tabs
@@ -104,45 +104,45 @@ namespace AssetBundler
         //! `QFrame#fileTableFrame, QFrame#fileContentsFrame { border: 1px solid #1B1B1B }` (AssetBundler.qss:36), a border of their
         //! own (QRenderRule::hasNativeBorder, qstylesheetstyle.cpp:511-514), over the panel fill (BaseStyleSheet.qss:47), and
         //! `QFrame#fileTableFrame { margin-right: 10px }` (AssetBundler.qss:39-41)
-        const BoxElement FileTableFrame{
+        AzQtComponents::Themed<BoxElement> FileTableFrame = [] { return BoxElement{
             .m_name = "AssetBundler.Box.FileTableFrame",
             .m_margin = QMargins(0, 0, 10, 0),   // AssetBundler.qss:40 $space.surface.idle.margin-right.Alt2
             .m_nativeBorder = false,
             // AssetBundler.qss:36 $line.surface.idle.width.Alt1 $line.surface.idle.color.Alt3
             .m_idle = { .m_fill = PanelFill, .m_edges = BoxElement::border(1, TableLine) },
-        };
-        const BoxElement FileContentsFrame{
+        }; };
+        AzQtComponents::Themed<BoxElement> FileContentsFrame = [] { return BoxElement{
             .m_name = "AssetBundler.Box.FileContentsFrame",
             .m_nativeBorder = false,
             // AssetBundler.qss:36 $line.surface.idle.width.Alt1 $line.surface.idle.color.Alt3
             .m_idle = { .m_fill = PanelFill, .m_edges = BoxElement::border(1, TableLine) },
-        };
+        }; };
 
         //! `QFrame#fileTableHeaderFrame, QFrame#fileContentsHeaderFrame { background-color: #1B1B1B }` (AssetBundler.qss:47): a panel
         //! frame too (StyledPanel) whose border no rule touches, so the style's own is drawn
-        const BoxElement FileHeaderFrame{
+        AzQtComponents::Themed<BoxElement> FileHeaderFrame = [] { return BoxElement{
             .m_name = "AssetBundler.Box.FileHeaderFrame",
             .m_idle = { .m_fill = QBrush(TableLine) },
-        };
+        }; };
 
         //! `QFrame#fileTableHeaderFrame QLabel, QFrame#fileContentsHeaderFrame QLabel` (AssetBundler.qss:52-53): the title in a header,
         //! on the header's fill and 5px from its left, over the margins of every QLabel (Text.qss:93-94)
-        const BoxElement FileHeaderLabel{
+        AzQtComponents::Themed<BoxElement> FileHeaderLabel = [] { return BoxElement{
             .m_name = "AssetBundler.Box.FileHeaderLabel",
             // AssetBundler.qss:53 $space.label.idle.margin-left.Alt5; Text.qss:93, :94 $space.label.idle.margin-top.Alt1
             // $space.label.idle.margin-bottom.Alt1
             .m_margin = QMargins(5, 1, 0, 1),
             .m_idle = { .m_fill = QBrush(TableLine) },
-        };
+        }; };
 
         //! The same, and `QLabel#assetListContentsLabel { margin-right: 10px }` (AssetBundler.qss:116)
-        const BoxElement AssetListContentsLabel{
+        AzQtComponents::Themed<BoxElement> AssetListContentsLabel = [] { return BoxElement{
             .m_name = "AssetBundler.Box.AssetListContentsLabel",
             // AssetBundler.qss:53 $space.label.idle.margin-left.Alt5, :116 $space.label.idle.margin-right.Alt3; Text.qss:93, :94
             // $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             .m_margin = QMargins(5, 1, 10, 1),
             .m_idle = { .m_fill = QBrush(TableLine) },
-        };
+        }; };
 
         //! `QWidget#fileFilteredSearchWidget, QWidget#assetListContentsFilteredSearchWidget { margin-left: 5px; margin-right: 5px }`
         //! (AssetBundler.qss:121-122)
@@ -197,7 +197,7 @@ namespace AssetBundler
         //! `QTreeView#logTableView { border: 1px solid #1B1B1B; margin-left, margin-right, margin-bottom: 10px }` (AssetBundler.qss:22-25),
         //! a margin of 0 above as every scroll area has (QDockWidget.qss:35), over the fill of a view in a widget (`QWidget > QTreeView`,
         //! BaseStyleSheet.qss:37). Needs the door of the view's viewport.
-        const BoxElement LogTableView{
+        AzQtComponents::Themed<BoxElement> LogTableView = [] { return BoxElement{
             .m_name = "AssetBundler.Box.LogTableView",
             // AssetBundler.qss:23 $space.view.idle.margin-left, :24 $space.view.idle.margin-right, :25 $space.view.idle.margin-bottom.Alt1
             .m_margin = QMargins(10, 0, 10, 10),
@@ -205,7 +205,7 @@ namespace AssetBundler
             // AssetBundler.qss:22 $line.view.idle.width $line.view.idle.color
             .m_idle = { .m_fill = Transparent, .m_edges = BoxElement::border(1, TableLine) },
             .m_properties = { { "indentation", QVariant() } },
-        };
+        }; };
 
         //! The other tables: no border (TableView.qss:28), a margin of 0 (QDockWidget.qss:35), the fill of a view in a widget
         //! (BaseStyleSheet.qss:37). Needs the door of the view's viewport.
@@ -242,18 +242,18 @@ namespace AssetBundler
 
         //! `QTreeView#logTableView QHeaderView::section { background-color: #1B1B1B }` (AssetBundler.qss:28-30): as dark as the table's
         //! frame, which wins over the rule of every table under a tab (more specific: an id). $fill.header.idle.Alt3
-        const ItemViewElement LogTableHeader{
+        AzQtComponents::Themed<ItemViewElement> LogTableHeader = [] { return ItemViewElement{
             .m_name = "AssetBundler.ItemView.LogTableHeader",
             // AssetBundler.qss:29 $fill.header.idle.Alt3
             .m_headerFill = TableLine,                                              // background-color: AssetBundler.qss:29
-        };
+        }; };
 
         //! `QTabWidget QTreeView QHeaderView::section { background-color: rgb(77, 77, 77) }` (AssetBundler.qss:56-58): the tables of the file
         //! tabs, whatever their names.
-        const ItemViewElement TabTableHeader{
+        AzQtComponents::Themed<ItemViewElement> TabTableHeader = [] { return ItemViewElement{
             .m_name = "AssetBundler.ItemView.TabTableHeader",
             .m_headerFill = Foundations::Fill::ItemView,                            // AssetBundler.qss:57 $fill.header.idle.Alt2
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Boxes: the dialogs. UNVERIFIED by capture, all of them: no dialog is open in a capture
@@ -261,55 +261,55 @@ namespace AssetBundler
 
         //! `QDialog QFrame#inputValuesFrame { border: none; margin: 10px; padding: 10px }` (AssetBundler.qss:91-93) on the dialogs'
         //! surface (:102-110)
-        const BoxElement InputValuesFrame{
+        AzQtComponents::Themed<BoxElement> InputValuesFrame = [] { return BoxElement{
             .m_name = "AssetBundler.Box.InputValuesFrame",
             .m_margin = QMargins(10, 10, 10, 10),   // AssetBundler.qss:92 $space.surface.idle.margin.Alt5
             .m_padding = QMargins(10, 10, 10, 10),   // AssetBundler.qss:93 $space.surface.idle.padding.Alt9
             .m_nativeBorder = false,
             .m_idle = { .m_fill = DialogFill },
-        };
+        }; };
 
         //! `QDialog QFrame#lineFrame { border: none; margin-top: 10px; margin-bottom: 10px }` (AssetBundler.qss:97-99) on the dialogs'
         //! surface (:102-110)
-        const BoxElement LineFrame{
+        AzQtComponents::Themed<BoxElement> LineFrame = [] { return BoxElement{
             .m_name = "AssetBundler.Box.LineFrame",
             // AssetBundler.qss:98 $space.surface.idle.margin-top.Alt1, :99 $space.surface.idle.margin-bottom.Alt6
             .m_margin = QMargins(0, 10, 0, 10),
             .m_nativeBorder = false,
             .m_idle = { .m_fill = DialogFill },
-        };
+        }; };
 
         //! `QFrame#bundleSettingsFrame { border: none; margin-bottom: 10px }` (AssetBundler.qss:133-134) on the surface of :143-147
-        const BoxElement BundleSettingsFrame{
+        AzQtComponents::Themed<BoxElement> BundleSettingsFrame = [] { return BoxElement{
             .m_name = "AssetBundler.Box.BundleSettingsFrame",
             .m_margin = QMargins(0, 0, 0, 10),   // AssetBundler.qss:134 $space.surface.idle.margin-bottom.Alt6
             .m_nativeBorder = false,
             .m_idle = { .m_fill = DialogFill },
-        };
+        }; };
 
         //! `QFrame#outputBundleLocationFrame, QFrame#bundleSettingsFileFrame { border: none; margin: 10px }` (AssetBundler.qss:139-140)
         //! on the surface of :143-147
-        const BoxElement BundleSettingsFileFrame{
+        AzQtComponents::Themed<BoxElement> BundleSettingsFileFrame = [] { return BoxElement{
             .m_name = "AssetBundler.Box.BundleSettingsFileFrame",
             .m_margin = QMargins(10, 10, 10, 10),   // AssetBundler.qss:140 $space.surface.idle.margin.Alt5
             .m_nativeBorder = false,
             .m_idle = { .m_fill = DialogFill },
-        };
+        }; };
 
         //! The labels of the dialogs and of the bundle settings frame on the dialogs' surface (AssetBundler.qss:104-110, :146-147), with
         //! the margins of every QLabel (Text.qss:93-94)
-        const BoxElement DialogLabel{
+        AzQtComponents::Themed<BoxElement> DialogLabel = [] { return BoxElement{
             .m_name = "AssetBundler.Box.DialogLabel",
             .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             .m_idle = { .m_fill = DialogFill },
-        };
+        }; };
 
         //! The check boxes of the dialogs on the dialogs' surface (AssetBundler.qss:105-110), over the fill of CheckBox.qss:12.
         //! Needs the QCheckBox door.
-        const BoxElement DialogCheckBox{
+        AzQtComponents::Themed<BoxElement> DialogCheckBox = [] { return BoxElement{
             .m_name = "AssetBundler.Box.DialogCheckBox",
             .m_idle = { .m_fill = DialogFill },
-        };
+        }; };
     } // namespace FlatElementsInternal
 
     // ----------------------------------------------------------------------------------

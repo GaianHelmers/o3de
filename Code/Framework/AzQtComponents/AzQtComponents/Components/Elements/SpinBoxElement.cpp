@@ -46,6 +46,13 @@ namespace AzQtComponents
         constexpr int ButtonsPadding = 12;                          // SpinBox.qss:16 $space.field.idle.padding-right.Alt1
         constexpr const char* HoverImage = ":/SpinBox/hoverBackground.svg";         // SpinBox.qss:37 $asset.field.hover
         constexpr const char* HoverFocusImage = ":/SpinBox/focusedBackground.svg";  // SpinBox.qss:52 $asset.field.hover+focus
+        // The plate those images are, for a theme that changes the field's fill (drawImage): its box, the opacity of its fill and
+        // the shade at its left. SB-hover-BG.svg:2, :9, :10 $size.field-button.hover.plate $fill.field-button.hover.plate-opacity
+        // $fill.field-button.hover.plate-shade
+        constexpr QSize PlateSize(18, 16);
+        constexpr int PlateAlpha = 217;
+        constexpr int PlateShadeWidth = 1;
+        constexpr int PlateShadeAlpha = 26;
 
         // ---- The error face has two states, one rule for the two selectors. Neither name is a property of the Qt classes
         // (QAbstractSpinBox has `acceptableInput`, not `hasAcceptableInput`): a box is in either state when a caller sets the dynamic
@@ -198,6 +205,27 @@ namespace AzQtComponents
         //! by `background-position: right` (right, and centered vertically), clipped to the border box and its rounded path
         void drawImage(QPainter* painter, const QRect& box, const Face& face, const QPainterPath& path)
         {
+            // A theme that changes the fill of the field: the image is a plate in the legacy fill (SB-hover-BG.svg: the field's
+            // fill at 85 %, a shade at its left), so the plate is drawn from the fill of the state in its place
+            if (Field::Fill.changed() || Field::FocusFill.changed())
+            {
+                const QRect inside = box.marginsRemoved(face.m_border);
+                const QRect plate = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignRight | Qt::AlignVCenter, PlateSize, inside)
+                    .intersected(inside);
+                QColor fill = face.m_image == HoverFocusImage ? QColor(Field::FocusFill) : QColor(Field::Fill);
+                fill.setAlpha(PlateAlpha);
+                painter->save();
+                if (!path.isEmpty())
+                {
+                    painter->setClipPath(path, Qt::IntersectClip);
+                }
+                painter->setClipRect(box, Qt::IntersectClip);
+                painter->fillRect(plate.adjusted(PlateShadeWidth, 0, 0, 0), fill);
+                painter->fillRect(QRect(plate.left(), plate.top(), PlateShadeWidth, plate.height()), QColor(0, 0, 0, PlateShadeAlpha));
+                painter->restore();
+                return;
+            }
+
             const QPixmap pixmap = Style::cachedPixmap(QString::fromLatin1(face.m_image));
             if (pixmap.isNull())
             {
@@ -299,7 +327,14 @@ namespace AzQtComponents
         void paintGlyph(QPainter* painter, const QRect& rect, const Face& face, const QWidget* widget, bool up)
         {
             const QRect glyph = buttonBox(rect, face, GlyphSize, up);
-            CachedIcon(QString::fromLatin1(glyphImage(widget, up))).paint(painter, glyph, Qt::AlignCenter);
+            const char* image = glyphImage(widget, up);
+            // The grey arrows of a box at rest take the colour of the field's marks under a theme (ThemedIcon); the arrows that
+            // show a state (the value moving, a limit reached) keep their own colours
+            const bool atRest = image == HoverGlyphs.m_up || image == HoverGlyphs.m_down || image == FocusedGlyphs.m_up
+                || image == FocusedGlyphs.m_down;
+            const QIcon icon = atRest ? ThemedIcon(QString::fromLatin1(image), Field::Glyph, Field::Glyph)
+                                      : CachedIcon(QString::fromLatin1(image));
+            icon.paint(painter, glyph, Qt::AlignCenter);
         }
 
         //! A spin box of the classes the sheet's rules name: QSpinBox and QDoubleSpinBox, and what derives from them

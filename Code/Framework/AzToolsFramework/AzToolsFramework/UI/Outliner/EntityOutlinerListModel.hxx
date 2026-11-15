@@ -371,10 +371,11 @@ namespace AzToolsFramework
         // this is a cache, and is hence mutable
         mutable QRect m_cachedBoundingRectOfTallCharacter;
 
-        inline static const QColor s_selectedColor = EntityOutlinerFlat::SelectedWash;
-        inline static const QColor s_hoverColor = EntityOutlinerFlat::HoverWash;
+        // References: the three follow the theme (EntityOutlinerFlat names tokens)
+        inline static const QColor& s_selectedColor = EntityOutlinerFlat::SelectedWash;
+        inline static const QColor& s_hoverColor = EntityOutlinerFlat::HoverWash;
 
-        inline static const QColor s_readOnlyBackgroundColor = EntityOutlinerFlat::ReadOnlyBadgeBackground;
+        inline static const QColor& s_readOnlyBackgroundColor = EntityOutlinerFlat::ReadOnlyBadgeBackground;
         inline static const QPoint s_readOnlyOffset = QPoint(10, 10);
         inline static const int s_readOnlyRadius = 6;
 

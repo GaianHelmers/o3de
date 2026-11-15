@@ -138,22 +138,24 @@ namespace AzToolsFramework
 
             //! background-color: AssetBrowserEntityInspectorWidget.cpp:169, the line before the flattening.
             //! AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget $fill.surface.idle.Low
-            const QColor PreviewImageFill = AzQtComponents::Foundations::Low;
+            const QColor& PreviewImageFill = AzQtComponents::Foundations::Low;
 
             //! The sheet the constructor gave the preview image before the flattening (AssetBrowserEntityInspectorWidget.cpp:169), as it
             //! was written, its fill read from the constant the element reads
-            const QString PreviewImageSheet = QStringLiteral("QLabel {background-color: %1;}").arg(PreviewImageFill.name());
+            AzQtComponents::Themed<QString> PreviewImageSheet = [] {
+                return QStringLiteral("QLabel {background-color: %1;}").arg(PreviewImageFill.name());
+            };
 
             //! `QLabel {background-color: #333333;}` on the preview image, an ExtendedLabel (a QLabel), over the box of every label
             //! (`QLabel { margin-top: 1px; margin-bottom: 1px }`, Text.qss:93-94): an element is the whole definition of its frame, so it
             //! carries that margin, which Style gives a label without one (Style::subElementRect, SE_ShapedFrameContents)
-            const AzQtComponents::BoxElement PreviewImage{
+            AzQtComponents::Themed<AzQtComponents::BoxElement> PreviewImage = [] { return AzQtComponents::BoxElement{
                 .m_name = "Editor.Box.AssetBrowserPreviewImage",
                 .m_margin = QMargins(0, AzQtComponents::Foundations::Label::MarginV, 0, AzQtComponents::Foundations::Label::MarginV),
                 .m_idle = {
                     .m_fill = QBrush(PreviewImageFill),
                 },
-            };
+            }; };
 
             //! The preview image of an inspector: the ExtendedLabel of that name
             bool isPreviewImage(const QWidget* widget)
@@ -191,21 +193,21 @@ namespace AzToolsFramework
             constexpr const char* SceneSettingsButtonTag = "sceneSettings";
 
             //! background-color: :147, :158 AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget $fill.button.idle.Low
-            const QColor ButtonFill = AzQtComponents::Foundations::Low;
+            const QColor& ButtonFill = AzQtComponents::Foundations::Low;
             //! `QPushButton:hover:!checked { background-color }`: :151, :162
             //! AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget $fill.button.hover.Mid
-            const QColor ButtonHoverFill = AzQtComponents::Foundations::Mid;
+            const QColor& ButtonHoverFill = AzQtComponents::Foundations::Mid;
             //! `QPushButton:checked { background-color }`: :150, :161 AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget
             //! $fill.button.checked.Alt1
-            const QColor ButtonCheckedFill(0x1E, 0x70, 0xEB);
+            const QColor& ButtonCheckedFill = AzQtComponents::Foundations::Accent::Primary;
             //! The colour of the edges: the sheet sets none (`border-color #222222`, :147, :158, is dropped); it is the invalid colour that
             //! `border: none` (PushButton.qss:50) left, drawn black $line.button.idle.color.Alt4
             const QColor ButtonBorder(0x00, 0x00, 0x00);
             //! `QPushButton { color }` and its `:hover, :pressed` rule: PushButton.qss:32, :40, the label of every state but disabled.
             //! $text.button.idle.Alt1
-            const QColor ButtonText(0xFF, 0xFF, 0xFF);
+            const QColor& ButtonText = AzQtComponents::Foundations::Text::Primary;
             //! `QPushButton:disabled { color }`: PushButton.qss:45 $text.button.disabled.Alt1
-            const QColor ButtonDisabledText(0x99, 0x99, 0x99);
+            const QColor& ButtonDisabledText = AzQtComponents::Foundations::Text::Disabled;
             // border-width: 1px, :147, :158 AssetBrowserEntityInspectorWidget::AssetBrowserEntityInspectorWidget
             // $line.button.idle.width.Alt4
             constexpr int ButtonBorderWidth = 1;
@@ -223,22 +225,22 @@ namespace AzToolsFramework
             //! fill read from the constant the elements read: ButtonFill (%1), ButtonCheckedFill (%2), ButtonHoverFill (%3). The
             //! `#222222` of `border-color #222222` stays text: Qt drops that declaration (see above), so it paints nothing and no
             //! element reads it.
-            const QString DetailsButtonSheet = QStringLiteral(
+            AzQtComponents::Themed<QString> DetailsButtonSheet = [] { return QStringLiteral(
                 "QPushButton {background-color: %1; border-color #222222; border-style: solid; border-width: 1px;"
                 "border-top-left-radius: 3px; border-bottom-left-radius: 3px; border-top-right-radius: 0px;"
                 "border-bottom-right-radius: 0px; font-size: 12px; height: 28px;}"
                 "QPushButton:checked {background-color: %2;}"
                 "QPushButton:hover:!checked {background-color: %3;}"
                 "QPushButton:pressed:!checked: {background-color: %3;}")
-                .arg(ButtonFill.name()).arg(ButtonCheckedFill.name().toUpper()).arg(ButtonHoverFill.name());
-            const QString SceneSettingsButtonSheet = QStringLiteral(
+                .arg(ButtonFill.name()).arg(ButtonCheckedFill.name().toUpper()).arg(ButtonHoverFill.name()); };
+            AzQtComponents::Themed<QString> SceneSettingsButtonSheet = [] { return QStringLiteral(
                 "QPushButton {background-color: %1; border-color #222222; border-style: solid; border-width: 1px;"
                 "border-top-left-radius: 0px; border-bottom-left-radius: 0px; border-top-right-radius: 3px;"
                 "border-bottom-right-radius: 0px; margin-left: -1px; font-size: 12px; height: 28px;}"
                 "QPushButton:checked {background-color: %2;}"
                 "QPushButton:hover:!checked {background-color: %3;}"
                 "QPushButton:pressed:!checked: {background-color: %3;}")
-                .arg(ButtonFill.name()).arg(ButtonCheckedFill.name().toUpper()).arg(ButtonHoverFill.name());
+                .arg(ButtonFill.name()).arg(ButtonCheckedFill.name().toUpper()).arg(ButtonHoverFill.name()); };
 
             //! One face of a switch button: the fill of its state, the same four edges, and the colour of its label
             AzQtComponents::BoxElement::Face buttonFace(const QColor& fill, const QColor& text)
@@ -277,14 +279,14 @@ namespace AzToolsFramework
 
             //! The Details button, the left of the pair: round on the left (border-top-left-radius, border-bottom-left-radius: 3px,
             //! :148; border-top-right-radius, border-bottom-right-radius: 0px, :148, :149)
-            const AzQtComponents::BoxElement DetailsButton = switchButton(
-                "Editor.Box.AssetInspectorDetailsButton", QMargins(), { .m_topLeft = ButtonRadius, .m_bottomLeft = ButtonRadius });
+            AzQtComponents::Themed<AzQtComponents::BoxElement> DetailsButton = [] { return switchButton(
+                "Editor.Box.AssetInspectorDetailsButton", QMargins(), { .m_topLeft = ButtonRadius, .m_bottomLeft = ButtonRadius }); };
 
             //! The Scene Settings button, the right of the pair: round at the top right (border-top-right-radius: 3px, :159; the others
             //! 0, :159, :160, so the bottom right is square, which looks like a typo) and one pixel over the Details button
             //! (margin-left: -1px, :160), so that the two borders are one
-            const AzQtComponents::BoxElement SceneSettingsButton = switchButton(
-                "Editor.Box.AssetInspectorSceneSettingsButton", QMargins(-ButtonOverlap, 0, 0, 0), { .m_topRight = ButtonRadius });
+            AzQtComponents::Themed<AzQtComponents::BoxElement> SceneSettingsButton = [] { return switchButton(
+                "Editor.Box.AssetInspectorSceneSettingsButton", QMargins(-ButtonOverlap, 0, 0, 0), { .m_topRight = ButtonRadius }); };
 
             //! A switch button the constructor tagged: it makes both flat before it tags them, and flat is read first, where the
             //! property read ran for every push button of the Editor

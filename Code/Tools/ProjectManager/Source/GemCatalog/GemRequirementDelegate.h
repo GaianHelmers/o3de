@@ -22,7 +22,7 @@ namespace O3DE::ProjectManager
         // The rows of the requirements list (GemRequirementDelegate::paint)
         // ------------------------------------------------------------------------------
         // GemRequirementDelegate.h:28 (outside) (GemRequirementDelegate::paint) $fill.view.idle.Mid
-        inline constexpr QColor ListSurface(0x44, 0x44, 0x44);
+        inline const QColor& ListSurface = AzQtComponents::Foundations::Mid;
         // GemRequirementDelegate.h:29 (item) (GemRequirementDelegate::m_itemBackgroundColor) $fill.item.idle.Alt8
         inline constexpr QColor ItemFill(0x39, 0x39, 0x39);
     } // namespace GemRequirementDelegateFlat
@@ -39,7 +39,7 @@ namespace O3DE::ProjectManager
         void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& modelIndex) const override;
         bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& modelIndex) override;
 
-        const QColor m_backgroundColor = GemRequirementDelegateFlat::ListSurface; // Outside of the actual gem item
+        const QColor& m_backgroundColor = GemRequirementDelegateFlat::ListSurface; // Outside of the actual gem item
         const QColor m_itemBackgroundColor = GemRequirementDelegateFlat::ItemFill; // Background color of the gem item
 
     private:

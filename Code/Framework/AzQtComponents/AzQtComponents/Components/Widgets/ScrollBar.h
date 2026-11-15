@@ -66,6 +66,9 @@ namespace AzQtComponents
         //! and on every scroll bar inside it, which draws them as the squared bars of the base style. So: with style sheets, this sets
         //! that same sheet; flattened, it sets the colour as the Base and Window roles of the area's palette (the area fills its own
         //! background) and leaves the scroll bars to the style.
+        //! A colour that is a theme token's, handed over by reference (`const QColor& Fill = Foundations::BG;` and
+        //! `setBackgroundColor(area, Fill)`), follows the theme: the area has the token's value of the theme in effect whenever
+        //! it is polished. A colour of the caller's own (a literal, a copy) stays as it was given.
         static void setBackgroundColor(QAbstractScrollArea* scrollArea, const QColor& color);
 
     private:

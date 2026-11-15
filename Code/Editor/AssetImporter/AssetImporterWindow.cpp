@@ -96,7 +96,7 @@ namespace AssetImporterWindowFlatInternal
     //! The check boxes of the importer's trees: the rule's box and its states, over the stock check box (ItemViewElement::m_check).
     //! Each value is the sheet's line (AssetImporterWindow.qss, as it is before the flattening); the margin-left of -3 is the tree
     //! element's (TableView.qss:84), which a module's element leaves to the Global one.
-    const AzQtComponents::ItemViewElement ImporterTree{
+    AzQtComponents::Themed<AzQtComponents::ItemViewElement> ImporterTree = [] { return AzQtComponents::ItemViewElement{
         .m_name = "Editor.ItemView.ImporterTree",
         // width: 12px; height: 12px (AssetImporterWindow.qss:6-12, :8-9) $size.check.idle.size.Alt1
         .m_indicatorSize = QSize(12, 12),
@@ -125,7 +125,7 @@ namespace AssetImporterWindowFlatInternal
                 { .m_states = AzQtComponents::ItemViewElement::Hover, .m_face = { .m_image = "" } },
             },
         },
-    };
+    }; };
 
     //! A tree below the importer's window: QTreeView::indicator reached the check boxes of every QTreeView, and class derived from
     //! it, below the window that carried the sheet, whatever it is named (the window's overlay layers and child dialogs included)

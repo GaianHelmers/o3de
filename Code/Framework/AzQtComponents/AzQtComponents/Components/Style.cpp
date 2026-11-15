@@ -85,6 +85,7 @@ AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 4251: class '...' n
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QKeySequenceEdit>
+#include <QLabel>
 #include <QLineEdit>
 #include <QListView>
 #include <QObject>
@@ -103,8 +104,10 @@ AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // 4251: class '...' n
 #include <QToolTip>
 AZ_POP_DISABLE_WARNING
 
+#include <algorithm>
 #include <limits>
 #include <QListWidget>
+#include <QPointer>
 
 namespace AzQtComponents
 {
@@ -131,12 +134,13 @@ namespace AzQtComponents
         constexpr QColor ThumbnailChildLine(0x38, 0x38, 0x38);
         //! AssetFolderThumbnailViewConfig.ini:33 $fill.thumbnail-expand.idle
         constexpr QColor ThumbnailExpandFill(0x69, 0x69, 0x69);
-        constexpr QColor SliderGroove(0x99, 0x99, 0x99);            // SliderConfig.ini:21 $fill.slider-groove.idle
-        constexpr QColor SliderGrooveHover(0xCC, 0xDF, 0xF5);       // SliderConfig.ini:22 $fill.slider-groove.hover
-        constexpr QColor SliderHandleDisabled(0x99, 0x99, 0x99);    // SliderConfig.ini:16 $fill.slider-handle.disabled
+        const QColor& SliderGroove = Foundations::Slider::Groove;            // SliderConfig.ini:21 $fill.slider-groove.idle
+        const QColor& SliderGrooveHover = Foundations::Slider::GrooveHover;       // SliderConfig.ini:22 $fill.slider-groove.hover
+        const QColor& SliderHandleDisabled = Foundations::Slider::HandleDisabled;    // SliderConfig.ini:16 $fill.slider-handle.disabled
         //! PushButtonConfig.ini:37, :41 (black at alpha 0x3D) $line.button.idle.color.Alt3 $line.button.disabled.color.Alt2
         constexpr QColor ButtonLine(0x00, 0x00, 0x00, 0x3D);
-        constexpr QColor ButtonPrimaryHoverTop(0x4A, 0xBA, 0xFF);   // PushButtonConfig.ini:20 $fill.button.hover+primary.Alt2
+        // PushButtonConfig.ini:20 $fill.button.hover+primary.Alt2
+        const QColor& ButtonPrimaryHoverTop = Foundations::Accent::PrimaryHoverLight;
     } // namespace ConfigTokens
 
     // Private data structure
@@ -244,90 +248,13 @@ namespace AzQtComponents
         loadConfig<ToolBar::Config, ToolBar>(this, &m_data->watcher, &m_data->toolBarConfig, "ToolBarConfig.ini");
         loadConfig<TreeView::Config, TreeView>(this, &m_data->watcher, &m_data->treeViewConfig, "TreeViewConfig.ini");
 
-        // Flat mode: the Configs the flattened GUI draws with read the tokens (ConfigTokens above), now and after every reload. The
-        // connection comes before any widget's, so a reload binds the tokens before the widgets repolish.
+        // Flat mode: the Configs the flattened GUI draws with read the tokens (ConfigTokens above), now, after every reload and
+        // whenever the theme changes (applyTheme). The connection comes before any widget's, so a reload binds the tokens before
+        // the widgets repolish.
         if (StyleManager::stylesheetsDisabled())
         {
-            const auto bindConfigsToTokens = [data = m_data.data()]()
-            {
-                using namespace ConfigTokens;
-                // StatusBar.cpp:36-37 (StatusBar::defaultConfig) $fill.status-bar.idle.Mid $line.status-bar.idle.color.FarBG
-                data->statusBarConfig.backgroundColor = Foundations::Mid;
-                data->statusBarConfig.borderColor = Foundations::FarBG;
-                // AssetFolderThumbnailViewConfig.ini:11-15 $fill.thumbnail.idle.Mid $line.thumbnail.idle.color.BG
-                // $line.thumbnail.selected.color
-                auto& thumbnails = data->assetFolderThumbnailViewConfig;
-                thumbnails.rootThumbnail.backgroundColor = Foundations::Mid;
-                thumbnails.rootThumbnail.borderColor = Foundations::BG;
-                thumbnails.rootThumbnail.selectedBorderColor = Foundations::Accent::Primary;
-                // AssetFolderThumbnailViewConfig.ini:22-26 $fill.thumbnail-child.idle.BG $line.thumbnail-child.selected.color
-                thumbnails.childThumbnail.backgroundColor = Foundations::BG;
-                thumbnails.childThumbnail.borderColor = ThumbnailChildLine;
-                thumbnails.childThumbnail.selectedBorderColor = Foundations::Line::Light;
-                // AssetFolderThumbnailViewConfig.ini:33-34 $text.thumbnail-expand.idle
-                thumbnails.expandButton.backgroundColor = ThumbnailExpandFill;
-                thumbnails.expandButton.caretColor = Foundations::Text::Primary;
-                // AssetFolderThumbnailViewConfig.ini:39-40 $line.thumbnail-frame.idle.color.BG $fill.thumbnail-frame.idle.Mid
-                thumbnails.childFrame.borderColor = Foundations::BG;
-                thumbnails.childFrame.backgroundColor = Foundations::Mid;
-                // BreadCrumbsConfig.ini:1-2 (link colours as #rrggbb strings) $text.breadcrumb.idle $text.breadcrumb.disabled
-                data->breadCrumbsConfig.linkColor = Foundations::Text::Primary.name();
-                data->breadCrumbsConfig.disabledLinkColor = Foundations::Text::Disabled.name();
-                // SliderConfig.ini:8, :11 $line.gradient-slider.idle.color.Low $line.gradient-slider-handle.idle.color
-                data->sliderConfig.gradientSlider.grooveBorder.color = Foundations::Low;
-                data->sliderConfig.gradientSlider.handleBorder.color = Foundations::Line::Light;
-                // SliderConfig.ini:15-16, :21-22 $fill.slider-handle.idle
-                data->sliderConfig.slider.handle.color = Foundations::Accent::Primary;
-                data->sliderConfig.slider.handle.colorDisabled = SliderHandleDisabled;
-                data->sliderConfig.slider.grove.color = SliderGroove;
-                data->sliderConfig.slider.grove.colorHovered = SliderGrooveHover;
-                data->textConfig.hyperlinkColor = Foundations::Accent::Focus;     // TextConfig.ini:2 $text.link.idle
-                // LineEdit.cpp:507-515 (LineEdit::defaultConfig) $line.field.idle.color.Clear $fill.field.hover.Alt2
-                // $line.field.hover.color.BG $line.field.focus.color.Alt1 $line.field.HasError.color $text.field.idle.placeholder
-                data->lineEditConfig.borderColor = Foundations::Clear;
-                data->lineEditConfig.hoverBackgroundColor = Foundations::Field::FocusFill;
-                data->lineEditConfig.hoverBorderColor = Foundations::Field::HoverLine;
-                data->lineEditConfig.focusedBorderColor = Foundations::Field::FocusLine;
-                data->lineEditConfig.errorBorderColor = Foundations::Field::ErrorLine;
-                data->lineEditConfig.placeHolderTextColor = Foundations::Text::Muted;
-                // PushButtonConfig.ini:37, :41, :45 (the borders), :48-50 (the icon buttons) $text.icon-button.active
-                // $text.icon-button.disabled $text.icon-button.selected
-                data->pushButtonConfig.defaultBorder.color = ButtonLine;
-                data->pushButtonConfig.disabledBorder.color = ButtonLine;
-                // PushButtonConfig.ini:45 $line.button.focus.color.Alt2
-                data->pushButtonConfig.focusedBorder.color = Foundations::Accent::FocusRing;
-                data->pushButtonConfig.iconButton.activeColor = Foundations::Accent::Focus;
-                data->pushButtonConfig.iconButton.disabledColor = Foundations::Text::Disabled;
-                data->pushButtonConfig.iconButton.selectedColor = Foundations::Text::Primary;
-                // PushButtonConfig.ini:10-11 $text.small-icon.idle.arrow
-                data->pushButtonConfig.smallIcon.enabledArrowColor = Foundations::Text::Primary;
-                // PushButtonConfig.ini:11 $text.small-icon.disabled.arrow
-                data->pushButtonConfig.smallIcon.disabledArrowColor = Foundations::Text::DisabledOnFill;
-                // PushButtonConfig.ini:15-23 (the primary gradients) $fill.button.primary $fill.button.pressed+primary
-                auto& primary = data->pushButtonConfig.primary;
-                // PushButtonConfig.ini:16-17 $fill.button.disabled+primary.Alt2
-                primary.disabled.start = Foundations::Accent::PrimaryDisabled;
-                primary.disabled.end = Foundations::Accent::PrimaryDisabled;
-                primary.sunken.start = Foundations::Accent::Primary;
-                primary.sunken.end = Foundations::Accent::Primary;
-                primary.hovered.start = ButtonPrimaryHoverTop;
-                primary.hovered.end = Foundations::Accent::Focus;
-                primary.normal.start = Foundations::Accent::PrimaryLight;
-                primary.normal.end = Foundations::Accent::Primary;
-                // PushButtonConfig.ini:25-33 (the secondary gradients) $fill.button.secondary $fill.button.disabled.Alt1
-                // $fill.button.pressed.Mid
-                auto& secondary = data->pushButtonConfig.secondary;
-                secondary.disabled.start = Foundations::Fill::Disabled;
-                secondary.disabled.end = Foundations::Fill::Disabled;
-                secondary.sunken.start = Foundations::Mid;
-                secondary.sunken.end = Foundations::Mid;
-                secondary.hovered.start = Foundations::Fill::ButtonHighlight;
-                secondary.hovered.end = Foundations::Fill::ButtonLight;
-                secondary.normal.start = Foundations::Fill::ButtonLight;
-                secondary.normal.end = Foundations::Fill::Disabled;
-            };
             bindConfigsToTokens();
-            QObject::connect(this, &Style::settingsReloaded, this, bindConfigsToTokens);
+            QObject::connect(this, &Style::settingsReloaded, this, &Style::bindConfigsToTokens);
         }
 
         VectorElement::initStaticVars(m_data->spinBoxConfig.labelSize);
@@ -341,6 +268,97 @@ namespace AzQtComponents
         ScrollBar::uninitializeWatcher();
         ComboBox::uninitializeWatcher();
         TreeView::uninitializeWatcher();
+    }
+
+    void Style::bindConfigsToTokens()
+    {
+        using namespace ConfigTokens;
+        // StatusBar.cpp:36-37 (StatusBar::defaultConfig) $fill.status-bar.idle.Mid $line.status-bar.idle.color.FarBG
+        m_data->statusBarConfig.backgroundColor = Foundations::Window::StatusBarFill;
+        m_data->statusBarConfig.borderColor = Foundations::FarBG;
+        // AssetFolderThumbnailViewConfig.ini:11-15 $fill.thumbnail.idle.Mid $line.thumbnail.idle.color.BG
+        // $line.thumbnail.selected.color
+        auto& thumbnails = m_data->assetFolderThumbnailViewConfig;
+        thumbnails.rootThumbnail.backgroundColor = Foundations::Mid;
+        thumbnails.rootThumbnail.borderColor = Foundations::BG;
+        thumbnails.rootThumbnail.selectedBorderColor = Foundations::Accent::Primary;
+        // AssetFolderThumbnailViewConfig.ini:22-26 $fill.thumbnail-child.idle.BG $line.thumbnail-child.selected.color
+        thumbnails.childThumbnail.backgroundColor = Foundations::BG;
+        thumbnails.childThumbnail.borderColor = ThumbnailChildLine;
+        thumbnails.childThumbnail.selectedBorderColor = Foundations::Line::Light;
+        // AssetFolderThumbnailViewConfig.ini:33-34 $text.thumbnail-expand.idle
+        thumbnails.expandButton.backgroundColor = ThumbnailExpandFill;
+        thumbnails.expandButton.caretColor = Foundations::Text::Primary;
+        // AssetFolderThumbnailViewConfig.ini:39-40 $line.thumbnail-frame.idle.color.BG $fill.thumbnail-frame.idle.Mid
+        thumbnails.childFrame.borderColor = Foundations::BG;
+        thumbnails.childFrame.backgroundColor = Foundations::Mid;
+        // BreadCrumbsConfig.ini:1-2 (link colours as #rrggbb strings) $text.breadcrumb.idle $text.breadcrumb.disabled
+        m_data->breadCrumbsConfig.linkColor = Foundations::Text::Primary.name();
+        m_data->breadCrumbsConfig.disabledLinkColor = Foundations::Text::Disabled.name();
+        // SliderConfig.ini:8, :11 $line.gradient-slider.idle.color.Low $line.gradient-slider-handle.idle.color
+        m_data->sliderConfig.gradientSlider.grooveBorder.color = Foundations::Low;
+        m_data->sliderConfig.gradientSlider.handleBorder.color = Foundations::Line::Light;
+        // SliderConfig.ini:15-16, :21-22 $fill.slider-handle.idle
+        m_data->sliderConfig.slider.handle.color = Foundations::Accent::Primary;
+        m_data->sliderConfig.slider.handle.colorDisabled = SliderHandleDisabled;
+        m_data->sliderConfig.slider.grove.color = SliderGroove;
+        m_data->sliderConfig.slider.grove.colorHovered = SliderGrooveHover;
+        m_data->textConfig.hyperlinkColor = Foundations::Accent::Focus;     // TextConfig.ini:2 $text.link.idle
+        // LineEdit.cpp:507-515 (LineEdit::defaultConfig) $line.field.idle.color.Clear $fill.field.hover.Alt2
+        // $line.field.hover.color.BG $line.field.focus.color.Alt1 $line.field.HasError.color $text.field.idle.placeholder
+        m_data->lineEditConfig.borderColor = Foundations::Clear;
+        m_data->lineEditConfig.hoverBackgroundColor = Foundations::Field::FocusFill;
+        m_data->lineEditConfig.hoverBorderColor = Foundations::Field::HoverLine;
+        m_data->lineEditConfig.focusedBorderColor = Foundations::Field::FocusLine;
+        m_data->lineEditConfig.errorBorderColor = Foundations::Field::ErrorLine;
+        m_data->lineEditConfig.placeHolderTextColor = Foundations::Text::Muted;
+        // ComboBox.cpp:423-424 (ComboBox::defaultConfig) $text.field.idle.Alt4 $text.field.idle.Alt5
+        m_data->comboBoxConfig.placeHolderTextColor = Foundations::Text::Disabled;
+        m_data->comboBoxConfig.framelessTextColor = Foundations::Text::Primary;
+        // ToolButton.cpp:46 (ToolButton::defaultConfig) $fill.button.checked.Alt1
+        m_data->toolButtonConfig.checkedStateBackgroundColor = Foundations::Accent::Primary;
+        // DragAndDropConfig.ini:3, :5-6: the outline of a drop target, the line between two rows and the ring of its ball
+        m_data->dragAndDropConfig.dropIndicator.rectOutlineColor = Foundations::Accent::Focus;
+        m_data->dragAndDropConfig.dropIndicator.lineSeparatorColor = Foundations::Accent::Focus;
+        m_data->dragAndDropConfig.dropIndicator.ballOutlineColor = Foundations::Accent::Focus;
+        // PushButtonConfig.ini:37, :41, :45 (the borders), :48-50 (the icon buttons) $text.icon-button.active
+        // $text.icon-button.disabled $text.icon-button.selected
+        m_data->pushButtonConfig.defaultBorder.color = ButtonLine;
+        m_data->pushButtonConfig.disabledBorder.color = ButtonLine;
+        // PushButtonConfig.ini:45 $line.button.focus.color.Alt2
+        m_data->pushButtonConfig.focusedBorder.color = Foundations::Accent::FocusRing;
+        // PushButtonConfig.ini:3, :8 $radius.button.idle.frame $radius.small-icon.idle.frame
+        m_data->pushButtonConfig.defaultFrame.radius = Foundations::Button::Radius;
+        m_data->pushButtonConfig.smallIcon.frame.radius = Foundations::Button::SmallIconRadius;
+        m_data->pushButtonConfig.iconButton.activeColor = Foundations::Accent::Focus;
+        m_data->pushButtonConfig.iconButton.disabledColor = Foundations::Text::Disabled;
+        m_data->pushButtonConfig.iconButton.selectedColor = Foundations::Text::Primary;
+        // PushButtonConfig.ini:10-11 $text.small-icon.idle.arrow
+        m_data->pushButtonConfig.smallIcon.enabledArrowColor = Foundations::Text::Primary;
+        // PushButtonConfig.ini:11 $text.small-icon.disabled.arrow
+        m_data->pushButtonConfig.smallIcon.disabledArrowColor = Foundations::Text::DisabledOnFill;
+        // PushButtonConfig.ini:15-23 (the primary gradients) $fill.button.primary $fill.button.pressed+primary
+        auto& primary = m_data->pushButtonConfig.primary;
+        // PushButtonConfig.ini:16-17 $fill.button.disabled+primary.Alt2
+        primary.disabled.start = Foundations::Accent::PrimaryDisabled;
+        primary.disabled.end = Foundations::Accent::PrimaryDisabled;
+        primary.sunken.start = Foundations::Accent::Primary;
+        primary.sunken.end = Foundations::Accent::Primary;
+        primary.hovered.start = ButtonPrimaryHoverTop;
+        primary.hovered.end = Foundations::Accent::Focus;
+        primary.normal.start = Foundations::Accent::PrimaryLight;
+        primary.normal.end = Foundations::Accent::Primary;
+        // PushButtonConfig.ini:25-33 (the secondary gradients) $fill.button.secondary $fill.button.disabled.Alt1
+        // $fill.button.pressed.Mid
+        auto& secondary = m_data->pushButtonConfig.secondary;
+        secondary.disabled.start = Foundations::Fill::Disabled;
+        secondary.disabled.end = Foundations::Fill::Disabled;
+        secondary.sunken.start = Foundations::Fill::ButtonPressed;
+        secondary.sunken.end = Foundations::Fill::ButtonPressed;
+        secondary.hovered.start = Foundations::Fill::ButtonHighlight;
+        secondary.hovered.end = Foundations::Fill::ButtonLight;
+        secondary.normal.start = Foundations::Fill::ButtonLight;
+        secondary.normal.end = Foundations::Fill::ButtonLow;        // PushButtonConfig.ini:33 $fill.button.secondary.gradient-end
     }
 
     QIcon Style::icon(const QString& name)
@@ -407,31 +425,31 @@ namespace AzQtComponents
     static constexpr int g_scrollBarHoverBorder = 1;
     //! ScrollBar.qss:42, :46 $size.scroll-handle.idle.min-height $size.scroll-handle.idle.min-width
     static constexpr int g_scrollHandleMin = 32;
-    static constexpr int g_scrollHandleRadius = 2;                         // ScrollBar.qss:30 $radius.scroll-handle.idle
-    static constexpr QColor g_scrollHandleFill(255, 255, 255, 102);        // ScrollBar.qss:31 $fill.scroll-handle.idle.Alt1
-    static constexpr QColor g_darkScrollHandleFill(136, 136, 136, 163);    // ScrollBar.qss:38 $fill.scroll-handle.idle.Alt2
-    static constexpr QColor g_scrollHoverFill = Foundations::Highest;      // ScrollBar.qss:79 $fill.scroll.hover.Highest
-    static constexpr QColor g_darkScrollHoverFill(0xDC, 0xDC, 0xDC);       // ScrollBar.qss:86 $fill.scroll.hover.Alt1
-    static constexpr QColor g_cornerFill = Foundations::Highest;           // ScrollBar.qss:93 $fill.surface.hover.Highest
-    static constexpr QColor g_darkCornerFill(0xDC, 0xDC, 0xDC);            // ScrollBar.qss:99 $fill.surface.hover.Alt1
+    static const int& g_scrollHandleRadius = Foundations::Scroll::HandleRadius;  // ScrollBar.qss:30 $radius.scroll-handle.idle
+    static const QColor& g_scrollHandleFill = Foundations::Scroll::Handle;        // ScrollBar.qss:31 $fill.scroll-handle.idle.Alt1
+    static const QColor& g_darkScrollHandleFill = Foundations::Scroll::HandleOnLight;    // ScrollBar.qss:38 $fill.scroll-handle.idle.Alt2
+    static const QColor& g_scrollHoverFill = Foundations::Scroll::HoverLane;      // ScrollBar.qss:79 $fill.scroll.hover.Highest
+    static const QColor& g_darkScrollHoverFill = Foundations::Scroll::HoverLaneOnLight;       // ScrollBar.qss:86 $fill.scroll.hover.Alt1
+    static const QColor& g_cornerFill = Foundations::Scroll::HoverLane;           // ScrollBar.qss:93 $fill.surface.hover.Highest
+    static const QColor& g_darkCornerFill = Foundations::Scroll::HoverLaneOnLight;            // ScrollBar.qss:99 $fill.surface.hover.Alt1
 
     //////////////////////////////////////////////////////////////////////////
     // Flattened chrome: the separators of a main window and of a toolbar, the handle of a splitter, the title strip of a plain dock
     // widget, the chips of a search field, the frame of a decorated window and the margin of a tooltip
     //////////////////////////////////////////////////////////////////////////
     //! BaseStyleSheet.qss:52, ToolBar.qss:73 $fill.separator.idle.FarBG
-    static constexpr QColor g_separatorFill = Foundations::FarBG;
-    static constexpr QColor g_separatorHoverFill = Foundations::Accent::Primary; // BaseStyleSheet.qss:57 $fill.separator.hover
+    static const QColor& g_separatorFill = Foundations::FarBG;
+    static const QColor& g_separatorHoverFill = Foundations::Accent::Primary; // BaseStyleSheet.qss:57 $fill.separator.hover
     //! ToolBar.qss:74-75 $size.separator.idle.width $size.separator.idle.height.Alt1
     static constexpr int g_toolBarSeparatorWidth = 1;
     static constexpr int g_toolBarSeparatorMargin = 4;                     // ToolBar.qss:77 $space.separator.idle.margin
-    static constexpr QColor g_dockTitleFill = Foundations::Low;            // QDockWidget.qss:22 $fill.title.idle
-    static constexpr QColor g_dockTitleText(0xCC, 0xCC, 0xCC);             // BaseStyleSheet.qss:64 $text.surface.idle.Alt2
+    static const QColor& g_dockTitleFill = Foundations::Window::DockTitleFill;            // QDockWidget.qss:22 $fill.title.idle
+    static const QColor& g_dockTitleText = Foundations::Window::TitleText;             // BaseStyleSheet.qss:64 $text.surface.idle.Alt2
     // FilterTextButton (FilteredSearchWidget.qss:79-88) has the same radius, line and fill as the chips cited here
-    static constexpr QColor g_chipFill(46, 46, 46);                        // FilteredSearchWidget.qss:31, :73 $fill.button.idle.fill.Alt1
-    static constexpr QColor g_chipLine(0x80, 0x80, 0x80);                  // FilteredSearchWidget.qss:30, :72 $line.button.idle.color.Alt1
+    static const QColor& g_chipFill = Foundations::Chip::Fill;  // FilteredSearchWidget.qss:31, :73 $fill.button.idle.fill.Alt1
+    static const QColor& g_chipLine = Foundations::Chip::Line;  // FilteredSearchWidget.qss:30, :72 $line.button.idle.color.Alt1
     static constexpr int g_chipLineWidth = 1;                              // FilteredSearchWidget.qss:30, :72 $line.button.idle.width.Alt2
-    static constexpr qreal g_chipRadius = 2.0;                             // FilteredSearchWidget.qss:29, :71 $radius.button.idle.all.Alt1
+    static const int& g_chipRadius = Foundations::Chip::Radius;  // FilteredSearchWidget.qss:29, :71 $radius.button.idle.all.Alt1
     static constexpr int g_segmentBarMarginBottom = 15;                    // SegmentControl.qss:11 $space.surface.idle.margin-bottom.Alt3
     static constexpr int g_windowFrameWidth = 1;                           // WindowDecorationWrapper.qss:11 $line.surface.idle.width.Alt1
     static constexpr QMargins g_toolTipMargins(2, 4, 0, 4);                // ToolTip.qss:15, :17-18 $space.tooltip.idle.margin
@@ -441,25 +459,25 @@ namespace AzQtComponents
     // bar that has no tab element, the line of a floating dock widget, and the roles of the base palette that no rule named
     //////////////////////////////////////////////////////////////////////////
     //! Text.qss:16-19 `.secondaryText { color }`. $text.label.idle.Alt1
-    static constexpr QColor g_secondaryTextColor = Foundations::Text::Muted;
+    static const QColor& g_secondaryTextColor = Foundations::Text::Muted;
     //! Text.qss:21-24 `.highlightedText { color }`. $text.label.idle.Alt6
-    static constexpr QColor g_highlightedTextColor(0x44, 0xB2, 0xF8);
+    static const QColor& g_highlightedTextColor = Foundations::Text::Highlighted;
     //! Text.qss:26-29 `.blackText { color }`. $text.label.idle.Alt5
-    static constexpr QColor g_blackTextColor = Foundations::Text::OnLight;
+    static const QColor& g_blackTextColor = Foundations::Text::OnLight;
     //! TabWidget.qss:26-28 `AzQtComponents--TabWidget > QWidget { background-color }`: the stacked page area of a tab widget.
     //! Style.cpp:3208. $fill.surface.idle.Mid
-    static constexpr QColor g_tabWidgetPageFill = Foundations::Mid;
+    static const QColor& g_tabWidgetPageFill = Foundations::Mid;
     //! The fill under a hovered close button of a tab bar that has no tab element (PE_IndicatorTabClose). Style.cpp:1703.
     //! The rule is not located (ledger). $fill.tab-close.hover.Mid
-    static constexpr QColor g_tabCloseHoverFill = Foundations::Mid;
+    static const QColor& g_tabCloseHoverFill = Foundations::Mid;
     //! The line drawn round a floating dock widget that is not a StyledDockWidget (PE_FrameDockWidget): the black of
     //! StyledDockWidget.qss:17 `AzQtComponents--StyledDockWidget[floating="true"] { border: 1px solid black }`, a rule that reaches
     //! StyledDockWidget alone (ControlElements::drawDockFrame draws that one from its element). No sheet rule gives another dock widget
     //! a border: the fallback borrows the black. Style.cpp:1726. $line.dock.floating.color
-    static constexpr QColor g_dockFloatingFrameLine = Foundations::Line::Dark;
+    static const QColor& g_dockFloatingFrameLine = Foundations::Line::Dark;
     //! TextConfig.ini:2 `[Hyperlink] Color`: the Link and LinkVisited roles of the base palette. The polish of the application puts the
     //! Text config's hyperlinkColor over Link. Style.cpp:3804. $text.link.idle
-    static constexpr QColor g_paletteLink = Foundations::Accent::Focus;
+    static const QColor& g_paletteLink = Foundations::Accent::Focus;
     //! The Light role of the base palette, the top of the ladder Fusion shades frames and bevels from, which no rule named.
     //! Style.cpp:3808. No rule gave it (ledger). $line.bevel.idle.light
     static constexpr QColor g_paletteLight(0x66, 0x66, 0x66);
@@ -469,8 +487,8 @@ namespace AzQtComponents
     // field with no line, rounded, and the box of every field (no border; the padding that adds up to nothing but moves the contents up
     // a pixel). BreadCrumbs.cpp flags it to be ignored (hasStyle == false), so its look is drawn at the contact points below the gate.
     //////////////////////////////////////////////////////////////////////////
-    static constexpr QColor g_pathEditFill(0xFF, 0xFF, 0xFF);              // BreadCrumbs.qss:29 $fill.path-edit.idle
-    static constexpr QColor g_pathEditText(0x00, 0x00, 0x00);              // BreadCrumbs.qss:30 $text.path-edit.idle
+    static const QColor& g_pathEditFill = Foundations::Field::FocusFill;              // BreadCrumbs.qss:29 $fill.path-edit.idle
+    static const QColor& g_pathEditText = Foundations::Field::Text;              // BreadCrumbs.qss:30 $text.path-edit.idle
 
     //! The breadcrumbs' path edit: the second page of the stack beside the label (BreadCrumbs.cpp:93-102)
     static bool isBreadCrumbsPathEdit(const QWidget* widget)
@@ -1019,9 +1037,14 @@ namespace AzQtComponents
 
             case CE_MenuBarEmptyArea:
             {
-                // The legacy bar drew nothing here but its border: the bar is transparent over its window (BaseStyleSheet.qss:17)
+                // The legacy bar drew nothing here but its border: the bar is transparent over its window (BaseStyleSheet.qss:17).
+                // A theme that gives the bar a colour of its own has it filled, here and under each item (CE_MenuBarItem).
                 if (StyleManager::stylesheetsDisabled())
                 {
+                    if (Foundations::Menu::BarFill.changed())
+                    {
+                        painter->fillRect(option->rect, Foundations::Menu::BarFill);
+                    }
                     MenuBarElement::global().drawBorder(painter, option->rect);
                     return;
                 }
@@ -1040,6 +1063,10 @@ namespace AzQtComponents
                         const MenuBarElement& menuBar = MenuBarElement::global();
                         const QColor fill = menuBar.itemFill(option);
                         const QStyleOptionMenuItem label = menuBar.labelOption(*menuBarItem);
+                        if (!fill.isValid() && Foundations::Menu::BarFill.changed())
+                        {
+                            painter->fillRect(option->rect, Foundations::Menu::BarFill);     // the bar's own fill (a theme's)
+                        }
                         if (fill.isValid())
                         {
                             painter->fillRect(option->rect, fill);
@@ -1627,37 +1654,37 @@ namespace AzQtComponents
 
     // The outline of an indicator that is off: toggleswitch/unchecked.svg:8, radiobutton/unchecked.svg:7
     // $line.check-indicator.unchecked.color
-    static constexpr QColor g_indicatorOffLine = Foundations::Line::Light;
+    static const QColor& g_indicatorOffLine = Foundations::Line::Light;
     // The outline of an indicator that is off and disabled: toggleswitch/unchecked-disabled.svg:8, radiobutton/unchecked-disabled.svg:7
     // $line.check-indicator.unchecked+disabled.color
-    static constexpr QColor g_indicatorOffLineDisabled = Foundations::Text::Disabled;
+    static const QColor& g_indicatorOffLineDisabled = Foundations::Text::Disabled;
     // The ring of an indicator that has the focus, on or off: toggleswitch/unchecked-focus.svg:8, toggleswitch/checked-focus.svg:8,
     // radiobutton/unchecked-focus.svg:7, radiobutton/checked-focus.svg:7 $line.check-indicator.focus.color
-    static constexpr QColor g_indicatorFocusLine = Foundations::Accent::FocusRing;
+    static const QColor& g_indicatorFocusLine = Foundations::Accent::FocusRing;
     // The body of an indicator that is on: toggleswitch/checked.svg:8, toggleswitch/checked-focus.svg:8, radiobutton/checked.svg:8,
     // radiobutton/checked-focus.svg:7 $fill.check-indicator.checked
-    static constexpr QColor g_indicatorOnFill = Foundations::Accent::Primary;
+    static const QColor& g_indicatorOnFill = Foundations::Accent::Primary;
     // The body of an indicator that is on and disabled: toggleswitch/checked-disabled.svg:8, radiobutton/checked-disabled.svg:7
     // $fill.check-indicator.checked+disabled
-    static constexpr QColor g_indicatorOnFillDisabled = Foundations::Accent::PrimaryDisabled;
+    static const QColor& g_indicatorOnFillDisabled = Foundations::Accent::PrimaryDisabled;
     // What marks an indicator on, the knob of a toggle switch and the dot of a radio button: toggleswitch/checked.svg:9,
     // toggleswitch/checked-focus.svg:9, radiobutton/checked.svg:9, radiobutton/checked-focus.svg:8 $fill.check-indicator.checked.mark
-    static constexpr QColor g_indicatorMark = Foundations::Text::Primary;
+    static const QColor& g_indicatorMark = Foundations::Text::Primary;
     // The same, disabled: toggleswitch/checked-disabled.svg:9, radiobutton/checked-disabled.svg:8
     // $fill.check-indicator.checked+disabled.mark
-    static constexpr QColor g_indicatorMarkDisabled = Foundations::Text::DisabledOnFill;
+    static const QColor& g_indicatorMarkDisabled = Foundations::Text::DisabledOnFill;
 
     // ---- Colours of one of the two
 
     // The knob of a toggle switch that is off: toggleswitch/unchecked.svg:9, toggleswitch/unchecked-focus.svg:9
     // $fill.check-indicator.unchecked.knob
-    static constexpr QColor g_toggleSwitchKnobOff = Foundations::Text::Primary;
+    static const QColor& g_toggleSwitchKnobOff = Foundations::Text::Primary;
     // The knob of a toggle switch that is off and disabled: toggleswitch/unchecked-disabled.svg:9
     // $fill.check-indicator.unchecked+disabled.knob
-    static constexpr QColor g_toggleSwitchKnobOffDisabled = Foundations::Text::Disabled;
+    static const QColor& g_toggleSwitchKnobOffDisabled = Foundations::Text::Disabled;
     // The fill of a radio button that is off and disabled: radiobutton/unchecked-disabled.svg:7
     // $fill.check-indicator.unchecked+disabled
-    static constexpr QColor g_radioButtonOffFillDisabled = Foundations::Fill::Disabled;
+    static const QColor& g_radioButtonOffFillDisabled = Foundations::Fill::Disabled;
 
     // ---- Sizes (the view of an SVG is its viewBox: toggleswitch/*.svg:2, radiobutton/*.svg:2)
 
@@ -2077,7 +2104,7 @@ namespace AzQtComponents
         const QRect handleRect = style->subControlRect(QStyle::CC_ScrollBar, option, QStyle::SC_ScrollBarSlider, widget);
         if (handleRect.isValid())
         {
-            constexpr int radius = g_scrollHandleRadius;
+            const int radius = g_scrollHandleRadius;
             const BoxElement::Radii radii{ radius, radius, radius, radius };
             BoxElement::drawFill(painter, handleRect, QBrush(handleColor), BoxElement::Edges{}, radii);
         }
@@ -2263,7 +2290,7 @@ namespace AzQtComponents
             if (element == PE_PanelLineEdit && StyleManager::stylesheetsDisabled() && isBreadCrumbsPathEdit(widget))
             {
                 const QPalette::ColorGroup group = (option->state & State_Enabled) ? QPalette::Active : QPalette::Disabled;
-                constexpr int radius = Foundations::Field::Radius;
+                const int radius = Foundations::Field::Radius;
                 const BoxElement::Radii radii{ radius, radius, radius, radius };
                 BoxElement::drawFrame(painter, option->rect, option->palette.brush(group, QPalette::Base), BoxElement::Edges(), radii);
                 return;
@@ -3908,8 +3935,8 @@ namespace AzQtComponents
     // (LineEdit.qss:28-35, SpinBox.qss:69-74, ComboBox.qss:53-57), per widget class: the application palette keeps Base dark for the
     // item views
     //////////////////////////////////////////////////////////////////////////
-    static constexpr QColor g_textEditFill = Foundations::Fill::FieldLight;      // BaseStyleSheet.qss:90 $fill.field.idle.Alt2
-    static constexpr QColor g_textEditText(0x54, 0x54, 0x54);      // BaseStyleSheet.qss:91 $text.field.idle.Alt2
+    static const QColor& g_textEditFill = Foundations::Fill::FieldLight;      // BaseStyleSheet.qss:90 $fill.field.idle.Alt2
+    static const QColor& g_textEditText = Foundations::Text::TextArea;      // BaseStyleSheet.qss:91 $text.field.idle.Alt2
 
     static void applyFlattenedTextEntryPalette(QWidget* widget)
     {
@@ -5036,6 +5063,145 @@ namespace AzQtComponents
         application->setEffectEnabled(Qt::UI_AnimateCombo, false);
 
         QProxyStyle::polish(application);
+    }
+
+    //! A rich text holds the colour of its links from the application palette it was read under (QTextHtmlParser gives an anchor
+    //! QPalette::Link as its foreground), so after a change of theme a label with a link reads its text again. The document of a
+    //! text edit is its user's: it keeps the colours it was read with until it is set again.
+    static void rereadLinkText(QWidget* widget)
+    {
+        auto* label = qobject_cast<QLabel*>(widget);
+        if (!label || label->textFormat() == Qt::PlainText)
+        {
+            return;
+        }
+        const QString text = label->text();
+        if (text.contains(QLatin1String("<a "), Qt::CaseInsensitive))
+        {
+            label->setText(QString());
+            label->setText(text);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // A change of theme (flattened GUI): the tokens have new values and the Themed values are built again (ThemeManager). What
+    // was set from them when a widget was polished is set again here, in the order an application comes up in: the widgets
+    // leave the style, the application is polished, every widget is told that its style changed, and then each widget is
+    // polished, after the widgets above it. Tools/ThemeProof/theme_live_check.py holds the result against a start under the
+    // theme, widget by widget.
+    //////////////////////////////////////////////////////////////////////////
+    void Style::applyTheme()
+    {
+        if (!StyleManager::flatStylingActive())
+        {
+            return;
+        }
+
+        // The Configs the flattened GUI draws with read the tokens again
+        bindConfigsToTokens();
+
+        // An image drawn through the pixmap cache was rendered in the colours of the theme before
+        QPixmapCache::clear();
+
+        // The widgets as they are now (polishing one may delete or make others), each after the widgets above it, as they were
+        // first shown: a widget's polish reads what the polish of its parent set (a palette role it inherits), and a parent hands
+        // some of its own on (a combo box its palette to the container of its popup, which the container's polish then replaces).
+        // One pair is the other way round: the line edit of a combo box is polished when the combo is asked for its size, before
+        // the combo is, and the combo's polish then sets the line edit's placeholder colour over the line edit's own.
+        struct Entry
+        {
+            QPointer<QWidget> m_widget;
+            int m_order = 0;        //!< twice the number of widgets above it; a combo's line edit one before its combo
+        };
+        QVector<Entry> widgets;
+        const QWidgetList all = QApplication::allWidgets();
+        widgets.reserve(all.size());
+        for (QWidget* widget : all)
+        {
+            int depth = 0;
+            for (const QWidget* above = widget->parentWidget(); above; above = above->parentWidget())
+            {
+                ++depth;
+            }
+            const bool comboLineEdit = qobject_cast<QLineEdit*>(widget) && qobject_cast<QComboBox*>(widget->parentWidget());
+            widgets.append({ widget, comboLineEdit ? 2 * depth - 3 : 2 * depth });
+        }
+        std::stable_sort(widgets.begin(), widgets.end(), [](const Entry& left, const Entry& right)
+        {
+            return left.m_order < right.m_order;
+        });
+
+        // A widget leaves and enters the style through its own style: this one, a proxy of it (a tree that draws its own
+        // drop indicator), or the sheet style of a widget below a sheet. Each passes the call on to this style.
+        for (auto entry = widgets.crbegin(); entry != widgets.crend(); ++entry)
+        {
+            QWidget* widget = entry->m_widget;
+            if (widget && widget->testAttribute(Qt::WA_WState_Polished))
+            {
+                widget->style()->unpolish(widget);
+            }
+        }
+
+        // The application: the font of the universal rule, then its palette, the palette of the tool tips and the class fonts
+        QFont font = QApplication::font();
+        const QString family = QString::fromUtf8(Foundations::Surface::Family.text());
+        if (font.family() != family || font.pixelSize() != Foundations::Surface::Size)
+        {
+            font.setFamily(family);
+            font.setPixelSize(Foundations::Surface::Size);
+            QApplication::setFont(font);
+        }
+        polish(qApp);
+
+        // What a widget keeps of the style's metrics (the tabs of a tab bar, the frame of a QFrame) it reads again, as its
+        // constructor did. Every widget before any polish: a polish sets things on other widgets too (a tab widget the
+        // margins of its corner widget), which that widget's own reading would take away.
+        for (const Entry& entry : widgets)
+        {
+            QWidget* widget = entry.m_widget;
+            if (!widget)
+            {
+                continue;
+            }
+            if (auto* toolBar = qobject_cast<QToolBar*>(widget))
+            {
+                // Not a tool bar: on this event QToolBar takes its layout's margins and spacing from the style, over what its
+                // constructor set (the viewport's tool bars have a spacing of their own). Its layout is laid out again.
+                if (toolBar->layout())
+                {
+                    toolBar->layout()->invalidate();
+                }
+                toolBar->updateGeometry();
+                continue;
+            }
+            QEvent styleChange(QEvent::StyleChange);
+            QApplication::sendEvent(widget, &styleChange);
+        }
+
+        for (const Entry& entry : widgets)
+        {
+            QWidget* widget = entry.m_widget;
+            if (!widget || !widget->testAttribute(Qt::WA_WState_Polished))
+            {
+                continue;       // never shown: it is polished, with the theme's values, when it is
+            }
+            widget->style()->polish(widget);
+            rereadLinkText(widget);
+            widget->update();
+        }
+
+        // The container of a combo box popup takes its combo's palette whole whenever that changes
+        // (QComboBoxPrivate::updateViewContainerPaletteAndOpacity), and a combo's palette may change after its container was
+        // polished (a palette set above it reaches it). The containers take the popup's palette last, as one that is made at
+        // the first popup does.
+        for (const Entry& entry : widgets)
+        {
+            QWidget* widget = entry.m_widget;
+            if (widget && widget->testAttribute(Qt::WA_WState_Polished) && ComboPopupElement::covers(widget))
+            {
+                widget->setPalette(ComboPopupElement::global().palette(widget->palette()));
+            }
+        }
     }
 
     void Style::repolishWidgetDestroyed(QObject* obj)

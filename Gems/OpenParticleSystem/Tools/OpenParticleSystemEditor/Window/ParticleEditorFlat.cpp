@@ -99,12 +99,12 @@ namespace OpenParticleSystemEditor
         //! own background is never painted (QWidget::setAttribute sets WA_NoSystemBackground), so the fill the user sees is the form's
         //! plain container below it (ParticleItemWidget.ui:28, `verticalLayoutWidget`), which the sheet reached as a descendant: a
         //! rounded rect, whose corners show the translucent window through
-        const BoxElement ItemContainer{
+        AzQtComponents::Themed<BoxElement> ItemContainer = [] { return BoxElement{
             .m_name = "OpenParticle.Box.ItemContainer",
             .m_nativeBorder = false,                                                // border-radius: ParticleItemWidget.cpp:54
             .m_radius = ParticleItemWidgetFlat::ItemWindowRadius,                   // ParticleItemWidget.cpp:54
             .m_idle = { .m_fill = QBrush(ParticleItemWidgetFlat::ItemWindowFill) }, // ParticleItemWidget.cpp:54
-        };
+        }; };
 
         //! The icon beside the name (`background-color: qlineargradient`, EffectorInspector.ui:46), a plain widget 23 x 22 px:
         //! a vertical gradient
@@ -153,7 +153,7 @@ namespace OpenParticleSystemEditor
         //! every line edit (LineEdit.qss:11-20 over BaseStyleSheet.qss:68-84, drawn as LineEditFlat::Frame) with no fill. An element is
         //! the whole definition of its frame, so it restates the field's box: the 2px line, the padding, the height and the radius.
         //! The widget's sheet outranks the application's :disabled rule (LineEdit.qss:31-35), so no state changes the fill or the text.
-        const BoxElement NameEditInitial{
+        AzQtComponents::Themed<BoxElement> NameEditInitial = [] { return BoxElement{
             .m_name = "OpenParticle.Box.NameEditInitial",
             .m_padding = QMargins(Foundations::Field::PaddingLeft, Foundations::Field::PaddingTop, 0, Foundations::Field::PaddingBottom),
             .m_nativeBorder = false,                            // border-style: solid, LineEdit.qss:17
@@ -163,18 +163,18 @@ namespace OpenParticleSystemEditor
                 .m_fill = QBrush(EffectorInspectorFlat::NameEditIdleFill),                          // EffectorInspector.cpp:31
                 .m_edges = BoxElement::border(NameEditBorderWidth, Foundations::Field::Line),   // LineEdit.qss:16, BaseStyleSheet.qss:81
             },
-        };
+        }; };
 
         //! The name edit after it lost the focus (`background:#444444; border-width:0; border-style:outset`, EffectorInspector.cpp:58):
         //! a flat fill and no line; the field's padding, height and radius stay
-        const BoxElement NameEditBlurred{
+        AzQtComponents::Themed<BoxElement> NameEditBlurred = [] { return BoxElement{
             .m_name = "OpenParticle.Box.NameEditBlurred",
             .m_padding = QMargins(Foundations::Field::PaddingLeft, Foundations::Field::PaddingTop, 0, Foundations::Field::PaddingBottom),
             .m_nativeBorder = false,                            // border-style: outset, border-width: 0, EffectorInspector.cpp:58
             .m_radius = Foundations::Field::Radius,             // BaseStyleSheet.qss:79
             .m_size = QSize(-1, Foundations::Field::Height),    // height: 16px, LineEdit.qss:12 $size.field.idle.height.Alt1
             .m_idle = { .m_fill = QBrush(EffectorInspectorFlat::NameEditBlurredFill) },             // EffectorInspector.cpp:58
-        };
+        }; };
 
         // ----------------------------------------------------------------------------------
         // Text: the name edit's text, in each state
@@ -183,21 +183,21 @@ namespace OpenParticleSystemEditor
         //! `color:white` of the name edit before it has had the focus and after it lost it (EffectorInspector.cpp:31, :58), over the
         //! entry field's own text: the family and the size (BaseStyleSheet.qss:78, :82), which an element restates. The widget's sheet
         //! outranks the application's disabled colour, so the colour is the same disabled
-        const TextElement NameEditWhite{
+        AzQtComponents::Themed<TextElement> NameEditWhite = [] { return TextElement{
             .m_name = "OpenParticle.Text.NameEditWhite",
             .m_family = Foundations::Field::Family,             // BaseStyleSheet.qss:78
             .m_pixelSize = Foundations::Field::Size,            // BaseStyleSheet.qss:82
             .m_color = EffectorInspectorFlat::NameEditText,     // EffectorInspector.cpp:31, :58
-        };
+        }; };
 
         //! `color:rgb(68,68,68)` of the name edit while it has the focus (EffectorInspector.cpp:54); its field is the entry field's, with
         //! the fill of every line edit
-        const TextElement NameEditFocused{
+        AzQtComponents::Themed<TextElement> NameEditFocused = [] { return TextElement{
             .m_name = "OpenParticle.Text.NameEditFocused",
             .m_family = Foundations::Field::Family,             // BaseStyleSheet.qss:78
             .m_pixelSize = Foundations::Field::Size,            // BaseStyleSheet.qss:82
             .m_color = EffectorInspectorFlat::NameEditFocusedText,      // EffectorInspector.cpp:54
-        };
+        }; };
 
         // ----------------------------------------------------------------------------------
         // Indicator: the check boxes, one image for each state of the box

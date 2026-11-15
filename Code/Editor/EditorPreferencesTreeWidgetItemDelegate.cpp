@@ -8,6 +8,7 @@
 
 #include "EditorDefs.h"
 #include "EditorPreferencesTreeWidgetItemDelegate.h"
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <QIcon>
 #include <QPainter>
 #include <QStyledItemDelegate>
@@ -31,7 +32,7 @@ namespace EditorPreferencesTreeWidgetItemDelegateFlat
 
     // EditorPreferencesTreeWidgetItemDelegate.cpp:59 (the text of an item) (EditorPreferencesTreeWidgetItemDelegate::paint)
     // $text.view.idle.Alt1
-    constexpr QColor ItemText(255, 255, 255);
+    const QColor& ItemText = AzQtComponents::Foundations::Text::Primary;
 } // namespace EditorPreferencesTreeWidgetItemDelegateFlat
 
 static const int IconX = 26;

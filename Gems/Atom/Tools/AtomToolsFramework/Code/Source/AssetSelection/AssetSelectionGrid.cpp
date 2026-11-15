@@ -51,19 +51,19 @@ namespace AtomToolsFramework
 
         //! background-color: AssetSelectionGrid.cpp:266 (the fill the context menu of the search box gives itself, set as the legacy
         //! sheet of the menu) AssetSelectionGrid::ShowSearchMenu $fill.menu.selected.Low
-        constexpr QColor SearchMenuFill = AzQtComponents::Foundations::Low;
+        const QColor& SearchMenuFill = AzQtComponents::Foundations::Low;
 
         //! The `background-color` of the header, over the box of every label (`.Label, QLabel { margin-top: 1px; margin-bottom: 1px }`,
         //! Text.qss:89-95, the margins at :93-94): an element is the whole definition of its frame, so it carries that margin, which
         //! Style gives a label without an element (Style::subElementRect, SE_ShapedFrameContents). The fill is drawn inside it, as the
         //! sheet drew it.
-        const AzQtComponents::BoxElement Header{
+        AzQtComponents::Themed<AzQtComponents::BoxElement> Header = [] { return AzQtComponents::BoxElement{
             .m_name = "AtomTools.Box.AssetSelectionGridHeader",
             .m_margin = QMargins(0, AzQtComponents::Foundations::Label::MarginV, 0, AzQtComponents::Foundations::Label::MarginV),
             .m_idle = {
                 .m_fill = QBrush(HeaderFill),
             },
-        };
+        }; };
 
         //! The tooltip of the header (ElidingLabel::elide sets the full name, or the name and the description): the fill of the sheet
         //! (HeaderFill), which outranked `QToolTip { background-color: black }` (ToolTip.qss:13) there

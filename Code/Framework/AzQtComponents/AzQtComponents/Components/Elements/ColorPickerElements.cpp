@@ -44,13 +44,13 @@ namespace AzQtComponents
         const QColor ModifiedPaletteTitleText(0xFF, 0xA5, 0x00);    // ColorPicker.qss:63 $text.label.modified
 
         // ---- The separators between its sections
-        const QColor SeparatorFill = Foundations::BG;               // ColorPicker.qss:89 $fill.surface.idle.BG
+        const QColor& SeparatorFill = Foundations::BG;               // ColorPicker.qss:89 $fill.surface.idle.BG
         // ColorPicker.qss:85-86 $line.surface.idle.width.Alt1 $line.surface.idle.color.Alt2 (the top and the bottom edge alike)
         const BoxElement::Edge SeparatorLine{ 1, QColor(0x39, 0x3A, 0x3C) };
 
         // ---- The frames of the color grid, the preview, the swatches and the button that adds one
         // ColorPicker.qss:108 $line.surface.idle.width.Alt1 $line.surface.idle.color.Low
-        const BoxElement::Edge FrameLine{ 1, Foundations::Line::ColorPickerFrame };
+        Themed<BoxElement::Edge> FrameLine = [] { return BoxElement::Edge{ 1, Foundations::Line::ColorPickerFrame }; };
         constexpr int FrameRadius = 2;                              // ColorPicker.qss:109 $radius.surface.idle.all.Alt3
         // ColorPicker.qss:115 $line.surface.selected.width $line.surface.selected.color
         const BoxElement::Edge SelectedSwatchLine{ 2, QColor(0xC8, 0xAB, 0xFF) };
@@ -93,23 +93,23 @@ namespace AzQtComponents
         //! $space.label.idle.margin.Alt1). Its two type names outrank Text.qss's `QLabel`, so the 1px above and below that rule gave
         //! every label is gone, and with it the label's frame box: a QLabel with a frame width indents its text by half an 'x'
         //! (QLabelPrivate::sizeForWidth). A margin and a padding, even of 0, give the label a box whose contents are all of it.
-        const BoxElement PickerLabel{
+        Themed<BoxElement> PickerLabel = [] { return BoxElement{
             .m_name = "Global.Box.PickerLabel",
             .m_hasBox = true,
             .m_idle = {
                 .m_fill = QBrush(Foundations::Surface::Fill),
             },
-        };
+        }; };
 
         //! AzQtComponents--PaletteCard[modified="true"] AzQtComponents--CardHeader #Title: the title of a palette with unsaved changes,
         //! orange, in the picker's size and the weight a palette card gives its title
-        const TextElement ModifiedPaletteTitle{
+        Themed<TextElement> ModifiedPaletteTitle = [] { return TextElement{
             .m_name = "Global.Text.PickerModifiedPaletteTitle",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = Foundations::Surface::Size,
             .m_weight = PaletteTitleWeight,
             .m_color = ModifiedPaletteTitleText,
-        };
+        }; };
 
         //! AzQtComponents--ColorPicker .HorizontalSeparator: a QFrame HLine (ColorPicker::makeSeparator) with a line above and below
         //! and none at the sides (ColorPicker.qss:87-88 $line.surface.idle.style.Alt1), filled between. A class tag stands in for the
@@ -117,20 +117,20 @@ namespace AzQtComponents
         //! reached it. Its box is the two lines. The sheet drew it once, with the styled background (QStyleSheetStyle::drawControl
         //! draws no CE_ShapedFrame for a border of the rule's own). Its container, .HorizontalSeparatorContainer, is transparent
         //! (ColorPicker.qss:92-95): a plain QWidget, nothing to carry.
-        const BoxElement PickerSeparator{
+        Themed<BoxElement> PickerSeparator = [] { return BoxElement{
             .m_name = "Global.Box.PickerSeparator",
             .m_nativeBorder = false,
             .m_idle = {
                 .m_fill = QBrush(SeparatorFill),
                 .m_edges = { SeparatorLine, {}, SeparatorLine, {} },
             },
-        };
+        }; };
 
         //! AzQtComponents--ColorGrid, --ColorPreview, --Swatch and --ColorPicker #addColorButton: a rounded border and no fill (a swatch
         //! paints its own colour). The border is the box: the grid's pixmap and the colours of a preview are laid out inside it. The
         //! sheet drew the border twice, with the styled background and at the PE_Frame these widgets ask for after their contents
         //! (drawFrame).
-        const BoxElement PickerFrame{
+        Themed<BoxElement> PickerFrame = [] { return BoxElement{
             .m_name = "Global.Box.PickerFrame",
             .m_nativeBorder = false,
             .m_radius = FrameRadius,
@@ -138,13 +138,13 @@ namespace AzQtComponents
                 .m_fill = QBrush(Foundations::Surface::Fill),
                 .m_edges = { FrameLine, FrameLine, FrameLine, FrameLine },
             },
-        };
+        }; };
 
         //! AzQtComponents--Swatch:selected: the wider border over the frames' rule, which keeps its radius. Only the border changes: the
         //! contents rect, which the swatch fills with its colour, is the box Qt read at polish (the state Enabled alone), 1px in. A
         //! pseudo-class counts more than any number of type names (Selector::specificity), so the rule outranks the frames' and the
         //! color label swatch's alike.
-        const BoxElement PickerSelectedSwatch{
+        Themed<BoxElement> PickerSelectedSwatch = [] { return BoxElement{
             .m_name = "Global.Box.PickerSelectedSwatch",
             .m_nativeBorder = false,
             .m_radius = FrameRadius,
@@ -152,20 +152,20 @@ namespace AzQtComponents
                 .m_fill = QBrush(Foundations::Surface::Fill),
                 .m_edges = { SelectedSwatchLine, SelectedSwatchLine, SelectedSwatchLine, SelectedSwatchLine },
             },
-        };
+        }; };
 
         //! AzQtComponents--ColorLabel AzQtComponents--Swatch: no margin, no padding (ColorLabel.qss:18-19 $space.surface.idle.margin.Alt2
         //! $space.surface.idle.padding.Alt6) and `border: 0px` (ColorLabel.qss:24 $line.surface.idle.width.Alt3), over the frames' rule
         //! (the later, more specific one): a flat box of its colour, with no room for a frame. Its size is set by ColorLabel. A
         //! selected swatch has PickerSelectedSwatch's border all the same.
-        const BoxElement LabelSwatch{
+        Themed<BoxElement> LabelSwatch = [] { return BoxElement{
             .m_name = "Global.Box.PickerLabelSwatch",
             .m_hasBox = true,
             .m_nativeBorder = false,
             .m_idle = {
                 .m_fill = QBrush(Foundations::Surface::Fill),
             },
-        };
+        }; };
 
         //! AzQtComponents--GradientSlider.HorizontalSlider: the tool tip above the pointer
         const BoxElement HorizontalSliderToolTip{

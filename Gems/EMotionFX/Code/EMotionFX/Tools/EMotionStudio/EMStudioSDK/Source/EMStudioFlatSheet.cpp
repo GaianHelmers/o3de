@@ -98,7 +98,9 @@ namespace EMStudioFlat
 
         //! The application's box of a line edit (LineEdit.qss:11-19) over the entry field: no padding left, the text one pixel up
         //! (the padding above is -1 and the one below 1) $space.field.idle.padding.Alt4
-        const QMargins InputFieldPadding(Field::PaddingLeft, Field::PaddingTop, 0, Field::PaddingBottom);
+        AzQtComponents::Themed<QMargins> InputFieldPadding = [] {
+            return QMargins(Field::PaddingLeft, Field::PaddingTop, 0, Field::PaddingBottom);
+        };
 
         //! `border-width: 2px` (LineEdit.qss:16): the line of a line edit that its own sheet gives a background and no border of its
         //! own $line.field.idle.width.Alt2
@@ -158,7 +160,7 @@ namespace EMStudioFlat
 
         //! `QComboBox QAbstractItemView { background-color: #222222 }` (ComboBox.qss:81): the fill of the popup list.
         //! $fill.field.idle.BG
-        const QColor ComboPopupSurface = Foundations::BG;
+        const QColor& ComboPopupSurface = Foundations::Menu::Fill;
 
         //! `border: 2px dashed` of the preview frame (ParameterCreateEditWidget.cpp:72)
         //! (ParameterCreateEditWidget::ParameterCreateEditWidget) $line.surface.idle.width.Alt6
@@ -177,7 +179,7 @@ namespace EMStudioFlat
         //! declaration, EMStudioManager.cpp:262, LineEditValidatable.cpp:46) over a line edit's own box (LineEdit.qss:11-19,
         //! BaseStyleSheet.qss:67-82): the same box and fill in every state, the 1px line replacing the 2px one, and the fill of
         //! :disabled (LineEdit.qss:28-35), which the sheet's declarations do not outrank
-        const BoxElement InvalidInput{
+        AzQtComponents::Themed<BoxElement> InvalidInput = [] { return BoxElement{
             .m_name = "EMotionFX.Box.InvalidInput",
             .m_padding = InputFieldPadding,
             .m_nativeBorder = false,                                        // a border of its own
@@ -187,18 +189,18 @@ namespace EMStudioFlat
             .m_stateFaces = {
                 { BoxElement::Disabled, { .m_fill = QBrush(Field::DisabledFill), .m_edges = InvalidInputEdges } },
             },
-        };
+        }; };
 
         //! `background-color: rgb(70, 70, 70);` on the name field of a disabled time track (TrackHeaderWidget.cpp:247): the field's own
         //! box (the application's 2px line, LineEdit.qss:16, BaseStyleSheet.qss:81) with the fill of the sheet, in every state
-        const BoxElement DisabledTrackName{
+        AzQtComponents::Themed<BoxElement> DisabledTrackName = [] { return BoxElement{
             .m_name = "EMotionFX.Box.DisabledTrackName",
             .m_padding = InputFieldPadding,
             .m_nativeBorder = false,
             .m_radius = Field::Radius,
             .m_size = QSize(BoxElement::Unset, Field::Height),
             .m_idle = { .m_fill = QBrush(Values::DisabledNameEdit), .m_edges = BoxElement::border(InputFieldLineWidth, Field::Line) },
-        };
+        }; };
 
         //! The name fields of the rename dialogs and of a time track, while a state holds: named first, then the tag. The invalid look
         //! is registered before the disabled track's: a sheet replaced the one before it, so an invalid name outranks the track's fill
@@ -224,21 +226,21 @@ namespace EMStudioFlat
 
         //! `color: rgb(244,156,28);` (KeyboardShortcutsWindow.cpp:426, :427) over the label rule's family and size (Text.qss:91-92).
         //! An element replaces the Global label text, so it restates them
-        const TextElement ShortcutConflict{
+        AzQtComponents::Themed<TextElement> ShortcutConflict = [] { return TextElement{
             .m_name = "EMotionFX.Text.ShortcutConflict",
             .m_family = Label::Family,
             .m_pixelSize = Label::Size,
             .m_color = Values::ConflictText,
-        };
+        }; };
 
         //! The labels' own text colour, `color: white` of '*' (BaseStyleSheet.qss:18), which the labels go back to when the key is free
         //! (KeyboardShortcutsWindow.cpp:419, :420 cleared the sheet): the palette is not given back by itself
-        const TextElement ShortcutIdle{
+        AzQtComponents::Themed<TextElement> ShortcutIdle = [] { return TextElement{
             .m_name = "EMotionFX.Text.ShortcutIdle",
             .m_family = Label::Family,
             .m_pixelSize = Label::Size,
             .m_color = Foundations::Surface::Text,
-        };
+        }; };
 
         bool isShortcutConflict(Widget widget)
         {
@@ -323,13 +325,13 @@ namespace EMStudioFlat
 
         //! `background-color: rgb(40, 40, 40); padding: 6px;` (ResetSettingsDialog.cpp:65): the strip behind the title, over the label
         //! rule's vertical margin (Text.qss:93-94), which the box of a label has
-        const BoxElement DialogTopLabel{
+        AzQtComponents::Themed<BoxElement> DialogTopLabel = [] { return BoxElement{
             .m_name = "EMotionFX.Box.DialogTopLabel",
             .m_margin = QMargins(0, Label::MarginV, 0, Label::MarginV),
             .m_padding = QMargins(ResetSettingsTopLabelPadding, ResetSettingsTopLabelPadding, ResetSettingsTopLabelPadding,
                 ResetSettingsTopLabelPadding),
             .m_idle = { .m_fill = QBrush(Values::ResetSettingsTopLabelBackground) },
-        };
+        }; };
 
         bool isDialogTopLabel(Widget widget)
         {
@@ -342,12 +344,12 @@ namespace EMStudioFlat
         // ------------------------------------------------------------------------------
 
         //! The weight of the sheet's `bold` (QFont::Bold) over the label rule's family and size (Text.qss:91-92)
-        const TextElement Bold{
+        AzQtComponents::Themed<TextElement> Bold = [] { return TextElement{
             .m_name = "EMotionFX.Text.Bold",
             .m_family = Label::Family,
             .m_pixelSize = Label::Size,
             .m_weight = QFont::Bold,
-        };
+        }; };
 
         bool isBoldLabel(Widget widget)
         {
@@ -363,17 +365,17 @@ namespace EMStudioFlat
         const BoxElement::Edges WarningEdges = BoxElement::border(WarningLineWidth, Values::WarningBorder);
 
         //! :focus, and an open popup (ComboBox.qss:31-42), with the orange line in place of the light blue one
-        const BoxElement::Face WarningFocusFace{
+        AzQtComponents::Themed<BoxElement::Face> WarningFocusFace = [] { return BoxElement::Face{
             .m_fill = QBrush(Field::FocusFill),
             .m_edges = WarningEdges,
             .m_text = Field::Text,
             .m_margin = ComboStateMargin,
             .m_radius = Field::FocusRadius,
-        };
+        }; };
 
         //! The combo box of ComboBox.qss:13-57 over the entry field (BaseStyleSheet.qss:67-82), as Global.Box.ComboBox restates them,
         //! with the orange line in each state
-        const BoxElement MotionSetComboWarning{
+        AzQtComponents::Themed<BoxElement> MotionSetComboWarning = [] { return BoxElement{
             .m_name = "EMotionFX.Box.MotionSetComboWarning",
             .m_margin = ComboMargin,
             .m_padding = ComboPadding,
@@ -392,17 +394,17 @@ namespace EMStudioFlat
                 { BoxElement::Checked, WarningFocusFace },                  // [HasPopupOpen=true]: ComboBox.qss:32-33
                 { BoxElement::Disabled, { .m_fill = QBrush(Field::DisabledFill), .m_edges = WarningEdges, .m_text = Field::DisabledText } },
             },
-        };
+        }; };
 
         //! The popup list of that combo box: the bare declaration reached the list (a QListView below the combo box's popup container)
         //! as well, over `QComboBox QAbstractItemView { background-color: #222222; padding: 0px }` (ComboBox.qss:80-86). Its items are
         //! the Global popup's (ComboPopupElement)
-        const BoxElement MotionSetComboPopup{
+        AzQtComponents::Themed<BoxElement> MotionSetComboPopup = [] { return BoxElement{
             .m_name = "EMotionFX.Box.MotionSetComboPopupWarning",
             .m_hasBox = true,                                               // padding: 0px is declared (ComboBox.qss:82)
             .m_nativeBorder = false,
             .m_idle = { .m_fill = QBrush(ComboPopupSurface), .m_edges = WarningEdges },
-        };
+        }; };
 
         //! The combo box while it warns
         bool isMotionSetComboWarning(Widget widget)
@@ -426,11 +428,11 @@ namespace EMStudioFlat
         //! The colour is put in the palettes of the tree and its viewport, which the item delegate draws its text from. The family
         //! and the weight are the universal rule's (BaseStyleSheet.qss:19-20). The header sections keep the 12px of TableView.qss:70-80:
         //! a rule with no type does not reach a sub-control
-        const TextElement GraphTree{
+        AzQtComponents::Themed<TextElement> GraphTree = [] { return TextElement{
             .m_name = "EMotionFX.Text.GraphTree",
             .m_pixelSize = 11,  // BaseStyleSheet.qss:19-20 $type.surface.idle.size.Alt1
             .m_color = Values::GraphTreeText,
-        };
+        }; };
 
         bool isGraphTree(Widget widget)
         {
@@ -462,20 +464,20 @@ namespace EMStudioFlat
         // ------------------------------------------------------------------------------
 
         //! `padding-right: 1px;` of the progress text (CommandBarPlugin.cpp:93), over the label rule's margin (Text.qss:93-94)
-        const BoxElement CommandBarProgressTextBox{
+        AzQtComponents::Themed<BoxElement> CommandBarProgressTextBox = [] { return BoxElement{
             .m_name = "EMotionFX.Box.CommandBarProgressText",
             .m_margin = QMargins(0, Label::MarginV, 0, Label::MarginV),
             .m_padding = QMargins(0, 0, ProgressTextPaddingRight, 0),
             .m_idle = { .m_fill = QBrush(Foundations::Surface::Fill) },
-        };
+        }; };
 
         //! `color: rgb(140, 140, 140);` of the progress text (CommandBarPlugin.cpp:93)
-        const TextElement CommandBarProgressTextColor{
+        AzQtComponents::Themed<TextElement> CommandBarProgressTextColor = [] { return TextElement{
             .m_name = "EMotionFX.Text.CommandBarProgressText",
             .m_family = Label::Family,
             .m_pixelSize = Label::Size,
             .m_color = Values::ProgressText,
-        };
+        }; };
 
         bool isProgressText(Widget widget)
         {
@@ -500,36 +502,36 @@ namespace EMStudioFlat
         //! The result field's text after a command: `color: red;` / `color: rgb(0, 255, 0);` (CommandBarPlugin.cpp:177, :183), over the
         //! field's family and size (BaseStyleSheet.qss:78, :82). The box of the field is the Global one. A line edit draws its text
         //! with roles that every polish builds again, so no element is needed for the field's own colour
-        const TextElement CommandResultError{
+        AzQtComponents::Themed<TextElement> CommandResultError = [] { return TextElement{
             .m_name = "EMotionFX.Text.CommandResultError",
             .m_family = Field::Family,
             .m_pixelSize = Field::Size,
             .m_color = Values::ResultErrorText,
-        };
+        }; };
 
-        const TextElement CommandResultSuccess{
+        AzQtComponents::Themed<TextElement> CommandResultSuccess = [] { return TextElement{
             .m_name = "EMotionFX.Text.CommandResultSuccess",
             .m_family = Field::Family,
             .m_pixelSize = Field::Size,
             .m_color = Values::ResultSuccessText,
-        };
+        }; };
 
         //! The tip of the result field (CommandBarPlugin.cpp:179 sets it on an error) and its standard context menu reach the colour as
         //! well: `color` outranks ToolTip.qss:12 for the tip, and the text of the menu's items takes it. The tip's own family and size
         //! (ToolTip.qss:16, :19) are kept
-        const TextElement CommandResultErrorTipText{
+        AzQtComponents::Themed<TextElement> CommandResultErrorTipText = [] { return TextElement{
             .m_name = "EMotionFX.Text.CommandResultErrorTip",
             .m_family = ToolTipFamily,
             .m_pixelSize = ToolTipSize,
             .m_color = Values::ResultErrorText,
-        };
+        }; };
 
-        const TextElement CommandResultSuccessTipText{
+        AzQtComponents::Themed<TextElement> CommandResultSuccessTipText = [] { return TextElement{
             .m_name = "EMotionFX.Text.CommandResultSuccessTip",
             .m_family = ToolTipFamily,
             .m_pixelSize = ToolTipSize,
             .m_color = Values::ResultSuccessText,
-        };
+        }; };
 
         const ToolTipElement CommandResultErrorToolTip{
             .m_name = "EMotionFX.ToolTip.CommandResultError",
@@ -646,11 +648,11 @@ namespace EMStudioFlat
         // ------------------------------------------------------------------------------
 
         //! A frame of the shape StyledPanel with no border of its own, over the panel fill the frame rule gives (BaseStyleSheet.qss:41-48)
-        const FrameElement NotificationHeader{
+        AzQtComponents::Themed<FrameElement> NotificationHeader = [] { return FrameElement{
             .m_name = "EMotionFX.Frame.NotificationHeader",
             .m_fill = Values::NotificationHeaderBackground,
             .m_fillShapes = FrameElement::PanelShapes,
-        };
+        }; };
 
         //! The frame is named HeaderFrame, which other frames of the engine are too (NewEditorStylesheet.qss, PropertyEditorElements):
         //! the constructor tags it
@@ -662,11 +664,11 @@ namespace EMStudioFlat
         //! The bare sheet filled the icon and the title below the header with the same colour, inside the margin the label rule gives
         //! every label (Text.qss:93-94). The fills lie over the line of the frame where the two meet at a device ratio that is not a
         //! whole number, so the line of the legacy header is a half pixel thinner on its right edge at 150 %: the labels draw it too
-        const BoxElement NotificationHeaderLabel{
+        AzQtComponents::Themed<BoxElement> NotificationHeaderLabel = [] { return BoxElement{
             .m_name = "EMotionFX.Box.NotificationHeaderLabel",
             .m_margin = QMargins(0, Label::MarginV, 0, Label::MarginV),
             .m_idle = { .m_fill = QBrush(Values::NotificationHeaderBackground) },
-        };
+        }; };
 
         //! The labels Icon and Title of the header (NotificationWidget.cpp names them), by their own name first: CardHeader has labels
         //! of both names too, so the header is the second test
@@ -686,21 +688,21 @@ namespace EMStudioFlat
         // ------------------------------------------------------------------------------
 
         //! `QLabel { font-weight: bold; color : red; }`. The colour string of the site has two values, so the two looks are two elements
-        const TextElement AxisX{
+        AzQtComponents::Themed<TextElement> AxisX = [] { return TextElement{
             .m_name = "EMotionFX.Text.AxisX",
             .m_family = Label::Family,
             .m_pixelSize = Label::Size,
             .m_weight = QFont::Bold,
             .m_color = Values::AxisXText,
-        };
+        }; };
 
-        const TextElement AxisY{
+        AzQtComponents::Themed<TextElement> AxisY = [] { return TextElement{
             .m_name = "EMotionFX.Text.AxisY",
             .m_family = Label::Family,
             .m_pixelSize = Label::Size,
             .m_weight = QFont::Bold,
             .m_color = Values::AxisYText,
-        };
+        }; };
 
         bool isAxisX(Widget widget)
         {
@@ -714,7 +716,7 @@ namespace EMStudioFlat
 
         //! `#m_labelMotion { border: 1px solid red; }` over the label rule's vertical margin (Text.qss:93-94): the label shrinks by the
         //! line on each side
-        const BoxElement InvalidMotionLabel{
+        AzQtComponents::Themed<BoxElement> InvalidMotionLabel = [] { return BoxElement{
             .m_name = "EMotionFX.Box.InvalidMotionLabel",
             .m_margin = QMargins(0, Label::MarginV, 0, Label::MarginV),
             .m_nativeBorder = false,
@@ -722,7 +724,7 @@ namespace EMStudioFlat
                 .m_fill = QBrush(Foundations::Surface::Fill),
                 .m_edges = BoxElement::border(Values::InvalidMotionLineWidth, Values::InvalidMotionLine),
             },
-        };
+        }; };
 
         //! The label of a motion's name (it is named by BlendSpaceMotionWidget) while the motion is invalid
         bool isInvalidMotionLabel(Widget widget)

@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
+
 #include <QColor>
 #include <QString>
 
@@ -36,7 +38,7 @@ namespace OpenParticleSystemEditor
         // EffectorInspector.cpp:31 (transparent) (EffectorInspector::EffectorInspector) $fill.surface.idle.Clear
         constexpr QColor NameEditIdleFill(0, 0, 0, 0);
         // EffectorInspector.cpp:31, :58 (EffectorInspector::EffectorInspector) $text.surface.idle.Alt8
-        constexpr QColor NameEditText(255, 255, 255);
+        inline const QColor& NameEditText = AzQtComponents::Foundations::Text::Primary;
         // EffectorInspector.cpp:54 (EffectorInspector::eventFilter) $text.surface.focus.Mid
         constexpr QColor NameEditFocusedText(68, 68, 68);
         // EffectorInspector.cpp:58 (EffectorInspector::eventFilter) $fill.surface.idle.Mid
@@ -59,7 +61,7 @@ namespace OpenParticleSystemEditor
     namespace ParticleItemWidgetFlat
     {
         // ParticleItemWidget.cpp:54 (ParticleItemWidget::ParticleItemWidget) $fill.item.idle.Low
-        constexpr QColor ItemWindowFill(0x33, 0x33, 0x33);
+        inline const QColor& ItemWindowFill = AzQtComponents::Foundations::Low;
         constexpr int ItemWindowRadius = 8;  // ParticleItemWidget.cpp:54 (ParticleItemWidget::ParticleItemWidget) $radius.item.idle.Alt2
         constexpr QColor TitleTop(223, 169, 112);          // ParticleItemWidget.ui:59 `stop:0` $text.item.idle.top.Alt1
         constexpr QColor TitleBottom(217, 141, 50);        // ParticleItemWidget.ui:59 `stop:1` $text.item.idle.bottom.Alt1

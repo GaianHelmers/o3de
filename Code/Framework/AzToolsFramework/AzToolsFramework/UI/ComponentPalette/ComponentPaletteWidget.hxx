@@ -81,6 +81,8 @@ namespace AzToolsFramework
     private:
         bool eventFilter(QObject* object, QEvent* event) override;
         bool BranchHasNoChildren(QStandardItem* item);
+        //! The palettes of the widget and of its tree in the flattened GUI, from the theme in effect
+        void ApplyFlatColors();
         void SetExpanded(QModelIndex itemIndex);
 
         QRegularExpression m_searchRegExp;

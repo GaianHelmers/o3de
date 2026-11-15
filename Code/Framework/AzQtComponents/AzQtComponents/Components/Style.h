@@ -66,6 +66,12 @@ namespace AzQtComponents
         void repolishOnSettingsChange(QWidget* widget);
 
         /*!
+         * Flattened GUI only: the theme changed (ThemeManager). The Configs read the tokens again, the application takes its
+         * font and palette again, and every polished widget is polished again, as when the application's style is set.
+         */
+        void applyTheme();
+
+        /*!
          * Returns true if the widget parameter has the css className applied
          */
         static bool hasClass(const QWidget* widget, const QString& className);
@@ -178,6 +184,9 @@ namespace AzQtComponents
 
     private:
         void repolishWidgetDestroyed(QObject* obj);
+
+        //! Flattened GUI only: the colours of the Configs it still draws with, set from the tokens
+        void bindConfigsToTokens();
 
         AZ_PUSH_DISABLE_WARNING(4251, "-Wunknown-warning-option") // needs to have dll-interface to be used by clients of class 'AzQtComponents::LineEdit'
         QScopedPointer<Data> m_data;

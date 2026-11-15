@@ -9,6 +9,8 @@
 #pragma once
 #include "GemInfo.h"
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
+
 #include <QStyledItemDelegate>
 #include <QAbstractItemModel>
 #include <QColor>
@@ -29,15 +31,15 @@ namespace O3DE::ProjectManager
         // The rows of the Gem Catalog list (GemItemDelegate::paint)
         // ------------------------------------------------------------------------------
         // GemItemDelegate.h:36 (text, knob) (GemItemDelegate::paint) $text.item.idle.Alt2
-        inline constexpr QColor ItemText(0xFF, 0xFF, 0xFF);
+        inline const QColor& ItemText = AzQtComponents::Foundations::Text::Primary;
         // GemItemDelegate.h:37 (read nowhere) (GemItemDelegate::m_linkColor) $fill.item.idle.Alt4
-        inline constexpr QColor ItemLink(0x94, 0xD2, 0xFF);
+        inline const QColor& ItemLink = AzQtComponents::Foundations::Accent::Focus;
         // GemItemDelegate.h:38 (outside) (GemItemDelegate::m_backgroundColor) $fill.view.idle.Low
-        inline constexpr QColor ListSurface(0x33, 0x33, 0x33);
+        inline const QColor& ListSurface = AzQtComponents::Foundations::Low;
         // GemItemDelegate.h:39 (item) (GemItemDelegate::m_itemBackgroundColor) $fill.item.idle.Alt5
         inline constexpr QColor ItemFill(0x40, 0x40, 0x40);
         // GemItemDelegate.h:40 (GemItemDelegate::m_borderColor) $line.item.selected.color.Alt1
-        inline constexpr QColor SelectedBorder(0x1E, 0x70, 0xEB);
+        inline const QColor& SelectedBorder = AzQtComponents::Foundations::Accent::Primary;
         // GemItemDelegate.h:41 (GemItemDelegate::m_buttonEnabledColor) $fill.item.idle.Alt6
         inline constexpr QColor ToggleTrackAdded(0x00, 0xB9, 0x31);
         // GemItemDelegate.h:42 (GemItemDelegate::m_buttonImplicitlyEnabledColor) $fill.item.idle.Alt7
@@ -57,12 +59,13 @@ namespace O3DE::ProjectManager
         QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& modelIndex) const override;
         virtual QString anchorAt(const QString& html, const QPoint& position, const QRect& rect);
 
-        // Colors
-        const QColor m_textColor = GemItemDelegateFlat::ItemText;
-        const QColor m_linkColor = GemItemDelegateFlat::ItemLink;
-        const QColor m_backgroundColor = GemItemDelegateFlat::ListSurface; // Outside of the actual gem item
+        // Colors. The ones a theme sets are references: the delegate is made before the application has its theme, and a
+        // theme may change while it lives.
+        const QColor& m_textColor = GemItemDelegateFlat::ItemText;
+        const QColor& m_linkColor = GemItemDelegateFlat::ItemLink;
+        const QColor& m_backgroundColor = GemItemDelegateFlat::ListSurface; // Outside of the actual gem item
         const QColor m_itemBackgroundColor = GemItemDelegateFlat::ItemFill; // Background color of the gem item
-        const QColor m_borderColor = GemItemDelegateFlat::SelectedBorder;
+        const QColor& m_borderColor = GemItemDelegateFlat::SelectedBorder;
         const QColor m_buttonEnabledColor = GemItemDelegateFlat::ToggleTrackAdded;
         const QColor m_buttonImplicitlyEnabledColor = GemItemDelegateFlat::ToggleTrackImplicit;
 

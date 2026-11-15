@@ -11,6 +11,7 @@
 #include <AzQtComponents/Components/Elements/ItemViewElement.h>
 #include <AzQtComponents/Components/Style.h>
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/Theme/ThemeTokens.h>
 #include <AzQtComponents/Components/Widgets/AssetFolderThumbnailView.h>
 #include <AzQtComponents/Components/Widgets/BreadCrumbs.h>
 #include <AzQtComponents/Components/Widgets/ColorPicker/ColorController.h>
@@ -307,7 +308,7 @@ namespace AzQtComponents
             "}";
 
         // AssetsTab.qss:86-105: the TableView and the tables of the window; the colour of a header section is its rule's
-        const ItemViewElement ApTable{
+        Themed<ItemViewElement> ApTable = [] { return ItemViewElement{
             .m_name = "Test.ItemView.ApTable",
             .m_alternate = rgb(0x222222),                                                                   // rgb(34,34,34)
             .m_selection = rgb(0x494949),                                                                   // rgb(73,73,73)
@@ -316,17 +317,17 @@ namespace AzQtComponents
                 { ItemViewElement::Hover, { rgb(0x3C3C3C), QColor(), QColor() } },                          // background: rgb(60,60,60)
             },
             .m_headerFill = rgb(0x222222),
-        };
+        }; };
 
         // AssetsTab.qss:86-91: the builder list has the roles of the table and no rule for its items
-        const ItemViewElement ApBuilderList{
+        Themed<ItemViewElement> ApBuilderList = [] { return ItemViewElement{
             .m_name = "Test.ItemView.ApBuilderList",
             .m_alternate = rgb(0x222222),
             .m_selection = rgb(0x494949),
-        };
+        }; };
 
         // AssetProcessor.qss:50-103: the asset trees fill their items and branches, and colour them by state
-        const ItemViewElement ApTree{
+        Themed<ItemViewElement> ApTree = [] { return ItemViewElement{
             .m_name = "Test.ItemView.ApTree",
             .m_faces = {
                 { 0, { rgb(0x2D2D2D), QColor(), QColor() } },                                               // ::item, ::branch { background-color: rgb(45,45,45) }
@@ -335,27 +336,31 @@ namespace AzQtComponents
                 // ::item:selected:!active, a rule for the item alone: the branch keeps its :selected colour in an inactive window
                 { ItemViewElement::Selected | ItemViewElement::Inactive, { rgb(0x3C3C3C), QColor(), rgb(0xC0C0C0) }, ItemViewElement::OnItem },
             },
-        };
+        }; };
 
         // AssetsTab.qss:67-77: the tree of a filter bar has no indentation
         const char* const ApFilterRules = "#apFilterTree { qproperty-indentation: 0; }";
-        const ItemViewElement ApFilterTree{
+        Themed<ItemViewElement> ApFilterTree = [] { return ItemViewElement{
             .m_name = "Test.ItemView.ApFilterTree",
             .m_indentation = 0,
-        };
+        }; };
 
         // ProjectManager.qss:872-874: the sections of the gem list's header are transparent
         const char* const PmRules = "#adjustableHeaderWidget QHeaderView::section { background-color: transparent; }";
-        const ItemViewElement PmAdjustableHeader{
+        Themed<ItemViewElement> PmAdjustableHeader = [] { return ItemViewElement{
             .m_name = "Test.ItemView.PmAdjustableHeader",
             .m_headerFill = QColor(0, 0, 0, 0),
-        };
+        }; };
 
         // AssetBundler.qss:28-30, :56-58 (the second selector is `QTabWidget QTreeView QHeaderView::section`, scoped to the view here)
         const char* const AbLogRules = "QTreeView#logTableView QHeaderView::section { background-color: #1B1B1B; }";
         const char* const AbTabRules = "#abFileTable QHeaderView::section { background-color: rgb(77, 77, 77); }";
-        const ItemViewElement AbLogHeader{ .m_name = "Test.ItemView.AbLogHeader", .m_headerFill = rgb(0x1B1B1B) };
-        const ItemViewElement AbTabHeader{ .m_name = "Test.ItemView.AbTabHeader", .m_headerFill = rgb(0x4D4D4D) };
+        Themed<ItemViewElement> AbLogHeader = [] {
+            return ItemViewElement{ .m_name = "Test.ItemView.AbLogHeader", .m_headerFill = rgb(0x1B1B1B) };
+        };
+        Themed<ItemViewElement> AbTabHeader = [] {
+            return ItemViewElement{ .m_name = "Test.ItemView.AbTabHeader", .m_headerFill = rgb(0x4D4D4D) };
+        };
 
         // EntityOutliner.qss:15-32: the outliner draws the selection and the hover of its items itself, so its tree has none (the selector is
         // `AzToolsFramework--EntityOutlinerWidget QTreeView`, the root of the twin here)
@@ -371,14 +376,14 @@ namespace AzQtComponents
             "#root QTreeView::item:selected:active {"
             "    background: transparent;"
             "}";
-        const ItemViewElement OutlinerTree{
+        Themed<ItemViewElement> OutlinerTree = [] { return ItemViewElement{
             .m_name = "Test.ItemView.OutlinerTree",
             .m_selection = QColor(0, 0, 0, 0),
             .m_faces = {
                 { ItemViewElement::Selected, { QColor(0, 0, 0, 0), QColor(), QColor() } },
                 { ItemViewElement::Hover, { QColor(0, 0, 0, 0), QColor(), QColor() } },
             },
-        };
+        }; };
 
         // ---- AssetImporterWindow.qss:6-40 (the sheet the Editor's asset importer sets on its window; its first rule, the delete button's,
         // reaches no widget): the check box of the items of the trees below it, over CheckBox.qss:23-73 and TableView.qss:78-85 of the
@@ -409,7 +414,7 @@ namespace AzQtComponents
             "QTreeView::indicator:!enabled {"
             "    border: 1px solid rgb(102, 102, 102);"
             "}";
-        const ItemViewElement ImporterCheckTree{
+        Themed<ItemViewElement> ImporterCheckTree = [] { return ItemViewElement{
             .m_name = "Test.ItemView.ImporterCheckTree",
             .m_indicatorSize = QSize(12, 12),                                                   // :8-9
             .m_check = {
@@ -429,7 +434,7 @@ namespace AzQtComponents
                     { .m_states = ItemViewElement::Hover, .m_face = { .m_image = "" } },
                 },
             },
-        };
+        }; };
 
         const char* const ViewKinds[] = { "QTreeView", "TableView", "QTableView", "QListView" };
         const Qt::LayoutDirection Directions[] = { Qt::LeftToRight, Qt::RightToLeft };
@@ -1421,11 +1426,11 @@ namespace AzQtComponents
         TEST_F(ItemViewElementTests, Modules_AViewPolishedBeforeTheRegistrationIsResolvedAgain)
         {
             // A module's registrar runs when its window gets its sheet (StyleManager::setStyleSheet), after the window built, and polished, its views
-            static const ItemViewElement Late{
+            static Themed<ItemViewElement> Late = [] { return ItemViewElement{
                 .m_name = "Test.ItemView.Late",
                 .m_alternate = rgb(0x123456),
                 .m_headerFill = rgb(0x654321),
-            };
+            }; };
             QWidget root;
             root.setProperty("itemViewElementTestsFlat", true);
             root.setStyle(style());
@@ -1453,6 +1458,58 @@ namespace AzQtComponents
             // what the module's element leaves out is the Global element's
             EXPECT_EQ(tree->palette().color(QPalette::Highlight), rgb(0x656565));
             EXPECT_EQ(tree->indentation(), 20);
+        }
+
+        TEST_F(ItemViewElementTests, Modules_AMergedElementTakesAChangeOfTheme)
+        {
+            // The element of a module's view is merged from the module's and the Global one, once per pair, and the view keeps its
+            // address. A theme gives the members that default to a token other values: the merged element has them where it is,
+            // once a view is resolved again (a change of theme polishes every widget).
+            static Themed<ItemViewElement> Module = [] { return ItemViewElement{
+                .m_name = "Test.ItemView.ThemeTree",
+                .m_alternate = rgb(0x123456),
+            }; };
+            struct OriginalAgain
+            {
+                ~OriginalAgain()
+                {
+                    ThemeTokens::setTheme({});
+                    ThemeTokens::rebuild();
+                }
+            } originalAgain;
+            ItemViewElement::registerElement(&Module, &QTreeView::staticMetaObject, [](const QWidget* w)
+            {
+                return w->objectName() == QLatin1String("themeTree");
+            });
+
+            QWidget root;
+            root.setProperty("itemViewElementTestsFlat", true);
+            root.setStyle(style());
+            auto* tree = new QTreeView(&root);
+            tree->setObjectName(QStringLiteral("themeTree"));
+            tree->setStyle(style());
+            tree->setModel(makeModel(&root, true));
+            tree->setGeometry(0, 0, 200, 100);
+            root.resize(200, 100);
+            root.setAttribute(Qt::WA_DontShowOnScreen);
+            root.show();
+            QApplication::processEvents();
+
+            const ItemViewElement* merged = ItemViewElement::forWidget(tree);
+            ASSERT_TRUE(merged != nullptr);
+            EXPECT_STREQ(merged->m_name, "Test.ItemView.ThemeTree");
+            EXPECT_EQ(merged->m_selection, rgb(0x656565));          // the Global element's: the token's O3DE Original value
+            EXPECT_EQ(tree->palette().color(QPalette::Highlight), rgb(0x656565));
+
+            ThemeTokens::setTheme({ { "fill.ItemSelected", "#0A0B0C" } });
+            ThemeTokens::rebuild();
+            ItemViewElement::resolve(tree);
+
+            EXPECT_EQ(ItemViewElement::forWidget(tree), merged);    // where it was
+            EXPECT_EQ(merged->m_selection, rgb(0x0A0B0C));
+            EXPECT_EQ(merged->m_alternate, rgb(0x123456));          // the module's own
+            EXPECT_EQ(tree->palette().color(QPalette::Highlight), rgb(0x0A0B0C));
+            EXPECT_EQ(tree->palette().color(QPalette::AlternateBase), rgb(0x123456));
         }
         // ----------------------------------------------------------------------------------
         // T8: what polishing a view gives it: the roles of its palette, the pointer tracking of its rules, the indentation a tree has when it
@@ -1994,6 +2051,47 @@ namespace AzQtComponents
             EXPECT_TRUE(area->styleSheet().isEmpty());
 
             ScrollBar::setBackgroundColor(nullptr, DarkConsole);        // no area: nothing to colour
+        }
+
+        TEST_F(ItemViewElementTests, Console_AColourThatIsATokensIsTheThemesWheneverTheAreaIsPolished)
+        {
+            // A colour handed over by reference that is a token's is kept by the token's key: the area has the theme's value at
+            // every polish (a change of theme polishes every widget), where a colour of the caller's own stays as it was given
+            struct OriginalAgain
+            {
+                ~OriginalAgain()
+                {
+                    ThemeTokens::setTheme({});
+                    ThemeTokens::rebuild();
+                }
+            } originalAgain;
+            const QColor& tokens = Foundations::BG;
+
+            QWidget root;
+            root.setProperty("itemViewElementTestsFlat", true);
+            root.setStyle(style());
+            auto* followed = new QScrollArea(&root);
+            followed->setStyle(style());
+            auto* fixed = new QScrollArea(&root);
+            fixed->setStyle(style());
+            ScrollBar::setBackgroundColor(followed, tokens);
+            ScrollBar::setBackgroundColor(fixed, QColor(tokens));
+            root.setAttribute(Qt::WA_DontShowOnScreen);
+            root.show();
+            QApplication::processEvents();
+            EXPECT_EQ(followed->palette().color(QPalette::Base), rgb(0x222222));
+            EXPECT_EQ(fixed->palette().color(QPalette::Base), rgb(0x222222));
+
+            ThemeTokens::setTheme({ { "tier.BG", "#0A0B0C" } });
+            ThemeTokens::rebuild();
+            for (QScrollArea* area : { followed, fixed })
+            {
+                style()->unpolish(area);
+                style()->polish(area);
+            }
+            EXPECT_EQ(followed->palette().color(QPalette::Base), rgb(0x0A0B0C));
+            EXPECT_EQ(followed->palette().color(QPalette::Window), rgb(0x0A0B0C));
+            EXPECT_EQ(fixed->palette().color(QPalette::Base), rgb(0x222222));
         }
         // ----------------------------------------------------------------------------------
         // T10: the Asset Browser Folder of the Gallery (AssetBrowserFolderWidget.cpp:40-81): the toolbar with the back and forward buttons and the

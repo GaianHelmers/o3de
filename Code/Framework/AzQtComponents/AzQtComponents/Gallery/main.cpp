@@ -24,6 +24,8 @@
 
 #include <AzQtComponents/Components/StyledDockWidget.h>
 #include <AzQtComponents/Components/O3DEStylesheet.h>
+#include <AzQtComponents/Components/Theme/ThemeEditor.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <AzQtComponents/Utilities/HandleDpiAwareness.h>
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
 #include "ComponentDemoWidget.h"
@@ -31,6 +33,12 @@
 #include <AzCore/Memory/SystemAllocator.h>
 
 #include <QApplication>
+#include <QElapsedTimer>
+#include <QFile>
+#include <QHash>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMainWindow>
 #include <QSettings>
 #include <QTimer>
@@ -120,6 +128,92 @@ private:
     AZ::SerializeContext* m_serializeContext = nullptr;
 };
 
+//! --theme-bench <file>: every theme in turn, then one value changed back and forth, each timed from the call until the event
+//! loop is idle (the paints the change asked for), with the theme manager's own split of the cost. Written as JSON.
+static void RunThemeBench(const QString& path)
+{
+    using AzQtComponents::ThemeManager;
+    constexpr int Rounds = 10;
+    constexpr int Edits = 40;
+
+    ThemeManager* manager = ThemeManager::instance();
+    QJsonArray runs;
+
+    // The widgets alive, by class: a change of theme polishes every widget again, and must leave no widget behind
+    const auto widgetsByClass = []
+    {
+        QHash<QString, int> counts;
+        const QWidgetList all = QApplication::allWidgets();
+        for (const QWidget* widget : all)
+        {
+            ++counts[QString::fromLatin1(widget->metaObject()->className())];
+        }
+        return counts;
+    };
+    QApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+    const QHash<QString, int> widgetsBefore = widgetsByClass();
+    const auto timed = [&runs, manager](const QString& what, const auto& change)
+    {
+        QElapsedTimer timer;
+        timer.start();
+        change();
+        const qint64 appliedUs = timer.nsecsElapsed() / 1000;
+        QApplication::processEvents();
+        const qint64 paintedUs = timer.nsecsElapsed() / 1000;
+        const ThemeManager::ApplyTiming timing = manager->lastApplyTiming();
+        runs.append(QJsonObject{
+            { "what", what },
+            { "applied_us", appliedUs },
+            { "painted_us", paintedUs },
+            { "tokens_us", timing.m_tokensUs },
+            { "rebuild_us", timing.m_rebuildUs },
+            { "polish_us", timing.m_polishUs },
+            { "widgets", timing.m_widgets },
+        });
+    };
+
+    const QStringList themes = manager->themes();
+    for (int round = 0; round < Rounds; ++round)
+    {
+        for (const QString& name : themes)
+        {
+            timed(QStringLiteral("theme: ") + name, [manager, name]
+            {
+                manager->setActiveTheme(name);
+            });
+        }
+    }
+    for (int edit = 0; edit < Edits; ++edit)
+    {
+        timed(QStringLiteral("value"), [manager, edit]
+        {
+            manager->setValue("accent.Primary", edit % 2 == 0 ? QStringLiteral("#3A7BD5") : QStringLiteral("#D57B3A"));
+        });
+    }
+
+    // Back to the theme the run started under, then the classes that have more widgets than before
+    manager->setActiveTheme(QString::fromLatin1(ThemeManager::OriginalName));
+    QApplication::processEvents();
+    QApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+    const QHash<QString, int> widgetsAfter = widgetsByClass();
+    QJsonObject grown;
+    for (auto count = widgetsAfter.constBegin(); count != widgetsAfter.constEnd(); ++count)
+    {
+        const int more = count.value() - widgetsBefore.value(count.key());
+        if (more != 0)
+        {
+            grown.insert(count.key(), more);
+        }
+    }
+
+    QFile file(path);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    {
+        file.write(QJsonDocument(
+            QJsonObject{ { "rounds", Rounds }, { "edits", Edits }, { "runs", runs }, { "widgets_grown", grown } }).toJson());
+    }
+}
+
 int main(int argc, char **argv)
 {
     const AZ::Debug::Trace tracer;
@@ -143,6 +237,9 @@ int main(int argc, char **argv)
         settingsRegistry->Get(engineRootPath.Native(), AZ::SettingsRegistryMergeUtils::FilePathKey_EngineRootFolder);
     }
     styleManager.initialize(&app, engineRootPath);
+
+    // Flattened GUI: the theme the user chose last. The Gallery is where a theme is tried on every control.
+    AzQtComponents::ThemeManager::restoreSavedTheme();
 
     auto wrapper = new AzQtComponents::WindowDecorationWrapper(AzQtComponents::WindowDecorationWrapper::OptionNone);
     auto widget = new ComponentDemoWidget(wrapper);
@@ -169,6 +266,23 @@ int main(int argc, char **argv)
     if (pageArgIndex >= 0 && pageArgIndex + 1 < arguments.size())
     {
         widget->selectPage(arguments.at(pageArgIndex + 1));
+    }
+
+    // --theme-editor: start with the theme editor open in its window (flattened GUI)
+    if (arguments.contains(QStringLiteral("--theme-editor")) && AzQtComponents::ThemeManager::instance())
+    {
+        AzQtComponents::ThemeEditor::showWindow(widget);
+    }
+
+    // --theme-bench <file>: time changes of theme on this window, write them to the file and exit (flattened GUI)
+    const int benchArgIndex = arguments.indexOf(QStringLiteral("--theme-bench"));
+    if (benchArgIndex >= 0 && benchArgIndex + 1 < arguments.size() && AzQtComponents::ThemeManager::instance())
+    {
+        const QString benchFile = arguments.at(benchArgIndex + 1);
+        QTimer::singleShot(1500, widget, [benchFile]() {
+            RunThemeBench(benchFile);
+            QApplication::quit();
+        });
     }
 
     const int screenshotArgIndex = arguments.indexOf(QStringLiteral("--screenshot-dir"));

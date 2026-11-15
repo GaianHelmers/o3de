@@ -56,6 +56,8 @@
 #include <AzQtComponents/Components/DockMainWindow.h>
 #include <AzQtComponents/Components/InputDialog.h>
 #include <AzQtComponents/Components/Style.h>
+#include <AzQtComponents/Components/Theme/ThemeEditor.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <AzQtComponents/Components/Widgets/SpinBox.h>
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
 #include <AzQtComponents/DragAndDrop/MainWindowDragAndDrop.h>
@@ -692,6 +694,15 @@ void MainWindow::RegisterStdViewClasses()
     AzAssetBrowserWindow::RegisterViewClass();
     AssetEditorWindow::RegisterViewClass();
     AzToolsFramework::RegisterPaintBrushSettingsWindow();
+
+    // Flattened GUI: the theme editor, a tool pane like the others
+    if (AzQtComponents::ThemeManager::instance())
+    {
+        AzToolsFramework::ViewPaneOptions themeEditorOptions;
+        themeEditorOptions.preferedDockingArea = Qt::RightDockWidgetArea;
+        AzToolsFramework::RegisterViewPane<AzQtComponents::ThemeEditor>(
+            AzQtComponents::ThemeEditor::Title, LyViewPane::CategoryTools, themeEditorOptions);
+    }
 
     // Notify that views can now be registered
     AzToolsFramework::EditorEvents::Bus::Broadcast(

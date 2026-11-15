@@ -55,11 +55,12 @@ namespace PhysX
         namespace KinematicDescriptionDialogFlat
         {
             // KinematicDescriptionDialog.cpp:71 (KinematicDescriptionDialog::OnButtonClicked) $fill.surface.idle.Low
-            constexpr QColor BoxFill = AzQtComponents::Foundations::Low;
+            const QColor& BoxFill = AzQtComponents::Foundations::Low;
             // KinematicDescriptionDialog.cpp:72 (KinematicDescriptionDialog::OnButtonClicked) $line.surface.idle.color.Alt13
-            constexpr QColor BoxBorder(30, 112, 235);
+            const QColor& BoxBorder = AzQtComponents::Foundations::Accent::Primary;
 
-            constexpr QColor ValidText(0x58, 0xBC, 0x61);       // KinematicDescriptionDialog.ui:295 $text.surface.idle.Alt22
+            // KinematicDescriptionDialog.ui:295 $text.surface.idle.Alt22
+            const QColor& ValidText = AzQtComponents::Foundations::Accent::Success;
             constexpr QColor InvalidText(0xFA, 0x27, 0x27);     // KinematicDescriptionDialog.ui:311 $text.surface.error.Alt4
             constexpr int NoteMarginLeft = 5;       // KinematicDescriptionDialog.ui:327, :349, :371, :393 $space.surface.idle.margin.Alt12
             constexpr QColor DividerLine(136, 136, 136);        // KinematicDescriptionDialog.ui:434-435 $line.separator.idle.color.Alt4
@@ -99,24 +100,24 @@ namespace PhysX
             //! `border: none` on groupBox (KinematicDescriptionDialog.ui:79) and groupBox_2 (:264), which reaches groupBox_5 (a group box
             //! with no sheet of its own, below groupBox) too: no frame at all. The fill is the universal rule's, a clear one
             //! (BaseStyleSheet.qss:17), and the title is empty.
-            const AzQtComponents::BoxElement Frameless{
+            AzQtComponents::Themed<AzQtComponents::BoxElement> Frameless = [] { return AzQtComponents::BoxElement{
                 .m_name = "PhysX.Box.KinematicFrameless",
                 .m_nativeBorder = false,
                 .m_idle = { .m_fill = QBrush(AzQtComponents::Foundations::Surface::Fill) },
-            };
+            }; };
 
             //! The box of the mode that is not chosen: `background-color: rgb(51, 51, 51); border: none;` (OnButtonClicked, the sheet
             //! set at KinematicDescriptionDialog.cpp:77 and :83 before the flattening; the fill of the form's own sheet, .ui:100 and :162,
             //! is the same and is replaced by it at construction)
-            const AzQtComponents::BoxElement Option{
+            AzQtComponents::Themed<AzQtComponents::BoxElement> Option = [] { return AzQtComponents::BoxElement{
                 .m_name = "PhysX.Box.KinematicOption",
                 .m_nativeBorder = false,
                 .m_idle = { .m_fill = QBrush(KinematicDescriptionDialogFlat::BoxFill) },
-            };
+            }; };
 
             //! The box of the mode that is chosen: `background-color: rgb(51, 51, 51); border: 1px solid rgb(30, 112, 235);`
             //! (OnButtonClicked, the sheet set at KinematicDescriptionDialog.cpp:76 and :82 before the flattening)
-            const AzQtComponents::BoxElement OptionSelected{
+            AzQtComponents::Themed<AzQtComponents::BoxElement> OptionSelected = [] { return AzQtComponents::BoxElement{
                 .m_name = "PhysX.Box.KinematicOptionSelected",
                 .m_nativeBorder = false,
                 .m_idle = {
@@ -124,7 +125,7 @@ namespace PhysX
                     // KinematicDescriptionDialog::OnButtonClicked $line.surface.idle.width.Alt5
                     .m_edges = AzQtComponents::BoxElement::border(1, KinematicDescriptionDialogFlat::BoxBorder),
                 },
-            };
+            }; };
 
             // ------------------------------------------------------------------------------
             // Elements: the labels
@@ -132,30 +133,30 @@ namespace PhysX
 
             //! `color: #58BC61` on the "Valid" header (KinematicDescriptionDialog.ui:295): the label rule's font (Text.qss:91-92) in
             //! green. The text is rich text, which reads the palette's text colour
-            const AzQtComponents::TextElement ValidHeader{
+            AzQtComponents::Themed<AzQtComponents::TextElement> ValidHeader = [] { return AzQtComponents::TextElement{
                 .m_name = "PhysX.Text.Valid",
                 .m_family = AzQtComponents::Foundations::Label::Family,
                 .m_pixelSize = AzQtComponents::Foundations::Label::Size,
                 .m_color = KinematicDescriptionDialogFlat::ValidText,
-            };
+            }; };
 
             //! `color: #FA2727` on the "Invalid" header (KinematicDescriptionDialog.ui:311)
-            const AzQtComponents::TextElement InvalidHeader{
+            AzQtComponents::Themed<AzQtComponents::TextElement> InvalidHeader = [] { return AzQtComponents::TextElement{
                 .m_name = "PhysX.Text.Invalid",
                 .m_family = AzQtComponents::Foundations::Label::Family,
                 .m_pixelSize = AzQtComponents::Foundations::Label::Size,
                 .m_color = KinematicDescriptionDialogFlat::InvalidText,
-            };
+            }; };
 
             //! `margin-left: 5px;` on the four notes under the headers (KinematicDescriptionDialog.ui:327, :349, :371, :393), over the
             //! margin above and below of every label (`QLabel { margin-top: 1px; margin-bottom: 1px }`, Text.qss:93-94). A label has
             //! no frame, so its border is the default one.
-            const AzQtComponents::BoxElement Note{
+            AzQtComponents::Themed<AzQtComponents::BoxElement> Note = [] { return AzQtComponents::BoxElement{
                 .m_name = "PhysX.Box.KinematicNote",
                 .m_margin = QMargins(KinematicDescriptionDialogFlat::NoteMarginLeft, AzQtComponents::Foundations::Label::MarginV, 0,
                     AzQtComponents::Foundations::Label::MarginV),
                 .m_idle = { .m_fill = QBrush(AzQtComponents::Foundations::Surface::Fill) },
-            };
+            }; };
 
             // ------------------------------------------------------------------------------
             // Elements: the panel of icons and its divider
@@ -164,17 +165,17 @@ namespace PhysX
             //! `background-color: rgb(51, 51, 51);` on the panel (KinematicDescriptionDialog.ui:415) over the application sheet's fill of
             //! a frame (BaseStyleSheet.qss:40-48), which a sheet of the widget or of an ancestor outranks. The panel has no border of its
             //! own declaration, so the `border: none;` of groupBox_2 (:264) reaches it: no StyledPanel frame.
-            const AzQtComponents::BoxElement Panel{
+            AzQtComponents::Themed<AzQtComponents::BoxElement> Panel = [] { return AzQtComponents::BoxElement{
                 .m_name = "PhysX.Box.KinematicPanel",
                 .m_nativeBorder = false,
                 .m_idle = { .m_fill = QBrush(KinematicDescriptionDialogFlat::BoxFill) },
-            };
+            }; };
 
             //! `color: rgb(136, 136, 136); border-right: 1px solid rgb(136, 136, 136);` on the vertical line of the panel
             //! (KinematicDescriptionDialog.ui:434-435): the border replaces the line's own frame, and is drawn at the right edge of the
             //! widget; the colour is moot. The fill is the panel's, which reaches the line as a descendant (:415), and the other edges
             //! have the `border: none;` of groupBox_2.
-            const AzQtComponents::BoxElement Divider{
+            AzQtComponents::Themed<AzQtComponents::BoxElement> Divider = [] { return AzQtComponents::BoxElement{
                 .m_name = "PhysX.Box.KinematicDivider",
                 .m_nativeBorder = false,
                 .m_idle = {
@@ -183,7 +184,7 @@ namespace PhysX
                         .m_right = { KinematicDescriptionDialogFlat::DividerLineWidth, KinematicDescriptionDialogFlat::DividerLine },
                     },
                 },
-            };
+            }; };
 
             // ------------------------------------------------------------------------------
             // Elements: the buttons
@@ -201,11 +202,11 @@ namespace PhysX
 
             //! Cancel has no sheet of its own: it takes the `border: none;` of groupBox_2 (KinematicDescriptionDialog.ui:264) and the
             //! universal rule's clear fill (BaseStyleSheet.qss:17), which the sheet style draws as the label alone, with no bevel
-            const AzQtComponents::BoxElement Cancel{
+            AzQtComponents::Themed<AzQtComponents::BoxElement> Cancel = [] { return AzQtComponents::BoxElement{
                 .m_name = "PhysX.Box.KinematicCancel",
                 .m_nativeBorder = false,
                 .m_idle = { .m_fill = QBrush(AzQtComponents::Foundations::Surface::Fill) },
-            };
+            }; };
 
             // ------------------------------------------------------------------------------
             // Matchers: the widget's own test first, then the dialog it is below. The names the form gives (Designer's own) are not

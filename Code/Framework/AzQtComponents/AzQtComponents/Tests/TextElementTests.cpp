@@ -10,6 +10,7 @@
 #include <AzQtComponents/Components/Elements/TextElement.h>
 #include <AzQtComponents/Components/Style.h>
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/Theme/ThemeTokens.h>
 
 #include <AzCore/UnitTest/TestTypes.h>
 #include <AzCore/std/smart_ptr/unique_ptr.h>
@@ -241,6 +242,85 @@ namespace AzQtComponents
         EXPECT_EQ(plain->font().pointSize(), 14);   // no size rule: the inherited size stays
     }
 
+    TEST_F(TextElementTests, InstallClassFonts_ThePlatformsFontsOutliveAChangeOfTheApplicationFont)
+    {
+        // QApplication::setFont without a class clears every class font, the platform's among them, and a theme that changes the
+        // application font calls it (Style::applyTheme). The platform's fonts are remembered: '*' is set over them again, at
+        // the platform's size in O3DE Original and at the universal size once a theme changes that.
+        struct OriginalAgain
+        {
+            ~OriginalAgain()
+            {
+                ThemeTokens::setTheme({});
+                ThemeTokens::rebuild();
+            }
+        } originalAgain;
+        TextElement::installClassFonts();
+        EXPECT_TRUE(QApplication::font("QStatusBar").family() == QStringLiteral("Open Sans"));
+        EXPECT_EQ(QApplication::font("QStatusBar").pointSize(), 9);     // the platform's size: '*' sets none
+
+        // A theme that changes the family: the application font is set again, the platform's size stays
+        ThemeTokens::setTheme({ { "surface.Family", "Courier New" } });
+        ThemeTokens::rebuild();
+        QFont applicationFont = QApplication::font();
+        applicationFont.setFamily(QStringLiteral("Courier New"));
+        QApplication::setFont(applicationFont);
+        TextElement::installClassFonts();
+        EXPECT_TRUE(QApplication::font("QStatusBar").family() == QStringLiteral("Courier New"));
+        EXPECT_EQ(QApplication::font("QStatusBar").pointSize(), 9);
+
+        // A theme that changes the universal size: the classes the platform sizes take it too
+        ThemeTokens::setTheme({ { "surface.Family", "Courier New" }, { "surface.Size", "15" } });
+        ThemeTokens::rebuild();
+        TextElement::installClassFonts();
+        EXPECT_EQ(QApplication::font("QStatusBar").pixelSize(), 15);
+
+        // O3DE Original again: the platform's size
+        ThemeTokens::setTheme({});
+        ThemeTokens::rebuild();
+        TextElement::installClassFonts();
+        EXPECT_TRUE(QApplication::font("QStatusBar").family() == QStringLiteral("Open Sans"));
+        EXPECT_EQ(QApplication::font("QStatusBar").pointSize(), 9);
+    }
+
+    TEST_F(TextElementTests, Apply_TheUniversalFamilyAndWeightAreTheThemes)
+    {
+        // The universal rule's family and weight are tokens. An element that leaves them at the type's defaults is built again
+        // with a theme, so a widget resolved under the theme has the theme's.
+        struct OriginalAgain
+        {
+            ~OriginalAgain()
+            {
+                ThemeTokens::setTheme({});
+                ThemeTokens::rebuild();
+            }
+        } originalAgain;
+        TextElement::installClassFonts();
+        const QFont codeFont(QStringLiteral("Consolas"), 14);
+
+        QDateTimeEdit before;       // no rule of its own: the universal one
+        before.setFont(codeFont);
+        polishAndApply(&before);
+        EXPECT_TRUE(before.font().family() == QStringLiteral("Open Sans"));
+        EXPECT_EQ(before.font().weight(), QFont::Normal);
+
+        ThemeTokens::setTheme({ { "surface.Family", "Courier New" }, { "surface.Weight", "700" } });
+        ThemeTokens::rebuild();
+        TextElement::installClassFonts();
+
+        QDateTimeEdit after;
+        after.setFont(codeFont);
+        polishAndApply(&after);
+        EXPECT_TRUE(after.font().family() == QStringLiteral("Courier New"));
+        EXPECT_EQ(after.font().weight(), QFont::Bold);
+
+        QLineEdit lineEdit;         // a rule that gives a size and leaves the family and the weight to the universal one
+        lineEdit.setFont(codeFont);
+        polishAndApply(&lineEdit);
+        EXPECT_TRUE(lineEdit.font().family() == QStringLiteral("Courier New"));
+        EXPECT_EQ(lineEdit.font().weight(), QFont::Bold);
+    }
+
     // ----------------------------------------------------------------------------------
     // T3: wired as the flattened GUI runs it, through Style
     // ----------------------------------------------------------------------------------
@@ -265,7 +345,7 @@ namespace AzQtComponents
 
     namespace
     {
-        const TextElement TestModuleTitle{ .m_name = "Test.Text.ModuleTitle", .m_pixelSize = 20 };
+        Themed<TextElement> TestModuleTitle = [] { return TextElement{ .m_name = "Test.Text.ModuleTitle", .m_pixelSize = 20 }; };
 
         bool isTestModuleTitle(const QWidget* widget)
         {
@@ -289,8 +369,10 @@ namespace AzQtComponents
     // A size in points (a sheet's `font: 12pt`), which Qt makes pixels of at the screen's logical DPI: not a pixel size worked out here
     namespace TextElementPointSizeTestsInternal
     {
-        const TextElement Points{ .m_name = "Test.Text.Points", .m_pointSize = 12 };
-        const TextElement PixelsAndPoints{ .m_name = "Test.Text.PixelsAndPoints", .m_pixelSize = 20, .m_pointSize = 12 };
+        Themed<TextElement> Points = [] { return TextElement{ .m_name = "Test.Text.Points", .m_pointSize = 12 }; };
+        Themed<TextElement> PixelsAndPoints = [] {
+            return TextElement{ .m_name = "Test.Text.PixelsAndPoints", .m_pixelSize = 20, .m_pointSize = 12 };
+        };
 
         bool isPoints(const QWidget* widget)
         {
@@ -326,9 +408,13 @@ namespace AzQtComponents
     // An underline (a sheet's `text-decoration: underline`): set, ended by an element that says none, and kept by one that says nothing
     namespace TextElementUnderlineTestsInternal
     {
-        const TextElement Underlined{ .m_name = "Test.Text.Underlined", .m_pixelSize = 10, .m_underline = 1 };
-        const TextElement NotUnderlined{ .m_name = "Test.Text.NotUnderlined", .m_pixelSize = 10, .m_underline = 0 };
-        const TextElement NoDecoration{ .m_name = "Test.Text.NoDecoration", .m_pixelSize = 10 };
+        Themed<TextElement> Underlined = [] {
+            return TextElement{ .m_name = "Test.Text.Underlined", .m_pixelSize = 10, .m_underline = 1 };
+        };
+        Themed<TextElement> NotUnderlined = [] {
+            return TextElement{ .m_name = "Test.Text.NotUnderlined", .m_pixelSize = 10, .m_underline = 0 };
+        };
+        Themed<TextElement> NoDecoration = [] { return TextElement{ .m_name = "Test.Text.NoDecoration", .m_pixelSize = 10 }; };
 
         bool isState(const QWidget* widget, const char* state)
         {
@@ -388,9 +474,11 @@ namespace AzQtComponents
     {
         // The looks of ProjectManager.qss:997-1001 (#CountLabel, #94d2ff) and :299-306 with :262 (a #formFrame field:
         // white, #aaaaaa disabled), under names of the tests' own
-        const TextElement TestModuleLink{ .m_name = "Test.Text.ModuleLink", .m_color = QColor(0x94, 0xD2, 0xFF) };
-        const TextElement TestModuleField{
-            .m_name = "Test.Text.ModuleField", .m_color = QColor(0xFF, 0xFF, 0xFF), .m_disabledColor = QColor(0xAA, 0xAA, 0xAA) };
+        Themed<TextElement> TestModuleLink = [] {
+            return TextElement{ .m_name = "Test.Text.ModuleLink", .m_color = QColor(0x94, 0xD2, 0xFF) };
+        };
+        Themed<TextElement> TestModuleField = [] { return TextElement{
+            .m_name = "Test.Text.ModuleField", .m_color = QColor(0xFF, 0xFF, 0xFF), .m_disabledColor = QColor(0xAA, 0xAA, 0xAA) }; };
 
         bool isTestModuleLink(const QWidget* widget)
         {

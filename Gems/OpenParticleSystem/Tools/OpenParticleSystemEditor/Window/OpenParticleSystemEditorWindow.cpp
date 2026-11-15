@@ -14,6 +14,7 @@
 
 #include <AtomToolsFramework/Util/Util.h>
 #include <AssetBrowser/AssetBrowserBus.h>
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzQtComponents/Components/StyleManager.h>
 #include <ViewInspector.h>
 #include <EmitterInspector.h>
@@ -47,7 +48,7 @@ namespace OpenParticleSystemEditor
     namespace OpenParticleSystemEditorWindowFlat
     {
         // OpenParticleSystemEditorWindow.cpp:519 (OpenParticleSystemEditorWindow::SetStatusMessage) $text.surface.idle.Alt8
-        constexpr QColor StatusMessageText(255, 255, 255);
+        const QColor& StatusMessageText = AzQtComponents::Foundations::Text::Primary;
     } // namespace OpenParticleSystemEditorWindowFlat
 
     OpenParticleSystemEditorWindow::OpenParticleSystemEditorWindow(QWidget* parent)

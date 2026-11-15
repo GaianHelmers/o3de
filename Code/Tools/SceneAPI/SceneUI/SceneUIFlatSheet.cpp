@@ -48,7 +48,7 @@ namespace SceneUIFlatSheetInternal
     constexpr const char* DividerHeaderTag = "SceneDividerHeader";      // the class tag of the header, which the flattened GUI sets
 
     // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $fill.separator.idle.Low
-    const QColor DividerFill = AzQtComponents::Foundations::Low;
+    const QColor& DividerFill = AzQtComponents::Foundations::Low;
     constexpr int DividerRadius = 2;  // PropertyRowWidget.cpp:66 (PropertyRowWidget::ConsumeAttribute) $radius.separator.idle.Alt1
     // SceneUIFlatSheet.cpp:45 (font: bold) (HeaderWidget::UpdateUIForManifestObject) $type.separator.idle.weight.Alt1
     constexpr int DividerHeaderWeight = 700;
@@ -59,7 +59,7 @@ namespace SceneUIFlatSheetInternal
 
     //! The labels below the header: the box of every label (margin above and below, Text.qss:93-94) with the margin above set to 0 by
     //! the header's sheet, over the fill and the top corners of the row's. The corners give the border a style of their own.
-    const BoxElement DividerHeaderLabel{
+    AzQtComponents::Themed<BoxElement> DividerHeaderLabel = [] { return BoxElement{
         .m_name = "SceneUI.Box.DividerHeaderLabel",
         .m_margin = QMargins(0, DividerHeaderMarginTop, 0, MarginV),
         .m_nativeBorder = false,
@@ -67,17 +67,17 @@ namespace SceneUIFlatSheetInternal
         .m_idle = {
             .m_fill = QBrush(DividerFill),
         },
-    };
+    }; };
 
     //! `font: bold` (SceneUIFlatSheet.cpp:45): the shorthand sets the weight to bold and the style to normal (QCss::ValueExtractor::
     //! extractFont), over the family and size of the label rule (Text.qss:91-92)
-    const TextElement DividerHeaderLabelText{
+    AzQtComponents::Themed<TextElement> DividerHeaderLabelText = [] { return TextElement{
         .m_name = "SceneUI.Text.DividerHeaderLabel",
         .m_family = AzQtComponents::Foundations::Label::Family,
         .m_pixelSize = AzQtComponents::Foundations::Label::Size,
         .m_weight = DividerHeaderWeight,
         .m_italic = DividerHeaderItalic,
-    };
+    }; };
 
     //! Any label below a header that carries the tag: the header's labels are its two children (HeaderWidget.ui:26, :48). Their names
     //! first and the parent's tag then, where a walk read the tag of every widget above every label of the Editor

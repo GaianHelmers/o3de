@@ -72,17 +72,17 @@ namespace AzQtComponents
         constexpr QSize ContextMenuPlusMaxSize(18, 18);
 
         // ---- The widgets below a card header that no rule of their own names, and the tips of a modified header
-        const QColor HeaderBodyFill = Foundations::Highest;         // Card.qss:88 $fill.surface.idle.Highest
-        const QColor ModifiedTextColor(0xE5, 0x78, 0x29);           // Card.qss:174 $text.card.modified.Alt1
+        const QColor& HeaderBodyFill = Foundations::Card::Fill;         // Card.qss:88 $fill.surface.idle.Highest
+        const QColor& ModifiedTextColor = Foundations::Card::ModifiedText;           // Card.qss:174 $text.card.modified.Alt1
         constexpr int ToolTipTextSize = 12;                         // ToolTip.qss:16 $size.tooltip.modified.size.Alt1
 
         // ---- The notification of a card: a block holding a header frame, which holds the icon and the message in a rounded pill
-        const QColor NotificationFill = Foundations::Highest;       // Card.qss:53 $fill.card.idle.Highest
+        const QColor& NotificationFill = Foundations::Card::Fill;       // Card.qss:53 $fill.card.idle.Highest
         // Card.qss:54, :60 $space.card.idle.spacing.Alt1 (a frame has nothing to space: the rule only gets a box of it)
         constexpr int NotificationSpacing = 4;
         // Card.qss:59 $space.header.idle.padding.Alt1
         constexpr QMargins NotificationHeaderPadding(8, 0, 8, 0);
-        const QColor NotificationPillFill = Foundations::Mid;       // Card.qss:67 $fill.card.idle.Mid
+        const QColor& NotificationPillFill = Foundations::Mid;       // Card.qss:67 $fill.card.idle.Mid
         constexpr int NotificationPillRadius = 3;                   // Card.qss:68 $radius.card.idle.Alt1
 
         // ------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ namespace AzQtComponents
         //! Text.qss gave every label 1px, and 16px high whatever the text needs. The row's name label is an ElidingLabel, which
         //! measures its hint with a hidden QLabel that ElidingLabel::setObjectName gives the same name: the rule reached both, so the
         //! hint counts the left margin twice.
-        const BoxElement PropertyRowName{
+        Themed<BoxElement> PropertyRowName = [] { return BoxElement{
             .m_name = "Global.Box.PropertyRowName",
             .m_margin = RowNameMargin,
             .m_minSize = RowLabelMinSize,
@@ -101,11 +101,11 @@ namespace AzQtComponents
             .m_idle = {
                 .m_fill = QBrush(Foundations::Surface::Fill),
             },
-        };
+        }; };
 
         //! AzToolsFramework--PropertyRowWidget QLabel#DefaultLabel: the text a container or an unhandled row shows in place of a
         //! control, 16px high, with the 1px above and below Text.qss gave every label
-        const BoxElement PropertyRowDefaultLabel{
+        Themed<BoxElement> PropertyRowDefaultLabel = [] { return BoxElement{
             .m_name = "Global.Box.PropertyRowDefaultLabel",
             .m_margin = QMargins(0, Foundations::Label::MarginV, 0, Foundations::Label::MarginV),
             .m_minSize = RowLabelMinSize,
@@ -113,17 +113,17 @@ namespace AzQtComponents
             .m_idle = {
                 .m_fill = QBrush(Foundations::Surface::Fill),
             },
-        };
+        }; };
 
         //! The name label of a property a prefab instance overrides (the `overridden` property of PrefabOverrideLabelHandler's
         //! ElidingLabel, set in RefreshUI, which repolishes the label): bold over the QLabel's font. With style sheets the handler
         //! gives the label an inline sheet; flattened, none. A label not overridden keeps the QLabel's Global element.
-        const TextElement OverriddenPropertyLabel{
+        Themed<TextElement> OverriddenPropertyLabel = [] { return TextElement{
             .m_name = "Global.Text.OverriddenPropertyLabel",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = Foundations::Label::Size,
             .m_weight = OverriddenWeight,
-        };
+        }; };
 
         //! AzQtComponents--CardHeader #Expander, the "tree expander" check box: a margin at the right over QCheckBox.Expander's
         //! `margin: 0px`, and a box of 16x16. Its caret is the indicator's.
@@ -140,24 +140,24 @@ namespace AzQtComponents
         //! AzQtComponents--CardHeader #Icon: the component's icon, a margin at the right, the 1px above and below Text.qss gave every
         //! label, and `border: none` (Card.qss:220 $line.label.idle.style.Alt1). Its `width` and `height` set nothing (Card.qss:217-218):
         //! a label sizes itself from its pixmap.
-        const BoxElement CardHeaderIcon{
+        Themed<BoxElement> CardHeaderIcon = [] { return BoxElement{
             .m_name = "Global.Box.CardHeaderIcon",
             .m_margin = QMargins(0, Foundations::Label::MarginV, IconMarginRight, Foundations::Label::MarginV),
             .m_nativeBorder = false,
             .m_idle = {
                 .m_fill = QBrush(IconFill),
             },
-        };
+        }; };
 
         //! AzQtComponents--CardHeader #WarningIcon: the icon of a header with a warning, with a margin at the left as well
-        const BoxElement CardHeaderWarningIcon{
+        Themed<BoxElement> CardHeaderWarningIcon = [] { return BoxElement{
             .m_name = "Global.Box.CardHeaderWarningIcon",
             .m_margin = QMargins(WarningIconMarginLeft, Foundations::Label::MarginV, IconMarginRight, Foundations::Label::MarginV),
             .m_nativeBorder = false,
             .m_idle = {
                 .m_fill = QBrush(IconFill),
             },
-        };
+        }; };
 
         //! The same two icons inside a color picker: `AzQtComponents--ColorPicker QLabel` gives a label no margin (ColorPicker.qss:48
         //! $space.label.idle.margin.Alt1) and outranks Text.qss's `QLabel`, so the 1px above and below are gone; the margins of the ids
@@ -232,22 +232,22 @@ namespace AzQtComponents
         //! the rule fills it over the header's own fill. The background frame of a header names itself (#Background, Card.qss:91-99,
         //! which is transparent); EMotionFX's RagdollCardHeader clears that name (RagdollNodeWidget.cpp:37), so the frame has the fill
         //! of the rule that reaches every widget. A frame has no margin or padding of its own, and no rule gives it any.
-        const BoxElement CardHeaderFrame{
+        Themed<BoxElement> CardHeaderFrame = [] { return BoxElement{
             .m_name = "Global.Box.CardHeaderFrame",
             .m_idle = {
                 .m_fill = QBrush(HeaderBodyFill),
             },
-        };
+        }; };
 
         //! The text of a tip shown for a widget of a modified card header: `CardHeader[contentModified=true] * { color: #E57829 }`
         //! (Card.qss:172-175) reaches the tip through the widget it is shown for (QStyleSheetStyle::styleRules, `_q_stylesheet_parent`),
         //! with a specificity over QToolTip's (ToolTip.qss:12). The tip keeps the font of the QToolTip rule (ToolTip.qss:16, :19) and the
         //! weight of '*' (BaseStyleSheet.qss:20), which this element restates: it replaces the tooltip class element whole.
-        const TextElement CardHeaderModifiedToolTipText{
+        Themed<TextElement> CardHeaderModifiedToolTipText = [] { return TextElement{
             .m_name = "Global.Text.CardHeaderModifiedToolTip",
             .m_pixelSize = ToolTipTextSize,
             .m_color = ModifiedTextColor,
-        };
+        }; };
 
         //! The tips of a modified card header and of the widgets in it
         const ToolTipElement CardHeaderModifiedToolTip{
@@ -258,17 +258,17 @@ namespace AzQtComponents
         //! AzQtComponents--CardNotification: the block under a notification (Card.qss:51-55), filled #555555. Its `spacing` sets nothing
         //! for a frame (QStyleSheetStyle::pixelMetric reads it for the items of tool bars and menu bars and the labels of check boxes and
         //! radio buttons), but it gives the rule a box of zero margins and paddings (QRenderRule::hasBox). The border is the style's own.
-        const BoxElement NotificationBlock{
+        Themed<BoxElement> NotificationBlock = [] { return BoxElement{
             .m_name = "Global.Box.CardNotification",
             .m_spacing = NotificationSpacing,
             .m_idle = {
                 .m_fill = QBrush(NotificationFill),
             },
-        };
+        }; };
 
         //! AzQtComponents--CardNotification #HeaderFrame (Card.qss:57-61, :63-70): the pill that holds the icon and the message, a
         //! padding of 8 at each side (the frame's contents, which the layout inside fills), #444444 with round corners and no border
-        const BoxElement NotificationPill{
+        Themed<BoxElement> NotificationPill = [] { return BoxElement{
             .m_name = "Global.Box.CardNotificationPill",
             .m_padding = NotificationHeaderPadding,
             .m_spacing = NotificationSpacing,
@@ -277,11 +277,11 @@ namespace AzQtComponents
             .m_idle = {
                 .m_fill = QBrush(NotificationPillFill),
             },
-        };
+        }; };
 
         //! AzQtComponents--CardNotification #Icon and #Title (Card.qss:63-70): the labels of the pill, filled and rounded as it is (the
         //! fill is not seen over the pill's), with the 1px above and below Text.qss:93-94 gave every label, a box of their own now
-        const BoxElement NotificationLabel{
+        Themed<BoxElement> NotificationLabel = [] { return BoxElement{
             .m_name = "Global.Box.CardNotificationLabel",
             .m_margin = QMargins(0, Foundations::Label::MarginV, 0, Foundations::Label::MarginV),
             .m_nativeBorder = false,                                // Card.qss:68-69 border-radius, border: none
@@ -289,7 +289,7 @@ namespace AzQtComponents
             .m_idle = {
                 .m_fill = QBrush(NotificationPillFill),
             },
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Helpers

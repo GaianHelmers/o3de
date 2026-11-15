@@ -101,7 +101,7 @@ namespace AssetProcessor
         //! The lists, tables and trees: AssetProcessor.qss:65 (the asset trees), :134 (QTableWidget), :152 (QListWidget) and
         //! AssetsTab.qss:87 (TableView, #builderList), rgb(45,45,45). $fill.view.idle.fill.Alt1
         // AssetProcessor.qss:65, :134, :152, AssetsTab.qss:87 $fill.view.idle.fill.Alt1
-        const QBrush ItemViewFill(Foundations::Fill::ItemHeader);
+        AzQtComponents::Themed<QBrush> ItemViewFill = [] { return QBrush(Foundations::Fill::ItemHeader); };
 
         //! The filter bars: AssetsTab.qss:19, :25 and :32, rgb(40,40,40). $fill.field.idle.Alt3 $fill.surface.idle.Alt5
         const QBrush FilterBarFill(QColor(40, 40, 40));   // AssetsTab.qss:19, :25, :32 $fill.field.idle.Alt3 $fill.surface.idle.Alt5
@@ -114,12 +114,12 @@ namespace AssetProcessor
         //! row (MainWindow.ui:139, 181, 223 give them the class), over the '*' rule's weight 400 (BaseStyleSheet.qss:20) and white
         //! text (BaseStyleSheet.qss:18). $text.surface.idle.Alt1
         //! AssetProcessor.qss:17 $type.label.idle.family.Alt2, :14 $type.label.idle.size.Alt3
-        const TextElement TimerText{
+        AzQtComponents::Themed<TextElement> TimerText = [] { return TextElement{
             .m_name = "AssetProcessor.Text.APTimer",
             .m_family = "Open Sans Light",   // AssetProcessor.qss:17 $type.label.idle.family.Alt2
             .m_pixelSize = 18,   // AssetProcessor.qss:14 $type.label.idle.size.Alt3
             .m_color = Foundations::Text::Primary,   // BaseStyleSheet.qss:18 $text.surface.idle.Alt1
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Frames
@@ -206,20 +206,20 @@ namespace AssetProcessor
         //! Notice AssetProcessor.qss:177-178 $fill.label.idle.Alt6 $line.label.idle.width.Alt2 $line.label.idle.color.Alt1.
         //! Active AssetProcessor.qss:184-185 $fill.label.idle.Alt7 $line.label.idle.width.Alt2 $line.label.idle.color.Alt2.
         //! Error AssetProcessor.qss:191-192 $fill.label.idle.Alt8 $line.label.idle.width.Alt2 $line.label.idle.color.Alt3.
-        const BoxElement SharedCacheStatusNotice{
+        AzQtComponents::Themed<BoxElement> SharedCacheStatusNotice = [] { return BoxElement{
             .m_name = "AssetProcessor.Box.SharedCacheStatus.Notice",
             .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             .m_nativeBorder = false,
             // AssetProcessor.qss:177 $fill.label.idle.Alt6, :178 $line.label.idle.width.Alt2 $line.label.idle.color.Alt1
             .m_idle = { .m_fill = QBrush(QColor(88, 140, 188, 25)), .m_edges = BoxElement::border(1, Foundations::Accent::Info) },   // AssetProcessor.qss:177-178
-        };
-        const BoxElement SharedCacheStatusActive{
+        }; };
+        AzQtComponents::Themed<BoxElement> SharedCacheStatusActive = [] { return BoxElement{
             .m_name = "AssetProcessor.Box.SharedCacheStatus.Active",
             .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             .m_nativeBorder = false,
             // AssetProcessor.qss:184 $fill.label.idle.Alt7, :185 $line.label.idle.width.Alt2 $line.label.idle.color.Alt2
             .m_idle = { .m_fill = QBrush(QColor(88, 188, 97, 25)), .m_edges = BoxElement::border(1, Foundations::Accent::Success) },   // AssetProcessor.qss:184-185
-        };
+        }; };
         const BoxElement SharedCacheStatusError{
             .m_name = "AssetProcessor.Box.SharedCacheStatus.Error",
             .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
@@ -248,13 +248,13 @@ namespace AssetProcessor
         //! The rule names the class, so the matcher takes every QTableWidget: the window has one (MainWindow.ui:2309, captured) and
         //! its detail panels five more (SourceAssetDetailsPanel.ui:338, 405, 466, 528, ProductAssetDetailsPanel.ui:852; UNVERIFIED by
         //! capture). Needs the door of the view's viewport.
-        const BoxElement SharedCacheTable{
+        AzQtComponents::Themed<BoxElement> SharedCacheTable = [] { return BoxElement{
             .m_name = "AssetProcessor.Box.SharedCacheTable",
             .m_hasBox = true,
             .m_nativeBorder = false,
             .m_idle = { .m_fill = ItemViewFill },
             .m_properties = { { "showGrid", false } },   // TableView.qss:11 $other.view.idle.showgrid
-        };
+        }; };
 
         //! `QWidget#SharedCachePage, QWidget#AssetRelocationPage { background-color: rgba(34, 34, 34, 0.5); border: none }`
         //! (AssetProcessor.qss:212-213, :217-218): the two pages over the dialog stack. The alpha reads as 0.5 * 255 = 127
@@ -288,13 +288,13 @@ namespace AssetProcessor
         //! `QLabel#jobLogPlaceholderLabel { background-color: rgb(34,34,34); padding: 8px; padding-top: 16px }` (AssetsTab.qss:125-127)
         //! over the margins of every QLabel (Text.qss:93-94). UNVERIFIED by capture (shown when no row is selected).
         //! AssetsTab.qss:125-127 $fill.label.idle.BG $space.label.idle.padding.Alt2 $space.label.idle.padding-top.Alt3
-        const BoxElement JobLogPlaceholderLabel{
+        AzQtComponents::Themed<BoxElement> JobLogPlaceholderLabel = [] { return BoxElement{
             .m_name = "AssetProcessor.Box.JobLogPlaceholderLabel",
             .m_margin = QMargins(0, 1, 0, 1),   // Text.qss:93, :94 $space.label.idle.margin-top.Alt1 $space.label.idle.margin-bottom.Alt1
             // AssetsTab.qss:126 $space.label.idle.padding.Alt2, :127 $space.label.idle.padding-top.Alt3
             .m_padding = QMargins(8, 16, 8, 8),
             .m_idle = { .m_fill = QBrush(Foundations::BG) },   // AssetsTab.qss:125 $fill.label.idle.BG
-        };
+        }; };
 
         //! `QFrame#logButtonWrapper { margin-top: 8px }` (LogsTab.qss:13)
         const BoxElement LogButtonWrapper{
@@ -311,12 +311,12 @@ namespace AssetProcessor
         //! other four trees. Needs the door of the view's viewport.
         //! OPEN: builderInfoPatternsTableView gets its indentation 0 from MainWindow.ui:1355, which Native may have reset to the
         //! style's as it did the tables of AssetBundler (TableView.cpp:324-326); no row of it is captured, so none is carried.
-        const BoxElement ItemView{
+        AzQtComponents::Themed<BoxElement> ItemView = [] { return BoxElement{
             .m_name = "AssetProcessor.Box.ItemView",
             .m_hasBox = true,
             .m_nativeBorder = false,
             .m_idle = { .m_fill = ItemViewFill },
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Item views: the colors of the lists, tables and trees. An element lists what its rules change over the Global element of
@@ -330,7 +330,7 @@ namespace AssetProcessor
         //! AssetProcessor.qss:135 $fill.view.idle.alternate-fill.BG, :148 $fill.header.idle.BG.
         // AssetProcessor.qss:135, :153, AssetsTab.qss:88 $fill.view.idle.alternate-fill.BG
         // AssetProcessor.qss:148, AssetsTab.qss:104 $fill.header.idle.BG
-        const QColor ViewDark = Foundations::BG;
+        const QColor& ViewDark = Foundations::BG;
 
         //! rgb(73,73,73): the selection, as the role of the view and as the fill of a selected item and branch (AssetProcessor.qss:81-97,
         //! :136, :140, :154, :158; AssetsTab.qss:90, :95).
@@ -355,7 +355,7 @@ namespace AssetProcessor
         //! and the log tabs, which are TableViews: alternate rgb(34,34,34) and selection rgb(73,73,73) as the roles of the view (:88, :90),
         //! the selected item and branch rgb(73,73,73) (:93-96), the hovered ones rgb(60,60,60) (:98-101), the sections rgb(34,34,34) (:103-105).
         //! The fill of the view itself, rgb(45,45,45) (:87), is the box element's.
-        const ItemViewElement TableViewRows{
+        AzQtComponents::Themed<ItemViewElement> TableViewRows = [] { return ItemViewElement{
             .m_name = "AssetProcessor.ItemView.TableView",
             .m_alternate = ViewDark,                                                // alternate-background-color: AssetsTab.qss:88
             .m_selection = ViewSelected,                                            // selection-background-color: AssetsTab.qss:90
@@ -364,11 +364,11 @@ namespace AssetProcessor
                 { ItemViewElement::Hover, { ViewHover, QColor(), QColor() } },          // ::item:hover, ::branch:hover: AssetsTab.qss:98-101
             },
             .m_headerFill = ViewDark,                                               // QHeaderView::section background-color: AssetsTab.qss:103-105
-        };
+        }; };
 
         //! `QTableWidget` (AssetProcessor.qss:133-149), the tables of the window and of its detail panels: the same colors as the TableView's
         //! (:135, :136, :139-141, :143-145, :147-149); the fill rgb(45,45,45) (:134) is the box element's.
-        const ItemViewElement TableWidgetRows{
+        AzQtComponents::Themed<ItemViewElement> TableWidgetRows = [] { return ItemViewElement{
             .m_name = "AssetProcessor.ItemView.TableWidget",
             .m_alternate = ViewDark,                                                // alternate-background-color: AssetProcessor.qss:135
             .m_selection = ViewSelected,                                            // selection-background-color: AssetProcessor.qss:136
@@ -377,13 +377,13 @@ namespace AssetProcessor
                 { ItemViewElement::Hover, { ViewHover, QColor(), QColor() } },          // ::item:hover: AssetProcessor.qss:143-145
             },
             .m_headerFill = ViewDark,                                               // QHeaderView::section background-color: AssetProcessor.qss:147-149
-        };
+        }; };
 
         //! The tables and the list of the detail panels that the sheet names (AssetProcessor.qss:104-109 `QTableWidget#productTable:item:selected:!active`
         //! and its five twins): a selected item of an inactive window is rgb(60,60,60) with rgb(192,192,192) text (:110-111). The selectors write
         //! `:item` with one colon, and a name Qt does not know after a single colon is a pseudo-element (Selector::pseudoElement, qcssparser.cpp:
         //! 1994-1999), so they are `::item:selected:!active`. UNVERIFIED by capture: no capture holds an inactive window of the panels.
-        const ItemViewElement DetailTableRows{
+        AzQtComponents::Themed<ItemViewElement> DetailTableRows = [] { return ItemViewElement{
             .m_name = "AssetProcessor.ItemView.DetailTable",
             .m_alternate = ViewDark,                                                // QTableWidget: AssetProcessor.qss:135
             .m_selection = ViewSelected,                                            // QTableWidget: AssetProcessor.qss:136
@@ -394,8 +394,8 @@ namespace AssetProcessor
                     { ViewHover, QColor(), ViewInactiveSelectedText }, ItemViewElement::OnItem },   // :item:selected:!active: :104-111
             },
             .m_headerFill = ViewDark,                                               // QTableWidget QHeaderView::section: AssetProcessor.qss:147-149
-        };
-        const ItemViewElement DetailListRows{
+        }; };
+        AzQtComponents::Themed<ItemViewElement> DetailListRows = [] { return ItemViewElement{
             .m_name = "AssetProcessor.ItemView.DetailList",
             .m_alternate = ViewDark,                                                // QListWidget: AssetProcessor.qss:153
             .m_selection = ViewSelected,                                            // QListWidget: AssetProcessor.qss:154
@@ -405,10 +405,10 @@ namespace AssetProcessor
                 { ItemViewElement::Selected | ItemViewElement::Inactive,
                     { ViewHover, QColor(), ViewInactiveSelectedText }, ItemViewElement::OnItem },   // :item:selected:!active: :105, :110-111
             },
-        };
+        }; };
 
         //! `QListWidget` (AssetProcessor.qss:151-167): the same, over a list without a header
-        const ItemViewElement ListWidgetRows{
+        AzQtComponents::Themed<ItemViewElement> ListWidgetRows = [] { return ItemViewElement{
             .m_name = "AssetProcessor.ItemView.ListWidget",
             .m_alternate = ViewDark,                                                // alternate-background-color: AssetProcessor.qss:153
             .m_selection = ViewSelected,                                            // selection-background-color: AssetProcessor.qss:154
@@ -416,15 +416,15 @@ namespace AssetProcessor
                 { ItemViewElement::Selected, { ViewSelected, QColor(), QColor() } },    // ::item:selected: AssetProcessor.qss:157-159
                 { ItemViewElement::Hover, { ViewHover, QColor(), QColor() } },          // ::item:hover: AssetProcessor.qss:161-163
             },
-        };
+        }; };
 
         //! `#builderList` (AssetsTab.qss:86-91, the selector shared with the TableView's): the roles of the table and no rule for its items,
         //! which have the Global element's
-        const ItemViewElement BuilderListRows{
+        AzQtComponents::Themed<ItemViewElement> BuilderListRows = [] { return ItemViewElement{
             .m_name = "AssetProcessor.ItemView.BuilderList",
             .m_alternate = ViewDark,                                                // alternate-background-color: AssetsTab.qss:88
             .m_selection = ViewSelected,                                            // selection-background-color: AssetsTab.qss:90
-        };
+        }; };
 
         //! The five asset trees (`QTreeView#SourceAssetsTreeView` and its four twins, AssetProcessor.qss:50-112): their items and branches
         //! are rgb(45,45,45) in every state a rule does not change (:50-66), rgb(60,60,60) under the pointer (:68-79), rgb(73,73,73) while
@@ -432,7 +432,7 @@ namespace AssetProcessor
         //! item alone, the branch keeps its :selected fill, :81-82). The entries are in the order of the sheet: the hovered row of a selected
         //! item is the selected color, as :81 follows :68.
         //! AssetProcessor.qss:50-66 $fill.item.idle $fill.tree-branch.idle $fill.view.idle.fill.Alt1.
-        const ItemViewElement AssetTreeRows{
+        AzQtComponents::Themed<ItemViewElement> AssetTreeRows = [] { return ItemViewElement{
             .m_name = "AssetProcessor.ItemView.AssetTree",
             .m_faces = {
                 { 0, { Foundations::Fill::ItemHeader, QColor(), QColor() } },                                  // ::item, ::branch: AssetProcessor.qss:50-66
@@ -441,16 +441,16 @@ namespace AssetProcessor
                 { ItemViewElement::Selected | ItemViewElement::Inactive,
                     { ViewHover, QColor(), ViewInactiveSelectedText }, ItemViewElement::OnItem },   // ::item:selected:!active: :99-103, :110-111
             },
-        };
+        }; };
 
         //! The tree of the type popup of a filter bar (`#jobFilteredSearchWidget QTreeView, #detailsFilterWidget QTreeView`,
         //! AssetsTab.qss:67-77): one category only, so no indentation (`qproperty-indentation: 0`, :75), which the Global tree sets again
         //! when the tree is shown unless its element says otherwise. UNVERIFIED by capture (a popup is never open in a capture).
-        const ItemViewElement FilterPopupRows{
+        AzQtComponents::Themed<ItemViewElement> FilterPopupRows = [] { return ItemViewElement{
             .m_name = "AssetProcessor.ItemView.FilterPopup",
             // AssetsTab.qss:75 $size.view.idle.indentation.Alt2
             .m_indentation = 0,                                                     // qproperty-indentation: AssetsTab.qss:75
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // Boxes: the filter bars (AzQtComponents::FilteredSearchWidget)
@@ -508,7 +508,7 @@ namespace AssetProcessor
         //! text of that rule). Captured: idle, and the disabled group of the palette. Needs the QLineEdit door.
         //! AssetsTab.qss:38 $fill.field.idle.Alt2; LineEdit.qss:16 $line.field.idle.width.Alt2;
         //! BaseStyleSheet.qss:81 $line.field.idle.color.Alt1.
-        const BoxElement TextSearch{
+        AzQtComponents::Themed<BoxElement> TextSearch = [] { return BoxElement{
             .m_name = "AssetProcessor.Box.TextSearch",
             // LineEdit.qss:25 $space.field.HasSearchAction, :19 $space.field.idle.padding-top.Alt1, :18 $space.field.idle.padding-bottom
             .m_padding = QMargins(-6, -1, 0, 1),
@@ -519,7 +519,7 @@ namespace AssetProcessor
             // $line.field.idle.color.Alt1
             .m_idle = { .m_fill = QBrush(Foundations::Fill::FieldLight), .m_edges = BoxElement::border(2, Foundations::Field::Line) },
             .m_properties = { { "frame", true } },   // FilteredSearchWidget.qss:11 $other.field.idle.frame
-        };
+        }; };
 
         //! `#jobFilteredSearchWidget QTreeView, #detailsFilterWidget QTreeView` (AssetsTab.qss:67-77): the tree of a bar's type popup
         //! (AzQtComponents::SearchTypeSelector) stands out with a 1px border rgb(70,70,70) (:71), rounded 2px (:72), over rgb(34,34,34)
@@ -527,7 +527,7 @@ namespace AssetProcessor
         //! area has (QDockWidget.qss:35). UNVERIFIED by capture (a popup is never open in a capture). Needs the door of the
         //! view's viewport.
         //! AssetsTab.qss:70-72 $fill.view.idle.fill.BG $line.view.idle.width $line.view.idle.color.Alt2 $radius.view.idle.all.
-        const BoxElement FilterPopupTree{
+        AzQtComponents::Themed<BoxElement> FilterPopupTree = [] { return BoxElement{
             .m_name = "AssetProcessor.Box.FilterPopupTree",
             .m_hasBox = true,
             .m_nativeBorder = false,
@@ -536,7 +536,7 @@ namespace AssetProcessor
             .m_idle = { .m_fill = QBrush(Foundations::BG), .m_edges = BoxElement::border(1, QColor(70, 70, 70)) },
             // AssetsTab.qss:75 $size.view.idle.indentation.Alt2, :76 $other.view.idle.expandsondoubleclick
             .m_properties = { { "indentation", 0 }, { "expandsOnDoubleClick", false } },
-        };
+        }; };
 
         //! `#jobFilteredSearchWidget AzQtComponents--SearchTypeSelector, #detailsFilterWidget AzQtComponents--SearchTypeSelector
         //! { qproperty-lineEditSearchVisible: 0 }` (AssetsTab.qss:79-82): the type popup of these two bars has no text filter of its
@@ -574,13 +574,13 @@ namespace AssetProcessor
         //! SourceAssetDetailsPanel.ui:241, :274, :287, the forms before the flattening). The shorthand sets the style to normal and the
         //! weight to bold, and leaves the family and the size to the label rule: Open Sans, 12px (Text.qss:91-92). Captured:
         //! builderInfoHeaderTitleName (legacy dump: Open Sans, 12px, weight 700). UNVERIFIED by capture: the other twelve.
-        const TextElement FormBold{
+        AzQtComponents::Themed<TextElement> FormBold = [] { return TextElement{
             .m_name = "AssetProcessor.Text.FormBold",
             .m_family = Foundations::Label::Family,
             .m_pixelSize = Foundations::Label::Size,
             .m_weight = BoldWeight,
             .m_italic = 0,  // MainWindow.ui:1334, :1392, :1422, :1442, :1462 $type.surface.idle.style.Alt2
-        };
+        }; };
 
         //! `font: 12pt;` (ProductAssetDetailsPanel.ui:41, :470, :563, :662, :800; SourceAssetDetailsPanel.ui:41, the forms before the
         //! flattening). The shorthand sets the style and the weight to normal and the size to 12 points (QCss parseShorthandFontProperty
@@ -590,13 +590,13 @@ namespace AssetProcessor
         //! the screen's logical DPI in both GUIs. Also the font of the context menu of the four selectable value labels (see
         //! isPointLabelMenu). Captured: assetNameLabel of the source panel (legacy dump: Open Sans, pt 12, px -1, weight 400).
         //! UNVERIFIED by capture: the other five, and the menu
-        const TextElement FormPoint{
+        AzQtComponents::Themed<TextElement> FormPoint = [] { return TextElement{
             .m_name = "AssetProcessor.Text.FormPoint",
             .m_family = Foundations::Label::Family,
             .m_pointSize = 12,  // ProductAssetDetailsPanel.ui:41, :470, :563, :662, :800 $type.surface.idle.size.Alt2
             .m_weight = QFont::Normal,
             .m_italic = 0,  // ProductAssetDetailsPanel.ui:41, :470, :563, :662, :800 $type.surface.idle.style.Alt2
-        };
+        }; };
 
         //! `font: bold, 12pt;` (ProductAssetDetailsPanel.ui:212, :454, :550, :649, :787, the form before the flattening). Qt reads the
         //! shorthand as the weight bold, and then the comma takes the slot of the size without being one; the word after it, 12pt, is
@@ -607,13 +607,13 @@ namespace AssetProcessor
         //! measured family "12pt", 12px, weight 700 with the rules above the label, and the test
         //! Fonts_TheShorthandWithACommaMakesTheWordAfterItTheFamily pins it on the engine's Qt. The effective value is kept, quirk and
         //! all. UNVERIFIED by capture (the product tabs are in no capture)
-        const TextElement FormBoldWithComma{
+        AzQtComponents::Themed<TextElement> FormBoldWithComma = [] { return TextElement{
             .m_name = "AssetProcessor.Text.FormBoldWithComma",
             .m_family = "12pt",
             .m_pixelSize = Foundations::Label::Size,
             .m_weight = BoldWeight,
             .m_italic = 0,  // ProductAssetDetailsPanel.ui:212, :454, :550, :649, :787 $type.surface.idle.style.Alt2
-        };
+        }; };
 
         //! `background-color: #616161;` (MainWindow.ui:1619, :1767, :1900, :2051, :2202, the form before the flattening) on the five
         //! dividers of the settings page, over the frame fill `.QFrame[frameShape="4"] { background-color: #444444 }`

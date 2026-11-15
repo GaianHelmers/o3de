@@ -26,6 +26,7 @@
 #include <AzQtComponents/Components/Widgets/ScrollBar.h>
 #include <AzQtComponents/Components/Widgets/SliderCombo.h>
 #include <AzQtComponents/Components/Elements/Foundations.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 
 // Editor
 #include "QtViewPaneManager.h"
@@ -51,7 +52,7 @@ namespace ConsoleSCBFlat
     constexpr QColor TextLight(0, 0, 0);
 
     // ConsoleSCB.cpp:450 (the text of the dark theme) (CConsoleSCB::RefreshStyle) $text.console.idle.Alt2
-    constexpr QColor TextDark(255, 255, 255);
+    const QColor& TextDark = AzQtComponents::Foundations::Console::Text;
 
     // ConsoleSCB.cpp:327 (colour code 0, black) (CConsoleSCB::CConsoleSCB) $text.console.idle.Alt1
     constexpr QColor Code0Black(0, 0, 0);
@@ -92,7 +93,7 @@ namespace ConsoleSCBFlat
     constexpr QColor WarningDark(0xff, 0xaa, 0x22);
 
     // ConsoleSCB.cpp:458 (the background of the dark theme) (CConsoleSCB::RefreshStyle) $fill.console.idle.BG
-    constexpr QColor BackgroundDark = AzQtComponents::Foundations::BG;
+    const QColor& BackgroundDark = AzQtComponents::Foundations::Console::Fill;
 
     // ConsoleSCB.cpp:463 (the background of the light theme) (CConsoleSCB::RefreshStyle) $fill.console.idle.Alt1
     constexpr QColor BackgroundLight(255, 255, 255);
@@ -378,6 +379,21 @@ CConsoleSCB::CConsoleSCB(QWidget* parent)
     s_pendingLines.clear();
     s_consoleSCB = this;
     ui->setupUi(this);
+
+    // A change of theme that moves the console's own colours shows at once: the text is written again in them (RefreshStyle)
+    if (auto* themes = AzQtComponents::ThemeManager::instance())
+    {
+        const auto refresh = [this, fill = QColor(ConsoleSCBFlat::BackgroundDark), text = QColor(ConsoleSCBFlat::TextDark)]() mutable
+        {
+            if (fill != ConsoleSCBFlat::BackgroundDark || text != ConsoleSCBFlat::TextDark)
+            {
+                fill = ConsoleSCBFlat::BackgroundDark;
+                text = ConsoleSCBFlat::TextDark;
+                RefreshStyle();
+            }
+        };
+        connect(themes, &AzQtComponents::ThemeManager::themeApplied, this, refresh);
+    }
     m_highlighter = new SearchHighlighter(ui->textEdit);
     m_highlighter->setDocument(ui->textEdit->document());
 

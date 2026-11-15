@@ -45,7 +45,7 @@ namespace AzQtComponents
         //! The frame: the entry field with a solid border of its own (LineEdit.qss:16-17), and :disabled (:28-35). Drawn as a rule draws
         //! it (BoxElement::draw): the fill over the border box, a path through the middle of the border, antialiased, then the edges as
         //! strips with the arcs of the corners, so at a fractional device ratio the rows at the edges blend as they did.
-        const BoxElement Frame{
+        Themed<BoxElement> Frame = [] { return BoxElement{
             .m_name = "Global.Box.LineEdit.Frame",
             .m_nativeBorder = false,                                // LineEdit.qss:17 $line.field.idle.style.Alt1
             .m_radius = Foundations::Field::Radius,
@@ -59,7 +59,7 @@ namespace AzQtComponents
                     .m_edges = BoxElement::border(BorderWidth, Foundations::Field::Line),
                 } },
             },
-        };
+        }; };
 
         // ------------------------------------------------------------------------------
         // The Config defaults of LineEdit::defaultConfig: LineEditConfig.ini holds no line, so these are the live values of the legacy
@@ -67,10 +67,14 @@ namespace AzQtComponents
         // framed line edit is drawn by LineEditFlat::Frame (LineEdit::drawFrame) before the hover, focus and error colours are read.
         // ------------------------------------------------------------------------------
         constexpr QColor HoverFill(0xFF, 0xFF, 0xFF);       // LineEdit.cpp:509 (LineEdit::defaultConfig) $fill.field.hover.Alt3
-        constexpr QColor HoverLine = Foundations::BG;       // LineEdit.cpp:510 (LineEdit::defaultConfig) $line.field.hover.color.BG
+        const QColor& HoverLine = Foundations::BG;       // LineEdit.cpp:510 (LineEdit::defaultConfig) $line.field.hover.color.BG
         constexpr QColor FocusLine(0x94, 0xD2, 0xFF);       // LineEdit.cpp:512 (LineEdit::defaultConfig) $line.field.focus.color.Alt3
         constexpr QColor ErrorLine(0xE2, 0x52, 0x43);       // LineEdit.cpp:514 (LineEdit::defaultConfig) $line.field.error.color.Alt1
         constexpr QColor PlaceholderText(0x88, 0x88, 0x88); // LineEdit.cpp:516 (LineEdit::defaultConfig) $text.field.idle.Alt6
+
+        //! The dynamic property a line edit has between its unpolish and the reset of its hover attribute, which
+        //! LineEditWatcher::restoreHoverAttributeState leaves to the next pass of the event loop. A polish in between removes it.
+        constexpr const char* HoverRestorePending = "_o3de_hoverRestorePending";
     } // namespace LineEditFlat
 
     class LineEditWatcher : public QObject
@@ -299,7 +303,15 @@ namespace AzQtComponents
             // Delay property change until the next event loop iteration. This prevents
             // widgets from being destroyed (and pointers invalidated) whilst the app is
             // being repolished.
+            lineEdit->setProperty(LineEditFlat::HoverRestorePending, true);
             QTimer::singleShot(0, lineEdit, [lineEdit] {
+                // Polished again before this ran (a change of theme polishes every widget again at once, Style::applyTheme): the
+                // attribute is the polish's, and the stored state waits for the next unpolish
+                if (!lineEdit->property(LineEditFlat::HoverRestorePending).toBool())
+                {
+                    return;
+                }
+                lineEdit->setProperty(LineEditFlat::HoverRestorePending, QVariant());
                 const auto hovereState = lineEdit->property(StoredHoverAttributeState);
                 lineEdit->setAttribute(Qt::WA_Hover, hovereState.toBool());
             });
@@ -437,7 +449,11 @@ namespace AzQtComponents
             // QApplication attempts to unpolish the deleted private widget.
             // To work around this we find the private widget after it has been added and set it's
             // object name so we can find it again in LineEdit::removeSearchStyle.
-            auto searchAction = lineEdit->addAction(QIcon(":/stylesheet/img/search-dark.svg"), QLineEdit::LeadingPosition);
+            // The mark of a search field: the image as it is in O3DE Original, in a theme's colours once one changes the field's
+            // marks (the action is disabled, so the icon draws in its disabled mode)
+            auto searchAction = lineEdit->addAction(
+                ThemedIcon(QStringLiteral(":/stylesheet/img/search-dark.svg"), Foundations::Field::Glyph, Foundations::Text::Muted),
+                QLineEdit::LeadingPosition);
             searchAction->setEnabled(false);
 
             auto childToolButtons = lineEdit->findChildren<QToolButton*>();
@@ -673,6 +689,11 @@ namespace AzQtComponents
             }
 
             s_lineEditWatcher->storeHoverAttributeState(lineEdit);
+            // An unpolish before this, in the same pass of the event loop, has a reset of the attribute waiting: it is called off
+            if (lineEdit->property(LineEditFlat::HoverRestorePending).isValid())
+            {
+                lineEdit->setProperty(LineEditFlat::HoverRestorePending, QVariant());
+            }
             lineEdit->setAttribute(Qt::WA_Hover, true);
 
             if (LineEdit::errorIconEnabled(lineEdit))
@@ -825,7 +846,8 @@ namespace AzQtComponents
         Q_UNUSED(option);
         Q_UNUSED(widget);
 
-        return CachedIcon(config.clearImage, config.clearImageSize, config.clearImageDisabled);
+        return ThemedIcon(config.clearImage, Foundations::Field::Glyph, Foundations::Field::DisabledText, config.clearImageSize,
+            config.clearImageDisabled);
     }
 
     QRect LineEdit::lineEditContentsRect(const Style* style, QStyle::SubElement element, const QStyleOption* option, const QWidget* widget, const Config& config)

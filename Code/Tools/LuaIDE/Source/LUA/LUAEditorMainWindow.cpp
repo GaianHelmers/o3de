@@ -50,6 +50,7 @@
 #include <AzCore/Component/ComponentApplicationBus.h>
 #include <AzQtComponents/Components/FilteredSearchWidget.h>
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <Source/AssetDatabaseLocationListener.h>
 #include <Source/FlatElements.h>
 #include <Source/LUA/ui_LUAEditorMainWindow.h>
@@ -95,6 +96,8 @@ namespace LUAEditor
         settingsRegistry->Get(engineRootPath.Native(), AZ::SettingsRegistryMergeUtils::FilePathKey_EngineRootFolder);
         AzQtComponents::StyleManager* m_styleSheet = new AzQtComponents::StyleManager(this);
         m_styleSheet->initialize(qApp, engineRootPath);
+        // Flattened GUI: the theme the user chose last
+        AzQtComponents::ThemeManager::restoreSavedTheme();
 
         // The elements of the flattened GUI of LuaIDE (FlatElements.cpp); the legacy GUI sets the sheets of its sites instead
         if (AzQtComponents::StyleManager::stylesheetsDisabled())

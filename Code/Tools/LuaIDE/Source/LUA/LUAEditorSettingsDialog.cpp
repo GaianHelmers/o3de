@@ -74,11 +74,11 @@ namespace LUAEditor
 
         //! `QLabel{font-size: 13px;}` over the label rule's family (Text.qss:91 `QLabel`) and the weight of the '*' rule
         //! (BaseStyleSheet.qss:20). No label below this editor has a class tag of Text.qss, whose tiers would give another weight.
-        const AzQtComponents::TextElement PropertyEditorLabel{
+        AzQtComponents::Themed<AzQtComponents::TextElement> PropertyEditorLabel = [] { return AzQtComponents::TextElement{
             .m_name = "LuaIDE.Text.SettingsPropertyEditorLabel",
             .m_family = AzQtComponents::Foundations::Label::Family,
             .m_pixelSize = LabelSize,
-        };
+        }; };
 
         //! A label below the property editor of a settings dialog (`QLabel` in a sheet of the editor's own), the labels of a colour
         //! picker a row opens included (see above). The dialog has the one editor, and the editor is the one widget of the dialog that

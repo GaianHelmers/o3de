@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <AzQtComponents/Components/Elements/Foundations.h>
 #include <AzToolsFramework/AzToolsFrameworkAPI.h>
 
 #include <AzToolsFramework/UI/EditorEntityUi/EditorEntityUiHandlerBase.h>
@@ -26,11 +27,11 @@ namespace AzToolsFramework
     namespace PrefabUiHandlerFlat
     {
         //! PrefabUiHandler.h:79 (PrefabUiHandler::m_backgroundColor) $fill.item.idle.Mid
-        inline constexpr QColor Background(0x44, 0x44, 0x44);
+        inline const QColor& Background = AzQtComponents::Foundations::Outliner::PrefabFill;
         //! PrefabUiHandler.h:80 (PrefabUiHandler::m_backgroundHoverColor) $fill.item.hover.Alt3
-        inline constexpr QColor BackgroundHover(0x5A, 0x5A, 0x5A);
+        inline const QColor& BackgroundHover = AzQtComponents::Foundations::Outliner::PrefabHoverFill;
         //! PrefabUiHandler.h:81 (PrefabUiHandler::m_backgroundSelectedColor) $fill.item.selected.Alt3
-        inline constexpr QColor BackgroundSelected(0x65, 0x65, 0x65);
+        inline const QColor& BackgroundSelected = AzQtComponents::Foundations::Outliner::PrefabSelectedFill;
         //! PrefabUiHandler.h:82, LevelRootUiHandler.h:50 (PrefabUiHandler::m_prefabCapsuleColor) $fill.item.idle.Alt1
         inline constexpr QColor Capsule(0x1E, 0x25, 0x2F);
         //! PrefabUiHandler.h:83, LevelRootUiHandler.h:51 (PrefabUiHandler::m_prefabCapsuleDisabledColor) $fill.item.disabled.Alt1
@@ -99,9 +100,10 @@ namespace AzToolsFramework
 
         static AzFramework::EntityContextId s_editorEntityContextId;
 
-        QColor m_backgroundColor = PrefabUiHandlerFlat::Background;
-        QColor m_backgroundHoverColor = PrefabUiHandlerFlat::BackgroundHover;
-        QColor m_backgroundSelectedColor = PrefabUiHandlerFlat::BackgroundSelected;
+        // References: the three follow the theme while the handler lives (PrefabUiHandlerFlat names tokens)
+        const QColor& m_backgroundColor = PrefabUiHandlerFlat::Background;
+        const QColor& m_backgroundHoverColor = PrefabUiHandlerFlat::BackgroundHover;
+        const QColor& m_backgroundSelectedColor = PrefabUiHandlerFlat::BackgroundSelected;
         QColor m_prefabCapsuleColor = PrefabUiHandlerFlat::Capsule;
         QColor m_prefabCapsuleDisabledColor = PrefabUiHandlerFlat::CapsuleDisabled;
         QColor m_prefabCapsuleEditColor = PrefabUiHandlerFlat::CapsuleEdit;

@@ -39,7 +39,7 @@ namespace AzToolsFramework
     namespace PropertyColorCtrlFlatInternal
     {
         // PropertyColorCtrl.cpp:124 (PropertyColorCtrl::SetColor) $line.picker.idle.color.Low
-        constexpr QColor SwatchOutline = AzQtComponents::Foundations::Low;
+        const QColor& SwatchOutline = AzQtComponents::Foundations::Low;
 
         //! The colour of the text in the colour field while what is typed is not a valid colour: the `color: red;` of OnTextEdited
         //! (PropertyColorCtrl.cpp:326, before the flattening). The sheet of the legacy GUI is built from it
@@ -65,12 +65,12 @@ namespace AzToolsFramework
         //! `color: red;` of the sheet OnTextEdited set (PropertyColorCtrl.cpp:326, before the flattening), over the field's own text:
         //! the family and the size of the entry fields (BaseStyleSheet.qss:78, :82), which an element restates, as it takes the place
         //! of the Global one
-        const AzQtComponents::TextElement InvalidTextElement{
+        AzQtComponents::Themed<AzQtComponents::TextElement> InvalidTextElement = [] { return AzQtComponents::TextElement{
             .m_name = "Editor.Text.ColorEditInvalid",
             .m_family = AzQtComponents::Foundations::Field::Family,         // BaseStyleSheet.qss:78
             .m_pixelSize = AzQtComponents::Foundations::Field::Size,        // BaseStyleSheet.qss:82
             .m_color = InvalidText,                                         // PropertyColorCtrl.cpp:326 (before the flattening)
-        };
+        }; };
 
         //! `color: red;` was the field's own sheet: the colour field of a PropertyColorCtrl, while its text is not valid
         bool isInvalidColorEdit(const QWidget* widget)

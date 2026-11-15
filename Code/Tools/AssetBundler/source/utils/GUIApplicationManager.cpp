@@ -20,6 +20,7 @@
 
 #include <AzQtComponents/Components/ConfigHelpers.h>
 #include <AzQtComponents/Components/StyleManager.h>
+#include <AzQtComponents/Components/Theme/ThemeManager.h>
 #include <AzQtComponents/Components/WindowDecorationWrapper.h>
 
 #include <QApplication>
@@ -178,6 +179,8 @@ namespace AssetBundler
         // Set up the Style Manager
         AzQtComponents::StyleManager styleManager(qApp);
         styleManager.initialize(qApp, GetEngineRoot());
+        // Flattened GUI: the theme the user chose last
+        AzQtComponents::ThemeManager::restoreSavedTheme();
 
         AZ::IO::FixedMaxPath engineRoot(GetEngineRoot());
         QDir engineRootDir(engineRoot.c_str());

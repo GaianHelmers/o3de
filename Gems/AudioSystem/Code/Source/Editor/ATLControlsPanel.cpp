@@ -45,7 +45,7 @@ namespace AudioControls
     namespace ATLControlsPanelFlat
     {
         // ATLControlsPanel.cpp:87 (QFilterButton::enterEvent) $fill.button.hover.Mid
-        constexpr QColor FilterButtonHoverFill = AzQtComponents::Foundations::Mid;
+        const QColor& FilterButtonHoverFill = AzQtComponents::Foundations::Mid;
     } // namespace ATLControlsPanelFlat
 
     //-------------------------------------------------------------------------------------------//

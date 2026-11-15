@@ -142,7 +142,7 @@ namespace AzQtComponents
         // and the colour of the border only, so the fill of each state stays the Global one.
         constexpr int RingWidth = 1;
         const QColor RingColor(Qt::red);
-        const BoxElement InvalidInput{
+        Themed<BoxElement> InvalidInput = [] { return BoxElement{
             .m_name = "Test.Box.InvalidInput",
             .m_padding = QMargins(Foundations::Field::PaddingLeft, Foundations::Field::PaddingTop, 0, Foundations::Field::PaddingBottom),
             .m_hasBox = true,
@@ -156,12 +156,12 @@ namespace AzQtComponents
                     .m_edges = BoxElement::border(RingWidth, RingColor),
                 } },
             },
-        };
+        }; };
 
         // TrackHeaderWidget.cpp:237 `background-color: rgb(70, 70, 70);`: the fill of every state, over the Global ring
         // (LineEdit.qss:16-17)
         const QColor TrackNameFill(70, 70, 70);
-        const BoxElement DisabledTrackName{
+        Themed<BoxElement> DisabledTrackName = [] { return BoxElement{
             .m_name = "Test.Box.DisabledTrackName",
             .m_padding = QMargins(Foundations::Field::PaddingLeft, Foundations::Field::PaddingTop, 0, Foundations::Field::PaddingBottom),
             .m_hasBox = true,
@@ -169,7 +169,7 @@ namespace AzQtComponents
             .m_radius = Foundations::Field::Radius,
             .m_size = QSize(BoxElement::Unset, Foundations::Field::Height),
             .m_idle = { .m_fill = QBrush(TrackNameFill), .m_edges = BoxElement::border(2, Foundations::Field::Line) },
-        };
+        }; };
 
         // ---- F-splitter. DialogStack.cpp:35, :383 `QSplitter::handle{ height: 4px; background: transparent; }`, :146, :469 the same with
         // `height: 1px`
@@ -184,12 +184,12 @@ namespace AzQtComponents
         const SplitterElement BlueHandle{ .m_name = "Test.Splitter.BlueHandle", .m_thickness = 1, .m_fill = HandleBlue };
         // `QSplitter::handle { height: 3px; }`: a width and no background of its own, which the application's rule (Splitter.qss:9-11)
         // gives a dark fill, and its :hover rule (Splitter.qss:21-24) the blue one
-        const SplitterElement ThickHandle{
+        Themed<SplitterElement> ThickHandle = [] { return SplitterElement{
             .m_name = "Test.Splitter.ThickHandle",
             .m_thickness = 3,
             .m_fill = Foundations::BG,
             .m_hoverFill = QColor(0x1E, 0x70, 0xEB),
-        };
+        }; };
 
         // ---- F-indicator-images. MotionExtractionWindow.cpp:167 the box of the indicator (`width: 16px; height: 16px; border: none;
         // margin: 0px`) and the images of :checked and :unchecked, the same for :disabled and :focus
@@ -225,7 +225,7 @@ namespace AzQtComponents
 
         // Rules in the order of a sheet, the compound before the plain rule (`:checked:disabled` then `:checked`): the compound rule has
         // the more pseudo-classes and is the more specific, whatever the order of the rules
-        const IndicatorElement RankedCheck{
+        Themed<IndicatorElement> RankedCheck = [] { return IndicatorElement{
             .m_name = "Test.Indicator.RankedCheck",
             .m_imageSize = IndicatorElement::ImageSize,
             .m_margin = 2,
@@ -235,7 +235,7 @@ namespace AzQtComponents
                 { IndicatorElement::Checked | IndicatorElement::Disabled, CaretDown },
                 { IndicatorElement::Checked, CheckOn },
             },
-        };
+        }; };
 
         // The same box with the images of the style only: what the site's element would be without the state images
         const IndicatorElement StyleImagesCheck{
@@ -248,7 +248,7 @@ namespace AzQtComponents
 
         // A hovered and focused box that name their own images, and a compound state that names a third: the last entry whose states
         // all hold is the image (CheckBox.qss:50-73 restated with the states a rule can name)
-        const IndicatorElement CompoundStatesCheck{
+        Themed<IndicatorElement> CompoundStatesCheck = [] { return IndicatorElement{
             .m_name = "Test.Indicator.CompoundStatesCheck",
             .m_imageSize = IndicatorElement::ImageSize,
             .m_margin = 2,
@@ -261,38 +261,38 @@ namespace AzQtComponents
                 { IndicatorElement::Hover, CaretRight },
                 { IndicatorElement::Indeterminate | IndicatorElement::Focus, CaretDown },
             },
-        };
+        }; };
 
         // ---- F-progressbar-box. The Global bar (ProgressBar.qss:11-19) with CommandBarPlugin.cpp:112 `padding-right: 2px;`: the
         // track fill and the hidden text of ProgressBar.qss:14 and :18, a square borderless box, and the padding
         const QColor ProgressTrack(0x9A, 0x9A, 0x9A);
-        const BoxElement PaddedProgress{
+        Themed<BoxElement> PaddedProgress = [] { return BoxElement{
             .m_name = "Test.Box.PaddedProgress",
             .m_padding = QMargins(0, 0, 2, 0),
             .m_nativeBorder = false,
             .m_idle = { .m_fill = QBrush(ProgressTrack) },
             .m_properties = { { "textVisible", false } },
-        };
+        }; };
         // The same bar with a padding above and below the track too: a box of 5px in height, which the bar is as tall as
-        const BoxElement TallPaddedProgress{
+        Themed<BoxElement> TallPaddedProgress = [] { return BoxElement{
             .m_name = "Test.Box.TallPaddedProgress",
             .m_padding = QMargins(0, 2, 2, 3),
             .m_nativeBorder = false,
             .m_idle = { .m_fill = QBrush(ProgressTrack) },
             .m_properties = { { "textVisible", false } },
-        };
+        }; };
         // The same bar with a height of its own (`height: 9px`): the contents of the hint are 9px high, not the track's 5px
-        const BoxElement NinePixelProgress{
+        Themed<BoxElement> NinePixelProgress = [] { return BoxElement{
             .m_name = "Test.Box.NinePixelProgress",
             .m_padding = QMargins(0, 2, 2, 3),
             .m_nativeBorder = false,
             .m_size = QSize(-1, 9),
             .m_idle = { .m_fill = QBrush(ProgressTrack) },
             .m_properties = { { "textVisible", false } },
-        };
+        }; };
         // The same bar with a maximum height (`max-height: 3px`), below the 5px of ProgressBar.qss:15 which the element restates in its
         // size: the limit of the element is the bar's, the lesser of the two grown by the box
-        const BoxElement CappedProgress{
+        Themed<BoxElement> CappedProgress = [] { return BoxElement{
             .m_name = "Test.Box.CappedProgress",
             .m_padding = QMargins(0, 2, 2, 3),
             .m_nativeBorder = false,
@@ -300,10 +300,10 @@ namespace AzQtComponents
             .m_maxSize = QSize(-1, 3),
             .m_idle = { .m_fill = QBrush(ProgressTrack) },
             .m_properties = { { "textVisible", false } },
-        };
+        }; };
 
         // ---- F-menu-icon. ATLControlsPanel.cpp:41 `QMenu::icon { left: 0px; right: 6px; }` over the popup of Menu.qss:10-34
-        const MenuElement IconMenu{
+        Themed<MenuElement> IconMenu = [] { return MenuElement{
             .m_name = "Test.Menu.IconMenu",
             .m_surface = Foundations::BG,                               // Menu.qss:12
             .m_paddingH = 2,                                            // Menu.qss:13
@@ -316,9 +316,9 @@ namespace AzQtComponents
             .m_separatorBorder = 1,                                     // Menu.qss:31
             .m_separatorMarginBottom = 3,                               // Menu.qss:33
             .m_separatorLine = QColor(0x45, 0x45, 0x45),                // Menu.qss:31
-        };
+        }; };
         // `QMenu::icon { left: 4px; top: 2px; }`
-        const MenuElement ShiftedIconMenu{
+        Themed<MenuElement> ShiftedIconMenu = [] { return MenuElement{
             .m_name = "Test.Menu.ShiftedIconMenu",
             .m_surface = Foundations::BG,
             .m_paddingH = 2,
@@ -331,9 +331,9 @@ namespace AzQtComponents
             .m_separatorBorder = 1,
             .m_separatorMarginBottom = 3,
             .m_separatorLine = QColor(0x45, 0x45, 0x45),
-        };
+        }; };
         // The popup with no rule for the icon
-        const MenuElement PlainIconMenu{
+        Themed<MenuElement> PlainIconMenu = [] { return MenuElement{
             .m_name = "Test.Menu.PlainIconMenu",
             .m_surface = Foundations::BG,
             .m_paddingH = 2,
@@ -345,7 +345,7 @@ namespace AzQtComponents
             .m_separatorBorder = 1,
             .m_separatorMarginBottom = 3,
             .m_separatorLine = QColor(0x45, 0x45, 0x45),
-        };
+        }; };
 
         // ----------------------------------------------------------------------------------
         // The registrar of the module of these tests, run once for the process at the Flat rung

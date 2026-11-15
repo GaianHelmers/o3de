@@ -57,10 +57,10 @@ namespace AzToolsFramework
             //! `font-weight: bold` of that sheet (AssetBrowserListView.cpp:50, the line before the flattening) over the family the
             //! universal rule gives every widget (BaseStyleSheet.qss:19-20): no size, as no rule of the header's sets one (the sections'
             //! size is the section rule's, TableView.qss:72)
-            const AzQtComponents::TextElement ListHeaderText{
+            AzQtComponents::Themed<AzQtComponents::TextElement> ListHeaderText = [] { return AzQtComponents::TextElement{
                 .m_name = "Editor.Text.AssetBrowserListHeader",
                 .m_weight = QFont::Bold,                // font-weight: bold, AssetBrowserListView.cpp:50 (before the flattening)
-            };
+            }; };
 
             //! `QHeaderView` of that sheet: the header of an asset browser list view (the view is its parent), and no other
             bool isListHeader(const QWidget* widget)

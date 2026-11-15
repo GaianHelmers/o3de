@@ -57,8 +57,8 @@ namespace AzQtComponents
         // ---- The minimize, maximize and close buttons of a tab widget's action toolbar (a tabbed floating window)
         // TitleBar.qss:100 rgba(255,255,255,0.1): Qt reads an alpha of 1 or less as a fraction and truncates it, 0.1 * 255 = 25
         // (QCss::parseColorValue) $fill.button.hover.Alt1
-        const QColor WindowButtonHoverFill(255, 255, 255, 25);
-        const QColor WindowCloseHoverFill(0xB8, 0x0D, 0x1C);        // TitleBar.qss:104 $fill.button.hover.fill.Alt3
+        const QColor& WindowButtonHoverFill = Foundations::Window::ButtonHoverFill;
+        const QColor& WindowCloseHoverFill = Foundations::Window::CloseHoverFill;        // TitleBar.qss:104 $fill.button.hover.fill.Alt3
         // TitleBar.qss:134 $asset.surface.idle.image.Alt1
         constexpr const char* WindowMinimizeIcon = ":/Application/titlebar-minimize.svg";
         // TitleBar.qss:119 $asset.surface.idle.image.Alt2
@@ -75,9 +75,9 @@ namespace AzQtComponents
         constexpr QSize CloseTagIconSize(10, 10);                   // FilteredSearchWidget.qss:40 $asset.button.idle.iconsize.Alt5
 
         // ---- The panel of a toolbar, and the button for the actions that do not fit it
-        const QColor ToolBarFill = Foundations::Mid;                // ToolBar.qss:20 $fill.bar.idle.Mid
+        const QColor& ToolBarFill = Foundations::Mid;                // ToolBar.qss:20 $fill.bar.idle.Mid
         // ToolBar.qss:33 $line.bar.idle.width.Alt2 $line.bar.idle.color
-        const BoxElement::Edge ToolBarBottomLine{ 2, Foundations::FarBG };
+        Themed<BoxElement::Edge> ToolBarBottomLine = [] { return BoxElement::Edge{ 2, Foundations::FarBG }; };
         constexpr const char* ToolBarExtensionIcon = ":/stylesheet/img/hidden-icons.svg";   // ToolBar.qss:141 $asset.bar.idle.icon
 
         // ---- The handle of a movable toolbar: the image, its own size in the file, and the padding of each rule
@@ -94,11 +94,11 @@ namespace AzQtComponents
         constexpr QMargins VerticalHandlePadding(-2, 2, -2, 2);     // ToolBar.qss:112, :123, :136 $space.scroll-handle.idle.Alt1
 
         // ---- The buttons of a segment bar
-        const QColor SegmentFill = Foundations::Low;                // SegmentControl.qss:16 $fill.button.idle.fill.Low
-        const QColor SegmentHoverFill = Foundations::Mid;           // SegmentControl.qss:76 $fill.button.hover+unchecked
-        const QColor SegmentPressedFill = Foundations::Mid;         // SegmentControl.qss:76 $fill.button.pressed+unchecked
-        const QColor SegmentCheckedFill = Foundations::Highest;     // SegmentControl.qss:70 $fill.button.checked
-        const QColor SegmentLine = Foundations::Line::Segment;      // SegmentControl.qss:17 $line.button.idle.color.BG
+        const QColor& SegmentFill = Foundations::Button::SegmentFill;                // SegmentControl.qss:16 $fill.button.idle.fill.Low
+        const QColor& SegmentHoverFill = Foundations::Mid;           // SegmentControl.qss:76 $fill.button.hover+unchecked
+        const QColor& SegmentPressedFill = Foundations::Mid;         // SegmentControl.qss:76 $fill.button.pressed+unchecked
+        const QColor& SegmentCheckedFill = Foundations::Button::SegmentCheckedFill;     // SegmentControl.qss:70 $fill.button.checked
+        const QColor& SegmentLine = Foundations::Line::Segment;      // SegmentControl.qss:17 $line.button.idle.color.BG
         constexpr int SegmentLineWidth = 1;                         // SegmentControl.qss:19 $line.button.idle.width.Alt2
         // SegmentControl.qss:31-32 $space.button.idle.padding-left $space.button.idle.padding-right
         constexpr QMargins SegmentPadding(16, 0, 16, 0);
@@ -114,7 +114,7 @@ namespace AzQtComponents
 
         // ---- The frame of a floating dock, and of breadcrumbs whose path can be typed
         // StyledDockWidget.qss:17 $line.surface.floating.width $line.surface.floating.color
-        const BoxElement::Edge FloatingDockLine{ 1, Foundations::Line::Dark };
+        Themed<BoxElement::Edge> FloatingDockLine = [] { return BoxElement::Edge{ 1, Foundations::Line::Dark }; };
         // BreadCrumbs.qss:35 $line.bar.editable.width $line.bar.editable.color
         const BoxElement::Edge EditableBreadCrumbsLine{ 1, QColor(0x2F, 0x2F, 0x2F) };
         constexpr int EditableBreadCrumbsRadius = 2;                // BreadCrumbs.qss:36 $radius.bar.editable
@@ -142,8 +142,8 @@ namespace AzQtComponents
         constexpr int VerticalSliderToolTipOffsetY = -24;  // Slider.qss:19 $other.slider.idle.tooltipoffsety.Alt2
 
         // ---- The progress bar: a square track, a flat chunk, and no text
-        const QColor ProgressTrackFill(0x9A, 0x9A, 0x9A);           // ProgressBar.qss:14 background $fill.progress.idle.Alt1
-        const QColor ProgressChunkFill = Foundations::Accent::Primary;    // ProgressBar.qss:23 background $fill.progress.idle.Alt2
+        const QColor& ProgressTrackFill = Foundations::Slider::ProgressTrack;  // ProgressBar.qss:14 background $fill.progress.idle.Alt1
+        const QColor& ProgressChunkFill = Foundations::Accent::Primary;    // ProgressBar.qss:23 background $fill.progress.idle.Alt2
         // ProgressBar.qss:18 qproperty-textVisible $other.progress.idle
         constexpr bool ProgressTextVisible = false;
         //! The busy chunk moves 8px every step of the sheet style's animation, which runs at the common style's 30 frames a second
@@ -174,34 +174,34 @@ namespace AzQtComponents
         //! pointer, whether the button is pressed or not. The rule `QToolButton#minimizeButton:hover` reaches no other tool button of
         //! the name: they have no styled background, so the rule paints nothing there (the Style draws a tool button's background in
         //! no state).
-        const BoxElement TabWidgetMinimizeButton{
+        Themed<BoxElement> TabWidgetMinimizeButton = [] { return BoxElement{
             .m_name = "Global.Box.TabWidget.MinimizeButton",
             .m_stateFaces = { { BoxElement::Hover, { .m_fill = QBrush(WindowButtonHoverFill) } } },
             .m_properties = {
                 { "icon", QString(WindowMinimizeIcon) },
             },
-        };
+        }; };
 
         //! `AzQtComponents--TabWidget QToolButton#maximizeButton { qproperty-icon }` and `QToolButton#maximizeButton:hover`: as the
         //! minimize button above, for the maximize action
-        const BoxElement TabWidgetMaximizeButton{
+        Themed<BoxElement> TabWidgetMaximizeButton = [] { return BoxElement{
             .m_name = "Global.Box.TabWidget.MaximizeButton",
             .m_stateFaces = { { BoxElement::Hover, { .m_fill = QBrush(WindowButtonHoverFill) } } },
             .m_properties = {
                 { "icon", QString(WindowMaximizeIcon) },
             },
-        };
+        }; };
 
         //! `AzQtComponents--TabWidget QToolButton#closeButton { qproperty-icon }` and `QToolButton#closeButton:hover`: as the minimize
         //! button above, for the close action, whose hover fill is red. The close button of a console's find bar below a tab widget (a
         //! console docked as a tab) is reached by the icon rule too, and has no styled background to paint the hover fill on.
-        const BoxElement TabWidgetCloseButton{
+        Themed<BoxElement> TabWidgetCloseButton = [] { return BoxElement{
             .m_name = "Global.Box.TabWidget.CloseButton",
             .m_stateFaces = { { BoxElement::Hover, { .m_fill = QBrush(WindowCloseHoverFill) } } },
             .m_properties = {
                 { "icon", QString(WindowCloseIcon) },
             },
-        };
+        }; };
 
         //! `AzQtComponents--FilterCriteriaButton QPushButton#closeTag`, and the same rule of FilterTextButton: a flat button with the close
         //! glyph, no margin or padding (FilteredSearchWidget.qss:43-44 $space.button.idle.margin.Alt1 $space.button.idle.padding.Alt1),
@@ -225,24 +225,24 @@ namespace AzQtComponents
 
         //! `QToolBar { background-color; border: 0 none }`: a border of its own, none (ToolBar.qss:22 $line.bar.idle.style.Alt1), so the
         //! sheet draws no bevel of the base style (QStyleSheetStyle::drawControl, CE_ToolBar)
-        const BoxElement ToolBarPanel{
+        Themed<BoxElement> ToolBarPanel = [] { return BoxElement{
             .m_name = "Global.Box.ToolBar",
             .m_nativeBorder = false,
             .m_idle = {
                 .m_fill = QBrush(ToolBarFill),
             },
-        };
+        }; };
 
         //! `MainWindow QToolBar { border-bottom }` over the rule above; a toolbar of a DockMainWindow has none (the later rule
         //! `AzQtComponents--DockMainWindow QToolBar`)
-        const BoxElement ToolBarPanelUnderMainWindow{
+        Themed<BoxElement> ToolBarPanelUnderMainWindow = [] { return BoxElement{
             .m_name = "Global.Box.ToolBar.MainWindow",
             .m_nativeBorder = false,
             .m_idle = {
                 .m_fill = QBrush(ToolBarFill),
                 .m_edges = { {}, {}, ToolBarBottomLine, {} },               // top, right, bottom, left
             },
-        };
+        }; };
 
         //! `QToolBarExtension#qt_toolbar_ext_button { qproperty-icon }`: the double caret of the button at the end of a toolbar too narrow
         //! for its actions, set at polish over the base style's caret (QStyleSheetStyle::setProperties)
@@ -256,13 +256,13 @@ namespace AzQtComponents
         //! `AzQtComponents--StyledDockWidget[floating="true"] { border }`: a border of its own, so no frame of the base style. The element
         //! is resolved at the dock's polish and so holds the rule the sheet matched then: a dock polished docked has none
         //! (StyledDockWidget.qss:11 `border: none`), whatever it becomes afterwards.
-        const BoxElement FloatingDockFrame{
+        Themed<BoxElement> FloatingDockFrame = [] { return BoxElement{
             .m_name = "Global.Box.StyledDockWidget.Floating",
             .m_nativeBorder = false,
             .m_idle = {
                 .m_edges = { FloatingDockLine, FloatingDockLine, FloatingDockLine, FloatingDockLine },
             },
-        };
+        }; };
 
         //! `AzQtComponents--BreadCrumbs[editable="true"] { border; border-radius }`: the frame of breadcrumbs whose path can be edited (the
         //! Asset Browser's, the Gallery's). Its layout lies inside the frame, so the border is a frame of 1px; the rule has no fill.
@@ -291,46 +291,46 @@ namespace AzQtComponents
         //! the border of the box above, at the right and below (the icon's padding keeps it off the left). The label keeps the margin
         //! above and below that every label has (Text.qss:93-94) and its transparent background (BaseStyleSheet.qss:17): an element is
         //! the whole definition of its widget's box, so it restates them.
-        const BoxElement MessageBoxText{
+        Themed<BoxElement> MessageBoxText = [] { return BoxElement{
             .m_name = "Global.Box.MessageBoxText",
             .m_margin = QMargins(0, Foundations::Label::MarginV, 0, Foundations::Label::MarginV),
             .m_padding = MessageBoxTextPadding,
             .m_idle = {
                 .m_fill = QBrush(Foundations::Surface::Fill),
             },
-        };
+        }; };
 
         //! `QMessageBox QLabel#qt_msgboxex_icon_label { padding-left; padding-top }`: the icon of a message box, 20px in from the border
         //! of the box at the left and above. The label's margin and background as above.
-        const BoxElement MessageBoxIcon{
+        Themed<BoxElement> MessageBoxIcon = [] { return BoxElement{
             .m_name = "Global.Box.MessageBoxIcon",
             .m_margin = QMargins(0, Foundations::Label::MarginV, 0, Foundations::Label::MarginV),
             .m_padding = MessageBoxIconPadding,
             .m_idle = {
                 .m_fill = QBrush(Foundations::Surface::Fill),
             },
-        };
+        }; };
 
         //! The text of a message box below a color picker (ColorPicker::done, its import and export errors and the question to close a
         //! palette ask with the picker as the parent): `AzQtComponents--ColorPicker QLabel { margin: 0px }` (ColorPicker.qss:48) has
         //! two type names, more than Text.qss:93-94's `QLabel`, so the label has no margin above and below. The padding of
         //! MessageBox.qss outranks the picker's `padding: 0px` (ColorPicker.qss:47), which only the left of the text label is left to.
-        const BoxElement MessageBoxTextInColorPicker{
+        Themed<BoxElement> MessageBoxTextInColorPicker = [] { return BoxElement{
             .m_name = "Global.Box.MessageBoxTextInColorPicker",
             .m_padding = MessageBoxTextPadding,
             .m_idle = {
                 .m_fill = QBrush(Foundations::Surface::Fill),
             },
-        };
+        }; };
 
         //! The icon of a message box below a color picker: no margin, as the text above
-        const BoxElement MessageBoxIconInColorPicker{
+        Themed<BoxElement> MessageBoxIconInColorPicker = [] { return BoxElement{
             .m_name = "Global.Box.MessageBoxIconInColorPicker",
             .m_padding = MessageBoxIconPadding,
             .m_idle = {
                 .m_fill = QBrush(Foundations::Surface::Fill),
             },
-        };
+        }; };
 
         //! `AzQtComponents--Slider.HorizontalSlider { qproperty-toolTipOffsetX; qproperty-toolTipOffsetY }`: the tip of the value of a
         //! horizontal slider, 8px left of the pointer and 16px higher than the offset of SliderConfig.ini puts it, set at polish
@@ -357,7 +357,7 @@ namespace AzQtComponents
         //! track of every progress bar, square and borderless (ProgressBar.qss:12-13), drawn by the sheet at CE_ProgressBarGroove, and the
         //! text a bar hides when it is polished (the height, 5px, is ProgressBarConfig.ini's, and the 1px font TextElement's). The chunk
         //! has no element of its own: ProgressChunkFill is drawn by drawProgressBar for every bar, as ProjectManager.qss:778-780 repeats.
-        const BoxElement ProgressBarTrack{
+        Themed<BoxElement> ProgressBarTrack = [] { return BoxElement{
             .m_name = "Global.Box.ProgressBar",
             // ProgressBar.qss:12-13 border, border-radius: none, square $other.progress.idle
             .m_nativeBorder = false,
@@ -367,7 +367,7 @@ namespace AzQtComponents
             .m_properties = {
                 { "textVisible", ProgressTextVisible },
             },
-        };
+        }; };
 
         //! `* { background-color: transparent; color: white; font-family: "Open Sans"; font-weight: 400 }` on a group box that no rule of
         //! a module reaches (BaseStyleSheet.qss:15-21): a background, a palette and a font of its own are enough for the sheet style to
@@ -376,12 +376,12 @@ namespace AzQtComponents
         //! box under an element, so the element is the clear fill and the border of the style alone: no box, so the base style sizes the
         //! contents (QStyleSheetStyle::subControlRect, SC_GroupBoxFrame and SC_GroupBoxContents). The colour and the font are the
         //! palette's and TextElement's. A group box with a rule of its own has the element of its module first.
-        const BoxElement PlainGroupBox{
+        Themed<BoxElement> PlainGroupBox = [] { return BoxElement{
             .m_name = "Global.Box.GroupBox",
             .m_idle = {
                 .m_fill = QBrush(Foundations::Surface::Fill),       // BaseStyleSheet.qss:17 $fill.surface.idle.Clear
             },
-        };
+        }; };
 
         //! `QFrame#icon_frame { background-color }` of the toast (ToastNotification.ui:59 before the flattening): the frame at the left of
         //! the toast that holds its icon, a lighter block on the toast. The sheet had no selector, so it also reached the icon label
@@ -408,13 +408,13 @@ namespace AzQtComponents
         //! A label below a layer that dims: the centre widget of the layer, in both places the importer shows one. The label keeps the
         //! margin above and below that every label has (Text.qss:93-94), which an element restates as it is the whole definition of its
         //! widget's box.
-        const BoxElement OverlayLayerLabel{
+        Themed<BoxElement> OverlayLayerLabel = [] { return BoxElement{
             .m_name = "Global.Box.OverlayLayerLabel",
             .m_margin = QMargins(0, Foundations::Label::MarginV, 0, Foundations::Label::MarginV),
             .m_idle = {
                 .m_fill = QBrush(ControlElements::OverlayDimFill),
             },
-        };
+        }; };
 
         //! The frames (QFrame::StyledPanel) of the layer's own form, below a layer that dims when it has no centre widget (m_center and
         //! m_controls, OverlayWidgetLayer.ui): the fill of the layer over the panel fill of every frame (BaseStyleSheet.qss:41-48, the
