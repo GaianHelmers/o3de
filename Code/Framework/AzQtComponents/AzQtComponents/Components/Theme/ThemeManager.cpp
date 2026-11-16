@@ -70,7 +70,8 @@ namespace AzQtComponents
             if (value.isArray() && value.toArray().size() == 4)
             {
                 QStringList sides;
-                for (const QJsonValue& side : value.toArray())
+                // By value: a QJsonArray hands its elements out as temporaries (clang: -Wrange-loop-bind-reference)
+                for (const QJsonValue side : value.toArray())
                 {
                     sides.append(QString::number(qRound(side.toDouble())));
                 }
